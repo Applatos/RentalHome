@@ -1,0 +1,6 @@
+@Sommerhus.Api_HostAddress = http://localhost:5183
+
+GET {{Sommerhus.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

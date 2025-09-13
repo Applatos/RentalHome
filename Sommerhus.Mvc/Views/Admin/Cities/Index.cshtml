@@ -1,0 +1,40 @@
+﻿@* Sommerhus.Mvc/Views/Admin/Cities/Index.cshtml *@
+@{
+    ViewData["Title"] = "Admin – Cities (områder)";
+    var q = (string?)ViewBag.Query ?? "";
+    var page = (int)(ViewBag.Page ?? 1);
+}
+<link href="/css/admin.css" rel="stylesheet" />
+
+<div class="p-3 bg-white rounded shadow-sm">
+    <h5 class="mb-3">Områder (City)</h5>
+
+    <form class="row g-2 align-items-center mb-3"
+          hx-get="/admin/cities/list"
+          hx-target="#cities-list"
+          hx-swap="outerHTML">
+        <input type="hidden" name="page" value="1" />
+        <div class="col-sm-6">
+            <input name="q" class="form-control" value="@q" placeholder="Søg by/zip/slug…" />
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">Søg</button>
+        </div>
+    </form>
+
+    <div id="cities-list"
+         hx-get='@Url.Action("List", "AdminCities", new { q = q, page = page, pageSize = 20 })'
+         hx-trigger="load">
+        <div class="text-muted">Indlæser…</div>
+    </div>
+
+    <div id="city-edit" class="mt-3"></div>
+</div>
+
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+<script>
+    document.body.addEventListener('htmx:configRequest', (evt) => {
+      const t = document.querySelector('input[name="__RequestVerificationToken"]');
+      if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
+    });
+</script>

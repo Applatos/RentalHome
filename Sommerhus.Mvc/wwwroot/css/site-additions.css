@@ -1,0 +1,7 @@
+﻿.thumbs .thumb {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: .35rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}

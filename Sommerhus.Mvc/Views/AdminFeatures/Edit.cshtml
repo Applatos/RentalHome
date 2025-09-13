@@ -1,0 +1,67 @@
+﻿@model Sommerhus.Mvc.Controllers.AdminFeaturesController.EditFeaturesVm
+@{
+    ViewData["Title"] = "Features";
+
+    // Kun de keys som har ikonfiler i wwwroot/images/features/{key}.png
+    var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+        "beach","groundsize","housesize","panorama","personer","rengøring","sauna","shopping","spa","tv","wifi"
+    };
+
+    var master = Model.Master
+        .Where(m => allowed.Contains(m.Key))
+        .OrderBy(m => m.SortOrder).ThenBy(m => m.Name)
+        .ToList();
+}
+
+<div class="container py-4">
+    <h3>Features – @Model.HouseTitle</h3>
+
+    <form method="post" action="/admin/@Model.HouseId/features">
+        <div class="row g-3">
+            @for (int i = 0; i < master.Count; i++)
+            {
+                var f = master[i];
+                var curr = Model.Current.FirstOrDefault(c => c.FeatureId == f.Id);
+                <div class="col-md-6">
+                    <div class="border rounded p-2">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="/images/features/@(f.Key).png" alt="@f.Name"
+                                 style="width:20px;height:20px;object-fit:contain" />
+                            <strong>@f.Name</strong>
+                            <span class="text-muted small">(@f.ValueType@if(!string.IsNullOrWhiteSpace(f.Unit)){
+                            <text>, @f.Unit</text>
+                        }
+)</span>
+                    </div>
+
+                    <input type="hidden" name="Items[@i].FeatureId" value="@f.Id" />
+
+                    @switch (f.ValueType)
+                    {
+                        case "Bool":
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Items[@i].ValueBool" value="true" @(curr?.Bool == true ? "checked" : "") />
+                                <label class="form-check-label">Aktiv</label>
+                            </div>
+                            break;
+                        case "Int":
+                            <input class="form-control" type="number" name="Items[@i].ValueInt" value="@(curr?.Int?.ToString() ?? "")" />
+                            break;
+                        case "Decimal":
+                            <input class="form-control" type="number" step="0.01" name="Items[@i].ValueDecimal" value="@(curr?.Decimal?.ToString() ?? "")" />
+                            break;
+                        default:
+                            <input class="form-control" type="text" name="Items[@i].ValueText" value="@curr?.Text" />
+                            break;
+                    }
+                </div>
+            </div>
+                        }
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-dark">Gem</button>
+            <a class="btn btn-outline-secondary" href="/admin">Tilbage</a>
+        </div>
+    </form>
+</div>

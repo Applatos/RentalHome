@@ -1,0 +1,283 @@
+wwwroot\areas\blaavand.json
+wwwroot\areas\blaavand.md
+wwwroot\areas\ho.json
+wwwroot\areas\ho.md
+wwwroot\css\admin.css
+wwwroot\css\house-details.css
+wwwroot\css\site-additions.css
+wwwroot\css\site.css
+wwwroot\css\styles.css
+wwwroot\favicon.ico
+wwwroot\images\areas\blaavand\1.jpg
+wwwroot\images\areas\blaavand\2.jpg
+wwwroot\images\areas\blaavand\3.jpg
+wwwroot\images\areas\blaavand\4.jpg
+wwwroot\images\areas\ho\1.jpg
+wwwroot\images\areas\ho\2.jpg
+wwwroot\images\areas\ho\3.jpg
+wwwroot\images\areas\ho\4.jpg
+wwwroot\images\arr.png
+wwwroot\images\arrow.png
+wwwroot\images\features\beach.png
+wwwroot\images\features\groundsize.png
+wwwroot\images\features\housesize.png
+wwwroot\images\features\panorama.png
+wwwroot\images\features\personer.png
+wwwroot\images\features\rengøring.png
+wwwroot\images\features\sauna.png
+wwwroot\images\features\shopping.png
+wwwroot\images\features\spa.png
+wwwroot\images\features\tv.png
+wwwroot\images\features\wifi.png
+wwwroot\images\houses\house1\1.jpg
+wwwroot\images\houses\house1\10.jpg
+wwwroot\images\houses\house1\11.jpg
+wwwroot\images\houses\house1\12.jpg
+wwwroot\images\houses\house1\13.jpg
+wwwroot\images\houses\house1\14.jpg
+wwwroot\images\houses\house1\15.jpg
+wwwroot\images\houses\house1\16.jpg
+wwwroot\images\houses\house1\17.jpg
+wwwroot\images\houses\house1\18.jpg
+wwwroot\images\houses\house1\19.jpg
+wwwroot\images\houses\house1\2.jpg
+wwwroot\images\houses\house1\20.jpg
+wwwroot\images\houses\house1\21.jpg
+wwwroot\images\houses\house1\22.jpg
+wwwroot\images\houses\house1\23.jpg
+wwwroot\images\houses\house1\24.jpg
+wwwroot\images\houses\house1\25.jpg
+wwwroot\images\houses\house1\26.jpg
+wwwroot\images\houses\house1\27.jpg
+wwwroot\images\houses\house1\28.jpg
+wwwroot\images\houses\house1\29.jpg
+wwwroot\images\houses\house1\3.jpg
+wwwroot\images\houses\house1\30.jpg
+wwwroot\images\houses\house1\4.jpg
+wwwroot\images\houses\house1\5.jpg
+wwwroot\images\houses\house1\6.jpg
+wwwroot\images\houses\house1\7.jpg
+wwwroot\images\houses\house1\8.jpg
+wwwroot\images\houses\house1\9.jpg
+wwwroot\images\houses\house1\map.jpg
+wwwroot\images\houses\house1\subPic.jpg
+wwwroot\images\houses\house1\subPic2.jpg
+wwwroot\images\houses\house2\1.jpg
+wwwroot\images\houses\house2\10.jpg
+wwwroot\images\houses\house2\11.jpg
+wwwroot\images\houses\house2\12.jpg
+wwwroot\images\houses\house2\13.jpg
+wwwroot\images\houses\house2\14.jpg
+wwwroot\images\houses\house2\15.jpg
+wwwroot\images\houses\house2\16.jpg
+wwwroot\images\houses\house2\17.jpg
+wwwroot\images\houses\house2\18.jpg
+wwwroot\images\houses\house2\19.jpg
+wwwroot\images\houses\house2\2.jpg
+wwwroot\images\houses\house2\20.jpg
+wwwroot\images\houses\house2\21.jpg
+wwwroot\images\houses\house2\22.jpg
+wwwroot\images\houses\house2\23.jpg
+wwwroot\images\houses\house2\24.jpg
+wwwroot\images\houses\house2\25.jpg
+wwwroot\images\houses\house2\26.jpg
+wwwroot\images\houses\house2\27.jpg
+wwwroot\images\houses\house2\28.jpg
+wwwroot\images\houses\house2\29.jpg
+wwwroot\images\houses\house2\3.jpg
+wwwroot\images\houses\house2\30.jpg
+wwwroot\images\houses\house2\31.jpg
+wwwroot\images\houses\house2\32.jpg
+wwwroot\images\houses\house2\33.jpg
+wwwroot\images\houses\house2\34.jpg
+wwwroot\images\houses\house2\35.jpg
+wwwroot\images\houses\house2\36.jpg
+wwwroot\images\houses\house2\4.jpg
+wwwroot\images\houses\house2\5.jpg
+wwwroot\images\houses\house2\6.jpg
+wwwroot\images\houses\house2\7.jpg
+wwwroot\images\houses\house2\8.jpg
+wwwroot\images\houses\house2\9.jpg
+wwwroot\images\houses\house2\map.jpg
+wwwroot\images\houses\house2\subPic.jpg
+wwwroot\images\houses\house2\subPic2.jpg
+wwwroot\images\specs\background.xcf
+wwwroot\images\specs\house.png
+wwwroot\images\specs\spec1.png
+wwwroot\images\specs\spec10.png
+wwwroot\images\specs\spec11.png
+wwwroot\images\specs\spec2.png
+wwwroot\images\specs\spec3.png
+wwwroot\images\specs\spec4.png
+wwwroot\images\specs\spec5.png
+wwwroot\images\specs\spec6.png
+wwwroot\images\specs\spec7.png
+wwwroot\images\specs\spec8.png
+wwwroot\images\specs\spec9.png
+wwwroot\images\specs\testPic.png
+wwwroot\js\script.js
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
+wwwroot\lib\bootstrap\LICENSE
+wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js
+wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js
+wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt
+wwwroot\lib\jquery-validation\dist\additional-methods.js
+wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.min.js
+wwwroot\lib\jquery-validation\LICENSE.md
+wwwroot\lib\jquery\dist\jquery.js
+wwwroot\lib\jquery\dist\jquery.min.js
+wwwroot\lib\jquery\dist\jquery.min.map
+wwwroot\lib\jquery\LICENSE.txt
+wwwroot\Sommerhus resourcer\images\areas\blaavand\1.jpg
+wwwroot\Sommerhus resourcer\images\areas\blaavand\2.jpg
+wwwroot\Sommerhus resourcer\images\areas\blaavand\3.jpg
+wwwroot\Sommerhus resourcer\images\areas\blaavand\4.jpg
+wwwroot\Sommerhus resourcer\images\areas\ho\1.jpg
+wwwroot\Sommerhus resourcer\images\areas\ho\2.jpg
+wwwroot\Sommerhus resourcer\images\areas\ho\3.jpg
+wwwroot\Sommerhus resourcer\images\areas\ho\4.jpg
+wwwroot\Sommerhus resourcer\images\arr.png
+wwwroot\Sommerhus resourcer\images\arrow.png
+wwwroot\Sommerhus resourcer\images\Data.zip
+wwwroot\Sommerhus resourcer\images\houses\house1\1.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\10.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\11.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\12.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\13.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\14.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\15.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\16.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\17.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\18.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\19.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\2.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\20.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\21.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\22.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\23.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\24.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\25.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\26.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\27.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\28.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\29.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\3.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\30.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\4.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\5.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\6.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\7.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\8.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\9.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\map.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\subPic.jpg
+wwwroot\Sommerhus resourcer\images\houses\house1\subPic2.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\1.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\10.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\11.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\12.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\13.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\14.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\15.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\16.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\17.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\18.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\19.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\2.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\20.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\21.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\22.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\23.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\24.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\25.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\26.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\27.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\28.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\29.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\3.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\30.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\31.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\32.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\33.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\34.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\35.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\36.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\4.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\5.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\6.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\7.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\8.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\9.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\map.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\subPic.jpg
+wwwroot\Sommerhus resourcer\images\houses\house2\subPic2.jpg
+wwwroot\Sommerhus resourcer\images\specs\background.xcf
+wwwroot\Sommerhus resourcer\images\specs\house.png
+wwwroot\Sommerhus resourcer\images\specs\spec1.png
+wwwroot\Sommerhus resourcer\images\specs\spec10.png
+wwwroot\Sommerhus resourcer\images\specs\spec11.png
+wwwroot\Sommerhus resourcer\images\specs\spec2.png
+wwwroot\Sommerhus resourcer\images\specs\spec3.png
+wwwroot\Sommerhus resourcer\images\specs\spec4.png
+wwwroot\Sommerhus resourcer\images\specs\spec5.png
+wwwroot\Sommerhus resourcer\images\specs\spec6.png
+wwwroot\Sommerhus resourcer\images\specs\spec7.png
+wwwroot\Sommerhus resourcer\images\specs\spec8.png
+wwwroot\Sommerhus resourcer\images\specs\spec9.png
+wwwroot\Sommerhus resourcer\images\specs\testPic.png
+wwwroot\Sommerhus resourcer\Layout\Almosetoften 10.jpeg
+wwwroot\Sommerhus resourcer\Layout\Blåvand område.jpeg
+wwwroot\Sommerhus resourcer\Layout\Blåvand Strand 4.jpeg
+wwwroot\Sommerhus resourcer\Layout\Forside oversigt (home).jpeg
+wwwroot\Sommerhus resourcer\Layout\Ho område.jpeg
+wwwroot\Sommerhus resourcer\Layout\Kontakt.jpeg
+wwwroot\Sommerhus resourcer\tekster\Almosetoften.txt
+wwwroot\Sommerhus resourcer\tekster\Blåvand strand 4.txt
+wwwroot\Sommerhus resourcer\tekster\Blåvand.txt
+wwwroot\Sommerhus resourcer\tekster\Ho.txt
+wwwroot\Sommerhus resourcer\tekster\Tekst forside.txt

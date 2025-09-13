@@ -1,0 +1,36 @@
+﻿.admin-shell {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1rem;
+}
+
+.master, .detail {
+    background: #fff;
+    border-radius: .5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.img-thumb {
+    width: 110px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: .25rem;
+}
+
+.tabbar .nav-link {
+    border-radius: .5rem;
+}
+
+.feature-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 220px;
+    align-items: center;
+    gap: .5rem;
+}
+
+    .feature-row img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        opacity: .9;
+    }

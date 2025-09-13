@@ -1,0 +1,58 @@
+﻿@* Sommerhus.Mvc/Views/Admin/Cities/_List.cshtml *@
+@model Sommerhus.Mvc.Services.AdminApiClient.CityPage
+
+<table class="table table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Postnr</th>
+            <th>By</th>
+            <th>Slug</th>
+            <th style="width:140px"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Items)
+        {
+            <tr>
+                <td>@c.Zip</td>
+                <td>@c.Name</td>
+                <td>@c.Slug</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary"
+                       hx-get="/admin/cities/@c.Id/edit"
+                       hx-target="#city-edit" hx-swap="innerHTML">Redigér</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Total > Model.PageSize)
+{
+    var prevDisabled = Model.Page <= 1 ? " disabled" : "";
+    var nextDisabled = (Model.Page * Model.PageSize) >= Model.Total ? " disabled" : "";
+
+    <nav>
+        <ul class="pagination pagination-sm">
+            <li class="page-item@prevDisabled">
+                <a class="page-link"
+                   hx-get='@Url.Action("List", "AdminCities", new { q = Model.Query, page = Model.Page - 1, pageSize = Model.PageSize })'
+                   hx-target="#cities-list" hx-swap="outerHTML">«</a>
+            </li>
+            @for (int i = 1; i <= Math.Ceiling((double)Model.Total / Model.PageSize); i++)
+            {
+                var active = i == Model.Page ? " active" : "";
+                <li class="page-item@active">
+                    <a class="page-link"
+                       hx-get='@Url.Action("List", "AdminCities", new { q = Model.Query, page = i, pageSize = Model.PageSize })'
+                       hx-target="#cities-list" hx-swap="outerHTML">@i</a>
+                </li>
+            }
+            <li class="page-item@nextDisabled">
+                <a class="page-link"
+                   hx-get='@Url.Action("List", "AdminCities", new { q = Model.Query, page = Model.Page + 1, pageSize = Model.PageSize })'
+                   hx-target="#cities-list" hx-swap="outerHTML">»</a>
+            </li>
+        </ul>
+    </nav>
+}

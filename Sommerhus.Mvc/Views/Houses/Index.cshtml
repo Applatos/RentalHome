@@ -1,0 +1,28 @@
+﻿@model IReadOnlyList<Sommerhus.Mvc.Services.HouseListItem>
+@{
+    ViewData["Title"] = "Luksus Sommerhuse i Danmark";
+}
+<div class="container py-4">
+    <h1 class="mb-3 text-center">Sommerhusudlejning – Enkelt og sikkert</h1>
+    <p class="lead text-muted text-center mb-5">
+        Vores udgangspunkt er at det skal være nemt at finde det helt rigtige sommerhus…
+    </p>
+    <div class="row g-4">
+        @foreach (var h in Model)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    @if (!string.IsNullOrWhiteSpace(h.Cover))
+                    {
+                        <img class="card-img-top" style="height:240px; object-fit:cover" src="@h.Cover" alt="@h.Title" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@h.Title</h5>
+                        <p class="card-text text-muted">@h.Subtitle</p>
+                        <a class="btn btn-dark" href="/houses/@h.Id">Læs mere</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

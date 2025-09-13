@@ -1,0 +1,32 @@
+﻿@model Sommerhus.Mvc.Controllers.AdminController.CreateFormVM
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Titel</label>
+        <input class="form-control" asp-for="Title" />
+        <span class="text-danger" asp-validation-for="Title"></span>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Undertitel</label>
+        <input class="form-control" asp-for="Subtitle" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Adresse</label>
+        <input class="form-control" asp-for="Address" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">By</label>
+        <input class="form-control" asp-for="City" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Postnr</label>
+        <input class="form-control" asp-for="Zip" />
+    </div>
+    <div class="col-12">
+        <label class="form-label">Beskrivelse</label>
+        <textarea class="form-control" rows="6" asp-for="Description"></textarea>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Faciliteter (tekst)</label>
+        <textarea class="form-control" rows="3" asp-for="Facilities"></textarea>
+    </div>
+</div>

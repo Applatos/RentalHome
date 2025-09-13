@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Admin – Huse (Master–Detail)";
+    var q = (string?)ViewBag.Query ?? "";
+    var page = (int)(ViewBag.Page ?? 1);
+}
+<link href="/css/admin.css" rel="stylesheet" />
+
+<div class="admin-shell">
+    <div class="master p-3">
+        <form class="mb-3"
+              hx-get="/admin/master"
+              hx-target="#master"
+              hx-swap="outerHTML">
+            <input type="hidden" name="page" value="1" />
+            <div class="input-group">
+                <input type="text" name="q" value="@q" class="form-control" placeholder="Søg titel/by/postnr…" />
+                <button class="btn btn-outline-secondary" type="submit">Søg</button>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+
+        <div id="master"
+             hx-get="@Url.Action("Master", "Admin", new { q = q, page = page, pageSize = 20 })"
+             hx-trigger="load">
+            <div class="p-3 text-muted">Indlæser liste…</div>
+        </div>
+    </div>
+
+    <div class="detail p-3" id="detail">
+        <div class="text-muted">Vælg et hus i listen for at se detaljer…</div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+<script>
+    document.body.addEventListener('htmx:configRequest', (evt) => {
+      const t = document.querySelector('input[name="__RequestVerificationToken"]');
+      if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
+    });
+</script>
