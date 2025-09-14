@@ -1,0 +1,85 @@
+## Visual Studio / .NET build output
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+*.log
+
+## User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## VS Code
+.vscode/
+.history/
+
+## Visual Studio
+.vs/
+
+## Packages
+*.nupkg
+*.snupkg
+packages/
+*.vsix
+
+## Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## Rider
+.idea/
+
+## Backup & crash
+*.bak
+*.swp
+*.tmp
+*.tmp_proj
+*.old
+*.orig
+
+## Database files
+*.db
+*.sqlite
+*.sqlite3
+
+## IIS / Hosting
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Publish output
+wwwroot/
+dist/
+node_modules/
+publish/
+*.pubxml
+*.publishproj
+
+## Logs
+logs/
+*.log
+*.tlog
+
+## Coverage / Testing
+TestResult*/
+*.coverage
+*.coveragexml
+*.trx
+
+## OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+## JetBrains Rider
+.idea/
+*.iml
+out/
+
+## Misc
+*.http
