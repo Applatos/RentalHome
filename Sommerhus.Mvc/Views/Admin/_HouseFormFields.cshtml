@@ -39,25 +39,29 @@
 </div>
 
 <script>
-    window.addEventListener('load', () => {
+    (() => {
         const input = document.getElementById('house-city-search');
         const hidden = document.getElementById('house-city-id');
         const list = document.getElementById('house-city-options');
-        if (!input || !hidden || !list) return;
+        if (!input || !hidden || !list || input.dataset.bound === 'true') {
+            return;
+        }
+
+        input.dataset.bound = 'true';
 
         let suggestions = [];
         let controller = null;
 
-        function renderOptions(items) {
+        const renderOptions = (items) => {
             list.innerHTML = '';
             items.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item.label;
                 list.appendChild(option);
             });
-        }
+        };
 
-        async function lookup(term) {
+        const lookup = async (term) => {
             const url = input.dataset.url + '?q=' + encodeURIComponent(term);
             if (controller) controller.abort();
             controller = new AbortController();
@@ -71,14 +75,14 @@
                     console.error(err);
                 }
             }
-        }
+        };
 
-        function trySelect(value) {
+        const trySelect = (value) => {
             const match = suggestions.find(s => s.label === value);
             if (match) {
                 hidden.value = match.id;
             }
-        }
+        };
 
         input.addEventListener('input', () => {
             const value = input.value.trim();
@@ -100,5 +104,5 @@
                 trySelect(input.value.trim());
             }
         });
-    });
+    })();
 </script>

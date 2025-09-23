@@ -1,4 +1,12 @@
 @model Sommerhus.Mvc.Controllers.AdminController.AreaDetailVm?
+@{
+    var success = ViewData["Success"] as string ?? ViewBag.Success as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(success))
+{
+    <div class="alert alert-success" role="alert">@success</div>
+}
 
 @if (Model is null)
 {
