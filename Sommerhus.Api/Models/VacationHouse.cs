@@ -8,17 +8,19 @@ public class VacationHouse
 
     [Required, MaxLength(140)] public string Title { get; set; } = "";
     [MaxLength(240)] public string? Subtitle { get; set; }
-
     [MaxLength(200)] public string? Address { get; set; }
-    [MaxLength(80)] public string? City { get; set; }
-    [MaxLength(10)] public string? Zip { get; set; }
+
+    [Required] public Guid CityId { get; set; }
+    public City City { get; set; } = null!;
 
     public string? Description { get; set; }
     public string? Facilities { get; set; }
 
     public Guid? CoverImageId { get; set; }
-
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+
+    public Guid? AreaId { get; set; }
+    public Area? Area { get; set; }
 
     public List<HouseImage> Images { get; set; } = new();
     public List<HouseFeatureValue> HouseFeatures { get; set; } = new();

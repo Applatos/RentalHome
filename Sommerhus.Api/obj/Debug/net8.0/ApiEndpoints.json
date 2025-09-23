@@ -1,31 +1,15 @@
 [
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CitiesController",
-    "Method": "List",
-    "RelativePath": "api/admin/cities",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreasController",
+    "Method": "GetAll",
+    "RelativePath": "api/admin/areas",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "q",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "page",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "pageSize",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.CitiesController\u002BPageDto",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Admin.Areas.AreaListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -36,22 +20,22 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CitiesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreasController",
     "Method": "Create",
-    "RelativePath": "api/admin/cities",
+    "RelativePath": "api/admin/areas",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.Admin.CitiesController\u002BCreateUpdate",
+        "Type": "Sommerhus.Api.Dtos.Admin.Areas.CreateAreaDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Guid",
+        "Type": "Sommerhus.Api.Dtos.Admin.Areas.AreaDetailDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -62,15 +46,15 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CityImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreaImagesController",
     "Method": "List",
-    "RelativePath": "api/admin/cities/{cityId}/images",
+    "RelativePath": "api/admin/areas/{areaId}/images",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "cityId",
+        "Name": "areaId",
         "Type": "System.Guid",
         "IsRequired": true
       }
@@ -88,15 +72,15 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CityImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreaImagesController",
     "Method": "Upload",
-    "RelativePath": "api/admin/cities/{cityId}/images",
+    "RelativePath": "api/admin/areas/{areaId}/images",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "cityId",
+        "Name": "areaId",
         "Type": "System.Guid",
         "IsRequired": true
       },
@@ -109,15 +93,15 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CityImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreaImagesController",
     "Method": "Delete",
-    "RelativePath": "api/admin/cities/{cityId}/images/{imageId}",
+    "RelativePath": "api/admin/areas/{areaId}/images/{imageId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "cityId",
+        "Name": "areaId",
         "Type": "System.Guid",
         "IsRequired": true
       },
@@ -130,40 +114,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CityImagesController",
-    "Method": "GetBySlug",
-    "RelativePath": "api/admin/cities/{cityId}/images/{slug}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "slug",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "cityId",
-        "Type": "",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "Sommerhus.Api.Controllers.Admin.CityImagesController\u002BAreaDetailsDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CitiesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreasController",
     "Method": "Get",
-    "RelativePath": "api/admin/cities/{id}",
+    "RelativePath": "api/admin/areas/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -176,7 +129,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.CitiesController\u002BCityDetails",
+        "Type": "Sommerhus.Api.Dtos.Admin.Areas.AreaDetailDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -187,9 +140,9 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CitiesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreasController",
     "Method": "Update",
-    "RelativePath": "api/admin/cities/{id}",
+    "RelativePath": "api/admin/areas/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -201,16 +154,16 @@
       },
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.Admin.CitiesController\u002BCreateUpdate",
+        "Type": "Sommerhus.Api.Dtos.Admin.Areas.UpdateAreaDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.CitiesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.AreasController",
     "Method": "Delete",
-    "RelativePath": "api/admin/cities/{id}",
+    "RelativePath": "api/admin/areas/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -249,7 +202,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.HousesQueryController\u002BHousesPageDto",
+        "Type": "Sommerhus.Api.Dtos.Shared.PageResult\u00601[[Sommerhus.Api.Dtos.Admin.Houses.HouseListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -260,7 +213,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.ZipCodesController",
     "Method": "List",
     "RelativePath": "api/admin/zipcodes",
     "HttpMethod": "GET",
@@ -285,7 +238,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController\u002BZipPageDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Cities.ZipPageDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -296,7 +249,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.ZipCodesController",
     "Method": "Create",
     "RelativePath": "api/admin/zipcodes",
     "HttpMethod": "POST",
@@ -305,13 +258,13 @@
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController\u002BCreateUpdateDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Cities.CreateZipDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController\u002BZipDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Cities.ZipDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -322,7 +275,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.ZipCodesController",
     "Method": "Get",
     "RelativePath": "api/admin/zipcodes/{id}",
     "HttpMethod": "GET",
@@ -337,7 +290,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController\u002BZipDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Cities.ZipDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -348,7 +301,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.ZipCodesController",
     "Method": "Update",
     "RelativePath": "api/admin/zipcodes/{id}",
     "HttpMethod": "PUT",
@@ -362,14 +315,14 @@
       },
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController\u002BCreateUpdateDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Cities.CreateZipDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.Admin.AdminZipCodesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Admin.ZipCodesController",
     "Method": "Delete",
     "RelativePath": "api/admin/zipcodes/{id}",
     "HttpMethod": "DELETE",
@@ -385,7 +338,27 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.CitiesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.AreasController",
+    "Method": "Get",
+    "RelativePath": "api/Areas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Public.Areas.AreaDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Sommerhus.Api.Controllers.Public.CitiesController",
     "Method": "Get",
     "RelativePath": "api/Cities",
     "HttpMethod": "GET",
@@ -394,7 +367,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.CityListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Public.CitiesController\u002BCityListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -405,7 +378,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.FeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.FeaturesController",
     "Method": "GetAll",
     "RelativePath": "api/Features",
     "HttpMethod": "GET",
@@ -414,7 +387,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.FeatureDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Admin.Features.FeatureDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -425,7 +398,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.FeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.FeaturesController",
     "Method": "Create",
     "RelativePath": "api/Features",
     "HttpMethod": "POST",
@@ -434,7 +407,7 @@
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.FeaturesController\u002BUpsertFeatureDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Features.UpsertFeatureDto",
         "IsRequired": true
       }
     ],
@@ -451,7 +424,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.FeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.FeaturesController",
     "Method": "Update",
     "RelativePath": "api/Features/{id}",
     "HttpMethod": "PUT",
@@ -465,14 +438,14 @@
       },
       {
         "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.FeaturesController\u002BUpsertFeatureDto",
+        "Type": "Sommerhus.Api.Dtos.Admin.Features.UpsertFeatureDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.FeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.FeaturesController",
     "Method": "Delete",
     "RelativePath": "api/Features/{id}",
     "HttpMethod": "DELETE",
@@ -488,7 +461,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HousesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HousesController",
     "Method": "GetAll",
     "RelativePath": "api/Houses",
     "HttpMethod": "GET",
@@ -523,7 +496,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.HouseListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Public.Houses.HouseListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -534,33 +507,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HousesController",
-    "Method": "Create",
-    "RelativePath": "api/Houses",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.HousesController\u002BCreateHouseDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Guid",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseFeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseFeaturesController",
     "Method": "Get",
     "RelativePath": "api/houses/{houseId}/features",
     "HttpMethod": "GET",
@@ -575,7 +522,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.FeatureValueDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Shared.FeatureValueDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -586,7 +533,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseFeaturesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseFeaturesController",
     "Method": "Upsert",
     "RelativePath": "api/houses/{houseId}/features",
     "HttpMethod": "POST",
@@ -600,14 +547,14 @@
       },
       {
         "Name": "payload",
-        "Type": "Sommerhus.Api.Controllers.HouseFeaturesController\u002BUpsertPayload",
+        "Type": "System.Collections.Generic.List\u00601[[Sommerhus.Api.Dtos.Shared.PostFeatureValueDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseImagesController",
     "Method": "List",
     "RelativePath": "api/houses/{houseId}/images",
     "HttpMethod": "GET",
@@ -622,7 +569,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.HouseImageDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Dtos.Shared.ImageDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -633,7 +580,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseImagesController",
     "Method": "Delete",
     "RelativePath": "api/houses/{houseId}/images/{imageId}",
     "HttpMethod": "DELETE",
@@ -654,7 +601,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseImagesController",
     "Method": "SetCover",
     "RelativePath": "api/houses/{houseId}/images/{imageId}/set-cover",
     "HttpMethod": "POST",
@@ -675,7 +622,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HouseImagesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HouseImagesController",
     "Method": "Upload",
     "RelativePath": "api/houses/{houseId}/images/{kind}",
     "HttpMethod": "POST",
@@ -700,7 +647,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Models.HouseImageDto",
+        "Type": "Sommerhus.Api.Dtos.Shared.ImageDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -711,7 +658,7 @@
     ]
   },
   {
-    "ContainingType": "Sommerhus.Api.Controllers.HousesController",
+    "ContainingType": "Sommerhus.Api.Controllers.Public.HousesController",
     "Method": "Get",
     "RelativePath": "api/Houses/{id}",
     "HttpMethod": "GET",
@@ -726,70 +673,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Sommerhus.Api.Controllers.Models.HouseDetailsDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "Sommerhus.Api.Controllers.HousesController",
-    "Method": "Update",
-    "RelativePath": "api/Houses/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      },
-      {
-        "Name": "dto",
-        "Type": "Sommerhus.Api.Controllers.HousesController\u002BUpdateHouseDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Sommerhus.Api.Controllers.HousesController",
-    "Method": "Delete",
-    "RelativePath": "api/Houses/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Sommerhus.Api.Controllers.ZipCodesController",
-    "Method": "Search",
-    "RelativePath": "api/ZipCodes",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "filter",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[Sommerhus.Api.Controllers.Models.ZipCodeDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "Sommerhus.Api.Dtos.Public.Houses.HouseDetailsDto",
         "MediaTypes": [
           "text/plain",
           "application/json",

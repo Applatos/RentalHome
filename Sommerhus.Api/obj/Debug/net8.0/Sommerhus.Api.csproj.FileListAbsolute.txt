@@ -275,6 +275,7 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerh
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.csproj.CoreCompileInputs.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.sourcelink.json
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -283,16 +284,10 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticw
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhu.F6678412.Up2Date
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.dll
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\refint\Sommerhus.Api.dll
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.pdb
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\Sommerhus.Api.genruntimeconfig.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\ref\Sommerhus.Api.dll
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\web.config
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\appsettings.Development.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\appsettings.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\Sommerhus.Api.deps.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\Sommerhus.Api.runtimeconfig.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\bin\Debug\net8.0\publish\Sommerhus.Api.staticwebassets.endpoints.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

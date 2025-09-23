@@ -226,3 +226,4 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\refint\
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.pdb
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.genruntimeconfig.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\ref\Sommerhus.Mvc.dll
+C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.sourcelink.json

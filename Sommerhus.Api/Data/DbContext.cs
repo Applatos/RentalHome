@@ -10,56 +10,36 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<HouseImage> Images => Set<HouseImage>();
     public DbSet<Feature> Features => Set<Feature>();
     public DbSet<City> Cities => Set<City>();
-    public DbSet<ZipCode> ZipCodes => Set<ZipCode>();
-
-    // Ny:
-    public DbSet<CityImage> CityImages => Set<CityImage>();
-
+    public DbSet<Area> Areas => Set<Area>();
+    public DbSet<AreaImage> AreaImages => Set<AreaImage>();
     public DbSet<HouseFeatureValue> HouseFeatureValues => Set<HouseFeatureValue>();
 
-    protected override void OnModelCreating(ModelBuilder b)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // … (eksisterende mappings for Houses/Images/Features/ZipCodes)
+        // her sætter du relationen
+        modelBuilder.Entity<Area>()
+            .HasMany(a => a.AreaImages)
+            .WithOne(ai => ai.Area)
+            .HasForeignKey(ai => ai.AreaId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // City
-        b.Entity<City>(e =>
+        modelBuilder.Entity<VacationHouse>()
+            .HasMany(h => h.Images)
+            .WithOne(i => i.House)
+            .HasForeignKey(i => i.HouseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<HouseImage>(b =>
         {
-            e.ToTable("City");
-            e.HasKey(x => x.Id);
-            e.Property(x => x.Name).HasMaxLength(80).IsRequired();
-            e.Property(x => x.Zip).HasMaxLength(10).IsRequired();
-            e.Property(x => x.Slug).HasMaxLength(80);
-            e.Property(x => x.Text); // kan være stor, behold som nvarchar(max)
-            e.HasIndex(x => x.Zip);
-            e.HasIndex(x => x.Name);
-            e.HasIndex(x => x.Slug);
+            b.Property(i => i.FileName).HasMaxLength(300).IsRequired();
+
+            // (Valgfri) Unikt filnavn pr. hus
+            b.HasIndex(i => new { i.HouseId, i.FileName }).IsUnique();
+
+            // (Valgfri) Gem enum som string i DB for læsbarhed
+            b.Property(i => i.Kind).HasConversion<string>();
         });
 
-        // CityImage
-        b.Entity<CityImage>(e =>
-        {
-            e.ToTable("CityImage");
-            e.HasKey(x => x.Id);
-            e.Property(x => x.FileName).HasMaxLength(200).IsRequired();
-            e.Property(x => x.SortOrder).HasDefaultValue(0);
-            e.HasOne<City>(x => x.City!)
-                .WithMany(c => c.Images)
-                .HasForeignKey(x => x.CityId)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasIndex(x => new { x.CityId, x.SortOrder });
-        });
-
-        // ZipCode (uændret)
-        b.Entity<ZipCode>(e =>
-        {
-            e.ToTable("ZipCode");
-            e.HasKey(x => x.Id);
-            e.Property(x => x.Zip).HasMaxLength(10).IsRequired();
-            e.Property(x => x.City).HasMaxLength(80).IsRequired();
-            e.HasIndex(x => x.Zip);
-            e.HasIndex(x => x.City);
-        });
-
-        base.OnModelCreating(b);
+        base.OnModelCreating(modelBuilder);
     }
 }

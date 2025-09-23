@@ -17,47 +17,37 @@ namespace Sommerhus.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
 
-            modelBuilder.Entity("Sommerhus.Api.Data.City", b =>
+            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Slug")
-                        .HasMaxLength(80)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Zip")
-                        .IsRequired()
-                        .HasMaxLength(10)
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("CityId");
 
-                    b.HasIndex("Slug");
-
-                    b.HasIndex("Zip");
-
-                    b.ToTable("City", (string)null);
+                    b.ToTable("Areas");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.CityImage", b =>
+            modelBuilder.Entity("Sommerhus.Api.Models.AreaImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CityId")
+                    b.Property<Guid?>("AreaId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FileName")
@@ -66,15 +56,32 @@ namespace Sommerhus.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId", "SortOrder");
+                    b.HasIndex("AreaId");
 
-                    b.ToTable("CityImage", (string)null);
+                    b.ToTable("AreaImages");
+                });
+
+            modelBuilder.Entity("Sommerhus.Api.Models.City", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Zip")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("Sommerhus.Api.Models.Feature", b =>
@@ -124,16 +131,8 @@ namespace Sommerhus.Api.Migrations
                     b.Property<Guid>("HouseId")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool?>("ValueBool")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal?>("ValueDecimal")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("ValueInt")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ValueText")
+                    b.Property<string>("RawValue")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -183,8 +182,10 @@ namespace Sommerhus.Api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("City")
-                        .HasMaxLength(80)
+                    b.Property<Guid?>("AreaId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CityId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CoverImageId")
@@ -208,49 +209,32 @@ namespace Sommerhus.Api.Migrations
                         .HasMaxLength(140)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Zip")
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
+
+                    b.HasIndex("CityId");
 
                     b.ToTable("Houses");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.ZipCode", b =>
+            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Zip")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("City");
-
-                    b.HasIndex("Zip");
-
-                    b.ToTable("ZipCode", (string)null);
-                });
-
-            modelBuilder.Entity("Sommerhus.Api.Models.CityImage", b =>
-                {
-                    b.HasOne("Sommerhus.Api.Data.City", "City")
-                        .WithMany("Images")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Sommerhus.Api.Models.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId");
 
                     b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Sommerhus.Api.Models.AreaImage", b =>
+                {
+                    b.HasOne("Sommerhus.Api.Models.Area", "Area")
+                        .WithMany("AreaImages")
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Area");
                 });
 
             modelBuilder.Entity("Sommerhus.Api.Models.HouseFeatureValue", b =>
@@ -283,9 +267,33 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("House");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Data.City", b =>
+            modelBuilder.Entity("Sommerhus.Api.Models.VacationHouse", b =>
                 {
-                    b.Navigation("Images");
+                    b.HasOne("Sommerhus.Api.Models.Area", "Area")
+                        .WithMany("Houses")
+                        .HasForeignKey("AreaId");
+
+                    b.HasOne("Sommerhus.Api.Models.City", "City")
+                        .WithMany("Houses")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Area");
+
+                    b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
+                {
+                    b.Navigation("AreaImages");
+
+                    b.Navigation("Houses");
+                });
+
+            modelBuilder.Entity("Sommerhus.Api.Models.City", b =>
+                {
+                    b.Navigation("Houses");
                 });
 
             modelBuilder.Entity("Sommerhus.Api.Models.Feature", b =>

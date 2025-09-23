@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Api", "Sommerhus.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Mvc", "Sommerhus.Mvc\Sommerhus.Mvc.csproj", "{EE8035AD-FB8C-795A-64E8-6E3AB42EA230}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Api.Tests", "Sommerhus.Api.Tests\Sommerhus.Api.Tests.csproj", "{9CA9B7C4-4AF3-47BD-88D7-34FF606F75CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EE8035AD-FB8C-795A-64E8-6E3AB42EA230}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE8035AD-FB8C-795A-64E8-6E3AB42EA230}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE8035AD-FB8C-795A-64E8-6E3AB42EA230}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CA9B7C4-4AF3-47BD-88D7-34FF606F75CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CA9B7C4-4AF3-47BD-88D7-34FF606F75CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CA9B7C4-4AF3-47BD-88D7-34FF606F75CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CA9B7C4-4AF3-47BD-88D7-34FF606F75CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
