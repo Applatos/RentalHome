@@ -38,7 +38,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
 
         var images = area.AreaImages
             .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => UrlBuilder.AreaImageWebPath(area.Id, i.FileName))
+            .Select(i => new AreaImageItemDto(i.Id, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)))
             .ToList();
 
         return new AreaDetailDto(area.Id, area.Name, area.Description, images);
@@ -67,7 +67,11 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             area.Id,
             area.Name,
             area.Description,
-            area.AreaImages.OrderBy(i => i.SortOrder).Select(i => UrlBuilder.AreaImageWebPath(area.Id, i.FileName)).ToList());
+            area.AreaImages
+                .OrderBy(i => i.SortOrder)
+                .ThenBy(i => i.Id)
+                .Select(i => new AreaImageItemDto(i.Id, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)))
+                .ToList());
 
         return CreatedAtAction(nameof(Get), new { id = area.Id }, result);
     }

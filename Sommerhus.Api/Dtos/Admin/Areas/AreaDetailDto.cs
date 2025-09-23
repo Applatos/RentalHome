@@ -1,3 +1,7 @@
-﻿namespace Sommerhus.Api.Dtos.Admin.Areas;
+using System.Collections.Generic;
 
-public record AreaDetailDto(Guid Id, string Name, string? Description, List<string> Images);
+namespace Sommerhus.Api.Dtos.Admin.Areas;
+
+public record AreaDetailDto(Guid Id, string Name, string? Description, List<AreaImageItemDto> Images);
+
+public record AreaImageItemDto(Guid Id, string Url);

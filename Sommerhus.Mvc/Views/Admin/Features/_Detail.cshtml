@@ -1,0 +1,50 @@
+@model Sommerhus.Mvc.Controllers.AdminController.FeatureDetailVm?
+
+@if (Model is null)
+{
+    @Html.AntiForgeryToken()
+    <div class="text-muted">Vælg en feature for at se detaljer…</div>
+}
+else
+{
+    @Html.AntiForgeryToken()
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">@Model.Name</h5>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary"
+                    hx-get="/admin/features/@Model.Id/edit"
+                    hx-target="#features-detail"
+                    hx-swap="innerHTML">Redigér</button>
+            <form hx-post="/admin/features/@Model.Id/delete"
+                  hx-target="#features-detail"
+                  hx-swap="innerHTML"
+                  hx-confirm="Slet denne feature?"
+                  class="d-inline">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-sm btn-outline-danger" type="submit">Slet</button>
+            </form>
+        </div>
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Nøgle</dt>
+        <dd class="col-sm-9">@Model.Key</dd>
+        <dt class="col-sm-3">Datatype</dt>
+        <dd class="col-sm-9">@Model.ValueType</dd>
+        <dt class="col-sm-3">Enhed</dt>
+        <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.Unit) ? Model.Unit : "-")</dd>
+        <dt class="col-sm-3">Sortering</dt>
+        <dd class="col-sm-9">@Model.SortOrder</dd>
+        <dt class="col-sm-3">Ikon</dt>
+        <dd class="col-sm-9">
+            @if (!string.IsNullOrWhiteSpace(Model.IconUrl))
+            {
+                <img src="@Model.IconUrl" alt="ikon" style="max-height:48px;max-width:48px;object-fit:contain" />
+            }
+            else
+            {
+                <span class="text-muted">Ingen</span>
+            }
+        </dd>
+    </dl>
+}

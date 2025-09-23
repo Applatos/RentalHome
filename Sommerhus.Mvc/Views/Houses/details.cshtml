@@ -8,24 +8,32 @@
     if (Model.Gallery is not null) foreach (var g in Model.Gallery) if (!string.IsNullOrWhiteSpace(g.Url)) slides.Add((g.Url, g.Alt ?? Model.Title ?? "Billede"));
     slides = slides.GroupBy(s => s.Url).Select(g => g.First()).ToList();
 
-    // Vis kun de features vi har ikoner til
-    var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+    // Ikoner: brug database-ikon hvis tilgængelig, ellers lokal fallback
+    var localIcons = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
         "beach","groundsize","housesize","panorama","personer","rengøring","sauna","shopping","spa","tv","wifi"
     };
 
-    var featuresToShow = (Model.Features ?? Array.Empty<Sommerhus.Mvc.Services.FeatureValueDto>())
-        .Where(f =>
-            allowed.Contains(f.Key) &&
-            (
-                (f.ValueType == "Bool" && f.Bool == true) ||
-                (f.ValueType == "Int" && f.Int is not null) ||
-                (f.ValueType == "Decimal" && f.Decimal is not null) ||
-                (f.ValueType == "Text" && !string.IsNullOrWhiteSpace(f.Text))
-            )
-        )
-        .OrderBy(f => f.Name).ToList();
+    bool HasFeatureValue(Sommerhus.Mvc.Services.FeatureValueDto f)
+    {
+        if (string.Equals(f.ValueType, "Bool", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(f.Display, "Ja", StringComparison.OrdinalIgnoreCase);
+        }
+        return !string.IsNullOrWhiteSpace(f.Display);
+    }
 
-    string IconPath(string key) => Url.Content($"/images/features/{key}.png"); // matcher din mappe
+    string? ResolveIcon(Sommerhus.Mvc.Services.FeatureValueDto f)
+    {
+        if (!string.IsNullOrWhiteSpace(f.IconUrl)) return f.IconUrl;
+        return localIcons.Contains(f.Key) ? Url.Content($"/images/features/{f.Key}.png") : null;
+    }
+
+    var featuresToShow = (Model.Features ?? Array.Empty<Sommerhus.Mvc.Services.FeatureValueDto>())
+        .Select(f => new { Feature = f, Icon = ResolveIcon(f) })
+        .Where(x => x.Icon is not null && HasFeatureValue(x.Feature))
+        .OrderBy(x => x.Feature.Name)
+        .ToList();
 }
 
 <style>
@@ -156,19 +164,19 @@
                 }
                 else
                 {
-                    foreach (var f in featuresToShow)
+                    foreach (var entry in featuresToShow)
                     {
-                        var icon = IconPath(f.Key);
+                        var feature = entry.Feature;
+                        var icon = entry.Icon;
                         <div class="icon-pill">
                             <div class="p-ico">
-                                <img src="@icon" alt="@f.Name"
-                                     onerror="this.style.display='none';" />
+                                <img src="@icon" alt="@feature.Name" />
                             </div>
                             <div class="p-txt">
-                                <div>@f.Name</div>
-                                @if (!string.IsNullOrWhiteSpace(f.Display))
+                                <div>@feature.Name</div>
+                                @if (!string.IsNullOrWhiteSpace(feature.Display))
                                 {
-                                    <div class="text-muted small">@f.Display</div>
+                                    <div class="text-muted small">@feature.Display</div>
                                 }
                             </div>
                         </div>

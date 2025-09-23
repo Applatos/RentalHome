@@ -1,0 +1,38 @@
+@model Sommerhus.Mvc.Controllers.AdminController.FeatureMasterVm
+
+@if (Model.Items.Count == 0)
+{
+    <div class="text-muted">Ingen features fundet.</div>
+}
+else
+{
+    <div class="list-group list-group-flush">
+        @foreach (var f in Model.Items)
+        {
+            <a href="#"
+               class="list-group-item list-group-item-action feature-row"
+               hx-get="/admin/features/@f.Id/detail"
+               hx-target="#features-detail"
+               hx-swap="innerHTML">
+                <div class="d-flex justify-content-center">
+                    @if (!string.IsNullOrWhiteSpace(f.IconUrl))
+                    {
+                        <img src="@f.IconUrl" alt="ikon" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">–</span>
+                    }
+                </div>
+                <div>
+                    <div class="fw-semibold">@f.Name</div>
+                    <div class="text-muted small">@f.Key</div>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">Type: @f.ValueType</div>
+                    <div class="small text-muted">Sortering: @f.SortOrder</div>
+                </div>
+            </a>
+        }
+    </div>
+}

@@ -1,8 +1,5 @@
 @model Sommerhus.Mvc.Controllers.AdminController.CreateFormVM
-@using Microsoft.AspNetCore.Mvc.Rendering
-@{
-    var cityOptions = ViewBag.CityOptions as IEnumerable<SelectListItem> ?? new List<SelectListItem>();
-}
+
 <div class="row g-3">
     <div class="col-md-6">
         <label class="form-label">Titel</label>
@@ -19,9 +16,16 @@
     </div>
     <div class="col-md-6">
         <label class="form-label">By</label>
-        <select class="form-select" asp-for="CityId" asp-items="cityOptions">
-            <option value="">Vælg by…</option>
-        </select>
+        <input type="hidden" asp-for="CityId" id="house-city-id" />
+        <input type="text"
+               class="form-control"
+               name="CitySearch"
+               id="house-city-search"
+               value="@Model.CitySearch"
+               placeholder="Søg by eller postnr…"
+               autocomplete="off"
+               data-url="/admin/cities/search" />
+        <datalist id="house-city-options"></datalist>
         <span class="text-danger" asp-validation-for="CityId"></span>
     </div>
     <div class="col-12">
@@ -33,3 +37,68 @@
         <textarea class="form-control" rows="3" asp-for="Facilities"></textarea>
     </div>
 </div>
+
+<script>
+    window.addEventListener('load', () => {
+        const input = document.getElementById('house-city-search');
+        const hidden = document.getElementById('house-city-id');
+        const list = document.getElementById('house-city-options');
+        if (!input || !hidden || !list) return;
+
+        let suggestions = [];
+        let controller = null;
+
+        function renderOptions(items) {
+            list.innerHTML = '';
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.label;
+                list.appendChild(option);
+            });
+        }
+
+        async function lookup(term) {
+            const url = input.dataset.url + '?q=' + encodeURIComponent(term);
+            if (controller) controller.abort();
+            controller = new AbortController();
+            try {
+                const res = await fetch(url, { signal: controller.signal });
+                if (!res.ok) return;
+                suggestions = await res.json();
+                renderOptions(suggestions);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                }
+            }
+        }
+
+        function trySelect(value) {
+            const match = suggestions.find(s => s.label === value);
+            if (match) {
+                hidden.value = match.id;
+            }
+        }
+
+        input.addEventListener('input', () => {
+            const value = input.value.trim();
+            hidden.value = '';
+            if (value.length >= 2) {
+                lookup(value);
+            } else {
+                suggestions = [];
+                renderOptions([]);
+            }
+        });
+
+        input.addEventListener('change', () => {
+            trySelect(input.value.trim());
+        });
+
+        input.addEventListener('blur', () => {
+            if (!hidden.value) {
+                trySelect(input.value.trim());
+            }
+        });
+    });
+</script>
