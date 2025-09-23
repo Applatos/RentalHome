@@ -194,4 +194,22 @@ public sealed class AdminApiClient
         var res = await _http.DeleteAsync($"api/admin/features/{id}", ct);
         res.EnsureSuccessStatusCode();
     }
+
+    public async Task<string?> UploadFeatureIconAsync(Guid id, Stream fileStream, string fileName, CancellationToken ct)
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(fileStream), "file", fileName);
+        var res = await _http.PostAsync($"api/admin/features/{id}/icon", content, ct);
+        res.EnsureSuccessStatusCode();
+        var payload = await res.Content.ReadFromJsonAsync<FeatureIconResponse>(cancellationToken: ct);
+        return payload?.IconUrl;
+    }
+
+    public async Task RemoveFeatureIconAsync(Guid id, CancellationToken ct)
+    {
+        var res = await _http.DeleteAsync($"api/admin/features/{id}/icon", ct);
+        res.EnsureSuccessStatusCode();
+    }
+
+    private sealed record FeatureIconResponse(string IconUrl);
 }

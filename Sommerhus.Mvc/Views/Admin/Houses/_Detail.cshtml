@@ -1,0 +1,191 @@
+@model Sommerhus.Mvc.Services.HouseDetails?
+@{
+    var success = ViewData["Success"] as string ?? ViewBag.Success as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(success))
+{
+    <div class="alert alert-success" role="alert">@success</div>
+}
+
+@if (Model is null)
+{
+    @Html.AntiForgeryToken()
+    <div class="text-muted">Vælg et hus i listen for at se detaljer…</div>
+}
+else
+{
+    @Html.AntiForgeryToken()
+    <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
+        <div>
+            <h5 class="mb-1">@Model.Title</h5>
+            @if (!string.IsNullOrWhiteSpace(Model.Subtitle))
+            {
+                <div class="text-muted">@Model.Subtitle</div>
+            }
+            <div class="text-muted small">@Model.City @Model.Zip</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+            <button class="btn btn-sm btn-outline-primary"
+                    hx-get="/admin/@Model.Id/edit"
+                    hx-target="#detail"
+                    hx-swap="innerHTML">Redigér</button>
+            <a class="btn btn-sm btn-outline-secondary" href="/houses/@Model.Id" target="_blank">Vis hus</a>
+            <button class="btn btn-sm btn-outline-danger"
+                    hx-get="/admin/@Model.Id/delete"
+                    hx-target="#detail"
+                    hx-swap="innerHTML">Slet</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <strong>Adresse</strong>
+                <div>@(!string.IsNullOrWhiteSpace(Model.Address) ? Model.Address : "Ikke angivet")</div>
+            </div>
+            <div class="mb-3">
+                <strong>Beskrivelse</strong>
+                <div class="text-prewrap">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Ingen beskrivelse.")</div>
+            </div>
+            <div class="mb-3">
+                <strong>Faciliteter</strong>
+                <div class="text-prewrap">@(!string.IsNullOrWhiteSpace(Model.Facilities) ? Model.Facilities : "Ingen oplysninger.")</div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="mb-4">
+                <h6 class="mb-2">Cover</h6>
+                <div class="ratio ratio-16x9 bg-light rounded mb-2">
+                    @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
+                    {
+                        <img src="@Model.CoverUrl" class="w-100 h-100 rounded" style="object-fit:cover" alt="cover" />
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center justify-content-center text-muted">Intet cover</div>
+                    }
+                </div>
+                <form hx-post="/admin/@Model.Id/images/cover"
+                      hx-target="#detail"
+                      hx-swap="innerHTML"
+                      hx-encoding="multipart/form-data"
+                      enctype="multipart/form-data"
+                      class="d-flex gap-2 align-items-center">
+                    @Html.AntiForgeryToken()
+                    <input type="file" name="file" accept="image/*" class="form-control form-control-sm" />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Upload</button>
+                </form>
+            </div>
+            <div class="mb-4">
+                <h6 class="mb-2">Plantegning</h6>
+                <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height:180px;">
+                    @if (Model.Floorplan is not null)
+                    {
+                        <img src="@Model.Floorplan.Url" class="mw-100 mh-100 p-2" style="object-fit:contain" alt="plantegning" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Ingen plantegning</span>
+                    }
+                </div>
+                <form hx-post="/admin/@Model.Id/images/floorplan"
+                      hx-target="#detail"
+                      hx-swap="innerHTML"
+                      hx-encoding="multipart/form-data"
+                      enctype="multipart/form-data"
+                      class="d-flex gap-2 align-items-center">
+                    @Html.AntiForgeryToken()
+                    <input type="file" name="file" accept="image/*" class="form-control form-control-sm" />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h6 class="mb-2">Galleri</h6>
+        <form hx-post="/admin/@Model.Id/images/gallery"
+              hx-target="#detail"
+              hx-swap="innerHTML"
+              hx-encoding="multipart/form-data"
+              enctype="multipart/form-data"
+              class="d-flex gap-2 flex-wrap align-items-center mb-3">
+            @Html.AntiForgeryToken()
+            <input type="file" name="files" multiple accept="image/*" class="form-control form-control-sm" />
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Upload</button>
+        </form>
+
+        @if (Model.Gallery is null || Model.Gallery.Length == 0)
+        {
+            <div class="text-muted">Ingen galleri-billeder endnu.</div>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var img in Model.Gallery)
+                {
+                    <div class="border rounded p-2" style="width:150px;">
+                        <div class="ratio ratio-4x3 mb-2">
+                            <img src="@img.Url" class="w-100 h-100 rounded" style="object-fit:cover" alt="galleri" />
+                        </div>
+                        @if (string.Equals(img.Kind, "Cover", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="badge bg-primary w-100 mb-2">Cover</div>
+                        }
+                        <div class="d-flex gap-1">
+                            <form hx-post="/admin/@Model.Id/images/@img.Id/setcover"
+                                  hx-target="#detail"
+                                  hx-swap="innerHTML"
+                                  class="flex-fill">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-outline-primary w-100" type="submit">Cover</button>
+                            </form>
+                            <form hx-post="/admin/@Model.Id/images/@img.Id/delete"
+                                  hx-target="#detail"
+                                  hx-swap="innerHTML"
+                                  hx-confirm="Slet billede?"
+                                  class="flex-fill">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-outline-danger w-100" type="submit">Slet</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Features</h6>
+            <a class="btn btn-sm btn-outline-primary" href="/admin/@Model.Id/features">Administrér</a>
+        </div>
+        @if (Model.Features is null || Model.Features.Length == 0)
+        {
+            <div class="text-muted">Ingen features tilføjet endnu.</div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var feature in Model.Features)
+                {
+                    <div class="list-group-item d-flex align-items-center gap-2">
+                        @if (!string.IsNullOrWhiteSpace(feature.IconUrl))
+                        {
+                            <img src="@feature.IconUrl" alt="ikon" style="width:28px;height:28px;object-fit:contain;" />
+                        }
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">@feature.Name</div>
+                            <div class="text-muted small">@feature.Display</div>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(feature.Unit))
+                        {
+                            <div class="text-muted small">@feature.Unit</div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}

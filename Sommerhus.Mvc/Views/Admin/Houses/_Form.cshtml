@@ -1,0 +1,25 @@
+@model Sommerhus.Mvc.Controllers.AdminController.CreateFormVM
+@{
+    var isEdit = (bool?)(ViewBag.HouseIsEdit) ?? false;
+    var houseId = (Guid?)(ViewBag.HouseId);
+    var action = isEdit && houseId.HasValue ? $"/admin/{houseId}/edit" : "/admin/create";
+    var title = isEdit ? "Redigér hus" : "Nyt hus";
+    var cancelTarget = isEdit && houseId.HasValue ? $"/admin/{houseId}/detail" : "/admin/houses/detail/blank";
+}
+
+<form hx-post="@action" hx-target="#detail" hx-swap="innerHTML" class="vstack gap-3">
+    @Html.AntiForgeryToken()
+    <h5>@title</h5>
+
+    <partial name="~/Views/Admin/_HouseFormFields.cshtml" model="Model" />
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-dark" type="submit">Gem</button>
+        <button class="btn btn-outline-secondary" type="button"
+                hx-get="@cancelTarget"
+                hx-target="#detail"
+                hx-swap="innerHTML">
+            Annullér
+        </button>
+    </div>
+</form>

@@ -17,12 +17,15 @@
                 </div>
                 @Html.AntiForgeryToken()
             </form>
-            <a class="btn btn-dark" href="/admin/create">Nyt hus</a>
+            <button class="btn btn-dark"
+                    hx-get="/admin/create"
+                    hx-target="#detail"
+                    hx-swap="innerHTML">Nyt hus</button>
         </div>
 
         <div id="master"
              hx-get="@Url.Action("Master", "Admin", new { q = q, page = page, pageSize = 20 })"
-             hx-trigger="load">
+             hx-trigger="load, admin-houses-updated from:body">
             <div class="p-3 text-muted">Indlæser liste…</div>
         </div>
     </div>

@@ -9,6 +9,8 @@ namespace Sommerhus.Mvc.Controllers;
 public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Controller
 {
     private static readonly string[] FeatureValueTypes = ["Bool", "Int", "Decimal", "Text"];
+    private bool IsHtmx => Request.Headers.TryGetValue("HX-Request", out var hx) &&
+                           string.Equals(hx, "true", StringComparison.OrdinalIgnoreCase);
 
     // ---------- Landing & tabs ----------
     [HttpGet("/admin")]
@@ -69,17 +71,33 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return PartialView("~/Views/Admin/_MasterList.cshtml", vm);
     }
 
-    public sealed class DetailVm
-    {
-        public Services.HouseDetails House { get; set; } = default!;
-    }
-
     [HttpGet("/admin/{id:guid}/detail")]
     public async Task<IActionResult> Detail(Guid id, CancellationToken ct)
     {
+        return await RenderHouseDetailAsync(id, ct);
+    }
+
+    [HttpGet("/admin/houses/detail/blank")]
+    public IActionResult BlankDetail() => RenderEmptyHouseDetail();
+
+    private async Task<IActionResult> RenderHouseDetailAsync(Guid id, CancellationToken ct, string? successMessage = null)
+    {
         var house = await api.GetHouseAsync(id, ct);
         if (house is null) return NotFound();
-        return PartialView("~/Views/Admin/_Details.cshtml", new DetailVm { House = house });
+        if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            ViewData["Success"] = successMessage;
+        }
+        return PartialView("~/Views/Admin/Houses/_Detail.cshtml", house);
+    }
+
+    private IActionResult RenderEmptyHouseDetail(string? successMessage = null)
+    {
+        if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            ViewData["Success"] = successMessage;
+        }
+        return PartialView("~/Views/Admin/Houses/_Detail.cshtml", model: null);
     }
 
     public class CreateFormVM
@@ -98,6 +116,12 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     public IActionResult Create()
     {
         var form = new CreateFormVM();
+        if (IsHtmx)
+        {
+            ViewBag.HouseIsEdit = false;
+            return PartialView("~/Views/Admin/Houses/_Form.cshtml", form);
+        }
+
         return View(form);
     }
 
@@ -112,10 +136,23 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
 
         if (!ModelState.IsValid)
         {
+            if (IsHtmx)
+            {
+                ViewBag.HouseIsEdit = false;
+                return PartialView("~/Views/Admin/Houses/_Form.cshtml", form);
+            }
+
             return View("Create", form);
         }
 
         var id = await api.CreateHouseAsync(form, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Hus oprettet");
+        }
+
         TempData["ok"] = "Hus oprettet";
         return Redirect($"/admin/{id}/images");
     }
@@ -138,6 +175,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         };
 
         ViewBag.HouseId = id;
+
+        if (IsHtmx)
+        {
+            ViewBag.HouseIsEdit = true;
+            return PartialView("~/Views/Admin/Houses/_Form.cshtml", form);
+        }
+
         return View(form);
     }
 
@@ -153,12 +197,55 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         if (!ModelState.IsValid)
         {
             ViewBag.HouseId = id;
+            if (IsHtmx)
+            {
+                ViewBag.HouseIsEdit = true;
+                return PartialView("~/Views/Admin/Houses/_Form.cshtml", form);
+            }
+
             return View("Edit", form);
         }
 
         await api.UpdateHouseAsync(id, form, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Gemte ændringer");
+        }
+
         TempData["ok"] = "Gemte ændringer";
         return Redirect($"/admin/{id}/images");
+    }
+
+    [HttpGet("/admin/{id:guid}/delete")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var house = await api.GetHouseAsync(id, ct);
+        if (house is null) return NotFound();
+
+        if (IsHtmx)
+        {
+            return PartialView("~/Views/Admin/Houses/_Delete.cshtml", house);
+        }
+
+        return View("Delete", house);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/{id:guid}/delete")]
+    public async Task<IActionResult> DeletePost(Guid id, CancellationToken ct)
+    {
+        await api.DeleteHouseAsync(id, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return RenderEmptyHouseDetail("Hus slettet");
+        }
+
+        TempData["ok"] = "Hus slettet";
+        return Redirect("/admin");
     }
 
     // ---------- House image management ----------
@@ -178,6 +265,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
             using var s = file.OpenReadStream();
             await api.UploadCoverAsync(id, s, file.FileName, ct);
         }
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Cover opdateret");
+        }
+
         return Redirect($"/admin/{id}/images");
     }
 
@@ -186,6 +280,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     {
         var list = files?.Where(f => f != null && f.Length > 0).Select(f => (f!.OpenReadStream(), f.FileName)).ToList() ?? new();
         if (list.Count > 0) await api.UploadGalleryAsync(id, list, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Galleri opdateret");
+        }
+
         return Redirect($"/admin/{id}/images");
     }
 
@@ -197,6 +298,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
             using var s = file.OpenReadStream();
             await api.UploadFloorplanAsync(id, s, file.FileName, ct);
         }
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Plantegning opdateret");
+        }
+
         return Redirect($"/admin/{id}/images");
     }
 
@@ -204,6 +312,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     public async Task<IActionResult> SetCover(Guid id, Guid imgId, CancellationToken ct)
     {
         await api.SetCoverAsync(id, imgId, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Cover opdateret");
+        }
+
         return Redirect($"/admin/{id}/images");
     }
 
@@ -211,6 +326,13 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     public async Task<IActionResult> DeleteImage(Guid id, Guid imgId, CancellationToken ct)
     {
         await api.DeleteImageAsync(id, imgId, ct);
+
+        if (IsHtmx)
+        {
+            Response.Headers["HX-Trigger"] = "admin-houses-updated";
+            return await RenderHouseDetailAsync(id, ct, "Billede opdateret");
+        }
+
         return Redirect($"/admin/{id}/images");
     }
 
@@ -330,6 +452,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         var id = await adminApi.CreateAreaAsync(form.Name.Trim(), Clean(form.Description), null, ct);
         TempData["ok"] = "Område oprettet";
         Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        ViewData["Success"] = "Område oprettet";
         return await AreaDetail(id, ct);
     }
 
@@ -363,6 +486,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         await adminApi.UpdateAreaAsync(id, form.Name.Trim(), Clean(form.Description), null, ct);
         TempData["ok"] = "Område opdateret";
         Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        ViewData["Success"] = "Område opdateret";
         return await AreaDetail(id, ct);
     }
 
@@ -373,6 +497,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         await adminApi.DeleteAreaAsync(id, ct);
         TempData["ok"] = "Område slettet";
         Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        ViewData["Success"] = "Område slettet";
         return PartialView("~/Views/Admin/Areas/_Detail.cshtml", model: null);
     }
 
@@ -386,6 +511,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
             await adminApi.UploadAreaImageAsync(id, stream, file.FileName, ct);
         }
 
+        ViewData["Success"] = "Billede uploadet";
         return await AreaDetail(id, ct);
     }
 
@@ -394,6 +520,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     public async Task<IActionResult> AreaDeleteImage(Guid id, Guid imageId, CancellationToken ct)
     {
         await adminApi.DeleteAreaImageAsync(id, imageId, ct);
+        ViewData["Success"] = "Billede slettet";
         return await AreaDetail(id, ct);
     }
 
@@ -519,6 +646,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
 
         TempData["ok"] = "Feature oprettet";
         Response.Headers["HX-Trigger"] = "admin-features-updated";
+        ViewData["Success"] = "Feature oprettet";
         return await FeatureDetail(newId, ct);
     }
 
@@ -573,6 +701,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
 
         TempData["ok"] = "Feature opdateret";
         Response.Headers["HX-Trigger"] = "admin-features-updated";
+        ViewData["Success"] = "Feature opdateret";
         return await FeatureDetail(id, ct);
     }
 
@@ -583,6 +712,32 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         await adminApi.DeleteFeatureAsync(id, ct);
         TempData["ok"] = "Feature slettet";
         Response.Headers["HX-Trigger"] = "admin-features-updated";
+        ViewData["Success"] = "Feature slettet";
         return PartialView("~/Views/Admin/Features/_Detail.cshtml", model: null);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/features/{id:guid}/icon")]
+    public async Task<IActionResult> FeatureUploadIcon(Guid id, IFormFile file, CancellationToken ct)
+    {
+        if (file is { Length: > 0 })
+        {
+            using var stream = file.OpenReadStream();
+            await adminApi.UploadFeatureIconAsync(id, stream, file.FileName, ct);
+        }
+
+        Response.Headers["HX-Trigger"] = "admin-features-updated";
+        ViewData["Success"] = "Ikon opdateret";
+        return await FeatureDetail(id, ct);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/features/{id:guid}/icon/delete")]
+    public async Task<IActionResult> FeatureRemoveIcon(Guid id, CancellationToken ct)
+    {
+        await adminApi.RemoveFeatureIconAsync(id, ct);
+        Response.Headers["HX-Trigger"] = "admin-features-updated";
+        ViewData["Success"] = "Ikon fjernet";
+        return await FeatureDetail(id, ct);
     }
 }
