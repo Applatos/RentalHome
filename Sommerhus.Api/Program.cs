@@ -54,7 +54,6 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await db.Database.EnsureDeletedAsync();
             await db.Database.MigrateAsync();
             Seeder.SeedMinimal(db);
         }

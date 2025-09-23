@@ -51,7 +51,7 @@ public class HouseImagesController(AppDbContext db, IWebHostEnvironment env) : C
 
         var unique = $"{Guid.NewGuid():N}{Path.GetExtension(Path.GetFileName(file.FileName))}";
         var fullPath = Path.Combine(dir, unique);
-        using (var fs = File.Create(fullPath))
+        using (var fs = System.IO.File.Create(fullPath))
             await file.CopyToAsync(fs, ct);
 
         var img = new HouseImage { HouseId = houseId, FileName = unique, Kind = imgKind };
@@ -116,5 +116,18 @@ public class HouseImagesController(AppDbContext db, IWebHostEnvironment env) : C
 
         await db.SaveChangesAsync(ct);
         return NoContent();
+    }
+
+    [HttpGet("{imageId:guid}")]
+    public async Task<IActionResult> Get(Guid houseId, Guid imageId, CancellationToken ct)
+    {
+        var img = await db.Images.FirstOrDefaultAsync(i => i.Id == imageId && i.HouseId == houseId, ct);
+        if (img is null) return NotFound();
+        var dir = Path.Combine(env.WebRootPath, "uploads", "houses", houseId.ToString());
+        var fullPath = Path.Combine(dir, img.FileName);
+        if (!System.IO.File.Exists(fullPath)) return NotFound();
+        var bytes = await System.IO.File.ReadAllBytesAsync(fullPath, ct);
+        var contentType = "application/octet-stream"; // You may want to detect MIME type
+        return File(bytes, contentType, img.FileName); // FIX: Use File() method correctly
     }
 }

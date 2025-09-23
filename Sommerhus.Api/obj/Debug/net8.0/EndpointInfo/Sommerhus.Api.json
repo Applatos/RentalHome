@@ -357,7 +357,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.CitiesController.CityListItemDto"
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Public.Cities.CityListItemDto"
                   }
                 }
               },
@@ -365,7 +365,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.CitiesController.CityListItemDto"
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Public.Cities.CityListItemDto"
                   }
                 }
               },
@@ -373,7 +373,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.CitiesController.CityListItemDto"
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Public.Cities.CityListItemDto"
                   }
                 }
               }
@@ -382,7 +382,396 @@
         }
       }
     },
+    "/api/admin/cities": {
+      "get": {
+        "tags": [
+          "Cities"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityPageResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityPageResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityPageResult"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cities"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CreateCityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CreateCityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CreateCityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/cities/{id}": {
+      "get": {
+        "tags": [
+          "Cities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.UpdateCityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.UpdateCityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.UpdateCityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/cities/{cityId}/images": {
+      "get": {
+        "tags": [
+          "CityImages"
+        ],
+        "parameters": [
+          {
+            "name": "cityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CityImages"
+        ],
+        "parameters": [
+          {
+            "name": "cityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "alt": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                },
+                "alt": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/cities/{cityId}/images/{imageId}": {
+      "delete": {
+        "tags": [
+          "CityImages"
+        ],
+        "parameters": [
+          {
+            "name": "cityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Features": {
+      "get": {
+        "tags": [
+          "Features"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.FeatureDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.FeatureDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.FeatureDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/features": {
       "get": {
         "tags": [
           "Features"
@@ -469,7 +858,7 @@
         }
       }
     },
-    "/api/Features/{id}": {
+    "/api/admin/features/{id}": {
       "put": {
         "tags": [
           "Features"
@@ -579,7 +968,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/admin/houses/{houseId}/features": {
       "post": {
         "tags": [
           "HouseFeatures"
@@ -601,7 +992,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.PostFeatureValueDto"
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.PostFeatureValueDto"
                 }
               }
             },
@@ -609,7 +1000,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.PostFeatureValueDto"
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.PostFeatureValueDto"
                 }
               }
             },
@@ -617,7 +1008,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.PostFeatureValueDto"
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Features.PostFeatureValueDto"
                 }
               }
             }
@@ -679,7 +1070,56 @@
         }
       }
     },
-    "/api/houses/{houseId}/images/{kind}": {
+    "/api/admin/houses/{houseId}/images": {
+      "get": {
+        "tags": [
+          "HouseImages"
+        ],
+        "parameters": [
+          {
+            "name": "houseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/houses/{houseId}/images/{kind}": {
       "post": {
         "tags": [
           "HouseImages"
@@ -747,8 +1187,38 @@
         }
       }
     },
-    "/api/houses/{houseId}/images/{imageId}": {
+    "/api/admin/houses/{houseId}/images/{imageId}": {
       "delete": {
+        "tags": [
+          "HouseImages"
+        ],
+        "parameters": [
+          {
+            "name": "houseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
         "tags": [
           "HouseImages"
         ],
@@ -779,7 +1249,7 @@
         }
       }
     },
-    "/api/houses/{houseId}/images/{imageId}/set-cover": {
+    "/api/admin/houses/{houseId}/images/{imageId}/set-cover": {
       "post": {
         "tags": [
           "HouseImages"
@@ -933,7 +1403,7 @@
     "/api/admin/houses": {
       "get": {
         "tags": [
-          "HousesQuery"
+          "Houses"
         ],
         "parameters": [
           {
@@ -979,6 +1449,203 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.PageResult`1[[Sommerhus.Api.Dtos.Admin.Houses.HouseListItemDto, Sommerhus.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Houses"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.CreateHouseDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.CreateHouseDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.CreateHouseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/houses/{id}": {
+      "get": {
+        "tags": [
+          "Houses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.HouseDetailsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.HouseDetailsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.HouseDetailsDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Houses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.UpdateHouseDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.UpdateHouseDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.UpdateHouseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Houses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/zipcodes": {
+      "get": {
+        "tags": [
+          "ZipCodes"
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.ZipCodesController.ZipCodeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.ZipCodesController.ZipCodeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sommerhus.Api.Controllers.Public.ZipCodesController.ZipCodeDto"
+                  }
                 }
               }
             }
@@ -1192,20 +1859,16 @@
   },
   "components": {
     "schemas": {
-      "Sommerhus.Api.Controllers.Public.CitiesController.CityListItemDto": {
+      "Sommerhus.Api.Controllers.Public.ZipCodesController.ZipCodeDto": {
         "type": "object",
         "properties": {
-          "city": {
-            "type": "string",
-            "nullable": true
-          },
           "zip": {
             "type": "string",
             "nullable": true
           },
-          "count": {
-            "type": "integer",
-            "format": "int32"
+          "city": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1309,6 +1972,120 @@
         },
         "additionalProperties": false
       },
+      "Sommerhus.Api.Dtos.Admin.Cities.CityDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Shared.ImageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Admin.Cities.CityListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "houseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Admin.Cities.CityPageResult": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Cities.CityListItemDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Admin.Cities.CreateCityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Sommerhus.Api.Dtos.Admin.Cities.CreateZipDto": {
         "type": "object",
         "properties": {
@@ -1317,6 +2094,28 @@
             "nullable": true
           },
           "city": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Admin.Cities.UpdateCityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
             "type": "string",
             "nullable": true
           }
@@ -1404,6 +2203,20 @@
         },
         "additionalProperties": false
       },
+      "Sommerhus.Api.Dtos.Admin.Features.PostFeatureValueDto": {
+        "type": "object",
+        "properties": {
+          "featureId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rawValue": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Sommerhus.Api.Dtos.Admin.Features.UpsertFeatureDto": {
         "type": "object",
         "properties": {
@@ -1434,6 +2247,85 @@
         },
         "additionalProperties": false
       },
+      "Sommerhus.Api.Dtos.Admin.Houses.CreateHouseDto": {
+        "required": [
+          "cityId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "facilities": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Admin.Houses.HouseDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "facilities": {
+            "type": "string",
+            "nullable": true
+          },
+          "areaId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "coverImageId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Sommerhus.Api.Dtos.Admin.Houses.HouseListItemDto": {
         "type": "object",
         "properties": {
@@ -1460,10 +2352,71 @@
         },
         "additionalProperties": false
       },
+      "Sommerhus.Api.Dtos.Admin.Houses.UpdateHouseDto": {
+        "required": [
+          "cityId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 140,
+            "minLength": 0,
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "facilities": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Sommerhus.Api.Dtos.Public.Areas.AreaDto": {
         "type": "object",
         "properties": {
           "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sommerhus.Api.Dtos.Public.Cities.CityListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
             "type": "string",
             "nullable": true
           },
@@ -1489,9 +2442,21 @@
             "type": "string",
             "nullable": true
           },
-          "cityId": {
+          "city": {
             "type": "string",
-            "format": "uuid"
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "citySlug": {
+            "type": "string",
+            "nullable": true
           },
           "description": {
             "type": "string",
@@ -1635,20 +2600,6 @@
             "items": {
               "$ref": "#/components/schemas/Sommerhus.Api.Dtos.Admin.Houses.HouseListItemDto"
             },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Sommerhus.Api.Dtos.Shared.PostFeatureValueDto": {
-        "type": "object",
-        "properties": {
-          "featureId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "rawValue": {
-            "type": "string",
             "nullable": true
           }
         },

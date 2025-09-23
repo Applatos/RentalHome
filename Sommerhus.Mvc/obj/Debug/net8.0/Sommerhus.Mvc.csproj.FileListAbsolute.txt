@@ -219,7 +219,6 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticw
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhu.E06A28B4.Up2Date
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.dll
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\refint\Sommerhus.Mvc.dll
@@ -227,3 +226,4 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerh
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.genruntimeconfig.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\ref\Sommerhus.Mvc.dll
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.sourcelink.json
+C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

@@ -76,3 +76,4 @@ wwwroot\uploads\houses\d760b09e-6fa2-4050-8199-55067420c045\77f7a3dc96e142d6a38b
 wwwroot\uploads\houses\d760b09e-6fa2-4050-8199-55067420c045\92c69cb123e54a4bb3a1aef459ce3828.jpg
 wwwroot\uploads\houses\d760b09e-6fa2-4050-8199-55067420c045\e0c835f708be49d49c4b745ee58585ea.jpg
 wwwroot\uploads\houses\d760b09e-6fa2-4050-8199-55067420c045\f0536e5acf1b4119866e18e4c233fbbb.jpg
+wwwroot\uploads\houses\6d1c3408-2458-4699-bc7a-bf54a39cf94f\8d2d8d8133f4458aa4ccb04f8ecca3f9.jpg
