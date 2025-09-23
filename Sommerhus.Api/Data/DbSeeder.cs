@@ -10,7 +10,13 @@ public static class Seeder
         if (db.Cities.Any()) return;
 
         // --- Cities ---
-        var city = new City { Name = "Blåvand", Zip = "6857" };
+        var city = new City
+        {
+            Name = "Blåvand",
+            Zip = "6857",
+            Slug = "blavand",
+            Description = "Blåvand byder på bred sandstrand og naturoplevelser."
+        };
         db.Cities.Add(city);
 
         // --- Areas ---
@@ -52,6 +58,8 @@ public static class Seeder
 
         // Area images
         db.AreaImages.Add(new AreaImage { Area = area, FileName = "uploads/areas/blavand_strand1.jpg", SortOrder = 1 });
+
+        db.CityImages.Add(new CityImage { City = city, FileName = "city_blavand.jpg", SortOrder = 0, Alt = "Blåvand" });
 
         db.SaveChanges();
     }
