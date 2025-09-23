@@ -1,4 +1,8 @@
-﻿@model Sommerhus.Mvc.Controllers.AdminController.CreateFormVM
+@model Sommerhus.Mvc.Controllers.AdminController.CreateFormVM
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var cityOptions = ViewBag.CityOptions as IEnumerable<SelectListItem> ?? new List<SelectListItem>();
+}
 <div class="row g-3">
     <div class="col-md-6">
         <label class="form-label">Titel</label>
@@ -13,13 +17,12 @@
         <label class="form-label">Adresse</label>
         <input class="form-control" asp-for="Address" />
     </div>
-    <div class="col-md-3">
+    <div class="col-md-6">
         <label class="form-label">By</label>
-        <input class="form-control" asp-for="City" />
-    </div>
-    <div class="col-md-3">
-        <label class="form-label">Postnr</label>
-        <input class="form-control" asp-for="Zip" />
+        <select class="form-select" asp-for="CityId" asp-items="cityOptions">
+            <option value="">Vælg by…</option>
+        </select>
+        <span class="text-danger" asp-validation-for="CityId"></span>
     </div>
     <div class="col-12">
         <label class="form-label">Beskrivelse</label>

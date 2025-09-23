@@ -1,4 +1,4 @@
-﻿// Sommerhus.Mvc/Services/AdminApiClient.cs
+// Sommerhus.Mvc/Services/AdminApiClient.cs
 using System.Net.Http.Json;
 
 namespace Sommerhus.Mvc.Services;
@@ -19,11 +19,25 @@ public sealed class AdminApiClient
         public List<HouseListItem> Items { get; set; } = new();
     }
 
+    public sealed record HouseDetails(
+        Guid Id,
+        string Title,
+        string? Subtitle,
+        string? Address,
+        Guid CityId,
+        string? Description,
+        string? Facilities,
+        Guid? AreaId,
+        Guid? CoverImageId);
+
     public async Task<HousePage> SearchHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
     {
         var url = $"api/admin/houses?query={Uri.EscapeDataString(q ?? "")}&page={page}&pageSize={pageSize}";
         return await _http.GetFromJsonAsync<HousePage>(url, ct) ?? new HousePage { Query = q, Page = page, PageSize = pageSize, Total = 0, Items = new() };
     }
+
+    public Task<HouseDetails?> GetHouseAsync(Guid id, CancellationToken ct)
+        => _http.GetFromJsonAsync<HouseDetails>($"api/admin/houses/{id}", ct);
 
     // ---------- Cities (områder) ----------
     public sealed record CityListItem(Guid Id, string Name, string Zip, string? Slug);
