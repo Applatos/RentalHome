@@ -1,4 +1,5 @@
 ﻿using Sommerhus.Mvc.Controllers;
+using System.Globalization;
 using System.Net.Http.Json;
 
 namespace Sommerhus.Mvc.Services;
@@ -129,10 +130,33 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
     public async Task<IReadOnlyList<FeatureValueDto>> GetHouseFeaturesAsync(Guid houseId, CancellationToken ct = default)
         => await http.GetFromJsonAsync<List<FeatureValueDto>>($"api/houses/{houseId}/features", ct) ?? [];
 
-    public async Task UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<CreateHouseFeatureValueDto> values, CancellationToken ct = default)
+    public async Task UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<CreateHouseFeatureValueDto> values, CancellationToken ct =
+default)
     {
-        var payload = new { Items = values.ToList() };
-        var resp = await http.PostAsJsonAsync($"api/houses/{houseId}/features", payload, ct);
+        var items = values.Select(v =>
+        {
+            string rawValue;
+            if (v.ValueBool.HasValue)
+            {
+                rawValue = v.ValueBool.Value ? "true" : "false";
+            }
+            else if (v.ValueInt.HasValue)
+            {
+                rawValue = v.ValueInt.Value.ToString(CultureInfo.InvariantCulture);
+            }
+            else if (v.ValueDecimal.HasValue)
+            {
+                rawValue = v.ValueDecimal.Value.ToString(CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                rawValue = v.ValueText ?? string.Empty;
+            }
+
+            return new { v.FeatureId, RawValue = rawValue };
+        }).ToList();
+
+        var resp = await http.PostAsJsonAsync($"api/admin/houses/{houseId}/features", items, ct);
         resp.EnsureSuccessStatusCode();
     }
 

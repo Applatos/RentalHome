@@ -1,6 +1,6 @@
 ## Visual Studio / .NET build output
-bin/
-obj/
+**/bin/
+**/obj/
 [Bb]uild/
 [Ll]og/
 *.log

@@ -1,4 +1,4 @@
-﻿using Sommerhus.Api.Dtos.Shared;  // FeatureValueDto, PostFeatureValueDto
+﻿using Sommerhus.Api.Dtos.Shared; // FeatureValueDto
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Data;
 using Microsoft.EntityFrameworkCore;
@@ -22,31 +22,6 @@ public class HouseFeaturesController(AppDbContext db) : ControllerBase
             var f = v.Feature;
             return new FeatureValueDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl, f.FormatValue(v.RawValue));
         });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Upsert(Guid houseId, [FromBody] List<PostFeatureValueDto> payload, CancellationToken ct)
-    {
-        var featureIds = payload.Select(i => i.FeatureId).ToHashSet();
-
-        var existing = await db.HouseFeatureValues
-            .Where(v => v.HouseId == houseId && featureIds.Contains(v.FeatureId))
-            .ToListAsync(ct);
-
-        // opdater eller indsæt
-        foreach (var i in payload)
-        {
-            var row = existing.FirstOrDefault(v => v.FeatureId == i.FeatureId);
-            if (row is null)
-            {
-                row = new HouseFeatureValue { HouseId = houseId, FeatureId = i.FeatureId };
-                db.HouseFeatureValues.Add(row);
-            }
-            row.RawValue = i.RawValue;
-        }
-
-        await db.SaveChangesAsync(ct);
-        return NoContent();
     }
 }
 
