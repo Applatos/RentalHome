@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers;
@@ -52,11 +54,39 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return PartialView("~/Views/Admin/_Details.cshtml", new DetailVm { House = house });
     }
 
-    // ---------- CREATE/EDIT/DELETE (uændret) ----------
-    public record CreateFormVM(string Title, string? Subtitle, string? Address, string? City, string? Zip, string? Description, string? Facilities);
+    // ---------- CREATE/EDIT/DELETE ----------
+    public class CreateFormVM
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Subtitle { get; set; }
+        public string? Address { get; set; }
+        public Guid? CityId { get; set; }
+        public string? Description { get; set; }
+        public string? Facilities { get; set; }
+    }
+
+    private async Task PopulateCitiesAsync(Guid? selectedCityId, CancellationToken ct)
+    {
+        var cities = await api.GetCitiesAsync(ct);
+        ViewBag.CityOptions = cities
+            .OrderBy(c => c.City)
+            .ThenBy(c => c.Zip)
+            .Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = string.IsNullOrWhiteSpace(c.Zip) ? c.City : $"{c.Zip} {c.City}",
+                Selected = selectedCityId.HasValue && c.Id == selectedCityId.Value
+            })
+            .ToList();
+    }
 
     [HttpGet("/admin/create")]
-    public IActionResult Create() => View(new CreateFormVM("", "", "", "", "", "", ""));
+    public async Task<IActionResult> Create(CancellationToken ct)
+    {
+        var form = new CreateFormVM();
+        await PopulateCitiesAsync(form.CityId, ct);
+        return View(form);
+    }
 
     [ValidateAntiForgeryToken]
     [HttpPost("/admin/create")]
@@ -65,8 +95,18 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         if (string.IsNullOrWhiteSpace(form.Title))
         {
             ModelState.AddModelError(nameof(form.Title), "Titel er påkrævet");
+        }
+        if (!form.CityId.HasValue || form.CityId == Guid.Empty)
+        {
+            ModelState.AddModelError(nameof(form.CityId), "By er påkrævet");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await PopulateCitiesAsync(form.CityId, ct);
             return View("Create", form);
         }
+
         var id = await api.CreateHouseAsync(form, ct);
         TempData["ok"] = "Hus oprettet";
         return Redirect($"/admin/{id}/images");
@@ -75,10 +115,21 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     [HttpGet("/admin/{id:guid}/edit")]
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct)
     {
-        var h = await api.GetHouseAsync(id, ct);
+        var h = await adminApi.GetHouseAsync(id, ct);
         if (h is null) return NotFound();
-        var form = new CreateFormVM(h.Title, h.Subtitle, h.Address, h.City, h.Zip, h.Description, h.Facilities);
+
+        var form = new CreateFormVM
+        {
+            Title = h.Title,
+            Subtitle = h.Subtitle,
+            Address = h.Address,
+            CityId = h.CityId,
+            Description = h.Description,
+            Facilities = h.Facilities
+        };
+
         ViewBag.HouseId = id;
+        await PopulateCitiesAsync(form.CityId, ct);
         return View(form);
     }
 
@@ -86,29 +137,28 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     [HttpPost("/admin/{id:guid}/edit")]
     public async Task<IActionResult> EditPost(Guid id, CreateFormVM form, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(form.Title))
+        {
+            ModelState.AddModelError(nameof(form.Title), "Titel er påkrævet");
+        }
+        if (!form.CityId.HasValue || form.CityId == Guid.Empty)
+        {
+            ModelState.AddModelError(nameof(form.CityId), "By er påkrævet");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.HouseId = id;
+            await PopulateCitiesAsync(form.CityId, ct);
+            return View("Edit", form);
+        }
+
         await api.UpdateHouseAsync(id, form, ct);
         TempData["ok"] = "Gemte ændringer";
         return Redirect($"/admin/{id}/images");
     }
 
-    [HttpGet("/admin/{id:guid}/delete")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
-    {
-        var h = await api.GetHouseAsync(id, ct);
-        if (h is null) return NotFound();
-        return View(h);
-    }
-
-    [ValidateAntiForgeryToken]
-    [HttpPost("/admin/{id:guid}/delete")]
-    public async Task<IActionResult> DeletePost(Guid id, CancellationToken ct)
-    {
-        await api.DeleteHouseAsync(id, ct);
-        TempData["ok"] = "Hus slettet";
-        return Redirect("/admin");
-    }
-
-    // ---------- IMAGES (klassisk side – bevares) ----------
+// ---------- IMAGES (klassisk side – bevares) ----------
     [HttpGet("/admin/{id:guid}/images")]
     public async Task<IActionResult> Images(Guid id, CancellationToken ct)
     {

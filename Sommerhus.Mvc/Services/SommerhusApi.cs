@@ -39,10 +39,22 @@ public record FeatureValueDto(Guid FeatureId, string Name, string Key, string Va
     bool? Bool, int? Int, decimal? Decimal, string? Text, string Display);
 public record CreateHouseFeatureValueDto(Guid FeatureId, bool? ValueBool, int? ValueInt, decimal? ValueDecimal, string? ValueText);
 
-public record HouseDetails(Guid Id, string Title, string? Subtitle, string? City, string? Zip, string? Address, string? Description, string? Facilities,
-    string? CoverUrl, HouseImage[] Gallery, HouseImage? Floorplan, FeatureValueDto[] Features);
+public record HouseDetails(
+    Guid Id,
+    string Title,
+    string? Subtitle,
+    string? City,
+    string? Zip,
+    string? Address,
+    string? CitySlug,
+    string? Description,
+    string? Facilities,
+    string? CoverUrl,
+    HouseImage[] Gallery,
+    HouseImage? Floorplan,
+    FeatureValueDto[] Features);
 
-public record CityListItem(string Slug, string City, int Count);
+public record CityListItem(Guid Id, string Slug, string City, string Zip, int Count);
 public record ZipCodeDto(string Zip, string City);
 
 public class SommerhusApi(HttpClient http) : ISommerhusApi
@@ -62,7 +74,15 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
 
     public async Task<Guid> CreateHouseAsync(AdminController.CreateFormVM form, CancellationToken ct = default)
     {
-        var dto = new { form.Title, form.Subtitle, form.Address, form.City, form.Zip, form.Description, form.Facilities };
+        var dto = new
+        {
+            form.Title,
+            form.Subtitle,
+            form.Address,
+            CityId = form.CityId ?? throw new ArgumentException("CityId is required", nameof(form)),
+            form.Description,
+            form.Facilities
+        };
         var resp = await http.PostAsJsonAsync("api/houses", dto, ct);
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
@@ -70,7 +90,15 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
 
     public async Task UpdateHouseAsync(Guid id, AdminController.CreateFormVM form, CancellationToken ct = default)
     {
-        var dto = new { form.Title, form.Subtitle, form.Address, form.City, form.Zip, form.Description, form.Facilities };
+        var dto = new
+        {
+            form.Title,
+            form.Subtitle,
+            form.Address,
+            CityId = form.CityId ?? throw new ArgumentException("CityId is required", nameof(form)),
+            form.Description,
+            form.Facilities
+        };
         var resp = await http.PutAsJsonAsync($"api/houses/{id}", dto, ct);
         resp.EnsureSuccessStatusCode();
     }
