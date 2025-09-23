@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
 using Sommerhus.Api.Dtos.Admin.Cities;
 using Sommerhus.Api.Models;
+using System.Text.RegularExpressions;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -10,6 +11,8 @@ namespace Sommerhus.Api.Controllers.Admin;
 [Route("api/admin/zipcodes")]
 public sealed class ZipCodesController(AppDbContext db) : ControllerBase
 {
+    private static readonly Regex SlugRegex = new("[^a-z0-9]+", RegexOptions.Compiled);
+
     [HttpGet]
     public async Task<ActionResult<ZipPageDto>> List(
         [FromQuery] string? query,
@@ -50,7 +53,8 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ZipDto>> Create([FromBody] CreateZipDto dto, CancellationToken ct)
     {
-        var z = new City { Zip = dto.Zip.Trim(), Name = dto.City.Trim() };
+        var slug = await GenerateUniqueSlugAsync(dto.City, null, ct);
+        var z = new City { Zip = dto.Zip.Trim(), Name = dto.City.Trim(), Slug = slug };
         db.Cities.Add(z);
         await db.SaveChangesAsync(ct);
         return CreatedAtAction(nameof(Get), new { id = z.Id }, new ZipDto(z.Id, z.Zip, z.Name));
@@ -69,8 +73,11 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
     {
         var z = await db.Cities.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (z is null) return NotFound();
+
         z.Zip = dto.Zip.Trim();
         z.Name = dto.City.Trim();
+        z.Slug = await GenerateUniqueSlugAsync(dto.City, id, ct);
+
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
@@ -83,5 +90,25 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
         db.Cities.Remove(z);
         await db.SaveChangesAsync(ct);
         return NoContent();
+    }
+
+    private static string Slugify(string value)
+    {
+        var normalized = value.Trim().ToLowerInvariant();
+        normalized = SlugRegex.Replace(normalized, "-");
+        normalized = normalized.Trim('-');
+        return string.IsNullOrWhiteSpace(normalized) ? Guid.NewGuid().ToString("N") : normalized;
+    }
+
+    private async Task<string> GenerateUniqueSlugAsync(string value, Guid? ignoreId, CancellationToken ct)
+    {
+        var baseSlug = Slugify(value);
+        var slug = baseSlug;
+        var suffix = 1;
+        while (await db.Cities.AnyAsync(c => c.Slug == slug && (!ignoreId.HasValue || c.Id != ignoreId.Value), ct))
+        {
+            slug = $"{baseSlug}-{suffix++}";
+        }
+        return slug;
     }
 }

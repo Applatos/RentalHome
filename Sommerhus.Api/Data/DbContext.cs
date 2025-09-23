@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<City> Cities => Set<City>();
     public DbSet<Area> Areas => Set<Area>();
     public DbSet<AreaImage> AreaImages => Set<AreaImage>();
+    public DbSet<CityImage> CityImages => Set<CityImage>();
     public DbSet<HouseFeatureValue> HouseFeatureValues => Set<HouseFeatureValue>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +30,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(i => i.HouseId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<City>()
+            .HasMany(c => c.Images)
+            .WithOne(i => i.City)
+            .HasForeignKey(i => i.CityId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<HouseImage>(b =>
         {
             b.Property(i => i.FileName).HasMaxLength(300).IsRequired();
@@ -38,6 +45,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             // (Valgfri) Gem enum som string i DB for læsbarhed
             b.Property(i => i.Kind).HasConversion<string>();
+        });
+
+        modelBuilder.Entity<City>(b =>
+        {
+            b.HasIndex(c => c.Slug).IsUnique();
+        });
+
+        modelBuilder.Entity<CityImage>(b =>
+        {
+            b.HasIndex(i => new { i.CityId, i.FileName }).IsUnique();
         });
 
         base.OnModelCreating(modelBuilder);
