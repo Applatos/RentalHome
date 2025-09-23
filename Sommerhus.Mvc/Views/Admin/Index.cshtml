@@ -1,40 +1,64 @@
-﻿@{
-    ViewData["Title"] = "Admin – Huse (Master–Detail)";
-    var q = (string?)ViewBag.Query ?? "";
+@{
+    ViewData["Title"] = "Admin";
+    var q = (string?)ViewBag.Query ?? string.Empty;
     var page = (int)(ViewBag.Page ?? 1);
 }
 <link href="/css/admin.css" rel="stylesheet" />
 
-<div class="admin-shell">
-    <div class="master p-3">
-        <form class="mb-3"
-              hx-get="/admin/master"
-              hx-target="#master"
-              hx-swap="outerHTML">
-            <input type="hidden" name="page" value="1" />
-            <div class="input-group">
-                <input type="text" name="q" value="@q" class="form-control" placeholder="Søg titel/by/postnr…" />
-                <button class="btn btn-outline-secondary" type="submit">Søg</button>
-            </div>
-            @Html.AntiForgeryToken()
-        </form>
+<ul class="nav nav-pills tabbar mb-3" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-houses-btn" data-bs-toggle="tab" data-bs-target="#tab-houses" type="button" role="tab">Huse</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-areas-btn" data-bs-toggle="tab" data-bs-target="#tab-areas" type="button" role="tab">Områder</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-features-btn" data-bs-toggle="tab" data-bs-target="#tab-features" type="button" role="tab">Features</button>
+    </li>
+</ul>
 
-        <div id="master"
-             hx-get="@Url.Action("Master", "Admin", new { q = q, page = page, pageSize = 20 })"
-             hx-trigger="load">
-            <div class="p-3 text-muted">Indlæser liste…</div>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="tab-houses" role="tabpanel">
+        <div id="tab-houses-content"
+             hx-get='@Url.Action("HousesTab", new { page, q })'
+             hx-trigger="load, admin-houses-updated from:body"
+             hx-target="this"
+             hx-swap="innerHTML">
+            <div class="p-3 text-muted">Indlæser huse…</div>
         </div>
     </div>
-
-    <div class="detail p-3" id="detail">
-        <div class="text-muted">Vælg et hus i listen for at se detaljer…</div>
+    <div class="tab-pane fade" id="tab-areas" role="tabpanel">
+        <div id="tab-areas-content"
+             hx-get='@Url.Action("AreasTab")'
+             hx-trigger="admin-areas-load from:body, admin-areas-updated from:body"
+             hx-target="this"
+             hx-swap="innerHTML">
+            <div class="p-3 text-muted">Vælg fanen for at indlæse områder…</div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="tab-features" role="tabpanel">
+        <div id="tab-features-content"
+             hx-get='@Url.Action("FeaturesTab")'
+             hx-trigger="admin-features-load from:body, admin-features-updated from:body"
+             hx-target="this"
+             hx-swap="innerHTML">
+            <div class="p-3 text-muted">Vælg fanen for at indlæse features…</div>
+        </div>
     </div>
 </div>
 
-<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 <script>
-    document.body.addEventListener('htmx:configRequest', (evt) => {
-      const t = document.querySelector('input[name="__RequestVerificationToken"]');
-      if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
+    window.addEventListener('load', () => {
+        const tabs = document.getElementById('adminTabs');
+        if (!tabs) return;
+        tabs.addEventListener('shown.bs.tab', (ev) => {
+            const target = ev.target?.getAttribute('data-bs-target');
+            if (target === '#tab-areas') {
+                if (window.htmx) htmx.trigger('#tab-areas-content', 'admin-areas-load');
+            }
+            if (target === '#tab-features') {
+                if (window.htmx) htmx.trigger('#tab-features-content', 'admin-features-load');
+            }
+        });
     });
 </script>

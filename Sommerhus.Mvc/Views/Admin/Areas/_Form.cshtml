@@ -1,0 +1,31 @@
+@model Sommerhus.Mvc.Controllers.AdminController.AreaFormVm
+@{
+    var isEdit = (bool?)(ViewBag.AreaIsEdit) ?? false;
+    var action = isEdit ? $"/admin/areas/{Model.Id}/edit" : "/admin/areas/create";
+    var title = isEdit ? "Redigér område" : "Nyt område";
+}
+
+<form hx-post="@action" hx-target="#areas-detail" hx-swap="innerHTML" class="vstack gap-2">
+    @Html.AntiForgeryToken()
+    <h5>@title</h5>
+
+    <div>
+        <label class="form-label">Navn</label>
+        <input class="form-control" asp-for="Name" />
+        <span class="text-danger" asp-validation-for="Name"></span>
+    </div>
+    <div>
+        <label class="form-label">Beskrivelse</label>
+        <textarea class="form-control" rows="4" asp-for="Description"></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-dark" type="submit">Gem</button>
+        <button class="btn btn-outline-secondary" type="button"
+                hx-get="/admin/areas/@(isEdit ? Model.Id : Guid.Empty)/detail"
+                hx-target="#areas-detail"
+                hx-swap="innerHTML">
+            Annullér
+        </button>
+    </div>
+</form>

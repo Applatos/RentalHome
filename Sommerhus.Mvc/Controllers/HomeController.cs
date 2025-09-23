@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Mvc.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Sommerhus.Mvc.Controllers;
 
@@ -38,7 +40,11 @@ public class HomeController(ISommerhusApi api) : Controller
                 thumbs.AddRange(d.Gallery.Take(5).Select(g => g.Url));
             }
 
-            items.Add(new CardItem(h.Id, h.Title, h.Subtitle, h.City, h.Zip, h.Cover, thumbs));
+            var cover = string.IsNullOrWhiteSpace(h.Cover)
+                ? (d?.CoverUrl ?? thumbs.FirstOrDefault())
+                : h.Cover;
+
+            items.Add(new CardItem(h.Id, h.Title, h.Subtitle, h.City, h.Zip, cover, thumbs));
         }
 
         return View(new HomeIndexVM(city, q, cities, items));

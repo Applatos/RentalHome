@@ -1,13 +1,16 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers;
 
 public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Controller
 {
-    // ---------- LANDING (master–detail shell) ----------
+    private static readonly string[] FeatureValueTypes = ["Bool", "Int", "Decimal", "Text"];
+
+    // ---------- Landing & tabs ----------
     [HttpGet("/admin")]
     public IActionResult Index(int page = 1, string? q = null)
     {
@@ -16,8 +19,31 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return View();
     }
 
-    // ---------- MASTER (paged partial) ----------
+    [HttpGet("/admin/tab/houses")]
+    public IActionResult HousesTab(int page = 1, string? q = null)
+    {
+        ViewBag.Page = page;
+        ViewBag.Query = q;
+        return PartialView("~/Views/Admin/Tabs/_Houses.cshtml");
+    }
+
+    [HttpGet("/admin/tab/areas")]
+    public IActionResult AreasTab(string? q = null)
+    {
+        ViewBag.Query = q;
+        return PartialView("~/Views/Admin/Tabs/_Areas.cshtml");
+    }
+
+    [HttpGet("/admin/tab/features")]
+    public IActionResult FeaturesTab(string? q = null)
+    {
+        ViewBag.Query = q;
+        return PartialView("~/Views/Admin/Tabs/_Features.cshtml");
+    }
+
+    // ---------- Houses (master/detail + CRUD) ----------
     public sealed record MasterListItem(Guid Id, string Title, string? City, string? Zip, string? Cover);
+
     public sealed class MasterListVm
     {
         public string? Query { get; set; }
@@ -43,8 +69,10 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return PartialView("~/Views/Admin/_MasterList.cshtml", vm);
     }
 
-    // ---------- DETAIL (enkel – vi genbruger dine eksisterende DTO’er/services) ----------
-    public sealed class DetailVm { public Services.HouseDetails House { get; set; } = default!; }
+    public sealed class DetailVm
+    {
+        public Services.HouseDetails House { get; set; } = default!;
+    }
 
     [HttpGet("/admin/{id:guid}/detail")]
     public async Task<IActionResult> Detail(Guid id, CancellationToken ct)
@@ -54,37 +82,22 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return PartialView("~/Views/Admin/_Details.cshtml", new DetailVm { House = house });
     }
 
-    // ---------- CREATE/EDIT/DELETE ----------
     public class CreateFormVM
     {
+        [Required(ErrorMessage = "Titel er påkrævet")]
         public string Title { get; set; } = string.Empty;
         public string? Subtitle { get; set; }
         public string? Address { get; set; }
         public Guid? CityId { get; set; }
+        public string? CitySearch { get; set; }
         public string? Description { get; set; }
         public string? Facilities { get; set; }
     }
 
-    private async Task PopulateCitiesAsync(Guid? selectedCityId, CancellationToken ct)
-    {
-        var cities = await api.GetCitiesAsync(ct);
-        ViewBag.CityOptions = cities
-            .OrderBy(c => c.City)
-            .ThenBy(c => c.Zip)
-            .Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = string.IsNullOrWhiteSpace(c.Zip) ? c.City : $"{c.Zip} {c.City}",
-                Selected = selectedCityId.HasValue && c.Id == selectedCityId.Value
-            })
-            .ToList();
-    }
-
     [HttpGet("/admin/create")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+    public IActionResult Create()
     {
         var form = new CreateFormVM();
-        await PopulateCitiesAsync(form.CityId, ct);
         return View(form);
     }
 
@@ -92,10 +105,6 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     [HttpPost("/admin/create")]
     public async Task<IActionResult> CreatePost(CreateFormVM form, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(form.Title))
-        {
-            ModelState.AddModelError(nameof(form.Title), "Titel er påkrævet");
-        }
         if (!form.CityId.HasValue || form.CityId == Guid.Empty)
         {
             ModelState.AddModelError(nameof(form.CityId), "By er påkrævet");
@@ -103,7 +112,6 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
 
         if (!ModelState.IsValid)
         {
-            await PopulateCitiesAsync(form.CityId, ct);
             return View("Create", form);
         }
 
@@ -125,11 +133,11 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
             Address = h.Address,
             CityId = h.CityId,
             Description = h.Description,
-            Facilities = h.Facilities
+            Facilities = h.Facilities,
+            CitySearch = await ResolveCityLabelAsync(h.CityId, ct)
         };
 
         ViewBag.HouseId = id;
-        await PopulateCitiesAsync(form.CityId, ct);
         return View(form);
     }
 
@@ -137,10 +145,6 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     [HttpPost("/admin/{id:guid}/edit")]
     public async Task<IActionResult> EditPost(Guid id, CreateFormVM form, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(form.Title))
-        {
-            ModelState.AddModelError(nameof(form.Title), "Titel er påkrævet");
-        }
         if (!form.CityId.HasValue || form.CityId == Guid.Empty)
         {
             ModelState.AddModelError(nameof(form.CityId), "By er påkrævet");
@@ -149,7 +153,6 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         if (!ModelState.IsValid)
         {
             ViewBag.HouseId = id;
-            await PopulateCitiesAsync(form.CityId, ct);
             return View("Edit", form);
         }
 
@@ -158,7 +161,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return Redirect($"/admin/{id}/images");
     }
 
-// ---------- IMAGES (klassisk side – bevares) ----------
+    // ---------- House image management ----------
     [HttpGet("/admin/{id:guid}/images")]
     public async Task<IActionResult> Images(Guid id, CancellationToken ct)
     {
@@ -209,5 +212,377 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     {
         await api.DeleteImageAsync(id, imgId, ct);
         return Redirect($"/admin/{id}/images");
+    }
+
+    // ---------- City lookup ----------
+    [HttpGet("/admin/cities/search")]
+    public async Task<IActionResult> SearchCities(string q, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
+        {
+            return Json(Array.Empty<object>());
+        }
+
+        var page = await adminApi.SearchZipcodesAsync(q.Trim(), 1, 8, ct);
+        var items = (page.Items ?? new List<AdminApiClient.ZipListItem>())
+            .Select(x => new { id = x.Id, label = x.Display })
+            .ToArray();
+        return Json(items);
+    }
+
+    private async Task<string?> ResolveCityLabelAsync(Guid? cityId, CancellationToken ct)
+    {
+        if (!cityId.HasValue || cityId == Guid.Empty) return null;
+        var city = await adminApi.GetCityAsync(cityId.Value, ct);
+        if (city is null) return null;
+        var parts = new[] { city.Zip, city.Name }.Where(s => !string.IsNullOrWhiteSpace(s));
+        return string.Join(' ', parts);
+    }
+
+    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    // ---------- Areas ----------
+    public sealed record AreaMasterItem(Guid Id, string Name, int HouseCount, int ImageCount);
+
+    public sealed class AreaMasterVm
+    {
+        public string? Query { get; set; }
+        public List<AreaMasterItem> Items { get; set; } = new();
+    }
+
+    public sealed class AreaDetailVm
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public IReadOnlyList<AdminApiClient.AreaImage> Images { get; set; } = Array.Empty<AdminApiClient.AreaImage>();
+    }
+
+    public class AreaFormVm
+    {
+        public Guid? Id { get; set; }
+        [Required(ErrorMessage = "Navn er påkrævet")]
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+
+    [HttpGet("/admin/areas/master")]
+    public async Task<IActionResult> AreasMaster(string? q, CancellationToken ct)
+    {
+        var list = await adminApi.GetAreasAsync(ct);
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            list = list.Where(a => a.Name.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        var vm = new AreaMasterVm
+        {
+            Query = q,
+            Items = list
+                .OrderBy(a => a.Name)
+                .Select(a => new AreaMasterItem(a.Id, a.Name, a.HouseCount, a.ImageCount))
+                .ToList()
+        };
+
+        return PartialView("~/Views/Admin/Areas/_MasterList.cshtml", vm);
+    }
+
+    [HttpGet("/admin/areas/{id:guid}/detail")]
+    public async Task<IActionResult> AreaDetail(Guid id, CancellationToken ct)
+    {
+        if (id == Guid.Empty)
+        {
+            return PartialView("~/Views/Admin/Areas/_Detail.cshtml", model: null);
+        }
+
+        var area = await adminApi.GetAreaAsync(id, ct);
+        if (area is null) return NotFound();
+
+        var vm = new AreaDetailVm
+        {
+            Id = area.Id,
+            Name = area.Name,
+            Description = area.Description,
+            Images = area.Images ?? new List<AdminApiClient.AreaImage>()
+        };
+
+        return PartialView("~/Views/Admin/Areas/_Detail.cshtml", vm);
+    }
+
+    [HttpGet("/admin/areas/create")]
+    public IActionResult AreaCreate()
+    {
+        ViewBag.AreaIsEdit = false;
+        return PartialView("~/Views/Admin/Areas/_Form.cshtml", new AreaFormVm());
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/areas/create")]
+    public async Task<IActionResult> AreaCreatePost(AreaFormVm form, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.AreaIsEdit = false;
+            return PartialView("~/Views/Admin/Areas/_Form.cshtml", form);
+        }
+
+        var id = await adminApi.CreateAreaAsync(form.Name.Trim(), Clean(form.Description), null, ct);
+        TempData["ok"] = "Område oprettet";
+        Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        return await AreaDetail(id, ct);
+    }
+
+    [HttpGet("/admin/areas/{id:guid}/edit")]
+    public async Task<IActionResult> AreaEdit(Guid id, CancellationToken ct)
+    {
+        var area = await adminApi.GetAreaAsync(id, ct);
+        if (area is null) return NotFound();
+
+        var form = new AreaFormVm
+        {
+            Id = area.Id,
+            Name = area.Name,
+            Description = area.Description
+        };
+
+        ViewBag.AreaIsEdit = true;
+        return PartialView("~/Views/Admin/Areas/_Form.cshtml", form);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/areas/{id:guid}/edit")]
+    public async Task<IActionResult> AreaEditPost(Guid id, AreaFormVm form, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.AreaIsEdit = true;
+            return PartialView("~/Views/Admin/Areas/_Form.cshtml", form);
+        }
+
+        await adminApi.UpdateAreaAsync(id, form.Name.Trim(), Clean(form.Description), null, ct);
+        TempData["ok"] = "Område opdateret";
+        Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        return await AreaDetail(id, ct);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/areas/{id:guid}/delete")]
+    public async Task<IActionResult> AreaDelete(Guid id, CancellationToken ct)
+    {
+        await adminApi.DeleteAreaAsync(id, ct);
+        TempData["ok"] = "Område slettet";
+        Response.Headers["HX-Trigger"] = "admin-areas-updated";
+        return PartialView("~/Views/Admin/Areas/_Detail.cshtml", model: null);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/areas/{id:guid}/images")]
+    public async Task<IActionResult> AreaUploadImage(Guid id, IFormFile file, CancellationToken ct)
+    {
+        if (file is { Length: > 0 })
+        {
+            using var stream = file.OpenReadStream();
+            await adminApi.UploadAreaImageAsync(id, stream, file.FileName, ct);
+        }
+
+        return await AreaDetail(id, ct);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/areas/{id:guid}/images/{imageId:guid}/delete")]
+    public async Task<IActionResult> AreaDeleteImage(Guid id, Guid imageId, CancellationToken ct)
+    {
+        await adminApi.DeleteAreaImageAsync(id, imageId, ct);
+        return await AreaDetail(id, ct);
+    }
+
+    // ---------- Features ----------
+    public sealed record FeatureMasterItem(Guid Id, string Name, string Key, string ValueType, string? IconUrl);
+
+    public sealed class FeatureMasterVm
+    {
+        public string? Query { get; set; }
+        public List<FeatureMasterItem> Items { get; set; } = new();
+    }
+
+    public sealed class FeatureDetailVm
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
+        public string ValueType { get; set; } = string.Empty;
+        public string? Unit { get; set; }
+        public string? IconUrl { get; set; }
+        public int SortOrder { get; set; }
+    }
+
+    public class FeatureFormVm
+    {
+        public Guid? Id { get; set; }
+        [Required(ErrorMessage = "Navn er påkrævet")]
+        public string Name { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Nøgle er påkrævet")]
+        public string Key { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Datatype er påkrævet")]
+        public string ValueType { get; set; } = FeatureValueTypes[0];
+        public string? Unit { get; set; }
+        public string? IconUrl { get; set; }
+        public int SortOrder { get; set; }
+    }
+
+    [HttpGet("/admin/features/master")]
+    public async Task<IActionResult> FeaturesMaster(string? q, CancellationToken ct)
+    {
+        var list = await adminApi.GetFeaturesAsync(ct) ?? new List<AdminApiClient.FeatureListItem>();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            list = list.Where(f =>
+                    f.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    f.Key.Contains(term, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        var vm = new FeatureMasterVm
+        {
+            Query = q,
+            Items = list
+                .OrderBy(f => f.SortOrder)
+                .ThenBy(f => f.Name)
+                .Select(f => new FeatureMasterItem(f.Id, f.Name, f.Key, f.ValueType, f.IconUrl))
+                .ToList()
+        };
+
+        return PartialView("~/Views/Admin/Features/_MasterList.cshtml", vm);
+    }
+
+    [HttpGet("/admin/features/{id:guid}/detail")]
+    public async Task<IActionResult> FeatureDetail(Guid id, CancellationToken ct)
+    {
+        if (id == Guid.Empty)
+        {
+            return PartialView("~/Views/Admin/Features/_Detail.cshtml", model: null);
+        }
+
+        var list = await adminApi.GetFeaturesAsync(ct) ?? new List<AdminApiClient.FeatureListItem>();
+        var feature = list.FirstOrDefault(f => f.Id == id);
+        if (feature is null) return NotFound();
+
+        var vm = new FeatureDetailVm
+        {
+            Id = feature.Id,
+            Name = feature.Name,
+            Key = feature.Key,
+            ValueType = feature.ValueType,
+            Unit = feature.Unit,
+            IconUrl = feature.IconUrl,
+            SortOrder = feature.SortOrder
+        };
+
+        return PartialView("~/Views/Admin/Features/_Detail.cshtml", vm);
+    }
+
+    [HttpGet("/admin/features/create")]
+    public IActionResult FeatureCreate()
+    {
+        ViewBag.FeatureIsEdit = false;
+        ViewBag.FeatureValueTypes = FeatureValueTypes;
+        return PartialView("~/Views/Admin/Features/_Form.cshtml", new FeatureFormVm());
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/features/create")]
+    public async Task<IActionResult> FeatureCreatePost(FeatureFormVm form, CancellationToken ct)
+    {
+        if (!FeatureValueTypes.Contains(form.ValueType, StringComparer.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(form.ValueType), "Ugyldig datatype");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.FeatureIsEdit = false;
+            ViewBag.FeatureValueTypes = FeatureValueTypes;
+            return PartialView("~/Views/Admin/Features/_Form.cshtml", form);
+        }
+
+        var newId = await adminApi.CreateFeatureAsync(
+            form.Name.Trim(),
+            form.Key.Trim(),
+            form.ValueType,
+            Clean(form.Unit),
+            Clean(form.IconUrl),
+            form.SortOrder,
+            ct);
+
+        TempData["ok"] = "Feature oprettet";
+        Response.Headers["HX-Trigger"] = "admin-features-updated";
+        return await FeatureDetail(newId, ct);
+    }
+
+    [HttpGet("/admin/features/{id:guid}/edit")]
+    public async Task<IActionResult> FeatureEdit(Guid id, CancellationToken ct)
+    {
+        var list = await adminApi.GetFeaturesAsync(ct) ?? new List<AdminApiClient.FeatureListItem>();
+        var feature = list.FirstOrDefault(f => f.Id == id);
+        if (feature is null) return NotFound();
+
+        var form = new FeatureFormVm
+        {
+            Id = feature.Id,
+            Name = feature.Name,
+            Key = feature.Key,
+            ValueType = feature.ValueType,
+            Unit = feature.Unit,
+            IconUrl = feature.IconUrl,
+            SortOrder = feature.SortOrder
+        };
+
+        ViewBag.FeatureIsEdit = true;
+        ViewBag.FeatureValueTypes = FeatureValueTypes;
+        return PartialView("~/Views/Admin/Features/_Form.cshtml", form);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/features/{id:guid}/edit")]
+    public async Task<IActionResult> FeatureEditPost(Guid id, FeatureFormVm form, CancellationToken ct)
+    {
+        if (!FeatureValueTypes.Contains(form.ValueType, StringComparer.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(form.ValueType), "Ugyldig datatype");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.FeatureIsEdit = true;
+            ViewBag.FeatureValueTypes = FeatureValueTypes;
+            return PartialView("~/Views/Admin/Features/_Form.cshtml", form);
+        }
+
+        await adminApi.UpdateFeatureAsync(
+            id,
+            form.Name.Trim(),
+            form.Key.Trim(),
+            form.ValueType,
+            Clean(form.Unit),
+            Clean(form.IconUrl),
+            form.SortOrder,
+            ct);
+
+        TempData["ok"] = "Feature opdateret";
+        Response.Headers["HX-Trigger"] = "admin-features-updated";
+        return await FeatureDetail(id, ct);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("/admin/features/{id:guid}/delete")]
+    public async Task<IActionResult> FeatureDelete(Guid id, CancellationToken ct)
+    {
+        await adminApi.DeleteFeatureAsync(id, ct);
+        TempData["ok"] = "Feature slettet";
+        Response.Headers["HX-Trigger"] = "admin-features-updated";
+        return PartialView("~/Views/Admin/Features/_Detail.cshtml", model: null);
     }
 }

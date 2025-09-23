@@ -83,7 +83,7 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
             form.Description,
             form.Facilities
         };
-        var resp = await http.PostAsJsonAsync("api/houses", dto, ct);
+        var resp = await http.PostAsJsonAsync("api/admin/houses", dto, ct);
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
     }
@@ -99,13 +99,13 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
             form.Description,
             form.Facilities
         };
-        var resp = await http.PutAsJsonAsync($"api/houses/{id}", dto, ct);
+        var resp = await http.PutAsJsonAsync($"api/admin/houses/{id}", dto, ct);
         resp.EnsureSuccessStatusCode();
     }
 
     public async Task DeleteHouseAsync(Guid id, CancellationToken ct = default)
     {
-        var resp = await http.DeleteAsync($"api/houses/{id}", ct);
+        var resp = await http.DeleteAsync($"api/admin/houses/{id}", ct);
         resp.EnsureSuccessStatusCode();
     }
 
@@ -114,7 +114,7 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
     {
         using var content = new MultipartFormDataContent();
         content.Add(new StreamContent(fileStream), "file", fileName);
-        var resp = await http.PostAsync($"api/houses/{houseId}/images/cover", content, ct);
+        var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/cover", content, ct);
         resp.EnsureSuccessStatusCode();
         var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
         return (dto.Id, dto.Url);
@@ -127,7 +127,7 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
         {
             using var content = new MultipartFormDataContent();
             content.Add(new StreamContent(stream), "file", fileName);
-            var resp = await http.PostAsync($"api/houses/{houseId}/images/gallery", content, ct);
+            var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/gallery", content, ct);
             resp.EnsureSuccessStatusCode();
             var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
             result.Add(dto);
@@ -139,17 +139,17 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
     {
         using var content = new MultipartFormDataContent();
         content.Add(new StreamContent(fileStream), "file", fileName);
-        var resp = await http.PostAsync($"api/houses/{houseId}/images/floorplan", content, ct);
+        var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/floorplan", content, ct);
         resp.EnsureSuccessStatusCode();
         var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
         return (dto.Id, dto.Url);
     }
 
     public async Task SetCoverAsync(Guid houseId, Guid imageId, CancellationToken ct = default)
-        => (await http.PostAsync($"api/houses/{houseId}/images/{imageId}/set-cover", null, ct)).EnsureSuccessStatusCode();
+        => (await http.PostAsync($"api/admin/houses/{houseId}/images/{imageId}/set-cover", null, ct)).EnsureSuccessStatusCode();
 
     public async Task DeleteImageAsync(Guid houseId, Guid imageId, CancellationToken ct = default)
-        => (await http.DeleteAsync($"api/houses/{houseId}/images/{imageId}", ct)).EnsureSuccessStatusCode();
+        => (await http.DeleteAsync($"api/admin/houses/{houseId}/images/{imageId}", ct)).EnsureSuccessStatusCode();
 
     // Features
     public async Task<IReadOnlyList<FeatureDto>> GetFeaturesAsync(CancellationToken ct = default)

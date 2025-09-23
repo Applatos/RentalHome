@@ -1,0 +1,71 @@
+@model Sommerhus.Mvc.Controllers.AdminController.AreaDetailVm?
+
+@if (Model is null)
+{
+    @Html.AntiForgeryToken()
+    <div class="text-muted">Vælg et område for at se detaljer…</div>
+}
+else
+{
+    @Html.AntiForgeryToken()
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">@Model.Name</h5>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary"
+                    hx-get="/admin/areas/@Model.Id/edit"
+                    hx-target="#areas-detail"
+                    hx-swap="innerHTML">Redigér</button>
+            <form hx-post="/admin/areas/@Model.Id/delete"
+                  hx-target="#areas-detail"
+                  hx-swap="innerHTML"
+                  hx-confirm="Slet dette område?"
+                  class="d-inline">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-sm btn-outline-danger" type="submit">Slet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <strong>Beskrivelse</strong>
+        <div class="text-prewrap">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Ingen beskrivelse angivet.")</div>
+    </div>
+
+    <div class="mb-3">
+        <h6>Billeder</h6>
+        <form hx-post="/admin/areas/@Model.Id/images"
+              hx-target="#areas-detail"
+              hx-swap="innerHTML"
+              hx-encoding="multipart/form-data"
+              enctype="multipart/form-data"
+              class="d-flex gap-2 align-items-center mb-2">
+            @Html.AntiForgeryToken()
+            <input type="file" name="file" accept="image/*" class="form-control form-control-sm" />
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Upload</button>
+        </form>
+
+        @if (Model.Images.Count == 0)
+        {
+            <div class="text-muted">Ingen billeder endnu.</div>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var img in Model.Images)
+                {
+                    <div class="border rounded p-1" style="width:140px;">
+                        <img src="@img.Url" class="w-100 rounded" style="height:90px;object-fit:cover" />
+                        <form hx-post="/admin/areas/@Model.Id/images/@img.Id/delete"
+                              hx-target="#areas-detail"
+                              hx-swap="innerHTML"
+                              hx-confirm="Slet billede?"
+                              class="mt-1">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-outline-danger w-100" type="submit">Slet</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
