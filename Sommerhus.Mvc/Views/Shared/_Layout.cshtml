@@ -76,12 +76,20 @@
 
     <!-- Bootstrap JS bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="~/lib/htmx/htmx.min.js" asp-append-version="true"></script>
+    <script>
+        if (!window.htmx) {
+            const fallback = document.createElement('script');
+            fallback.src = 'https://unpkg.com/htmx.org@1.9.12';
+            fallback.defer = true;
+            document.head.appendChild(fallback);
+        }
+    </script>
     <script>
         // Send anti-forgery token med HTMX-requests
         document.body.addEventListener('htmx:configRequest', (evt) => {
-        const t = document.querySelector('input[name="__RequestVerificationToken"]');
-        if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
+            const t = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
