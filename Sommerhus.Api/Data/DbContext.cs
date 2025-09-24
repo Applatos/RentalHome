@@ -30,6 +30,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(i => i.HouseId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<VacationHouse>()
+            .HasMany(h => h.HouseFeatures)
+            .WithOne(v => v.House)
+            .HasForeignKey(v => v.HouseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<City>()
             .HasMany(c => c.Images)
             .WithOne(i => i.City)
