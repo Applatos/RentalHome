@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Sommerhus.Api.Dtos.Admin.Cities;
+using Sommerhus.Api.Dtos.Admin.Features;
 using Sommerhus.Api.Dtos.Admin.Houses;
 using Sommerhus.Api.Tests.Infrastructure;
 using System.Net;
@@ -45,6 +46,18 @@ public class HousesCrudTests : IClassFixture<CustomWebApplicationFactory>
         var updated = await _client.GetFromJsonAsync<HouseDetailsDto>($"/api/admin/houses/{houseId}");
         updated!.Title.Should().Be("Opdateret Hus");
         updated.Address.Should().Be("Strandvej 2");
+
+        var features = await _client.GetFromJsonAsync<List<FeatureDto>>("/api/admin/features");
+        features.Should().NotBeNull();
+
+        var featurePayload = new[]
+        {
+            new PostFeatureValueDto(features!.First().Id, "42")
+        };
+
+        var setFeatures = await _client.PostAsJsonAsync($"/api/admin/houses/{houseId}/features", featurePayload);
+        await setFeatures.DumpIfError(_out);
+        setFeatures.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var delete = await _client.DeleteAsync($"/api/admin/houses/{houseId}");
         delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
