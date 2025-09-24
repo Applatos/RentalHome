@@ -31,10 +31,3 @@
     <div id="city-edit" class="mt-3"></div>
 </div>
 
-<script src="https://unpkg.com/htmx.org@1.9.12"></script>
-<script>
-    document.body.addEventListener('htmx:configRequest', (evt) => {
-      const t = document.querySelector('input[name="__RequestVerificationToken"]');
-      if (t) evt.detail.headers['RequestVerificationToken'] = t.value;
-    });
-</script>
