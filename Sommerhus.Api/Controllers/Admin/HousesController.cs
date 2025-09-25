@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
@@ -5,13 +6,16 @@ using Sommerhus.Api.Dtos.Admin.Houses;
 using Sommerhus.Api.Dtos.Shared;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
+using System.IO;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/houses")]
-public sealed class HousesController(AppDbContext db) : ControllerBase
+public sealed class HousesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
 {
+    private readonly IWebHostEnvironment _env = env;
+
     [HttpGet]
     public async Task<PageResult<HouseListItemDto>> Get(
         [FromQuery] string? query,
@@ -159,11 +163,54 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var house = await db.Houses.Include(h => h.Images).FirstOrDefaultAsync(h => h.Id == id, ct);
+        var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == id, ct);
         if (house is null) return NotFound();
+
+        var imageFiles = await db.Images
+            .Where(i => i.HouseId == id)
+            .Select(i => i.FileName)
+            .ToListAsync(ct);
 
         db.Houses.Remove(house);
         await db.SaveChangesAsync(ct);
+
+        if (!string.IsNullOrWhiteSpace(_env.WebRootPath))
+        {
+            var houseDir = Path.Combine(_env.WebRootPath, "uploads", "houses", id.ToString());
+
+            foreach (var fileName in imageFiles.Where(f => !string.IsNullOrWhiteSpace(f)))
+            {
+                var fullPath = Path.Combine(houseDir, fileName!);
+                try
+                {
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+            }
+
+            try
+            {
+                if (Directory.Exists(houseDir) && !Directory.EnumerateFileSystemEntries(houseDir).Any())
+                {
+                    Directory.Delete(houseDir);
+                }
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+        }
+
         return NoContent();
     }
 
