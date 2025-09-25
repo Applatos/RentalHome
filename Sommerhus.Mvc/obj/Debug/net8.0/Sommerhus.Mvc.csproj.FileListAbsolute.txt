@@ -226,4 +226,3 @@ C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerh
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.genruntimeconfig.cache
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\ref\Sommerhus.Mvc.dll
 C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\Sommerhus.Mvc.sourcelink.json
-C:\Users\mikkel\Desktop\Sommerhus_project\Sommerhus.Mvc\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

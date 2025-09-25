@@ -1,4 +1,4 @@
-﻿@model Sommerhus.Mvc.Controllers.AdminController.MasterListVm
+@model Sommerhus.Mvc.Controllers.AdminController.MasterListVm
 
 <div class="list-group list-group-flush mb-3">
     @foreach (var h in Model.Items)
@@ -6,7 +6,14 @@
         <a href="#"
            class="list-group-item list-group-item-action d-flex align-items-center"
            hx-get="/admin/@h.Id/detail" hx-target="#detail" hx-swap="innerHTML">
-            <img src="@(string.IsNullOrWhiteSpace(h.Cover) ? "/images/placeholder.jpg" : h.Cover)" class="me-2 img-thumb" alt="cover" />
+            @if (!string.IsNullOrWhiteSpace(h.Cover))
+            {
+                <img src="@h.Cover" class="me-2 img-thumb flex-shrink-0" alt="cover" />
+            }
+            else
+            {
+                <div class="me-2 img-thumb flex-shrink-0 d-flex align-items-center justify-content-center bg-light text-muted small">Ingen</div>
+            }
             <div>
                 <div class="fw-semibold">@h.Title</div>
                 <div class="text-muted small">@h.City @h.Zip</div>

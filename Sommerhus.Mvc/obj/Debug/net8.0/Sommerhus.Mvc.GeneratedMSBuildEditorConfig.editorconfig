@@ -32,6 +32,18 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5GZWF0dXJlc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Areas/_Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXJlYXNcX0RldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Areas/_Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXJlYXNcX0Zvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Areas/_MasterList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXJlYXNcX01hc3Rlckxpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Cities/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2l0aWVzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -60,6 +72,30 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEltYWdlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Features/_Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRmVhdHVyZXNcX0RldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Features/_Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRmVhdHVyZXNcX0Zvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Features/_MasterList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRmVhdHVyZXNcX01hc3Rlckxpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Houses/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSG91c2VzXF9EZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Houses/_Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSG91c2VzXF9EZXRhaWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Houses/_Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSG91c2VzXF9Gb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Images.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW1hZ2VzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -68,12 +104,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/_Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX0RldGFpbHMuY3NodG1s
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Tabs/_Areas.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGFic1xfQXJlYXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/_HouseForm.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX0hvdXNlRm9ybS5jc2h0bWw=
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Tabs/_Features.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGFic1xfRmVhdHVyZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/Tabs/_Houses.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGFic1xfSG91c2VzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/mikkel/Desktop/Sommerhus_project/Sommerhus.Mvc/Views/Admin/_HouseFormFields.cshtml]

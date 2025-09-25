@@ -278,8 +278,14 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     [HttpPost("/admin/{id:guid}/images/gallery")]
     public async Task<IActionResult> UploadGallery(Guid id, List<IFormFile> files, CancellationToken ct)
     {
-        var list = files?.Where(f => f != null && f.Length > 0).Select(f => (f!.OpenReadStream(), f.FileName)).ToList() ?? new();
-        if (list.Count > 0) await api.UploadGalleryAsync(id, list, ct);
+        if (files is { Count: > 0 })
+        {
+            foreach (var file in files.Where(f => f is { Length: > 0 }))
+            {
+                await using var stream = file.OpenReadStream();
+                await api.UploadGalleryImageAsync(id, stream, file.FileName, ct);
+            }
+        }
 
         if (IsHtmx)
         {
@@ -289,7 +295,6 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
 
         return Redirect($"/admin/{id}/images");
     }
-
     [HttpPost("/admin/{id:guid}/images/floorplan")]
     public async Task<IActionResult> UploadFloorplan(Guid id, IFormFile file, CancellationToken ct)
     {
@@ -741,3 +746,5 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         return await FeatureDetail(id, ct);
     }
 }
+
+

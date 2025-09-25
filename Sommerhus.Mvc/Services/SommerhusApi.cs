@@ -1,4 +1,4 @@
-﻿using Sommerhus.Mvc.Controllers;
+using Sommerhus.Mvc.Controllers;
 using System.Globalization;
 using System.Net.Http.Json;
 
@@ -15,6 +15,7 @@ public interface ISommerhusApi
 
     // Images
     Task<(Guid id, string url)> UploadCoverAsync(Guid houseId, Stream fileStream, string fileName, CancellationToken ct = default);
+    Task<HouseImage> UploadGalleryImageAsync(Guid houseId, Stream fileStream, string fileName, CancellationToken ct = default);
     Task<IReadOnlyList<HouseImage>> UploadGalleryAsync(Guid houseId, IEnumerable<(Stream stream, string fileName)> files, CancellationToken ct = default);
     Task<(Guid id, string url)> UploadFloorplanAsync(Guid houseId, Stream fileStream, string fileName, CancellationToken ct = default);
     Task SetCoverAsync(Guid houseId, Guid imageId, CancellationToken ct = default);
@@ -116,8 +117,19 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
         content.Add(new StreamContent(fileStream), "file", fileName);
         var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/cover", content, ct);
         resp.EnsureSuccessStatusCode();
-        var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
+        var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)
+                  ?? throw new InvalidOperationException("Missing cover image payload");
         return (dto.Id, dto.Url);
+    }
+
+    public async Task<HouseImage> UploadGalleryImageAsync(Guid houseId, Stream fileStream, string fileName, CancellationToken ct = default)
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(fileStream), "file", fileName);
+        var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/gallery", content, ct);
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)
+               ?? throw new InvalidOperationException("Missing gallery image payload");
     }
 
     public async Task<IReadOnlyList<HouseImage>> UploadGalleryAsync(Guid houseId, IEnumerable<(Stream stream, string fileName)> files, CancellationToken ct = default)
@@ -125,12 +137,8 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
         var result = new List<HouseImage>();
         foreach (var (stream, fileName) in files)
         {
-            using var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(stream), "file", fileName);
-            var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/gallery", content, ct);
-            resp.EnsureSuccessStatusCode();
-            var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
-            result.Add(dto);
+            var image = await UploadGalleryImageAsync(houseId, stream, fileName, ct);
+            result.Add(image);
         }
         return result;
     }
@@ -141,7 +149,8 @@ public class SommerhusApi(HttpClient http) : ISommerhusApi
         content.Add(new StreamContent(fileStream), "file", fileName);
         var resp = await http.PostAsync($"api/admin/houses/{houseId}/images/floorplan", content, ct);
         resp.EnsureSuccessStatusCode();
-        var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)!;
+        var dto = await resp.Content.ReadFromJsonAsync<HouseImage>(cancellationToken: ct)
+                  ?? throw new InvalidOperationException("Missing floorplan payload");
         return (dto.Id, dto.Url);
     }
 
