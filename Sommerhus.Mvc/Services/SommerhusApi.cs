@@ -29,6 +29,10 @@ public interface ISommerhusApi
     // Cities / Zip
     Task<IReadOnlyList<CityListItem>> GetCitiesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<ZipCodeDto>> SearchZipcodesAsync(string filter, CancellationToken ct = default);
+
+    // Areas
+    Task<IReadOnlyList<AreaListItem>> GetAreasAsync(string? query = null, CancellationToken ct = default);
+    Task<AreaDetails?> GetAreaAsync(string slug, CancellationToken ct = default);
 }
 
 // DTOs (MVC side)
@@ -57,6 +61,11 @@ public record HouseDetails(
 
 public record CityListItem(Guid Id, string Slug, string City, string Zip, int Count);
 public record ZipCodeDto(string Zip, string City);
+
+public record AreaListItem(Guid Id, string Slug, string Name, string? City, int HouseCount, string? Summary, string? HeroImageUrl);
+public record AreaDetails(Guid Id, string Slug, string Name, string? City, string? Description, AreaImage[] Images, AreaHouse[] Houses);
+public record AreaImage(Guid Id, string Url);
+public record AreaHouse(Guid Id, string Title, string? Subtitle, string? City, string? Zip, string? CoverUrl);
 
 public class SommerhusApi(HttpClient http) : ISommerhusApi
 {
@@ -203,4 +212,21 @@ default)
 
     public async Task<IReadOnlyList<ZipCodeDto>> SearchZipcodesAsync(string filter, CancellationToken ct = default)
         => await http.GetFromJsonAsync<List<ZipCodeDto>>($"api/zipcodes?filter={Uri.EscapeDataString(filter)}", ct) ?? [];
+
+    public async Task<IReadOnlyList<AreaListItem>> GetAreasAsync(string? query = null, CancellationToken ct = default)
+    {
+        var url = "api/areas";
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            url += $"?q={Uri.EscapeDataString(query)}";
+        }
+
+        return await http.GetFromJsonAsync<List<AreaListItem>>(url, ct) ?? [];
+    }
+
+    public async Task<AreaDetails?> GetAreaAsync(string slug, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Slug is required", nameof(slug));
+        return await http.GetFromJsonAsync<AreaDetails>($"api/areas/{Uri.EscapeDataString(slug)}", ct);
+    }
 }

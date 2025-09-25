@@ -9,6 +9,9 @@ public class Area
     [Required, StringLength(50)]
     public string Name { get; set; } = "";
 
+    [Required, StringLength(140)]
+    public string Slug { get; set; } = string.Empty;
+
     public Guid? CityId { get; set; }
     public City? City { get; set; }
 

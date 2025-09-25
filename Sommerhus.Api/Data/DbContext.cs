@@ -24,6 +24,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(ai => ai.AreaId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Area>(b =>
+        {
+            b.HasIndex(a => a.Slug).IsUnique();
+        });
+
         modelBuilder.Entity<VacationHouse>()
             .HasMany(h => h.Images)
             .WithOne(i => i.House)

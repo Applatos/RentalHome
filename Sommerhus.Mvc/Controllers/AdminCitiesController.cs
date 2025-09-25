@@ -4,7 +4,7 @@ using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers;
 
-public class AdminCitiesController(AdminApiClient adminApi, IWebHostEnvironment env) : Controller
+public class AdminCitiesController(AdminApiClient adminApi) : Controller
 {
     [HttpGet("/admin/cities")]
     public IActionResult Index(string? q = null, int page = 1)

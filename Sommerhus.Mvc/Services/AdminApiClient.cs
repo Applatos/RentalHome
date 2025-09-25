@@ -123,9 +123,9 @@ public sealed class AdminApiClient
     }
 
     // ---------- Areas ----------
-    public sealed record AreaListItem(Guid Id, string Name, int HouseCount, int ImageCount);
+    public sealed record AreaListItem(Guid Id, string Slug, string Name, int HouseCount, int ImageCount);
     public sealed record AreaImage(Guid Id, string Url);
-    public sealed record AreaDetails(Guid Id, string Name, string? Description, List<AreaImage> Images);
+    public sealed record AreaDetails(Guid Id, string Slug, string Name, string? Description, List<AreaImage> Images);
 
     public async Task<IReadOnlyList<AreaListItem>> GetAreasAsync(CancellationToken ct)
         => await _http.GetFromJsonAsync<List<AreaListItem>>("api/admin/areas", ct) ?? new();

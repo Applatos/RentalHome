@@ -30,7 +30,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // globalt: kun fejl
             logging.SetMinimumLevel(LogLevel.Information);
 
-            // specifikt for EF Core: slå helt ned
+            // specifikt for EF Core: slÃ¥ helt ned
             logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.None);
             logging.AddFilter("Microsoft.EntityFrameworkCore.Infrastructure", LogLevel.None);
         });
@@ -43,14 +43,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (descriptor != null)
                 services.Remove(descriptor);
 
-            // Opret én persistent connection til shared in-memory
-            var connection = new Microsoft.Data.Sqlite.SqliteConnection("DataSource=:memory:");
-            connection.Open();
+            // Opret Ã©n persistent connection til shared in-memory
+            _conn = new SqliteConnection("DataSource=:memory:");
+            _conn.Open();
 
             // Registrer DbContext med den connection
             services.AddDbContext<AppDbContext>(opt =>
             {
-                opt.UseSqlite(connection);
+                opt.UseSqlite(_conn);
             });
 
             // Byg provider og migrer + seed
@@ -58,7 +58,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            db.Database.EnsureCreated();  // kør migrations på den åbne connection
+            db.Database.Migrate();
 
             Seeder.SeedMinimal(db);
         });

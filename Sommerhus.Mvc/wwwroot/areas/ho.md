@@ -1,5 +1,0 @@
-Ho
-
-Ho ligger i Sydvestjylland og er en bebyggelse i Varde Kommune i Region Syddanmark. Mange turister, særligt tyske, besøger byen primært på grund af naturen i området. Fra Ho er der 7 kilometer til Blåvand, 11 kilometer til Oksbøl og 32 til Esbjerg.
-
-Allerede i 1554 nævnes Ho (sammen med Hjerting) som ladeplads for Varde. Ho bestod i 1682 af 22 gårde og 19 huse med jord. Det samlede dyrkede areal udgjorde 338,2 tønder land skyldsat til 60,87 tdr hartkorn. Dyrkningsformen var individuelle indelukker. Kvægbrug, især fåreavl, var hovederhvervet. Den 28. juli 1688 fik skipperne i Ho (sammen med skipperne i Hjerting og Oksby) et kongeligt privilegium på at sejle og handle med fisk og varer

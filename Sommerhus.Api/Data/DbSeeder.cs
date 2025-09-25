@@ -23,6 +23,7 @@ public static class Seeder
         var area = new Area
         {
             Name = "Blåvand Strand",
+            Slug = "blavand-strand",
             Description = "Kendt for bred sandstrand og fyrtårn.",
             City = city
         };

@@ -35,6 +35,11 @@ else
     </div>
 
     <div class="mb-3">
+        <strong>Slug</strong>
+        <div class="text-muted">@Model.Slug</div>
+    </div>
+
+    <div class="mb-3">
         <strong>Beskrivelse</strong>
         <div class="text-prewrap">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Ingen beskrivelse angivet.")</div>
     </div>

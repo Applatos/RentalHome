@@ -14,7 +14,10 @@ else
                hx-get="/admin/areas/@a.Id/detail"
                hx-target="#areas-detail"
                hx-swap="innerHTML">
-                <span>@a.Name</span>
+                <span>
+                    <div>@a.Name</div>
+                    <div class="text-muted small">@a.Slug</div>
+                </span>
                 <small class="text-muted">@a.HouseCount huse · @a.ImageCount billeder</small>
             </a>
         }

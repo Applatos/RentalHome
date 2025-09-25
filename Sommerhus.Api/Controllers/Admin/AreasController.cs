@@ -4,6 +4,9 @@ using Sommerhus.Api.Data;
 using Sommerhus.Api.Dtos.Admin.Areas;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -19,6 +22,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             .OrderBy(a => a.Name)
             .Select(a => new AreaListItemDto(
                 a.Id,
+                a.Slug,
                 a.Name,
                 a.Houses.Count,
                 a.AreaImages.Count))
@@ -41,17 +45,25 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             .Select(i => new AreaImageItemDto(i.Id, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)))
             .ToList();
 
-        return new AreaDetailDto(area.Id, area.Name, area.Description, images);
+        return new AreaDetailDto(area.Id, area.Slug, area.Name, area.Description, images);
     }
 
     // POST
     [HttpPost]
     public async Task<ActionResult<AreaDetailDto>> Create([FromBody] CreateAreaDto dto, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
+            return ValidationProblem(ModelState);
+        }
+
+        var name = dto.Name.Trim();
         var area = new Area
         {
-            Name = dto.Name,
-            Description = dto.Description,
+            Name = name,
+            Slug = await GenerateUniqueSlugAsync(name, null, ct),
+            Description = Clean(dto.Description),
             CityId = dto.CityId
         };
 
@@ -65,6 +77,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
 
         var result = new AreaDetailDto(
             area.Id,
+            area.Slug,
             area.Name,
             area.Description,
             area.AreaImages
@@ -78,6 +91,12 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAreaDto dto, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
+            return ValidationProblem(ModelState);
+        }
+
         // A) Slet billeder via raw SQL (virker i EF6/7/8)
         await db.Database.ExecuteSqlRawAsync(
             "DELETE FROM AreaImages WHERE AreaId = {0}", id);
@@ -86,11 +105,14 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         var stub = new Area { Id = id };
         db.Areas.Attach(stub);
 
-        stub.Name = dto.Name;
-        stub.Description = dto.Description;
+        var name = dto.Name.Trim();
+        stub.Name = name;
+        stub.Slug = await GenerateUniqueSlugAsync(name, id, ct);
+        stub.Description = Clean(dto.Description);
         stub.CityId = dto.CityId;
 
         db.Entry(stub).Property(a => a.Name).IsModified = true;
+        db.Entry(stub).Property(a => a.Slug).IsModified = true;
         db.Entry(stub).Property(a => a.Description).IsModified = true;
         db.Entry(stub).Property(a => a.CityId).IsModified = true;
 
@@ -125,5 +147,46 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         db.Areas.Remove(area);
         await db.SaveChangesAsync(ct);
         return NoContent();
+}
+
+    private static readonly Regex SlugRegex = new("[^a-z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static string Slugify(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Guid.NewGuid().ToString("N");
+        }
+
+        var normalized = value.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(normalized.Length);
+        foreach (var ch in normalized)
+        {
+            var category = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (category != UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(ch);
+            }
+        }
+
+        var cleaned = SlugRegex.Replace(sb.ToString(), "-").Trim('-');
+        return string.IsNullOrWhiteSpace(cleaned) ? Guid.NewGuid().ToString("N") : cleaned;
     }
+
+    private async Task<string> GenerateUniqueSlugAsync(string value, Guid? ignoreId, CancellationToken ct)
+    {
+        var baseSlug = Slugify(value);
+        var slug = baseSlug;
+        var suffix = 1;
+
+        while (await db.Areas.AnyAsync(a => a.Slug == slug && (!ignoreId.HasValue || a.Id != ignoreId.Value), ct))
+        {
+            slug = $"{baseSlug}-{suffix++}";
+        }
+
+        return slug;
+    }
+
+    private static string? Clean(string? value)
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

@@ -369,7 +369,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     // ---------- Areas ----------
-    public sealed record AreaMasterItem(Guid Id, string Name, int HouseCount, int ImageCount);
+    public sealed record AreaMasterItem(Guid Id, string Name, string Slug, int HouseCount, int ImageCount);
 
     public sealed class AreaMasterVm
     {
@@ -380,6 +380,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
     public sealed class AreaDetailVm
     {
         public Guid Id { get; set; }
+        public string Slug { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public IReadOnlyList<AdminApiClient.AreaImage> Images { get; set; } = Array.Empty<AdminApiClient.AreaImage>();
@@ -400,7 +401,10 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         if (!string.IsNullOrWhiteSpace(q))
         {
             var term = q.Trim();
-            list = list.Where(a => a.Name.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
+            list = list.Where(a =>
+                    a.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (!string.IsNullOrWhiteSpace(a.Slug) && a.Slug.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
         }
 
         var vm = new AreaMasterVm
@@ -408,7 +412,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
             Query = q,
             Items = list
                 .OrderBy(a => a.Name)
-                .Select(a => new AreaMasterItem(a.Id, a.Name, a.HouseCount, a.ImageCount))
+                .Select(a => new AreaMasterItem(a.Id, a.Name, a.Slug, a.HouseCount, a.ImageCount))
                 .ToList()
         };
 
@@ -429,6 +433,7 @@ public class AdminController(ISommerhusApi api, AdminApiClient adminApi) : Contr
         var vm = new AreaDetailVm
         {
             Id = area.Id,
+            Slug = area.Slug ?? string.Empty,
             Name = area.Name,
             Description = area.Description,
             Images = area.Images ?? new List<AdminApiClient.AreaImage>()

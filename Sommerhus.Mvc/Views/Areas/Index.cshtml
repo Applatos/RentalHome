@@ -1,0 +1,78 @@
+@model Sommerhus.Mvc.Controllers.AreasController.IndexVm
+@{
+    ViewData["Title"] = "Områder";
+}
+
+<style>
+    .area-card {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: .75rem;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .area-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .area-card .card-body {
+        padding: 1.25rem;
+        flex: 1 1 auto;
+    }
+    .area-card .summary {
+        color: #6c757d;
+        font-size: .9rem;
+    }
+</style>
+
+<div class="mb-4">
+    <h2>Find et område</h2>
+    <p class="text-muted">Søg efter områder og se hvilke sommerhuse der hører til.</p>
+    <form class="row g-2" method="get" action="/areas">
+        <div class="col-md-8">
+            <input type="text" class="form-control" name="q" value="@Model.Query" placeholder="Søg efter område eller by" />
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-dark w-100">Søg</button>
+        </div>
+    </form>
+</div>
+
+@if (Model.Areas.Count == 0)
+{
+    <div class="alert alert-info">Ingen områder fundet. Prøv med en anden søgning.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var area in Model.Areas)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="area-card">
+                    @if (!string.IsNullOrWhiteSpace(area.HeroImageUrl))
+                    {
+                        <a href="/areas/@area.Slug"><img src="@area.HeroImageUrl" alt="@area.Name" /></a>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">@area.Name</h5>
+                        @if (!string.IsNullOrWhiteSpace(area.City))
+                        {
+                            <div class="text-muted mb-2">@area.City</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(area.Summary))
+                        {
+                            <div class="summary mb-3">@area.Summary</div>
+                        }
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-dark">@area.HouseCount hus@(area.HouseCount == 1 ? string.Empty : "e")</span>
+                            <a class="btn btn-outline-dark btn-sm" href="/areas/@area.Slug">Se område</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
