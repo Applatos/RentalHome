@@ -37,9 +37,17 @@ public sealed class AdminApiClient : ApiClientBase
     public Task<IReadOnlyList<AdmAreas.AreaListItemDto>> GetAreasAsync(CancellationToken ct)
         => GetListAsync<AdmAreas.AreaListItemDto>("api/admin/areas", ct);
 
-    // Navn i Contracts: AreaDetailDto (ikke AreaDetailsDto)
     public Task<AdmAreas.AreaDetailsDto?> GetAreaAsync(Guid id, CancellationToken ct)
         => GetAsync<AdmAreas.AreaDetailsDto>($"api/admin/areas/{id}", ct);
+
+    public Task<ApiResult<AdmAreas.AreaDetailsDto?>> CreateAreaAsync(AdmAreas.CreateAreaDto dto, CancellationToken ct)
+        => PostForResultAsync<AdmAreas.CreateAreaDto, AdmAreas.AreaDetailsDto>("api/admin/areas", dto, ct);
+
+    public Task<ApiResult<object?>> UpdateAreaAsync(Guid id, AdmAreas.UpdateAreaDto dto, CancellationToken ct)
+        => PutForResultAsync($"api/admin/areas/{id}", dto, ct);
+
+    public Task<ApiResult<object?>> DeleteAreaAsync(Guid id, CancellationToken ct)
+        => DeleteForResultAsync($"api/admin/areas/{id}", ct);
 
     // ===== Cities (admin lister) =====
     public Task<IReadOnlyList<PubCities.CityListItemDto>> GetCitiesAsync(CancellationToken ct)

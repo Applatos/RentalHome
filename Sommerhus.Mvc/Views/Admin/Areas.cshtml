@@ -1,17 +1,37 @@
-﻿@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
+@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
 @model IReadOnlyList<AdmAreas.AreaListItemDto>
+@{
+    var success = ViewBag.AreaSuccess as string;
+    var error = ViewBag.AreaError as string;
+}
 <section class="container my-3">
-    <h2>Areas</h2>
-    <table class="table table-sm">
-        <thead><tr><th>Navn</th><th>Slug</th><th>Huse</th><th></th></tr></thead>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Områder</h2>
+        <a class="btn btn-primary" href="@Url.Action("CreateArea", "Admin")">Opret område</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(success))
+    {
+        <div class="alert alert-success" role="alert">@success</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <table class="table table-sm align-middle">
+        <thead><tr><th>Navn</th><th>Slug</th><th>Huse</th><th class="text-end">Handling</th></tr></thead>
         <tbody>
             @foreach (var a in Model)
             {
                 <tr>
                     <td>@a.Name</td>
-                    <td>@a.Slug</td>
+                    <td class="text-muted small">@a.Slug</td>
                     <td>@a.HouseCount</td>
-                    <td><a class="btn btn-outline-dark btn-sm" href="@Url.Action("Area", "Admin", new { id = a.Id })">Detaljer ▸</a></td>
+                    <td class="text-end">
+                        <a class="btn btn-outline-dark btn-sm" href="@Url.Action("Area", "Admin", new { id = a.Id })">Detaljer ▸</a>
+                    </td>
                 </tr>
             }
         </tbody>
