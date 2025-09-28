@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
+	<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

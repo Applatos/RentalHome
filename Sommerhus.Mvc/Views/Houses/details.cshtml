@@ -1,230 +1,65 @@
-﻿@model Sommerhus.Mvc.Services.HouseDetails
+﻿@using PubHouses = Sommerhus.Contracts.Dtos.Public.Houses
+@using Sommerhus.Mvc.Utils
+@model PubHouses.HouseDetailsDto
 @{
-    ViewData["Title"] = Model.Title;
-
-    // slides: cover + galleri (uden dubletter)
-    var slides = new List<(string Url, string Alt)>();
-    if (!string.IsNullOrWhiteSpace(Model.CoverUrl)) slides.Add((Model.CoverUrl!, Model.Title ?? "Cover"));
-    if (Model.Gallery is not null) foreach (var g in Model.Gallery) if (!string.IsNullOrWhiteSpace(g.Url)) slides.Add((g.Url, g.Alt ?? Model.Title ?? "Billede"));
-    slides = slides.GroupBy(s => s.Url).Select(g => g.First()).ToList();
-
-    // Ikoner: brug database-ikon hvis tilgængelig, ellers lokal fallback
-    var localIcons = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "beach","groundsize","housesize","panorama","personer","rengøring","sauna","shopping","spa","tv","wifi"
-    };
-
-    bool HasFeatureValue(Sommerhus.Mvc.Services.FeatureValueDto f)
-    {
-        if (string.Equals(f.ValueType, "Bool", StringComparison.OrdinalIgnoreCase))
-        {
-            return string.Equals(f.Display, "Ja", StringComparison.OrdinalIgnoreCase);
-        }
-        return !string.IsNullOrWhiteSpace(f.Display);
-    }
-
-    string? ResolveIcon(Sommerhus.Mvc.Services.FeatureValueDto f)
-    {
-        if (!string.IsNullOrWhiteSpace(f.IconUrl)) return f.IconUrl;
-        return localIcons.Contains(f.Key) ? Url.Content($"/images/features/{f.Key}.png") : null;
-    }
-
-    var featuresToShow = (Model.Features ?? Array.Empty<Sommerhus.Mvc.Services.FeatureValueDto>())
-        .Select(f => new { Feature = f, Icon = ResolveIcon(f) })
-        .Where(x => x.Icon is not null && HasFeatureValue(x.Feature))
-        .OrderBy(x => x.Feature.Name)
-        .ToList();
+    ViewData["Title"] = $"{Model.City} - {Model.Title}";
 }
-
-<style>
-    .page-wrap {
-        padding-top: 12px;
-    }
-
-    .meta {
-        color: #6c757d;
-    }
-
-    .carousel-item img {
-        width: 100%;
-        height: 420px;
-        object-fit: cover;
-        display: block;
-    }
-
-    .side-cover img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        border-radius: .5rem;
-    }
-
-    .btn-book {
-        display: block;
-        width: 100%;
-        font-weight: 600;
-        border-radius: .6rem;
-    }
-
-    .iconbar {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
-        border-top: 1px solid #e6e6e6;
-        border-bottom: 1px solid #e6e6e6;
-        padding: 10px 0;
-        margin: 12px 0 16px;
-    }
-
-    .icon-pill {
-        text-align: center;
-        min-width: 80px;
-    }
-
-        .icon-pill .p-ico {
-            width: 42px;
-            height: 42px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f5f5f5;
-            margin: 0 auto 4px;
-            border: 1px solid rgba(0,0,0,.08);
-        }
-
-        .icon-pill img {
-            max-width: 26px;
-            max-height: 26px;
-            object-fit: contain;
-        }
-
-        .icon-pill .p-txt {
-            font-size: .9rem;
-            line-height: 1.1;
-        }
-
-    .card-lite {
-        background: #fff;
-        border: 1px solid rgba(0,0,0,.08);
-        border-radius: .75rem;
-        padding: 1rem;
-    }
-</style>
-
-<div class="container page-wrap">
-    <div class="mb-2">
-        <h3 class="mb-0">@Model.Title</h3>
-        <div class="meta">@($"{Model.Zip} {Model.City}".Trim())</div>
+<section class="container my-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>@Model.City - @Model.Title</h2>
+        <a class="btn btn-dark">Book her! ▸</a>
     </div>
 
-    <div class="row g-3">
-        <!-- Venstre kolonne: slider + FEATURES UNDER + beskrivelse -->
-        <div class="col-lg-8">
-            <div id="houseCarousel" class="carousel slide shadow-sm rounded overflow-hidden mb-3" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    @if (slides.Count == 0)
-                    {
-                        <div class="carousel-item active">
-                            <div class="d-flex align-items-center justify-content-center" style="height:420px;color:#999;background:#f8f9fa">
-                                Ingen billeder endnu
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        var idx = 0;
-                        foreach (var s in slides)
-                        {
-                            <div class="carousel-item @(idx == 0 ? "active" : "")">
-                                <img src="@s.Url" alt="@s.Alt" />
-                            </div>
-                            idx++;
-                        }
-                    }
-                </div>
-                @if (slides.Count > 1)
-                {
-                    <button class="carousel-control-prev" type="button" data-bs-target="#houseCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Forrige</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#houseCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Næste</span>
-                    </button>
-                }
-            </div>
-
-            <!-- FEATURES: under slideren i venstre kolonne -->
-            <div class="iconbar">
-                @if (featuresToShow.Count == 0)
-                {
-                    <span class="text-muted">Ingen features angivet endnu.</span>
-                }
-                else
-                {
-                    foreach (var entry in featuresToShow)
-                    {
-                        var feature = entry.Feature;
-                        var icon = entry.Icon;
-                        <div class="icon-pill">
-                            <div class="p-ico">
-                                <img src="@icon" alt="@feature.Name" />
-                            </div>
-                            <div class="p-txt">
-                                <div>@feature.Name</div>
-                                @if (!string.IsNullOrWhiteSpace(feature.Display))
-                                {
-                                    <div class="text-muted small">@feature.Display</div>
-                                }
-                            </div>
-                        </div>
-                    }
-                }
-            </div>
-
-            <h5 class="mb-2">Beskrivelse</h5>
-            <div class="card-lite">
-                <p class="mb-0">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Ingen beskrivelse endnu.")</p>
-            </div>
-        </div>
-
-        <!-- Højre kolonne: book+cover -> faciliteter + plantegning -->
-        <div class="col-lg-4">
-            <a class="btn btn-dark btn-book mb-2"
-               href="mailto:info@luksussommerhuse.dk?subject=Booking%20@Uri.EscapeDataString(Model.Title ?? " Sommerhus")">
-                Book her!
-            </a>
-            <div class="side-cover mb-2">
-                @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
-                {
-                    <img src="@Model.CoverUrl" alt="@Model.Title" />
-                }
-                else if (slides.Count > 0)
-                {
-                    <img src="@slides.First().Url" alt="@Model.Title" />
-                }
-                else
-                {
-                    <div class="card-lite text-muted">Intet coverbillede endnu.</div>
-                }
-            </div>
-
-            <h5 class="mb-2">Faciliteter</h5>
-            <div class="card-lite mb-3">
-                <p class="mb-0">@(!string.IsNullOrWhiteSpace(Model.Facilities) ? Model.Facilities : "Ingen faciliteter angivet.")</p>
-            </div>
-
-            @if (Model.Floorplan is not null)
+    <div class="row g-4 my-2">
+        <div class="col-md-8">
+            @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
             {
-                <h6 class="mb-2">Plantegning</h6>
-                <div class="card-lite">
-                    <img class="w-100" style="max-height:420px;object-fit:contain" src="@Model.Floorplan.Url" alt="Plantegning" />
+                <img src="@Model.CoverUrl" class="img-fluid rounded w-100" alt="cover" />
+            }
+        </div>
+        <div class="col-md-4">
+            @if (Model.Gallery?.Any() == true)
+            {
+                <div class="d-grid gap-2">
+                    @foreach (var img in Model.Gallery.WithoutCover())
+                    {
+                        <img src="@img.Url" class="img-fluid rounded" alt="@img.Alt" />
+                    }
                 </div>
             }
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @if (Model.Features?.Any() == true)
+    {
+        <div class="my-3 border-top pt-3 d-flex flex-wrap gap-3">
+            @foreach (var f in Model.Features.DistinctFeatures())
+            {
+                <div class="d-flex align-items-center gap-2">
+                    @if (!string.IsNullOrWhiteSpace(f.IconUrl))
+                    {
+                        <img src="@f.IconUrl" width="28" height="28" alt="@f.Name" />
+                    }
+                    <small>@f.Display</small>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-8">
+            <h4>Beskrivelse</h4>
+            <div>@Html.Raw(Model.Description)</div>
+        </div>
+        <div class="col-md-4">
+            <h4>Faciliteter</h4>
+            <div>@Html.Raw(Model.Facilities)</div>
+            @if (Model.Floorplan is not null)
+            {
+                <div class="mt-3">
+                    <img src="@Model.Floorplan.Url" class="img-fluid rounded" alt="@Model.Floorplan.Alt" />
+                </div>
+            }
+        </div>
+    </div>
+</section>

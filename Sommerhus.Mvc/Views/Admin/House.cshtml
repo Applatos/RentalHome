@@ -1,0 +1,31 @@
+﻿@using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses
+@model AdmHouses.HouseAdminDetailsDto
+<section class="container my-3">
+    <a class="btn btn-link" href="@Url.Action("Houses", "Admin")">◂ Tilbage</a>
+    <h3>@Model.Title</h3>
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <h5>Billeder</h5>
+            <div class="row row-cols-2 row-cols-md-3 g-2">
+                @foreach (var img in Model.Images)
+                {
+                    <div class="col">
+                        <img src="@img.Url" class="img-fluid rounded mb-1" />
+                        <form method="post" asp-action="DeleteImage" asp-controller="Houses"
+                              asp-route-id="@Model.Id" asp-route-imgId="@img.Id">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-outline-danger">Slet</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h5>Info</h5>
+            <p><b>By:</b> @Model.City?.Name (@Model.City?.Zip)</p>
+            <p><b>Adresse:</b> @Model.Address</p>
+            <p><b>Oprettet:</b> @Model.CreatedUtc.ToLocalTime().ToString("g")</p>
+        </div>
+    </div>
+</section>

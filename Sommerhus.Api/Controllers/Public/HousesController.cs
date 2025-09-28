@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Dtos.Public.Houses;
-using Sommerhus.Api.Dtos.Shared;
+using Sommerhus.Contracts.Dtos.Public.Houses;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
+using Sommerhus.Api.Data;
 
 namespace Sommerhus.Api.Controllers.Public;
 
@@ -31,8 +32,9 @@ public class HousesController(AppDbContext db) : ControllerBase
         if (!string.IsNullOrWhiteSpace(city))
         {
             var term = city.Trim();
+            var slugTerm = term.ToLowerInvariant(); // <- normalize slug
             query = query.Where(h =>
-                (h.City != null && h.City.Slug != null && h.City.Slug == term) ||
+                (h.City != null && h.City.Slug != null && h.City.Slug == slugTerm) ||
                 (h.City != null && h.City.Name != null && EF.Functions.Like(h.City.Name, $"%{term}%")) ||
                 (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }

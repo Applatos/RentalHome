@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Sommerhus.Api.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Api.Tests.Infrastructure;
 using Xunit.Abstractions;
 

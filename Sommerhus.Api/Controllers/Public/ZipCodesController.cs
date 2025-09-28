@@ -1,33 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Api.Data;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
-[Route("api/zipcodes")]
-public class ZipCodesController(AppDbContext db) : ControllerBase
+[Route("api/[controller]")]
+public sealed class ZipCodesController(AppDbContext db) : ControllerBase
 {
-    public record ZipCodeDto(string Zip, string City);
-
     [HttpGet]
-    public async Task<IEnumerable<ZipCodeDto>> Get([FromQuery] string? filter, CancellationToken ct)
+    public async Task<IEnumerable<string>> Find([FromQuery] string q, CancellationToken ct)
     {
-        var q = db.Cities.AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter))
-        {
-            var term = filter.Trim();
-            q = q.Where(c =>
-                EF.Functions.Like(c.Zip, $"%{term}%") ||
-                EF.Functions.Like(c.Name, $"%{term}%") ||
-                EF.Functions.Like(c.Slug, $"%{term}%"));
-        }
-
-        return await q
+        if (string.IsNullOrWhiteSpace(q)) return [];
+        var term = q.Trim();
+        return await db.Cities.AsNoTracking()
+            .Where(c => c.Zip != null && EF.Functions.Like(c.Zip, $"{term}%"))
             .OrderBy(c => c.Zip)
-            .ThenBy(c => c.Name)
+            .Select(c => c.Zip!)
+            .Distinct()
             .Take(20)
-            .Select(c => new ZipCodeDto(c.Zip, c.Name))
             .ToListAsync(ct);
     }
 }

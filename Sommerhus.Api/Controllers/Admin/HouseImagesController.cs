@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Dtos.Shared;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Data;
 using Sommerhus.Api.Utils;

@@ -1,4 +1,4 @@
-@model Sommerhus.Mvc.Services.HouseDetails
+@* @model Sommerhus.Mvc.Services.HouseDetails
 
 <form hx-post="/admin/@Model.Id/delete" hx-target="#detail" hx-swap="innerHTML" class="vstack gap-3">
     @Html.AntiForgeryToken()
@@ -12,3 +12,4 @@
                 hx-swap="innerHTML">Annullér</button>
     </div>
 </form>
+ *@

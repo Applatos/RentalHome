@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // API client
-builder.Services.AddHttpClient<ISommerhusApi, SommerhusApi>(http =>
+builder.Services.AddHttpClient<SommerhusApi, SommerhusApi>(http =>
 {
     http.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"] ?? "https://localhost:5001/");
 });

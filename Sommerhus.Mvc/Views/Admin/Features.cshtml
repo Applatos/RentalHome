@@ -1,0 +1,20 @@
+﻿@using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features
+@model IReadOnlyList<AdmFeats.FeatureDto>
+<section class="container my-3">
+    <h2>Features</h2>
+    <table class="table table-sm align-middle">
+        <thead><tr><th>Navn</th><th>Key</th><th>Type</th><th>Unit</th><th>Ikon</th></tr></thead>
+        <tbody>
+            @foreach (var f in Model.OrderBy(x => x.SortOrder))
+            {
+                <tr>
+                    <td>@f.Name</td>
+                    <td>@f.Key</td>
+                    <td>@f.ValueType</td>
+                    <td>@f.Unit</td>
+                    <td>@(string.IsNullOrWhiteSpace(f.IconUrl) ? "" : $"✔")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

@@ -4,7 +4,7 @@ namespace Sommerhus.Api.Models;
 
 public class Area
 {
-    [Key] public Guid Id { get; set; }
+    [Key] public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required, StringLength(50)]
     public string Name { get; set; } = "";
@@ -18,5 +18,5 @@ public class Area
     public string? Description { get; set; }
 
     public List<VacationHouse> Houses { get; set; } = new();
-    public List<AreaImage> AreaImages { get; set; } = new(); // init for at undgå null
+    public List<AreaImage> AreaImages { get; set; } = new();
 }

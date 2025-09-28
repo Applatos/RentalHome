@@ -1,166 +1,51 @@
-﻿@model Sommerhus.Mvc.Controllers.HomeController.HomeIndexVM
+﻿@using PubAreas = Sommerhus.Contracts.Dtos.Public.Areas
+@using PubHouses = Sommerhus.Contracts.Dtos.Public.Houses
+@model IReadOnlyList<PubHouses.HouseListItemDto>
 @{
-    ViewData["Title"] = "Forside";
+    ViewData["Title"] = "Luksus Sommerhuse i Danmark";
+    var q = (string)(ViewBag.Query ?? "");
+    var area = (string)(ViewBag.Area ?? "");
+    var areas = (IReadOnlyList<PubAreas.AreaListItemDto>)(ViewBag.Areas ?? new List<PubAreas.AreaListItemDto>());
 }
+<section class="container">
+    <header class="my-4 text-center">
+        <h2>Sommerhusudlejning - Enkelt og sikkert</h2>
+        <p>Find det helt rigtige sommerhus. Filtrér på område/by og søg i titler/beskrivelser.</p>
+    </header>
 
-<style>
-    .hero {
-        text-align: center;
-        padding: 18px 10px 8px;
-    }
-
-        .hero h4 {
-            margin-bottom: .35rem;
-        }
-
-    .leadline {
-        color: #6c757d;
-        margin-bottom: .5rem;
-    }
-
-    .search-wrap {
-        background: #f8f9fa;
-        border-radius: .75rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .filter .btn {
-        border-radius: .6rem;
-    }
-
-    .house-card {
-        background: #fff;
-        border: 1px solid rgba(0,0,0,.08);
-        border-radius: .8rem;
-        padding: .75rem;
-        height: 100%;
-    }
-
-    .house-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .75rem;
-    }
-
-    .house-left {
-        flex: 1 1 auto;
-    }
-
-    .house-right {
-        flex: 0 0 auto;
-    }
-
-    .pill {
-        border-radius: 999px;
-        padding: .25rem .6rem;
-        background: #f1f3f5;
-        font-size: .85rem;
-        white-space: nowrap;
-    }
-
-    .btn-read {
-        margin: .25rem 0 .5rem;
-    }
-
-    .main-img img {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        border-radius: .6rem;
-        border: 1px solid rgba(0,0,0,.06);
-        display: block;
-    }
-
-    .thumbs {
-        display: flex;
-        gap: .5rem;
-        margin-top: .5rem;
-        overflow: auto;
-    }
-
-        .thumbs img {
-            height: 70px;
-            width: 100px;
-            object-fit: cover;
-            border-radius: .4rem;
-            border: 1px solid rgba(0,0,0,.08);
-            display: block;
-        }
-</style>
-
-<div class="hero">
-    <h4>Sommerhusudlejning – Enkelt og sikkert</h4>
-    <div class="leadline">
-        Vores udgangspunkt er, at det skal være nemt at finde det helt rigtige sommerhus – og nemt at booke.
-        Har du spørgsmål, hjælper vi altid på mail og telefon.
-    </div>
-</div>
-
-<div class="search-wrap">
-    <form method="get" action="/" class="row g-2 align-items-center">
-        <div class="col-md-6">
-            <input class="form-control" name="q" placeholder="Søg efter titel, by, postnr…" value="@Model.Q" />
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input name="q" value="@q" class="form-control" placeholder="Søg..." />
         </div>
-        <div class="col-md-3">
-            <input class="form-control" name="city" placeholder="By/slug (fx ho, blavand)" value="@Model.SelectedCitySlug" />
+        <div class="col-md-4">
+            <select name="area" class="form-select">
+                <option value="">Alle områder</option>
+                @foreach (var a in areas.OrderBy(a => a.Name))
+                {
+                    <option value="@a.Slug" selected="@(a.Slug == area)">@a.Name</option>
+                }
+            </select>
         </div>
-        <div class="col-md-3">
-            <button class="btn btn-dark w-100">Søg</button>
-        </div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">Søg</button></div>
+        <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/">Nulstil</a></div>
     </form>
-    <div class="filter mt-2 d-flex flex-wrap gap-2">
-        <a class="btn @(string.IsNullOrEmpty(Model.SelectedCitySlug) ? "btn-dark" : "btn-outline-dark")" href="/">Alle</a>
-        @foreach (var c in Model.Cities)
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var h in Model)
         {
-            var active = string.Equals(Model.SelectedCitySlug, c.Slug, StringComparison.OrdinalIgnoreCase);
-            <a class="btn @(active ? "btn-dark" : "btn-outline-dark")" href="/?city=@c.Slug">@c.City (@c.Count)</a>
-        }
-    </div>
-    <div class="mt-2">
-        <a href="/areas" class="link-dark">Gå til områdesøgning →</a>
-    </div>
-</div>
-
-<div class="container px-0">
-    <div class="row g-4">
-        @foreach (var h in Model.Houses)
-        {
-            <div class="col-12 col-lg-6">
-                <div class="house-card">
-                    <div class="house-head">
-                        <div class="house-left">
-                            <strong>@(string.IsNullOrWhiteSpace(h.Subtitle) ? h.Title : h.Subtitle)</strong>
-                            <div>
-                                <a class="btn btn-sm btn-dark btn-read" href="/houses/@h.Id">Læs mere</a>
-                            </div>
-                        </div>
-                        <div class="house-right">
-                            @if (!string.IsNullOrWhiteSpace(h.Zip) || !string.IsNullOrWhiteSpace(h.City))
-                            {
-                                <span class="pill">@($"{h.Zip} {h.City}".Trim())</span>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="main-img">
-                        <a href="/houses/@h.Id">
-                            <img src="@(string.IsNullOrWhiteSpace(h.Cover) ? "/images/houses/placeholder.jpg" : h.Cover)" alt="@h.Title" />
-                        </a>
-                    </div>
-
-                    @if (h.Thumbs.Count > 0)
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrWhiteSpace(h.CoverUrl))
                     {
-                        <div class="thumbs">
-                            @foreach (var t in h.Thumbs.Take(6))
-                            {
-                                <a href="/houses/@h.Id"><img src="@t" alt="Galleri" /></a>
-                            }
-                        </div>
+                        <img src="@h.CoverUrl" class="card-img-top" alt="@h.Title" />
                     }
+                    <div class="card-body">
+                        <h5 class="card-title">@h.City (@h.Zip) - @h.Title</h5>
+                        <p class="card-text">@h.Subtitle</p>
+                        <a class="btn btn-dark" href="@Url.Action("Details", "Houses", new { id = h.Id })">Læs mere ▸</a>
+                    </div>
                 </div>
             </div>
         }
     </div>
-</div>
+</section>

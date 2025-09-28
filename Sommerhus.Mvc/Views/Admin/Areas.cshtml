@@ -1,0 +1,19 @@
+﻿@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
+@model IReadOnlyList<AdmAreas.AreaListItemDto>
+<section class="container my-3">
+    <h2>Areas</h2>
+    <table class="table table-sm">
+        <thead><tr><th>Navn</th><th>Slug</th><th>Huse</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.Name</td>
+                    <td>@a.Slug</td>
+                    <td>@a.HouseCount</td>
+                    <td><a class="btn btn-outline-dark btn-sm" href="@Url.Action("Area", "Admin", new { id = a.Id })">Detaljer ▸</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

@@ -31,12 +31,12 @@ namespace Sommerhus.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasMaxLength(140)
+                        .HasMaxLength(120)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -55,7 +55,7 @@ namespace Sommerhus.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("AreaId")
+                    b.Property<Guid>("AreaId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FileName")
@@ -84,12 +84,12 @@ namespace Sommerhus.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(120)
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasMaxLength(140)
+                        .HasMaxLength(120)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Zip")
@@ -128,8 +128,7 @@ namespace Sommerhus.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId", "FileName")
-                        .IsUnique();
+                    b.HasIndex("CityId");
 
                     b.ToTable("CityImages");
                 });
@@ -147,7 +146,8 @@ namespace Sommerhus.Api.Migrations
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(60)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -166,6 +166,9 @@ namespace Sommerhus.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Key")
+                        .IsUnique();
+
                     b.ToTable("Features");
                 });
 
@@ -178,20 +181,26 @@ namespace Sommerhus.Api.Migrations
                     b.Property<Guid>("FeatureId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("FeatureId1")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("HouseId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RawValue")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FeatureId");
 
+                    b.HasIndex("FeatureId1");
+
                     b.HasIndex("HouseId");
 
-                    b.ToTable("HouseFeatureValues");
+                    b.ToTable("HouseFeatures");
                 });
 
             modelBuilder.Entity("Sommerhus.Api.Models.HouseImage", b =>
@@ -206,20 +215,18 @@ namespace Sommerhus.Api.Migrations
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("HouseId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HouseId", "FileName")
-                        .IsUnique();
+                    b.HasIndex("HouseId");
 
                     b.ToTable("Images");
                 });
@@ -258,7 +265,7 @@ namespace Sommerhus.Api.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(140)
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -284,7 +291,8 @@ namespace Sommerhus.Api.Migrations
                     b.HasOne("Sommerhus.Api.Models.Area", "Area")
                         .WithMany("AreaImages")
                         .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Area");
                 });
@@ -303,10 +311,14 @@ namespace Sommerhus.Api.Migrations
             modelBuilder.Entity("Sommerhus.Api.Models.HouseFeatureValue", b =>
                 {
                     b.HasOne("Sommerhus.Api.Models.Feature", "Feature")
-                        .WithMany("Values")
+                        .WithMany()
                         .HasForeignKey("FeatureId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Sommerhus.Api.Models.Feature", null)
+                        .WithMany("Values")
+                        .HasForeignKey("FeatureId1");
 
                     b.HasOne("Sommerhus.Api.Models.VacationHouse", "House")
                         .WithMany("HouseFeatures")
@@ -339,7 +351,7 @@ namespace Sommerhus.Api.Migrations
                     b.HasOne("Sommerhus.Api.Models.City", "City")
                         .WithMany("Houses")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Area");

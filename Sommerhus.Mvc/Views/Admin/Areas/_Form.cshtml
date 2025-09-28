@@ -1,4 +1,4 @@
-@model Sommerhus.Mvc.Controllers.AdminController.AreaFormVm
+@* @model Sommerhus.Mvc.Controllers.AdminController.AreaFormVm
 @{
     var isEdit = (bool?)(ViewBag.AreaIsEdit) ?? false;
     var action = isEdit ? $"/admin/areas/{Model.Id}/edit" : "/admin/areas/create";
@@ -29,3 +29,4 @@
         </button>
     </div>
 </form>
+ *@

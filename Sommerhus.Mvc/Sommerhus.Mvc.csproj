@@ -15,8 +15,8 @@
 
 	<ItemGroup>
 		<!-- Scaffolding (vælg 8.x til .NET 8) -->
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
-
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
 		<!-- Valgfrit i Debug: hot recompile af Razor -->
 		<!-- <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.8" Condition="'$(Configuration)'=='Debug'" /> -->
 	</ItemGroup>

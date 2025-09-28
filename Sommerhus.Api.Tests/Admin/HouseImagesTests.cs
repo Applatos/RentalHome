@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Sommerhus.Api.Dtos.Public.Houses;
-using Sommerhus.Api.Dtos.Shared;
+using Sommerhus.Contracts.Dtos.Public.Houses;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Api.Tests.Infrastructure;
 using System.Net;
 using System.Net.Http.Headers;

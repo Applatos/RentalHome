@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
-using Sommerhus.Api.Dtos.Admin.Features;
-using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
-
-using System.IO;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -17,19 +13,31 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
     [HttpGet]
     public async Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)
         => (await db.Features.AsNoTracking().OrderBy(f => f.SortOrder).ToListAsync(ct))
-           .Select(f => new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl, f.SortOrder));
+            .Select(f => new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl, f.SortOrder));
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertFeatureDto dto, CancellationToken ct)
     {
-        var valueType = Enum.Parse<FeatureValueType>(dto.ValueType, true);
-        var feature = new Feature
+        if (!Enum.TryParse<Models.FeatureValueType>(dto.ValueType, true, out var vt))
         {
-            Name = dto.Name,
-            Key = dto.Key,
-            ValueType = valueType,
-            Unit = dto.Unit,
-            IconUrl = Clean(dto.IconUrl),
+            ModelState.AddModelError(nameof(dto.ValueType), "Ugyldig ValueType");
+            return ValidationProblem(ModelState);
+        }
+
+        var key = (dto.Key ?? "").Trim().ToLowerInvariant();
+        if (await db.Features.AnyAsync(f => f.Key == key, ct))
+        {
+            ModelState.AddModelError(nameof(dto.Key), "Key skal være unik");
+            return ValidationProblem(ModelState);
+        }
+
+        var feature = new Models.Feature
+        {
+            Name = dto.Name.Trim(),
+            Key = key,
+            ValueType = vt,
+            Unit = string.IsNullOrWhiteSpace(dto.Unit) ? null : dto.Unit.Trim(),
+            IconUrl = string.IsNullOrWhiteSpace(dto.IconUrl) ? null : dto.IconUrl.Trim(),
             SortOrder = dto.SortOrder
         };
 
@@ -44,11 +52,24 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var feature = await db.Features.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (feature is null) return NotFound();
 
-        feature.Name = dto.Name;
-        feature.Key = dto.Key;
-        feature.ValueType = Enum.Parse<FeatureValueType>(dto.ValueType, true);
-        feature.Unit = dto.Unit;
-        feature.IconUrl = Clean(dto.IconUrl);
+        if (!Enum.TryParse<Models.FeatureValueType>(dto.ValueType, true, out var vt))
+        {
+            ModelState.AddModelError(nameof(dto.ValueType), "Ugyldig ValueType");
+            return ValidationProblem(ModelState);
+        }
+
+        var key = (dto.Key ?? "").Trim().ToLowerInvariant();
+        if (await db.Features.AnyAsync(f => f.Id != id && f.Key == key, ct))
+        {
+            ModelState.AddModelError(nameof(dto.Key), "Key skal være unik");
+            return ValidationProblem(ModelState);
+        }
+
+        feature.Name = dto.Name.Trim();
+        feature.Key = key;
+        feature.ValueType = vt;
+        feature.Unit = string.IsNullOrWhiteSpace(dto.Unit) ? null : dto.Unit.Trim();
+        feature.IconUrl = string.IsNullOrWhiteSpace(dto.IconUrl) ? null : dto.IconUrl.Trim();
         feature.SortOrder = dto.SortOrder;
 
         await db.SaveChangesAsync(ct);
@@ -61,12 +82,7 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var feature = await db.Features.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (feature is null) return NotFound();
 
-        var oldPath = ResolveIconPath(feature.IconUrl);
-        if (oldPath is not null && System.IO.File.Exists(oldPath))
-        {
-            System.IO.File.Delete(oldPath);
-        }
-
+        // (valgfrit) slet evt. ikon fra disk, hvis du gemmer det fysisk
         db.Features.Remove(feature);
         await db.SaveChangesAsync(ct);
         return NoContent();
@@ -76,10 +92,7 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
     [RequestSizeLimit(10_000_000)]
     public async Task<IActionResult> UploadIcon(Guid id, IFormFile file, CancellationToken ct)
     {
-        if (file is null || file.Length == 0)
-        {
-            return BadRequest("Fil er påkrævet");
-        }
+        if (file is null || file.Length == 0) return BadRequest("Fil er påkrævet");
 
         var feature = await db.Features.FirstOrDefaultAsync(f => f.Id == id, ct);
         if (feature is null) return NotFound();
@@ -87,21 +100,13 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var folder = Path.Combine(env.WebRootPath, "uploads", "features", id.ToString());
         Directory.CreateDirectory(folder);
 
-        var extension = Path.GetExtension(Path.GetFileName(file.FileName));
-        var safeName = $"{Guid.NewGuid():N}{extension}";
-        var fullPath = Path.Combine(folder, safeName);
+        var ext = Path.GetExtension(Path.GetFileName(file.FileName));
+        var safe = $"{Guid.NewGuid():N}{ext}";
+        var fullPath = Path.Combine(folder, safe);
         using (var stream = System.IO.File.Create(fullPath))
-        {
             await file.CopyToAsync(stream, ct);
-        }
 
-        var oldPath = ResolveIconPath(feature.IconUrl);
-        if (oldPath is not null && System.IO.File.Exists(oldPath))
-        {
-            System.IO.File.Delete(oldPath);
-        }
-
-        feature.IconUrl = UrlBuilder.FeatureIconWebPath(id, safeName);
+        feature.IconUrl = UrlBuilder.FeatureIconWebPath(id, safe);
         await db.SaveChangesAsync(ct);
 
         return Ok(new { feature.IconUrl });
@@ -113,38 +118,8 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var feature = await db.Features.FirstOrDefaultAsync(f => f.Id == id, ct);
         if (feature is null) return NotFound();
 
-        var oldPath = ResolveIconPath(feature.IconUrl);
-        if (oldPath is not null && System.IO.File.Exists(oldPath))
-        {
-            System.IO.File.Delete(oldPath);
-        }
-
         feature.IconUrl = null;
         await db.SaveChangesAsync(ct);
-
         return NoContent();
     }
-
-    private string? ResolveIconPath(string? stored)
-    {
-        if (string.IsNullOrWhiteSpace(stored)) return null;
-
-        string relative = stored;
-        if (Uri.TryCreate(stored, UriKind.Absolute, out var uri))
-        {
-            relative = uri.LocalPath;
-        }
-
-        relative = relative.TrimStart('/');
-        if (!relative.StartsWith("uploads/features/", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        var normalized = relative.Replace('/', Path.DirectorySeparatorChar);
-        return Path.Combine(env.WebRootPath, normalized);
-    }
-
-    private static string? Clean(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

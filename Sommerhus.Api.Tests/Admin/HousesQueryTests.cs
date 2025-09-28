@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using Sommerhus.Api.Dtos.Admin.Houses;
-using Sommerhus.Api.Dtos.Shared;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Api.Tests.Infrastructure;
 using System.Net.Http.Json;
 using Xunit.Abstractions;

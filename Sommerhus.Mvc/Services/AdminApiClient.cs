@@ -1,215 +1,62 @@
-// Sommerhus.Mvc/Services/AdminApiClient.cs
-using System.Collections.Generic;
-using System.Net.Http.Json;
+using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
+using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas;
+using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features;
+using PubCities = Sommerhus.Contracts.Dtos.Public.Cities;
 
 namespace Sommerhus.Mvc.Services;
 
-public sealed class AdminApiClient
+public sealed class AdminApiClient : ApiClientBase
 {
-    private readonly HttpClient _http;
-    public AdminApiClient(HttpClient http) => _http = http;
+    public AdminApiClient(HttpClient http) : base(http) { }
 
-    // ---------- Shared DTO helpers ----------
-    public sealed record LookupItem(Guid Id, string Label);
+    // ===== Houses =====
+    public Task<AdmHouses.HousesPageDto> SearchHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
+        => GetAsync<AdmHouses.HousesPageDto>($"api/admin/houses?query={Uri.EscapeDataString(q ?? "")}&page={page}&pageSize={pageSize}", ct)!;
 
-    // ---------- Houses (paged master) ----------
-    public sealed record HouseListItem(Guid Id, string Title, string? City, string? Zip, string? Cover);
-    public sealed class HousePage
+    public Task<AdmHouses.HouseAdminDetailsDto?> GetHouseAsync(Guid id, CancellationToken ct)
+        => GetAsync<AdmHouses.HouseAdminDetailsDto>($"api/admin/houses/{id}", ct);
+
+    public async Task<(bool ok, Guid? id)> CreateHouseAsync(AdmHouses.CreateHouseDto dto, CancellationToken ct)
     {
-        public string? Query { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int Total { get; set; }
-        public List<HouseListItem> Items { get; set; } = new();
+        var (ok, data) = await PostAsync<AdmHouses.CreateHouseDto, Guid>("api/admin/houses", dto, ct);
+        return ok ? (true, (Guid?)data) : (false, (Guid?)null);
     }
+    public Task<bool> UpdateHouseAsync(Guid id, AdmHouses.UpdateHouseDto dto, CancellationToken ct)
+        => PutAsync($"api/admin/houses/{id}", dto, ct);
 
-    public sealed record HouseDetails(
-        Guid Id,
-        string Title,
-        string? Subtitle,
-        string? Address,
-        Guid CityId,
-        string? Description,
-        string? Facilities,
-        Guid? AreaId,
-        Guid? CoverImageId);
+    public Task<bool> DeleteHouseAsync(Guid id, CancellationToken ct)
+        => DeleteOkOrNotFoundAsync($"api/admin/houses/{id}", ct);
 
-    public async Task<HousePage> SearchHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
+    public Task<bool> DeleteHouseImageAsync(Guid houseId, Guid imageId, CancellationToken ct)
+        => DeleteOkOrNotFoundAsync($"api/admin/houses/{houseId}/images/{imageId}", ct);
+
+    public Task<bool> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<AdmFeats.PostFeatureValueDto> values, CancellationToken ct)
+        => PostAsync($"api/admin/houses/{houseId}/features", values, ct);
+
+    // ===== Areas =====
+    public Task<IReadOnlyList<AdmAreas.AreaListItemDto>> GetAreasAsync(CancellationToken ct)
+        => GetListAsync<AdmAreas.AreaListItemDto>("api/admin/areas", ct);
+
+    // Navn i Contracts: AreaDetailDto (ikke AreaDetailsDto)
+    public Task<AdmAreas.AreaDetailsDto?> GetAreaAsync(Guid id, CancellationToken ct)
+        => GetAsync<AdmAreas.AreaDetailsDto>($"api/admin/areas/{id}", ct);
+
+    // ===== Cities (admin lister) =====
+    public Task<IReadOnlyList<PubCities.CityListItemDto>> GetCitiesAsync(CancellationToken ct)
+        => GetListAsync<PubCities.CityListItemDto>("api/admin/cities", ct);
+
+    // ===== Features =====
+    public Task<IReadOnlyList<AdmFeats.FeatureDto>> GetFeaturesAsync(CancellationToken ct)
+        => GetListAsync<AdmFeats.FeatureDto>("api/admin/features", ct);
+
+    public async Task<(bool ok, Guid? id)> CreateFeatureAsync(AdmFeats.UpsertFeatureDto dto, CancellationToken ct)
     {
-        var url = $"api/admin/houses?query={Uri.EscapeDataString(q ?? "")}&page={page}&pageSize={pageSize}";
-        return await _http.GetFromJsonAsync<HousePage>(url, ct) ?? new HousePage { Query = q, Page = page, PageSize = pageSize, Total = 0, Items = new() };
+        var (ok, data) = await PostAsync<AdmFeats.UpsertFeatureDto, Guid>("api/admin/features", dto, ct);
+        return ok ? (true, (Guid?)data) : (false, (Guid?)null);
     }
+    public Task<bool> UpdateFeatureAsync(Guid id, AdmFeats.UpsertFeatureDto dto, CancellationToken ct)
+        => PutAsync($"api/admin/features/{id}", dto, ct);
 
-    public Task<HouseDetails?> GetHouseAsync(Guid id, CancellationToken ct)
-        => _http.GetFromJsonAsync<HouseDetails>($"api/admin/houses/{id}", ct);
-
-    // ---------- Cities (områder) ----------
-    public sealed record CityListItem(Guid Id, string Name, string Zip, string? Slug);
-    public sealed class CityPage
-    {
-        public string? Query { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int Total { get; set; }
-        public List<CityListItem> Items { get; set; } = new();
-    }
-
-    public sealed record CityDetails(Guid Id, string Name, string Zip, string? Slug, string? Text, string[] Images);
-
-    public Task<CityPage?> ListCitiesAsync(string? q, int page, int pageSize, CancellationToken ct)
-        => _http.GetFromJsonAsync<CityPage>($"api/admin/cities?q={Uri.EscapeDataString(q ?? "")}&page={page}&pageSize={pageSize}", ct);
-
-    public Task<CityDetails?> GetCityAsync(Guid id, CancellationToken ct)
-        => _http.GetFromJsonAsync<CityDetails>($"api/admin/cities/{id}", ct);
-
-    public async Task<Guid> CreateCityAsync(string name, string zip, string? slug, string? text, CancellationToken ct)
-    {
-        var res = await _http.PostAsJsonAsync("api/admin/cities", new { name, zip, slug, text }, ct);
-        res.EnsureSuccessStatusCode();
-        return await res.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
-    }
-
-    public async Task UpdateCityAsync(Guid id, string name, string zip, string? slug, string? text, CancellationToken ct)
-    {
-        var res = await _http.PutAsJsonAsync($"api/admin/cities/{id}", new { name, zip, slug, text }, ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteCityAsync(Guid id, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/cities/{id}", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    // Billeder for City
-    public async Task UploadCityImageAsync(Guid cityId, Stream fileStream, string fileName, CancellationToken ct)
-    {
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(fileStream), "file", fileName);
-        var res = await _http.PostAsync($"api/admin/cities/{cityId}/images", content, ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteCityImageAsync(Guid cityId, Guid imageId, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/cities/{cityId}/images/{imageId}", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    // ---------- Zip lookup (typeahead) ----------
-    public sealed record ZipListItem(Guid Id, string Zip, string City)
-    {
-        public string Display => string.IsNullOrWhiteSpace(Zip) ? City : $"{Zip} {City}".Trim();
-    }
-
-    public sealed class ZipPage
-    {
-        public string? Query { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int Total { get; set; }
-        public List<ZipListItem> Items { get; set; } = new();
-    }
-
-    public async Task<ZipPage> SearchZipcodesAsync(string query, int page, int pageSize, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            return new ZipPage { Query = query, Page = page, PageSize = pageSize, Items = new List<ZipListItem>() };
-        }
-
-        var url = $"api/admin/zipcodes?query={Uri.EscapeDataString(query)}&page={page}&pageSize={pageSize}";
-        return await _http.GetFromJsonAsync<ZipPage>(url, ct) ?? new ZipPage { Query = query, Page = page, PageSize = pageSize };
-    }
-
-    // ---------- Areas ----------
-    public sealed record AreaListItem(Guid Id, string Slug, string Name, int HouseCount, int ImageCount);
-    public sealed record AreaImage(Guid Id, string Url);
-    public sealed record AreaDetails(Guid Id, string Slug, string Name, string? Description, List<AreaImage> Images);
-
-    public async Task<IReadOnlyList<AreaListItem>> GetAreasAsync(CancellationToken ct)
-        => await _http.GetFromJsonAsync<List<AreaListItem>>("api/admin/areas", ct) ?? new();
-
-    public Task<AreaDetails?> GetAreaAsync(Guid id, CancellationToken ct)
-        => _http.GetFromJsonAsync<AreaDetails>($"api/admin/areas/{id}", ct);
-
-    public async Task<Guid> CreateAreaAsync(string name, string? description, Guid? cityId, CancellationToken ct)
-    {
-        var payload = new { Name = name, Description = description, CityId = cityId, Images = Array.Empty<string>() };
-        var res = await _http.PostAsJsonAsync("api/admin/areas", payload, ct);
-        res.EnsureSuccessStatusCode();
-        return await res.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
-    }
-
-    public async Task UpdateAreaAsync(Guid id, string name, string? description, Guid? cityId, CancellationToken ct)
-    {
-        var payload = new { Name = name, Description = description, CityId = cityId, Images = Array.Empty<string>() };
-        var res = await _http.PutAsJsonAsync($"api/admin/areas/{id}", payload, ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteAreaAsync(Guid id, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/areas/{id}", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task UploadAreaImageAsync(Guid areaId, Stream fileStream, string fileName, CancellationToken ct)
-    {
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(fileStream), "file", fileName);
-        var res = await _http.PostAsync($"api/admin/areas/{areaId}/images", content, ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteAreaImageAsync(Guid areaId, Guid imageId, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/areas/{areaId}/images/{imageId}", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    // ---------- Features ----------
-    public sealed record FeatureListItem(Guid Id, string Name, string Key, string ValueType, string? Unit, string? IconUrl, int SortOrder);
-
-    public Task<List<FeatureListItem>?> GetFeaturesAsync(CancellationToken ct)
-        => _http.GetFromJsonAsync<List<FeatureListItem>>("api/admin/features", ct);
-
-    public async Task<Guid> CreateFeatureAsync(string name, string key, string valueType, string? unit, string? iconUrl, int sortOrder, CancellationToken ct)
-    {
-        var payload = new { Name = name, Key = key, ValueType = valueType, Unit = unit, IconUrl = iconUrl, SortOrder = sortOrder };
-        var res = await _http.PostAsJsonAsync("api/admin/features", payload, ct);
-        res.EnsureSuccessStatusCode();
-        return await res.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
-    }
-
-    public async Task UpdateFeatureAsync(Guid id, string name, string key, string valueType, string? unit, string? iconUrl, int sortOrder, CancellationToken ct)
-    {
-        var payload = new { Name = name, Key = key, ValueType = valueType, Unit = unit, IconUrl = iconUrl, SortOrder = sortOrder };
-        var res = await _http.PutAsJsonAsync($"api/admin/features/{id}", payload, ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteFeatureAsync(Guid id, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/features/{id}", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    public async Task<string?> UploadFeatureIconAsync(Guid id, Stream fileStream, string fileName, CancellationToken ct)
-    {
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(fileStream), "file", fileName);
-        var res = await _http.PostAsync($"api/admin/features/{id}/icon", content, ct);
-        res.EnsureSuccessStatusCode();
-        var payload = await res.Content.ReadFromJsonAsync<FeatureIconResponse>(cancellationToken: ct);
-        return payload?.IconUrl;
-    }
-
-    public async Task RemoveFeatureIconAsync(Guid id, CancellationToken ct)
-    {
-        var res = await _http.DeleteAsync($"api/admin/features/{id}/icon", ct);
-        res.EnsureSuccessStatusCode();
-    }
-
-    private sealed record FeatureIconResponse(string IconUrl);
+    public Task<bool> DeleteFeatureAsync(Guid id, CancellationToken ct)
+        => DeleteOkOrNotFoundAsync($"api/admin/features/{id}", ct);
 }

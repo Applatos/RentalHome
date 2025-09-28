@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
-using Sommerhus.Api.Dtos.Admin.Cities;
+using Sommerhus.Contracts.Dtos.Admin.Cities;
 using Sommerhus.Api.Models;
 using System.Text.RegularExpressions;
 
@@ -37,7 +37,7 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
             .OrderBy(z => z.Name).ThenBy(z => z.Zip)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(z => new ZipDto(z.Id, z.Zip, z.Name))
+            .Select(z => new ZipListItemDto(z.Id, z.Zip, z.Name))
             .ToListAsync(ct);
 
         return new ZipPageDto
@@ -51,21 +51,21 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ZipDto>> Create([FromBody] CreateZipDto dto, CancellationToken ct)
+    public async Task<ActionResult<ZipListItemDto>> Create([FromBody] CreateZipDto dto, CancellationToken ct)
     {
         var slug = await GenerateUniqueSlugAsync(dto.City, null, ct);
         var z = new City { Zip = dto.Zip.Trim(), Name = dto.City.Trim(), Slug = slug };
         db.Cities.Add(z);
         await db.SaveChangesAsync(ct);
-        return CreatedAtAction(nameof(Get), new { id = z.Id }, new ZipDto(z.Id, z.Zip, z.Name));
+        return CreatedAtAction(nameof(Get), new { id = z.Id }, new ZipListItemDto(z.Id, z.Zip, z.Name));
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ZipDto>> Get(Guid id, CancellationToken ct)
+    public async Task<ActionResult<ZipListItemDto>> Get(Guid id, CancellationToken ct)
     {
         var z = await db.Cities.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
         if (z is null) return NotFound();
-        return new ZipDto(z.Id, z.Zip, z.Name);
+        return new ZipListItemDto(z.Id, z.Zip, z.Name);
     }
 
     [HttpPut("{id:guid}")]
@@ -87,9 +87,23 @@ public sealed class ZipCodesController(AppDbContext db) : ControllerBase
     {
         var z = await db.Cities.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (z is null) return NotFound();
+
         db.Cities.Remove(z);
-        await db.SaveChangesAsync(ct);
-        return NoContent();
+        try
+        {
+            await db.SaveChangesAsync(ct);
+            return NoContent();
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new ProblemDetails
+            {
+                Title = "Kan ikke slette postnummer/by",
+                Detail = "Postnummer/by er i brug (fx huse/områder/billeder refererer til den). Fjern referencerne først.",
+                Status = StatusCodes.Status409Conflict,
+                Instance = HttpContext?.Request?.Path.Value
+            });
+        }
     }
 
     private static string Slugify(string value)

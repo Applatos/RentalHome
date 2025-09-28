@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Sommerhus.Api.Dtos.Admin.Cities;
-using Sommerhus.Api.Dtos.Admin.Features;
-using Sommerhus.Api.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos.Admin.Cities;
+using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Api.Tests.Infrastructure;
 using System.Net;
 using System.Net.Http.Json;

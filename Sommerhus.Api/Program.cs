@@ -33,7 +33,7 @@ public class Program
             opt.AddPolicy("mvc", p => p
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .SetIsOriginAllowed(_ => true)
+                .WithOrigins("https://localhost:5001", "https://localhost:7202") // eller dit domæne
                 .AllowCredentials());
         });
 
@@ -54,6 +54,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.EnsureDeleted();
             await db.Database.MigrateAsync();
             Seeder.SeedMinimal(db);
         }

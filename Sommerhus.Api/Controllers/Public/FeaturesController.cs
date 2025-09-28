@@ -1,6 +1,8 @@
-﻿using Sommerhus.Api.Dtos.Admin.Features;
-using Sommerhus.Api.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Api.Data;
+using Sommerhus.Contracts.Dtos.Admin.Features; // genbruger DTO - fint til public
+using Sommerhus.Api.Utils;
 
 namespace Sommerhus.Api.Controllers.Public;
 
@@ -10,6 +12,16 @@ public class FeaturesController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)
-        => (await db.Features.AsNoTracking().OrderBy(f => f.SortOrder).ToListAsync(ct))
-           .Select(f => new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl, f.SortOrder));
+    {
+        var rows = await db.Features.AsNoTracking()
+            .OrderBy(f => f.SortOrder)
+            .ToListAsync(ct);
+
+        return rows.Select(f =>
+        {
+            var icon = string.IsNullOrWhiteSpace(f.IconUrl) ? null
+                : UrlBuilder.ToAbsolute(Request, f.IconUrl!);
+            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon, f.SortOrder);
+        });
+    }
 }

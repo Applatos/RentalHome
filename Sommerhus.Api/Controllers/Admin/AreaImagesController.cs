@@ -17,7 +17,11 @@ public sealed class AreaImagesController(AppDbContext db, IWebHostEnvironment en
     {
         var imgs = await db.AreaImages.Where(i => i.AreaId == areaId)
             .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => new { i.Id, Url = UrlBuilder.AreaImageWebPath(areaId, i.FileName) })
+            .Select(i => new
+            {
+                i.Id,
+                Url = UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(areaId, i.FileName))
+            })
             .ToListAsync(ct);
 
         return imgs;
@@ -46,7 +50,11 @@ public sealed class AreaImagesController(AppDbContext db, IWebHostEnvironment en
         db.AreaImages.Add(img);
         await db.SaveChangesAsync(ct);
 
-        return Ok(new { img.Id, Url = UrlBuilder.AreaImageWebPath(areaId, img.FileName) });
+        return Ok(new
+        {
+            img.Id,
+            Url = UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(areaId, img.FileName))
+        });
     }
 
     [HttpDelete("{imageId:guid}")]

@@ -1,0 +1,19 @@
+﻿@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
+@model AdmAreas.AreaDetailsDto
+<section class="container my-3">
+    <a class="btn btn-link" href="@Url.Action("Areas", "Admin")">Tilbage</a>
+    <h3>@Model.Name</h3>
+    <div class="mb-3">@Html.Raw(Model.Description)</div>
+
+    @if (Model.Images?.Any() == true)
+    {
+        <div class="row row-cols-2 row-cols-md-4 g-2">
+            @foreach (var img in Model.Images)
+            {
+                <div class="col">
+                    <img src="@img.Url" class="img-fluid rounded" />
+                </div>
+            }
+        </div>
+    }
+</section>
