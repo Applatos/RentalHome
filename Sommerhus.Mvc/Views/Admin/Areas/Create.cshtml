@@ -1,0 +1,23 @@
+@model Sommerhus.Mvc.Models.Admin.AreaFormViewModel
+
+<section class="container my-3">
+    <a class="btn btn-link" href="@Url.Action("Areas", "Admin")">◂ Tilbage til liste</a>
+    <div class="row">
+        <div class="col-lg-7 col-xl-6">
+            <h3 class="mb-3">@Model.Title</h3>
+            <form asp-action="CreateArea" asp-controller="Admin" method="post" class="vstack gap-3">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <partial name="~/Views/Admin/Areas/_Form.cshtml" model="Model" />
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">@Model.SubmitText</button>
+                    <a class="btn btn-outline-secondary" href="@Url.Action("Areas", "Admin")">Annullér</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}
