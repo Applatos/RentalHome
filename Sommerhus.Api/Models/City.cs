@@ -12,9 +12,6 @@ public class City
     [Required, MaxLength(20)]
     public string Zip { get; set; } = string.Empty;
 
-    [Required, MaxLength(140)]
-    public string Slug { get; set; } = string.Empty;
-
     public string? Description { get; set; }
 
     public List<VacationHouse> Houses { get; set; } = new();

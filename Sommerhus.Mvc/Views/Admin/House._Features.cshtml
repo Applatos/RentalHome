@@ -1,0 +1,35 @@
+﻿@using Sommerhus.Contracts.Dtos.Admin.Features
+@using Sommerhus.Contracts.Dtos.Admin.Houses
+@using Sommerhus.Contracts.Dtos.Public.Houses
+@model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
+
+@{
+    var allFeatures = (IReadOnlyList<FeatureDetailsDto>?) ViewBag.AllFeatures;
+    var selected = (Model.Features?.Select(f => f.Id).ToHashSet()) ?? new HashSet<Guid>();
+}
+
+@if (allFeatures.Count == 0)
+{
+    <div class="alert alert-info">Ingen features at vise. Hent dem i controlleren og læg dem i <code>ViewBag.AllFeatures</code>.</div>
+}
+else
+{
+    <form method="post" action="@Url.Action("SaveHouseFeatures","Admin", new { id = Model.Id })" class="mt-2">
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <div class="col-md-8">
+                @foreach (var f in allFeatures)
+                {
+                    var isChecked = selected.Contains(f.Id);
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="featureIds" value="@f.Id" id="f_@f.Id" @(isChecked ? "checked" : null) />
+                        <label class="form-check-label" for="f_@f.Id">@f.Name</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3">Gem features</button>
+    </form>
+}

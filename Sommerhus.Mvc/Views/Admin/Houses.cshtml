@@ -1,14 +1,24 @@
-﻿@using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses
-@model AdmHouses.HousesPageDto
+﻿@using admHouses = Sommerhus.Contracts.Dtos.Admin.Houses
+@model PageResult<admHouses.HouseListItemDto>
 @{
     ViewData["Title"] = "Admin - Houses";
     var totalPages = (int)Math.Ceiling((double)Model.Total / Math.Max(1, Model.PageSize));
 }
 <section class="container my-3">
-    <h2>Houses</h2>
+    @await Html.PartialAsync("_AdminTabs")
 
-    <form method="get" class="row g-2 mb-3">
-        <div class="col-md-6"><input class="form-control" name="q" value="@Model.Query" placeholder="Søg..." /></div>
+    @if (TempData["Ok"] is string ok){<div class="alert alert-success">@ok</div>}
+    @if (TempData["Err"] is string err){<div class="alert alert-danger">@err</div>}
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Houses</h2>
+        <a class="btn btn-primary" asp-controller="Admin" asp-action="NewHouse"> + Opret hus</a>
+    </div>
+
+    <form method="get" class="row gy-2 gx-2 mb-3" asp-controller="Admin" asp-action="Houses">
+        <div class="col-md-6">
+            <input class="form-control" name="q" value="@Model.Query" placeholder="Søg..." />
+        </div>
         <div class="col-md-2">
             <select class="form-select" name="pageSize">
                 @foreach (var size in new[] { 10, 20, 30, 50 })
@@ -17,28 +27,43 @@
                 }
             </select>
         </div>
-        <div class="col-md-2"><button class="btn btn-dark w-100">Søg</button></div>
+        <div class="col-md-2">
+            <button class="btn btn-dark w-100">Søg</button>
+        </div>
     </form>
 
     <table class="table table-sm align-middle">
-        <thead><tr><th>Titel</th><th>By</th><th>Oprettet</th><th></th></tr></thead>
+        <thead>
+            <tr>
+                <th>Titel</th>
+                <th>By</th>
+                <th>Oprettet</th>
+                <th class="text-end">Handling</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var h in Model.Items)
             {
                 <tr>
-                    <td>@h.Title</td>
-                    <td>@h.City</td>
-                    <td>@h.CreatedUtc.ToLocalTime().ToString("g")</td>
-                    <td><a class="btn btn-outline-dark btn-sm" href="@Url.Action("House", "Admin", new { id = h.Id })">Detaljer ▸</a></td>
+                    <td>@h.Name</td>
+                    <td>@h.CityLabel</td>
+                    <td>@h.CreatedUtc.ToLocalTime().ToString()</td>
+                    <td class="text-end">
+                        <a class="btn btn-outline-dark btn-sm" asp-action="House" asp-controller="Admin" asp-route-id="@h.Id">Detaljer</a>
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="EditHouse" asp-controller="Admin" asp-route-id="@h.Id">Rediger</a>
+                        <form method="post" action="@Url.Action("DeleteHouse", "Admin", new { id = h.Id })" class="d-inline" onsubmit='return confirm("Slet hus \"@h.Name\"?");'>
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Slet</button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 
     @{
-        var total = Math.Max(1, totalPages);
         var prevDisabled = Model.Page <= 1 ? "disabled" : null;
-        var nextDisabled = Model.Page >= total ? "disabled" : null;
+        var nextDisabled = Model.Page >= totalPages ? "disabled" : null;
     }
     <nav class="d-flex justify-content-between">
         <a class="btn btn-outline-secondary @prevDisabled"

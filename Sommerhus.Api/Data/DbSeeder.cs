@@ -11,8 +11,8 @@ public static class Seeder
         var boolF = new Feature { Id = Guid.NewGuid(), Name = "Sauna", Key = "sauna", ValueType = FeatureValueType.Bool, SortOrder = 10 };
         var sizeF = new Feature { Id = Guid.NewGuid(), Name = "Areal", Key = "areal", ValueType = FeatureValueType.Int, Unit = "m2", SortOrder = 20 };
 
-        var city = new City { Id = Guid.NewGuid(), Name = "Blåvand", Slug = "blavand", Zip = "6857" };
-        var area = new Area { Id = Guid.NewGuid(), Name = "Blåvand", Slug = "blavand", City = city, Description = "Hyggeligt område." };
+        var city = new City { Id = Guid.NewGuid(), Name = "Blåvand", Zip = "6857" };
+        var area = new Area { Id = Guid.NewGuid(), Name = "Blåvand", City = city, Description = "Hyggeligt område." };
 
         var house = new VacationHouse
         {

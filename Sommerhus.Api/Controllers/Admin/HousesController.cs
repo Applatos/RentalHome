@@ -4,7 +4,6 @@ using Sommerhus.Api.Data;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
@@ -14,7 +13,7 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class HousesController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<HousesPageDto> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public async Task<PageResult<HouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -34,14 +33,21 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         var total = await q.CountAsync(ct);
         var rows = await q.OrderByDescending(h => h.CreatedUtc)
             .Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(h => new HouseRowDto(h.Id, h.Title, h.City!.Name, h.CreatedUtc))
+            .Select(h => new HouseListItemDto(h.Id, h.Title, h.City!.Name, null, null, h.CreatedUtc))
             .ToListAsync(ct);
 
-        return new HousesPageDto(query ?? "", page, pageSize, total, rows);
+        return new PageResult<HouseListItemDto>
+        {
+            Query = query ?? "",
+            Page = page,
+            PageSize = pageSize,
+            Total = total,
+            Items = rows
+        };
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<HouseAdminDetailsDto>> Get(Guid id, CancellationToken ct)
+    public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)
     {
         var h = await db.Houses
             .Include(x => x.Images)
@@ -56,21 +62,62 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()))
             .ToList();
 
-        var cityMini = h.City is null ? null : new CityMiniDto(h.City.Name, h.City.Zip);
-
-        return new HouseAdminDetailsDto(h.Id, h.Title, cityMini, h.Address, h.CreatedUtc, images);
+        return new HouseDetailsDto(h.Id, h.Title, h.CityId, h.City.Name, null, null, h.Address, null, h.CreatedUtc, null, images);
     }
 
-    [HttpDelete("{houseId:guid}/images/{imageId:guid}")]
-    public async Task<IActionResult> DeleteImage(Guid houseId, Guid imageId, CancellationToken ct)
-    {
-        var img = await db.Images.FirstOrDefaultAsync(i => i.Id == imageId && i.HouseId == houseId, ct);
-        if (img is null) return NotFound();
 
-        db.Images.Remove(img);
+    // POST: /api/admin/houses
+    [HttpPost]
+    public async Task<ActionResult<Guid>> Create([FromBody] UpsertHouseDto dto, CancellationToken ct)
+    {
+        var entity = new VacationHouse
+        {
+            Id = Guid.NewGuid(),
+            Title = dto.Name,
+            Address = dto.Address,
+            CityId = dto.CityId,
+            Description = dto.Description,
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        db.Houses.Add(entity);
+        await db.SaveChangesAsync(ct);
+
+        // AdminApiClient forventer et Guid tilbage
+        return CreatedAtAction(nameof(Get), new { id = entity.Id }, entity.Id);
+    }
+
+    // PUT: /api/admin/houses/{id}
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpsertHouseDto dto, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+        var h = await db.Houses.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (h is null) return NotFound();
+
+        h.Title = dto.Name;
+        h.Address = dto.Address;
+        h.CityId = dto.CityId;
+        h.Description = dto.Description;
+
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
+
+
+    // DELETE: /api/admin/houses/{id}
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var h = await db.Houses.Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (h is null) return NotFound();
+
+        db.Houses.Remove(h);
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
 
     [HttpPost("{houseId:guid}/features")]
     public async Task<IActionResult> UpsertFeatures(Guid houseId, [FromBody] IEnumerable<PostFeatureValueDto> values, CancellationToken ct)

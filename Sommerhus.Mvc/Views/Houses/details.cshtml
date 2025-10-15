@@ -1,6 +1,6 @@
-﻿@using PubHouses = Sommerhus.Contracts.Dtos.Public.Houses
+﻿@using Sommerhus.Contracts.Dtos.Public.Houses
 @using Sommerhus.Mvc.Utils
-@model PubHouses.HouseDetailsDto
+@model HouseDetailsDto
 @{
     ViewData["Title"] = $"{Model.City} - {Model.Title}";
 }
@@ -12,16 +12,17 @@
 
     <div class="row g-4 my-2">
         <div class="col-md-8">
-            @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
+            @{ var coverImg = Model.Images.FirstOrDefault(i => i.Kind == "cover");}
+            @if (coverImg != null)
             {
-                <img src="@Model.CoverUrl" class="img-fluid rounded w-100" alt="cover" />
+                <img src="@coverImg.Url" class="img-fluid rounded w-100" alt="cover" />
             }
         </div>
         <div class="col-md-4">
-            @if (Model.Gallery?.Any() == true)
+            @if (Model.Images.Any() == true)
             {
                 <div class="d-grid gap-2">
-                    @foreach (var img in Model.Gallery.WithoutCover())
+                    @foreach (var img in Model.Images)
                     {
                         <img src="@img.Url" class="img-fluid rounded" alt="@img.Alt" />
                     }
@@ -33,14 +34,14 @@
     @if (Model.Features?.Any() == true)
     {
         <div class="my-3 border-top pt-3 d-flex flex-wrap gap-3">
-            @foreach (var f in Model.Features.DistinctFeatures())
+            @foreach (var f in Model.Features)
             {
                 <div class="d-flex align-items-center gap-2">
                     @if (!string.IsNullOrWhiteSpace(f.IconUrl))
                     {
                         <img src="@f.IconUrl" width="28" height="28" alt="@f.Name" />
                     }
-                    <small>@f.Display</small>
+                    <small>@f.Name</small>
                 </div>
             }
         </div>
@@ -52,12 +53,17 @@
             <div>@Html.Raw(Model.Description)</div>
         </div>
         <div class="col-md-4">
-            <h4>Faciliteter</h4>
-            <div>@Html.Raw(Model.Facilities)</div>
-            @if (Model.Floorplan is not null)
+            <h4>Floor plan</h4>
+            @{
+                var floorplanImgs = Model.Images.Where(i => i.Kind == "floorplan").ToList();
+            }
+            @if (floorplanImgs.Any())
             {
-                <div class="mt-3">
-                    <img src="@Model.Floorplan.Url" class="img-fluid rounded" alt="@Model.Floorplan.Alt" />
+                <div class="mt-3 d-grid gap-2">
+                    @foreach (var img in floorplanImgs)
+                    {
+                        <img src="@img.Url" class="img-fluid rounded" alt="floorplan" />
+                    }
                 </div>
             }
         </div>

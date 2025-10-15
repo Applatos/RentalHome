@@ -36,15 +36,15 @@ public class Program
                 .WithOrigins("https://localhost:5001", "https://localhost:7202") // eller dit domæne
                 .AllowCredentials());
         });
-
         var app = builder.Build();
+        app.UseDeveloperExceptionPage();
 
         app.UseStaticFiles();
         app.UseCors("mvc");
 
         app.UseMiddleware<ProblemDetailsMiddleware>();
 
-
+        app.UseHttpsRedirection();
         app.UseSwagger();
         app.UseSwaggerUI();
 

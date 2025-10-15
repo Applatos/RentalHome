@@ -1,0 +1,21 @@
+﻿@using Sommerhus.Contracts.Dtos.Admin.Houses
+@model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
+
+<form method="post" asp-controller="Admin" asp-action="Create" asp-route-id="@Model.Id" class="row g-3">
+    @Html.AntiForgeryToken()
+
+    <div class="col-md-8">
+        <label class="form-label">Navn</label>
+        <input class="form-control" name="Title" value="@Model.Name" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Adresse</label>
+        <input class="form-control" name="Address" value="@Model.Address" />
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">Gem</button>
+        <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Houses">Til liste</a>
+    </div>
+</form>

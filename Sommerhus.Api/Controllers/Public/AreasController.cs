@@ -23,32 +23,31 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             var slugTerm = term.ToLowerInvariant();
             query = query.Where(a =>
                 EF.Functions.Like(a.Name, $"%{term}%") ||
-                EF.Functions.Like(a.Slug, $"%{slugTerm}%") ||
                 (a.City != null && EF.Functions.Like(a.City.Name, $"%{term}%")));
         }
 
         return await query
             .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, a.Slug, a.Name, a.Houses.Count))
+            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
             .ToListAsync(ct);
     }
 
-    [HttpGet("{slug}")]
-    public async Task<ActionResult<AreaDetailsDto>> GetBySlug(string slug, CancellationToken ct)
-    {
-        var area = await db.Areas
-            .Include(a => a.AreaImages)
-            .FirstOrDefaultAsync(a => a.Slug == slug, ct);
+    //[HttpGet("{slug}")]
+    //public async Task<ActionResult<AreaDetailsDto>> GetBySlug(string slug, CancellationToken ct)
+    //{
+    //    var area = await db.Areas
+    //        .Include(a => a.AreaImages)
+    //        .FirstOrDefaultAsync(a => a.Slug == slug, ct);
 
-        if (area is null) return NotFound();
+    //    if (area is null) return NotFound();
 
-        var images = area.AreaImages
-            .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id,
-                UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)),
-                null, "Gallery"))
-            .ToList();
+    //    var images = area.AreaImages
+    //        .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
+    //        .Select(i => new ImageDto(i.Id,
+    //            UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)),
+    //            null, "Gallery"))
+    //        .ToList();
 
-        return new AreaDetailsDto(area.Id, area.Slug, area.Name, area.Description, images);
-    }
+    //    return new AreaDetailsDto(area.Id, area.Slug, area.Name, area.Description, images);
+    //}
 }

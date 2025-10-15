@@ -1,133 +1,99 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Api.Models;
 using Sommerhus.Api.Data;
+using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
-using System.IO;
-using System.Linq;
+using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/houses/{houseId:guid}/images")]
-public class HouseImagesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
+public sealed class HouseImagesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<ImageDto>> List(Guid houseId, CancellationToken ct)
+    public async Task<IEnumerable<ImageDto>> Get(Guid houseId, CancellationToken ct)
     {
-        var imgs = await db.Images
+        var imgs = await db.Images.AsNoTracking()
             .Where(i => i.HouseId == houseId)
-            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
+            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : (i.Kind == ImageKind.Gallery ? 1 : 2))
             .ThenBy(i => i.Id)
             .ToListAsync(ct);
-        return imgs.Select(i =>
-            new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()));
+
+        return imgs.Select(i => new ImageDto(i.Id,
+            UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)),
+            i.Alt,
+            i.Kind.ToString()));
     }
 
-    [HttpPost("{kind}")]
-    [RequestSizeLimit(1024L * 1024L * 100L)]
-    public async Task<ActionResult<ImageDto>> Upload(Guid houseId, string kind, IFormFile file, CancellationToken ct)
-    {
-        if (file is null || file.Length == 0)
-        {
-            ModelState.AddModelError(nameof(file), "Fil er påkrævet");
-            return ValidationProblem(ModelState);
-        }
-
-        var house = await db.Houses.Include(h => h.Images).FirstOrDefaultAsync(x => x.Id == houseId, ct);
-        if (house is null) return NotFound();
-
-        var imgKind = kind.ToLower() switch
-        {
-            "cover" or "coverimage" => ImageKind.Cover,
-            "gallery" => ImageKind.Gallery,
-            "floor" or "floorplan" => ImageKind.Floorplan,
-            _ => ImageKind.Gallery
-        };
-
-        var dir = Path.Combine(env.WebRootPath, "uploads", "houses", houseId.ToString());
-        Directory.CreateDirectory(dir);
-
-        var unique = $"{Guid.NewGuid():N}{Path.GetExtension(Path.GetFileName(file.FileName))}";
-        var fullPath = Path.Combine(dir, unique);
-        using (var fs = System.IO.File.Create(fullPath))
-            await file.CopyToAsync(fs, ct);
-
-        var img = new HouseImage { HouseId = houseId, FileName = unique, Kind = imgKind };
-        db.Images.Add(img);
-
-        if (imgKind == ImageKind.Cover)
-        {
-            foreach (var other in house.Images.Where(i => i.Id != img.Id && i.Kind == ImageKind.Cover))
-            {
-                other.Kind = ImageKind.Gallery;
-            }
-            house.CoverImageId = img.Id;
-        }
-        else if (imgKind == ImageKind.Floorplan)
-        {
-            foreach (var other in house.Images.Where(i => i.Id != img.Id && i.Kind == ImageKind.Floorplan))
-            {
-                other.Kind = ImageKind.Gallery;
-            }
-        }
-
-        await db.SaveChangesAsync(ct);
-
-        var url = UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(img.HouseId, img.FileName));
-        return CreatedAtAction(nameof(List), new { houseId }, new ImageDto(img.Id, url, img.Alt, img.Kind.ToString()));
-    }
-
+    // DELETE /api/admin/houses/{houseId}/images/{imageId}
     [HttpDelete("{imageId:guid}")]
     public async Task<IActionResult> Delete(Guid houseId, Guid imageId, CancellationToken ct)
     {
         var img = await db.Images.FirstOrDefaultAsync(i => i.Id == imageId && i.HouseId == houseId, ct);
         if (img is null) return NotFound();
 
-        var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
-        if (house is not null && house.CoverImageId == img.Id)
-        {
-            house.CoverImageId = null;
-        }
-
-        var path = Path.Combine(env.WebRootPath, "uploads", "houses", houseId.ToString(), img.FileName);
-        if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
-
         db.Images.Remove(img);
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
 
-    [HttpPost("{imageId:guid}/set-cover")]
-    public async Task<IActionResult> SetCover(Guid houseId, Guid imageId, CancellationToken ct)
+    // POST: /api/admin/houses/{houseId}/images
+    // multipart/form-data (name="files"; multiple)
+    [HttpPost]
+    [RequestSizeLimit(25_000_000)]
+    public async Task<ActionResult<IEnumerable<ImageDto>>> Upload(Guid houseId, [FromForm] IFormFileCollection files, CancellationToken ct)
     {
-        var img = await db.Images.FirstOrDefaultAsync(i => i.Id == imageId && i.HouseId == houseId, ct);
-        if (img is null) return NotFound();
+        if (files is null || files.Count == 0) return BadRequest("No files.");
+        var exists = await db.Houses.AnyAsync(h => h.Id == houseId, ct);
+        if (!exists) return NotFound();
 
-        var house = await db.Houses.Include(h => h.Images).FirstAsync(h => h.Id == houseId, ct);
-        foreach (var other in house.Images.Where(i => i.Id != img.Id && i.Kind == ImageKind.Cover))
+        var root = env.WebRootPath ?? "wwwroot";
+        var dir = Path.Combine(root, "uploads", "houses", houseId.ToString());
+        Directory.CreateDirectory(dir);
+
+        var result = new List<ImageDto>();
+        foreach (var f in files)
         {
-            other.Kind = ImageKind.Gallery;
+            if (f.Length == 0) continue;
+            if (string.IsNullOrWhiteSpace(f.ContentType) || !f.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Only images are allowed.");
+
+            var ext = Path.GetExtension(f.FileName);
+            var safe = $"{Guid.NewGuid():N}{ext}";
+            var diskPath = Path.Combine(dir, safe);
+            await using (var s = System.IO.File.Create(diskPath))
+                await f.CopyToAsync(s, ct);
+
+            var entity = new HouseImage { HouseId = houseId, FileName = safe, Kind = ImageKind.Gallery };
+            db.Images.Add(entity);
+            await db.SaveChangesAsync(ct);
+
+            var url = UrlBuilder.HouseImageWebPath(houseId, safe);
+            // ImageDto i dit projekt bruges også i HouseAdminDetailsDto.Images  :contentReference[oaicite:9]{index=9}
+            // I dine controllere mappes den typisk som (id, absoluteUrl, alt, kindString)
+            result.Add(new ImageDto(entity.Id, url, entity.Alt, entity.Kind.ToString()));
         }
 
-        house.CoverImageId = img.Id;
-        img.Kind = ImageKind.Cover;
-
-        await db.SaveChangesAsync(ct);
-        return NoContent();
+        return Ok(result);
     }
 
-    [HttpGet("{imageId:guid}")]
-    public async Task<IActionResult> Get(Guid houseId, Guid imageId, CancellationToken ct)
+    // POST: /api/admin/houses/{houseId}/images/{imageId}/set-kind?kind=Cover|Gallery|Floorplan
+    [HttpPost("{imageId:guid}/set-kind")]
+    public async Task<IActionResult> SetKind(Guid houseId, Guid imageId, [FromQuery] ImageKind kind, CancellationToken ct)
     {
-        var img = await db.Images.FirstOrDefaultAsync(i => i.Id == imageId && i.HouseId == houseId, ct);
+        var imgs = await db.Images.Where(i => i.HouseId == houseId).ToListAsync(ct);
+        var img = imgs.FirstOrDefault(i => i.Id == imageId);
         if (img is null) return NotFound();
-        var dir = Path.Combine(env.WebRootPath, "uploads", "houses", houseId.ToString());
-        var fullPath = Path.Combine(dir, img.FileName);
-        if (!System.IO.File.Exists(fullPath)) return NotFound();
-        var bytes = await System.IO.File.ReadAllBytesAsync(fullPath, ct);
-        var contentType = "application/octet-stream"; // You may want to detect MIME type
-        return File(bytes, contentType, img.FileName); // FIX: Use File() method correctly
+
+        if (kind == ImageKind.Cover)
+            foreach (var i in imgs.Where(i => i.Kind == ImageKind.Cover)) i.Kind = ImageKind.Gallery;
+
+        if (kind == ImageKind.Floorplan)
+            foreach (var i in imgs.Where(i => i.Kind == ImageKind.Floorplan)) i.Kind = ImageKind.Gallery;
+
+        img.Kind = kind;
+        await db.SaveChangesAsync(ct);
+        return NoContent();
     }
 }

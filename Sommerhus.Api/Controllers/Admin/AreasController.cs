@@ -8,6 +8,7 @@ using Sommerhus.Api.Data;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
@@ -16,20 +17,18 @@ namespace Sommerhus.Api.Controllers.Admin;
 [Route("api/admin/areas")]
 public sealed class AreasController(AppDbContext db) : ControllerBase
 {
-    private static readonly Regex SlugRegex = new("[^a-z0-9]+", RegexOptions.Compiled);
 
     [HttpGet]
     public async Task<IEnumerable<AreaListItemDto>> GetAll(CancellationToken ct)
         => await db.Areas.AsNoTracking()
             .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, a.Slug, a.Name, a.Houses.Count))
+            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
             .ToListAsync(ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
     {
-        var area = await db.Areas.Include(a => a.AreaImages)
-            .Include(a => a.City)
+        var area = await db.Areas.Include(a => a.AreaImages).Include(a => a.City)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (area is null) return NotFound();
@@ -38,14 +37,9 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<AreaDetailsDto>> Create([FromBody] CreateAreaDto dto, CancellationToken ct)
+    public async Task<ActionResult<AreaDetailsDto>> Create([FromBody] UpsertAreaDto dto, CancellationToken ct)
     {
         var name = (dto.Name ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
-            return ValidationProblem(ModelState);
-        }
 
         if (dto.CityId.HasValue)
         {
@@ -62,7 +56,6 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             Name = name,
             CityId = dto.CityId,
             Description = NormalizeDescription(dto.Description),
-            Slug = await GenerateUniqueSlugAsync(name, null, ct)
         };
 
         var images = NormalizeImages(dto.Images).ToList();
@@ -85,7 +78,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAreaDto dto, CancellationToken ct)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpsertAreaDto dto, CancellationToken ct)
     {
         var area = await db.Areas.Include(a => a.AreaImages)
             .Include(a => a.City)
@@ -94,11 +87,6 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         if (area is null) return NotFound();
 
         var name = (dto.Name ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
-            return ValidationProblem(ModelState);
-        }
 
         if (dto.CityId.HasValue)
         {
@@ -115,9 +103,6 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         area.Name = name;
         area.CityId = dto.CityId;
         area.Description = NormalizeDescription(dto.Description);
-
-        if (nameChanged)
-            area.Slug = await GenerateUniqueSlugAsync(name, id, ct);
 
         if (dto.Images is not null)
         {
@@ -173,35 +158,34 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
             .ToList();
 
-        return new AreaDetailsDto(area.Id, area.Slug, area.Name, area.CityId, area.City?.Name, area.Description, images);
+        return new AreaDetailsDto(area.Id, area.Name, area.CityId, area.City?.Name, area.Description, images);
     }
 
-    private static string Slugify(string value)
-    {
-        var normalized = value.ToLowerInvariant().Trim();
-        normalized = normalized.Normalize(NormalizationForm.FormD);
-        var builder = new StringBuilder();
-        foreach (var c in normalized)
-        {
-            var category = CharUnicodeInfo.GetUnicodeCategory(c);
-            if (category == UnicodeCategory.NonSpacingMark) continue;
-            builder.Append(c);
-        }
+    //private static string Slugify(string value)
+    //{
+    //    var normalized = value.ToLowerInvariant().Trim();
+    //    normalized = normalized.Normalize(NormalizationForm.FormD);
+    //    var builder = new StringBuilder();
+    //    foreach (var c in normalized)
+    //    {
+    //        var category = CharUnicodeInfo.GetUnicodeCategory(c);
+    //        if (category == UnicodeCategory.NonSpacingMark) continue;
+    //        builder.Append(c);
+    //    }
 
-        normalized = builder.ToString();
-        normalized = SlugRegex.Replace(normalized, "-").Trim('-');
-        return string.IsNullOrEmpty(normalized) ? Guid.NewGuid().ToString("N") : normalized;
-    }
+    //    normalized = builder.ToString();
+    //    return string.IsNullOrEmpty(normalized) ? Guid.NewGuid().ToString("N") : normalized;
+    //}
 
-    private async Task<string> GenerateUniqueSlugAsync(string value, Guid? ignoreId, CancellationToken ct)
-    {
-        var baseSlug = Slugify(value);
-        var slug = baseSlug;
-        var suffix = 2;
+    //private async Task<string> GenerateUniqueSlugAsync(string value, Guid? ignoreId, CancellationToken ct)
+    //{
+    //    var baseSlug = Slugify(value);
+    //    var slug = baseSlug;
+    //    var suffix = 2;
 
-        while (await db.Areas.AnyAsync(a => a.Slug == slug && (!ignoreId.HasValue || a.Id != ignoreId.Value), ct))
-            slug = $"{baseSlug}-{suffix++}";
+    //    while (await db.Areas.AnyAsync(a => a.Slug == slug && (!ignoreId.HasValue || a.Id != ignoreId.Value), ct))
+    //        slug = $"{baseSlug}-{suffix++}";
 
-        return slug;
-    }
+    //    return slug;
+    //}
 }

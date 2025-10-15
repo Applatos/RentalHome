@@ -1,0 +1,41 @@
+﻿@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
+@model AdmAreas.AreaDetailsDto
+
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+
+    <a class="btn btn-link" href="@Url.Action("Areas", "Admin")">◂ Tilbage</a>
+
+    @if (TempData["Err"] is string errMsg){<div class="alert alert-danger">@errMsg</div>}
+    @if (TempData["Ok"] is string okMsg){<div class="alert alert-success">@okMsg</div>}
+
+    <h3 class="mb-3">@((Model.Id == Guid.Empty) ? "Opret area" : $"Rediger: {Model.Name}")</h3>
+
+    <form method="post"
+          asp-controller="Admin"
+          asp-action="@(Model.Id == Guid.Empty ? "CreateArea" : "EditArea")"
+          asp-route-id="@(Model.Id == Guid.Empty ? null : Model.Id)">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Navn *</label>
+            <input name="Name" class="form-control" value="@Model.Name" required maxlength="100" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">CityId (valgfri)</label>
+            <input name="CityId" class="form-control" value="@(Model.CityId?.ToString() ?? "")" placeholder="GUID eller tom" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Beskrivelse (HTML tilladt)</label>
+            <textarea name="Description" class="form-control" rows="6">@Model.Description</textarea>
+            <div class="form-text">HTML bliver indsat som rå tekst i detaljevisning.</div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">@((Model.Id == Guid.Empty) ? "Opret" : "Gem ændringer")</button>
+            <a class="btn btn-outline-secondary" href="@Url.Action("Areas", "Admin")">Annullér</a>
+        </div>
+    </form>
+</section>

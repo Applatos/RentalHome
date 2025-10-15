@@ -13,6 +13,6 @@ public sealed class CitiesController(AppDbContext db) : ControllerBase
     public async Task<IEnumerable<CityListItemDto>> Get(CancellationToken ct)
         => await db.Cities.AsNoTracking()
             .OrderBy(c => c.Name)
-            .Select(c => new CityListItemDto(c.Id, c.Slug, c.Name, c.Zip))
+            .Select(c => new CityListItemDto(c.Id, c.Name, c.Zip))
             .ToListAsync(ct);
 }

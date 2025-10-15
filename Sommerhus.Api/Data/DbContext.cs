@@ -62,8 +62,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         b.Entity<City>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
-            e.HasIndex(x => x.Slug).IsUnique();
+
             e.HasMany(x => x.Images)
                 .WithOne(i => i.City!)
                 .HasForeignKey(i => i.CityId)
@@ -74,9 +73,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         b.Entity<Area>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
-            e.HasIndex(x => x.Slug).IsUnique();
-
 
             e.HasMany(x => x.AreaImages)
                 .WithOne(i => i.Area!)

@@ -1,11 +1,11 @@
-﻿@using PubAreas = Sommerhus.Contracts.Dtos.Public.Areas
-@using PubHouses = Sommerhus.Contracts.Dtos.Public.Houses
-@model IReadOnlyList<PubHouses.HouseListItemDto>
+﻿@* @using PubAreas = Sommerhus.Contracts.Dtos.Public.Areas
+ *@@using Sommerhus.Contracts.Dtos.Public.Houses
+@model IReadOnlyList<HouseListItemDto>
 @{
     ViewData["Title"] = "Luksus Sommerhuse i Danmark";
     var q = (string)(ViewBag.Query ?? "");
-    var area = (string)(ViewBag.Area ?? "");
-    var areas = (IReadOnlyList<PubAreas.AreaListItemDto>)(ViewBag.Areas ?? new List<PubAreas.AreaListItemDto>());
+    // var area = (string)(ViewBag.Area ?? "");
+    // var areas = (IReadOnlyList<PubAreas.AreaListItemDto>)(ViewBag.Areas ?? new List<PubAreas.AreaListItemDto>());
 }
 <section class="container">
     <header class="my-4 text-center">
@@ -17,7 +17,7 @@
         <div class="col-md-4">
             <input name="q" value="@q" class="form-control" placeholder="Søg..." />
         </div>
-        <div class="col-md-4">
+@*         <div class="col-md-4">
             <select name="area" class="form-select">
                 <option value="">Alle områder</option>
                 @foreach (var a in areas.OrderBy(a => a.Name))
@@ -25,7 +25,7 @@
                     <option value="@a.Slug" selected="@(a.Slug == area)">@a.Name</option>
                 }
             </select>
-        </div>
+        </div> *@
         <div class="col-md-2"><button class="btn btn-dark w-100">Søg</button></div>
         <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/">Nulstil</a></div>
     </form>
@@ -40,8 +40,7 @@
                         <img src="@h.CoverUrl" class="card-img-top" alt="@h.Title" />
                     }
                     <div class="card-body">
-                        <h5 class="card-title">@h.City (@h.Zip) - @h.Title</h5>
-                        <p class="card-text">@h.Subtitle</p>
+                        <h5 class="card-title">@h.CityName (@h.Zip) - @h.Title</h5>
                         <a class="btn btn-dark" href="@Url.Action("Details", "Houses", new { id = h.Id })">Læs mere ▸</a>
                     </div>
                 </div>

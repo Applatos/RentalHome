@@ -1,0 +1,53 @@
+﻿@using adminHouses = Sommerhus.Contracts.Dtos.Admin.Houses
+@model adminHouses.HouseDetailsDto
+
+<div class="mb-3">
+    <form method="post" enctype="multipart/form-data" action="@Url.Action("UploadHouseImages","Admin", new { id = Model.Id })">
+        @Html.AntiForgeryToken()
+        <div class="input-group">
+            <input type="file" name="files" multiple class="form-control" />
+            <button class="btn btn-outline-primary">Upload</button>
+        </div>
+        <small class="text-muted d-block mt-1">Du kan uploade flere billeder ad gangen.</small>
+    </form>
+</div>
+
+@if (Model.Images is null || Model.Images.Count == 0)
+{
+    <div class="alert alert-info">Ingen billeder endnu.</div>
+}
+else
+{
+    <div class="d-flex flex-wrap gap-3">
+        @foreach (var img in Model.Images)
+        {
+            <div class="border rounded p-2" style="width: 210px">
+                <img src="@img.Url" alt="@img.Alt" class="img-fluid" />
+                <div class="mt-2">
+                    <span class="badge bg-secondary">@img.Kind</span>
+                </div>
+                <div class="mt-2 d-flex flex-wrap gap-2">
+                    <form method="post" action="@Url.Action("SetHouseImageKind","Admin", new { id = Model.Id, imageId = img.Id })">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="kind" value="Cover" />
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Cover</button>
+                    </form>
+                    <form method="post" action="@Url.Action("SetHouseImageKind","Admin", new { id = Model.Id, imageId = img.Id })">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="kind" value="Floorplan" />
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Floor plan</button>
+                    </form>
+                    <form method="post" action="@Url.Action("SetHouseImageKind","Admin", new { id = Model.Id, imageId = img.Id })">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="kind" value="Gallery" />
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Galleri</button>
+                    </form>
+                    <form method="post" action="@Url.Action("DeleteHouseImage","Admin", new { id = Model.Id, imageId = img.Id })" onsubmit='return confirm("Slet billede?");'>
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Slet</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

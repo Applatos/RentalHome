@@ -3,7 +3,6 @@
 public record HouseListItemDto(
     Guid Id,
     string Title,
-    string? Subtitle,
-    string? City,
-    string? Zip,
+    string CityName,
+    string Zip,
     string? CoverUrl);

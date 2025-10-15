@@ -11,7 +11,7 @@ namespace Sommerhus.Api.Controllers.Public;
 public class FeaturesController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)
+    public async Task<IEnumerable<FeatureDetailsDto>> GetAll(CancellationToken ct)
     {
         var rows = await db.Features.AsNoTracking()
             .OrderBy(f => f.SortOrder)
@@ -21,7 +21,7 @@ public class FeaturesController(AppDbContext db) : ControllerBase
         {
             var icon = string.IsNullOrWhiteSpace(f.IconUrl) ? null
                 : UrlBuilder.ToAbsolute(Request, f.IconUrl!);
-            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon, f.SortOrder);
+            return new FeatureDetailsDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon);
         });
     }
 }

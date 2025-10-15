@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Sommerhus.Api.Tests.Infrastructure;
-using Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos._api.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
 using Xunit.Abstractions;
 
@@ -34,7 +34,7 @@ public class AreasTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Create_Read_Update_Delete_Flow_Works()
     {
-        var createDto = new CreateAreaDto("Test Area", null, "Desc", new List<string> { "a.jpg", "b.jpg" });
+        var createDto = new UpsertAreaDto("Test Area", null, "Desc", new List<string> { "a.jpg", "b.jpg" });
         var createRes = await _client.PostAsJsonAsync("/api/admin/areas", createDto);
         var created = await createRes.ReadJsonOrDump<AreaDetailsDto>(_out);
 
@@ -50,7 +50,7 @@ public class AreasTests : IClassFixture<CustomWebApplicationFactory>
         fetched!.Name.Should().Be("Test Area");
         fetched.Images.Should().HaveCount(2);
 
-        var updateDto = new UpdateAreaDto("Updated Area", null, "New Desc", new List<string> { "x.png" });
+        var updateDto = new UpsertHouseDto("Updated Area", null, "New Desc", new List<string> { "x.png" });
         var updateRes = await _client.PutAsJsonAsync($"/api/admin/areas/{created.Id}", updateDto);
         await updateRes.DumpIfError(_out);
         updateRes.StatusCode.Should().Be(HttpStatusCode.NoContent);

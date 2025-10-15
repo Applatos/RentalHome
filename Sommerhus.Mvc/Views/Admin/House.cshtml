@@ -1,31 +1,48 @@
-﻿@using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses
-@model AdmHouses.HouseAdminDetailsDto
-<section class="container my-3">
-    <a class="btn btn-link" href="@Url.Action("Houses", "Admin")">◂ Tilbage</a>
-    <h3>@Model.Title</h3>
+﻿@using Sommerhus.Contracts.Dtos.Admin.Houses
+@model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
+@{
+    ViewData["Title"] = Model.Name;
+    var tab = (string)(ViewBag.Tab ?? "overview");
+}
 
-    <div class="row g-3">
-        <div class="col-md-8">
-            <h5>Billeder</h5>
-            <div class="row row-cols-2 row-cols-md-3 g-2">
-                @foreach (var img in Model.Images)
-                {
-                    <div class="col">
-                        <img src="@img.Url" class="img-fluid rounded mb-1" />
-                        <form method="post" asp-action="DeleteImage" asp-controller="Houses"
-                              asp-route-id="@Model.Id" asp-route-imgId="@img.Id">
-                            @Html.AntiForgeryToken()
-                            <button class="btn btn-sm btn-outline-danger">Slet</button>
-                        </form>
-                    </div>
-                }
-            </div>
-        </div>
-        <div class="col-md-4">
-            <h5>Info</h5>
-            <p><b>By:</b> @Model.City?.Name (@Model.City?.Zip)</p>
-            <p><b>Adresse:</b> @Model.Address</p>
-            <p><b>Oprettet:</b> @Model.CreatedUtc.ToLocalTime().ToString("g")</p>
-        </div>
+<section class="container my-3">
+@*     @await Html.PartialAsync("_AdminTabs") *@
+
+    @if (TempData["Ok"] is string ok) { <div class="alert alert-success">@ok</div> }
+    @if (TempData["Err"] is string err){ <div class="alert alert-danger">@err</div> }
+
+    <div class="d-flex justify-content-between">
+        <h2 class="mb-2">@Model.Name</h2>
+        <small class="text-muted">Oprettet @Model.CreatedUtc.ToLocalTime()</small>
+    </div>
+
+    <ul class="nav nav-tabs mt-2">
+        <li class="nav-item">
+            <a class="nav-link @(tab == "overview" ? "active" : "")"
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "images" ? "active" : "")"
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "features" ? "active" : "")"
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
+        </li>
+    </ul>
+
+    <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (tab == "overview")
+        {
+            @await Html.PartialAsync("House._Overview", Model)
+        }
+        else if (tab == "images")
+        {
+            @await Html.PartialAsync("House._Images", Model)
+        }
+        else if (tab == "features")
+        {
+            @await Html.PartialAsync("House._Features", Model)
+        }
     </div>
 </section>

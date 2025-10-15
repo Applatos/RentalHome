@@ -5,6 +5,7 @@ using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
 using Sommerhus.Api.Data;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 
 namespace Sommerhus.Api.Controllers.Public;
 
@@ -32,9 +33,7 @@ public class HousesController(AppDbContext db) : ControllerBase
         if (!string.IsNullOrWhiteSpace(city))
         {
             var term = city.Trim();
-            var slugTerm = term.ToLowerInvariant(); // <- normalize slug
             query = query.Where(h =>
-                (h.City != null && h.City.Slug != null && h.City.Slug == slugTerm) ||
                 (h.City != null && h.City.Name != null && EF.Functions.Like(h.City.Name, $"%{term}%")) ||
                 (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }
@@ -50,11 +49,9 @@ public class HousesController(AppDbContext db) : ControllerBase
             var term = q.Trim();
             query = query.Where(h =>
                 (h.Title != null && EF.Functions.Like(h.Title, $"%{term}%")) ||
-                (h.Subtitle != null && EF.Functions.Like(h.Subtitle, $"%{term}%")) ||
                 (h.Description != null && EF.Functions.Like(h.Description, $"%{term}%")) ||
                 (h.City != null && h.City.Name != null && EF.Functions.Like(h.City.Name, $"%{term}%")) ||
-                (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")) ||
-                (h.City != null && h.City.Slug != null && EF.Functions.Like(h.City.Slug, $"%{term}%")));
+                (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }
 
         var list = await query.Skip(Math.Max(0, skip)).Take(take).ToListAsync(ct);
@@ -68,7 +65,7 @@ public class HousesController(AppDbContext db) : ControllerBase
                 ? null
                 : UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(cover.HouseId, cover.FileName));
 
-            return new HouseListItemDto(h.Id, h.Title, h.Subtitle, h.City?.Name, h.City?.Zip, coverUrl);
+            return new HouseListItemDto(h.Id, h.Title, h.City.Name, h.City.Zip, coverUrl);
         });
     }
 
@@ -83,22 +80,12 @@ public class HousesController(AppDbContext db) : ControllerBase
 
         if (h is null) return NotFound();
 
-        var cover = h.Images.FirstOrDefault(i => i.Kind == ImageKind.Cover)
-                 ?? h.Images.FirstOrDefault(i => i.Kind == ImageKind.Gallery);
-
-        var coverUrl = cover is null ? null : UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(cover.HouseId, cover.FileName));
-
-        var gallery = h.Images.Where(i => i.Kind == ImageKind.Gallery || i.Kind == ImageKind.Cover)
-            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : 1)
-            .ThenBy(i => i.Id)
+        var gallery = h.Images
             .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()))
             .ToArray();
 
-        var floor = h.Images.FirstOrDefault(i => i.Kind == ImageKind.Floorplan);
-        var floorDto = floor is null ? null
-            : new ImageDto(floor.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(floor.HouseId, floor.FileName)), floor.Alt, floor.Kind.ToString());
 
-        FeatureValueDto Map(HouseFeatureValue v)
+        FeatureDetailsDto Map(HouseFeatureValue v)
         {
             var f = v.Feature!;
             var display = string.IsNullOrWhiteSpace(v.RawValue) ? string.Empty :
@@ -109,22 +96,17 @@ public class HousesController(AppDbContext db) : ControllerBase
             if (!string.IsNullOrWhiteSpace(f.Unit) && !string.IsNullOrWhiteSpace(display))
                 display = $"{display} {f.Unit}";
 
-            return new FeatureValueDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl, display);
+            return new FeatureDetailsDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl);
         }
 
         return new HouseDetailsDto(
             h.Id,
             h.Title,
-            h.Subtitle,
             h.City?.Name,
             h.City?.Zip,
             h.Address,
-            h.City?.Slug,
             h.Description,
-            h.Facilities,
-            coverUrl,
             gallery,
-            floorDto,
-            h.HouseFeatures.Select(Map).OrderBy(x => x.Name).ToArray());
+            h.HouseFeatures.Select(Map).ToArray());
     }
 }

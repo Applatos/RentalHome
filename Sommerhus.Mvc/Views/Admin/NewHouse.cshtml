@@ -1,0 +1,46 @@
+﻿@using Sommerhus.Contracts.Dtos.Admin.Houses
+@using Sommerhus.Mvc.Controllers.Admin
+@model HouseEditVm
+@{
+    ViewData["Title"] = "Opret hus";
+}
+
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+    <h2>Opret hus</h2>
+
+    <form method="post" asp-controller="Admin" asp-action="Create" class="mt-3">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-2">
+            <label class="form-label">Titel</label>
+            <input class="form-control" asp-for="House.Name" />
+            <span class="text-danger" asp-validation-for="House.Name"></span>
+        </div>
+
+        <select class="form-select mb-2" asp-for="@Model.Cities">
+            <option value="">-- Vælg by --</option>
+            @foreach (var city in Model.Cities)
+            {
+                <option value="@city.Value">@city.Text</option>
+            }
+        </select>
+
+        <div class="mb-2">
+            <label class="form-label">Adresse</label>
+            <input class="form-control" asp-for="House.Address" />
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Beskrivelse</label>
+            <textarea class="form-control" asp-for="House.Description" rows="4"></textarea>
+        </div>
+
+        <button class="btn btn-primary">Opret</button>
+        <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Houses" >Afbryd</a>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

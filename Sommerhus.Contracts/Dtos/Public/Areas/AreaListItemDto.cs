@@ -2,6 +2,5 @@
 
 public record AreaListItemDto(
     Guid Id,
-    string Slug,
     string Name,
     int HouseCount);

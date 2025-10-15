@@ -1,0 +1,15 @@
+﻿@{
+    var active = (string?)(ViewData["AdminTab"] ?? "");
+    string Active(string key) => string.Equals(active, key, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @Active("houses")" href="@Url.Action("Houses", "Admin")">Houses</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @Active("areas")" href="@Url.Action("Areas", "Admin")">Areas</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @Active("features")" href="@Url.Action("Features", "Admin")">Features</a>
+    </li>
+</ul>

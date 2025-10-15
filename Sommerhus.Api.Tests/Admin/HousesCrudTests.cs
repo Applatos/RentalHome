@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Sommerhus.Contracts.Dtos.Admin.Cities;
-using Sommerhus.Contracts.Dtos.Admin.Features;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos._api.Cities;
+using Sommerhus.Contracts.Dtos._api.Features;
+using Sommerhus.Contracts.Dtos._api.Houses;
 using Sommerhus.Api.Tests.Infrastructure;
 using System.Net;
 using System.Net.Http.Json;
@@ -26,7 +26,7 @@ public class HousesCrudTests : IClassFixture<CustomWebApplicationFactory>
         var cities = await _client.GetFromJsonAsync<ZipPageDto>("/api/admin/zipcodes?pageSize=1");
         var cityId = cities!.Items.First().Id;
 
-        var createPayload = new CreateHouseDto("Testhus", "Hyggeligt", "Strandvej 1", cityId, "Beskrivelse", "Faciliteter");
+        var createPayload = new UpsertHouseDto("Testhus", "Hyggeligt", "Strandvej 1", cityId, "Beskrivelse");
 
         var createResponse = await _client.PostAsJsonAsync("/api/admin/houses", createPayload);
         await createResponse.DumpIfError(_out);
@@ -47,7 +47,7 @@ public class HousesCrudTests : IClassFixture<CustomWebApplicationFactory>
         updated!.Title.Should().Be("Opdateret Hus");
         updated.Address.Should().Be("Strandvej 2");
 
-        var features = await _client.GetFromJsonAsync<List<FeatureDto>>("/api/admin/features");
+        var features = await _client.GetFromJsonAsync<List<FeatureDetailsDto>>("/api/admin/features");
         features.Should().NotBeNull();
 
         var featurePayload = new[]
@@ -69,7 +69,7 @@ public class HousesCrudTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Create_InvalidCity_ReturnsBadRequest()
     {
-        var payload = new CreateHouseDto("Fejl", null, null, Guid.NewGuid(), null, null);
+        var payload = new UpsertHouseDto("Fejl", null, null, Guid.NewGuid(), null, null);
         var res = await _client.PostAsJsonAsync("/api/admin/houses", payload);
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

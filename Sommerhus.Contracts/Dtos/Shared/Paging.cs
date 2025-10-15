@@ -1,7 +1,5 @@
 ﻿namespace Sommerhus.Contracts.Dtos.Shared;
 
-public record PageRequest(int Page = 1, int PageSize = 20, string? Query = null);
-
 public class PageResult<T>
 {
     public string? Query { get; init; }

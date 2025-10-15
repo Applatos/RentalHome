@@ -17,7 +17,6 @@ public class HouseImagesController(AppDbContext db) : ControllerBase
         var imgs = await db.Images
             .Where(i => i.HouseId == houseId)
             .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
-            .ThenBy(i => i.Id)
             .ToListAsync(ct);
 
         return imgs.Select(i =>

@@ -1,3 +1,10 @@
 ﻿namespace Sommerhus.Contracts.Dtos.Admin.Houses;
 
-public record HouseListItemDto(Guid Id, string Title, string? City, string? Zip, string? Cover);
+public sealed record HouseListItemDto(
+    Guid Id,
+    string Name,
+    string CityLabel,      // fx "8000 – Aarhus"
+    string? AreaLabel,     // null hvis ikke sat
+    string? CoverUrl,      // lille thumbnail i listen (absolut URL)
+    DateTime CreatedUtc
+);
