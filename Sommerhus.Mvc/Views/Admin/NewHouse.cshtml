@@ -5,6 +5,11 @@
     ViewData["Title"] = "Opret hus";
 }
 
+@if (TempData["Err"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
     <h2>Opret hus</h2>
@@ -18,22 +23,22 @@
             <span class="text-danger" asp-validation-for="House.Name"></span>
         </div>
 
-        <select class="form-select mb-2" asp-for="@Model.Cities">
-            <option value="">-- Vælg by --</option>
-            @foreach (var city in Model.Cities)
-            {
-                <option value="@city.Value">@city.Text</option>
-            }
-        </select>
+        <div>
+            <label class="form-label">Vælg by</label>
+            <select class="form-select mb-2" asp-for="House.CityId" asp-items="Model.Cities"></select>
+            <span class="text-danger" asp-validation-for="House.CityId"></span>
+        </div>
 
         <div class="mb-2">
             <label class="form-label">Adresse</label>
             <input class="form-control" asp-for="House.Address" />
+            <span class="text-danger" asp-validation-for="House.Address"></span>
         </div>
 
         <div class="mb-2">
             <label class="form-label">Beskrivelse</label>
             <textarea class="form-control" asp-for="House.Description" rows="4"></textarea>
+            <span class="text-danger" asp-validation-for="House.Description"></span>
         </div>
 
         <button class="btn btn-primary">Opret</button>

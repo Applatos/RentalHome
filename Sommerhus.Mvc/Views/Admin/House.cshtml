@@ -3,11 +3,10 @@
 @{
     ViewData["Title"] = Model.Name;
     var tab = (string)(ViewBag.Tab ?? "overview");
+    var cities = ViewBag.Cities as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
 
 <section class="container my-3">
-@*     @await Html.PartialAsync("_AdminTabs") *@
-
     @if (TempData["Ok"] is string ok) { <div class="alert alert-success">@ok</div> }
     @if (TempData["Err"] is string err){ <div class="alert alert-danger">@err</div> }
 
@@ -19,15 +18,15 @@
     <ul class="nav nav-tabs mt-2">
         <li class="nav-item">
             <a class="nav-link @(tab == "overview" ? "active" : "")"
-               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
+               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(tab == "images" ? "active" : "")"
-               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
+               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(tab == "features" ? "active" : "")"
-               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
+               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
         </li>
     </ul>
 

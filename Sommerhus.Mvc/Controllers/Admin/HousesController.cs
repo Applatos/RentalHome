@@ -67,18 +67,20 @@ public sealed class AdminController : Controller
 
 
 
-    [HttpGet]
-    public async Task<IActionResult> Details(Guid id, CancellationToken ct = default)
+     [HttpGet]
+    public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         var res = await _api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
             TempData["Err"] = res.Message ?? "Hus ikke fundet.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Houses));
         }
-        return View(res.Data);
+        var cities = await _api.GetCitiesAsync(ct);
+        ViewBag.Cities = cities.Data.ToSelectList(res.Data.CityId);
+        ViewBag.Tab = tab;
+        return View("House", res.Data);
     }
-
 
 
     // ========== Opret nyt hus ==========
@@ -98,17 +100,22 @@ public sealed class AdminController : Controller
 
     [ValidateAntiForgeryToken]
     [HttpPost]
-    public async Task<IActionResult> Create(UpsertHouseDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> Create(HouseEditVm vm, CancellationToken ct = default)
     {
-        if (!ModelState.IsValid) return View(dto);
+        if (!ModelState.IsValid)
+        {
+            TempData["Err"] = "Ugyldige felter.";
+            return View("NewHouse", vm);
+        }
 
+        var dto = vm.House;
         var res = await _api.PostHouseAsync(dto, ct);
         if (res.Ok && res.Data is Guid id)
         {
             TempData["Ok"] = "Hus oprettet.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        return View(dto);
+        return RedirectToAction(nameof(NewHouse));
     }
 
     // ========== Edit eksisterende hus ==========
@@ -144,18 +151,32 @@ public sealed class AdminController : Controller
     }
 
     [ValidateAntiForgeryToken]
-    [HttpPut("api/admin/houses/{id:Guid}/edit")]
-    public async Task<IActionResult> Edit(Guid id, UpsertHouseDto dto, CancellationToken ct = default)
+    [HttpPost]
+    public async Task<IActionResult> Edit(Guid id, HouseDetailsDto dto, CancellationToken ct = default)
     {
-        if (!ModelState.IsValid) return View(dto);
-        var res = await _api.PutHouseAsync(id, dto, ct);
+        // Map HouseDetailsDto to UpsertHouseDto (or use a mapper)
+        var updateDto = new UpsertHouseDto
+        {
+            Name = dto.Name,
+            CityId = dto.CityId,
+            Address = dto.Address ?? "",
+            Description = dto.Description ?? "",
+            AreaId = dto.AreaId
+        };
+
+        var res = await _api.PutHouseAsync(id, updateDto, ct);
         if (res.Ok)
         {
             TempData["Ok"] = "Hus opdateret.";
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id, tab = "overview" });
         }
+
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere hus.";
-        return View(dto);
+        // Re-populate cities for the dropdown
+        var cities = await _api.GetCitiesAsync(ct);
+        ViewBag.Cities = cities.Data.ToSelectList(dto.CityId);
+        ViewBag.Tab = "overview";
+        return View("House", dto);
     }
 
 

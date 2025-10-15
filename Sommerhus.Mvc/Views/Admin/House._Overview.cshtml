@@ -1,17 +1,36 @@
 ﻿@using Sommerhus.Contracts.Dtos.Admin.Houses
 @model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
 
-<form method="post" asp-controller="Admin" asp-action="Create" asp-route-id="@Model.Id" class="row g-3">
+@{
+    // You may want to pass in a list of cities for the dropdown, e.g. via ViewBag.Cities
+    var cities = ViewBag.Cities as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<form method="post" asp-controller="Admin" asp-action="Edit" asp-route-id="@Model.Id" class="row g-3">
     @Html.AntiForgeryToken()
 
     <div class="col-md-8">
         <label class="form-label">Navn</label>
-        <input class="form-control" name="Title" value="@Model.Name" />
+        <input class="form-control" asp-for="Name" />
+        <span class="text-danger" asp-validation-for="Name"></span>
     </div>
 
     <div class="col-md-6">
         <label class="form-label">Adresse</label>
-        <input class="form-control" name="Address" value="@Model.Address" />
+        <input class="form-control" asp-for="Address" />
+        <span class="text-danger" asp-validation-for="Address"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">By</label>
+        <select class="form-select" asp-for="CityId" asp-items="cities"></select>
+        <span class="text-danger" asp-validation-for="CityId"></span>
+    </div>
+
+    <div class="col-md-12">
+        <label class="form-label">Beskrivelse</label>
+        <textarea class="form-control" asp-for="Description" rows="4"></textarea>
+        <span class="text-danger" asp-validation-for="Description"></span>
     </div>
 
     <div class="col-12 d-flex gap-2">
@@ -19,3 +38,7 @@
         <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Houses">Til liste</a>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

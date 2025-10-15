@@ -32,7 +32,7 @@ public sealed class AdminApiClient : ApiClientBase
         => DeleteAsync($"api/admin/houses/{id}", ct);
 
     public Task<ApiResult<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct = default)
-        => GetAsync<IReadOnlyList<LookupItem>>("api/admin/cities/search", ct);
+        => GetAsync<IReadOnlyList<LookupItem>>("api/admin/cities/lookup", ct);
 
     public Task<ApiResult<IReadOnlyList<ImageDto>?>> UploadHouseImagesAsync(Guid houseId, IEnumerable<IFormFile> files, CancellationToken ct)
     {
