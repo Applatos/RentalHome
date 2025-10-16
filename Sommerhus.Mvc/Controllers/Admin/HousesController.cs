@@ -60,6 +60,25 @@ public sealed class AdminController : Controller
     public async Task<IActionResult> House(Guid id, CancellationToken ct)
     {
         var res = await _api.GetHouseAsync(id, ct);
+        if (!res.Ok || res.Data is null)
+        {
+            TempData["Err"] = res.Message ?? "Hus ikke fundet.";
+            return RedirectToAction(nameof(Houses));
+        }
+
+        var cities = await _api.GetCitiesAsync(ct);
+        if (cities.Ok && cities.Data is not null)
+        {
+            ViewBag.Cities = cities.Data.ToSelectList(res.Data.CityId);
+        }
+        else
+        {
+            ViewBag.Cities = Enumerable.Empty<SelectListItem>();
+            if (!cities.Ok && !string.IsNullOrWhiteSpace(cities.Message))
+            {
+                TempData["Err"] ??= cities.Message;
+            }
+        }
         if (res.Data is null) return NotFound();
         ViewData["AdminTab"] = "houses";
         return View(res.Data);
@@ -104,6 +123,9 @@ public sealed class AdminController : Controller
     {
         if (!ModelState.IsValid)
         {
+            var citiesRes = await _api.GetCitiesAsync(ct);
+            vm.Cities = citiesRes.Data.ToSelectList(vm.House.CityId).ToList();
+
             TempData["Err"] = "Ugyldige felter.";
             return View("NewHouse", vm);
         }
@@ -151,7 +173,7 @@ public sealed class AdminController : Controller
     }
 
     [ValidateAntiForgeryToken]
-    [HttpPost]
+    [HttpPut]
     public async Task<IActionResult> Edit(Guid id, HouseDetailsDto dto, CancellationToken ct = default)
     {
         // Map HouseDetailsDto to UpsertHouseDto (or use a mapper)
@@ -177,6 +199,23 @@ public sealed class AdminController : Controller
         ViewBag.Cities = cities.Data.ToSelectList(dto.CityId);
         ViewBag.Tab = "overview";
         return View("House", dto);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
+    {
+        var res = await _api.DeleteHouseAsync(id, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Hus slettet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke slette hus.";
+        }
+
+        return RedirectToAction(nameof(Houses));
     }
 
 

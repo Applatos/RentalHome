@@ -7,13 +7,13 @@ namespace Sommerhus.Contracts.Dtos.Admin.Houses;
 public record HouseDetailsDto(
     Guid Id,
     string Name,
-    Guid CityId,                 // til forvalg i dropdown
-    string CityLabel,            // fx "8000 – Aarhus" (kun visning)
-    Guid? AreaId,                // valgfri region/område
-    string? AreaLabel,           // visningstekst hvis AreaId har værdi
+    Guid CityId,
+    string CityLabel,
+    Guid? AreaId,
+    string? AreaLabel,
     string? Address,
     string? Description,
     DateTime CreatedUtc,
-    IReadOnlyList<FeatureDetailsDto>? Features,
+    IReadOnlyList<FeatureValueDto>? Features,
     IReadOnlyList<ImageDto>? Images);
 

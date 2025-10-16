@@ -4,6 +4,7 @@ using Sommerhus.Api.Data;
 using Sommerhus.Api.Models;
 using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
@@ -52,17 +53,33 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         var h = await db.Houses
             .Include(x => x.Images)
             .Include(x => x.City)
+            .Include(x => x.Area)
+            .Include(x => x.HouseFeatures).ThenInclude(x => x.Feature)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (h is null) return NotFound();
 
         var images = h.Images
             .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : (i.Kind == ImageKind.Gallery ? 1 : 2))
-            .ThenBy(i => i.Id)
             .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()))
             .ToList();
 
-        return new HouseDetailsDto(h.Id, h.Title, h.CityId, h.City.Name, null, null, h.Address, null, h.CreatedUtc, null, images);
+        var features = h.HouseFeatures
+        .Select(hf =>
+        {
+            var f = hf.Feature;
+            return new FeatureValueDto(
+                Id: hf.FeatureId,
+                Name: f.Name,
+                ValueType: f.ValueType.ToString(),
+                Unit: f.Unit,
+                IconUrl: f.IconUrl,
+                RawValue: hf.RawValue
+            );
+        })
+        .ToList();
+
+        return new HouseDetailsDto(h.Id, h.Title, h.CityId, h.City.Name, h.AreaId, h.Area?.Name, h.Address, h.Description, h.CreatedUtc, features, images);
     }
 
 
