@@ -137,23 +137,65 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
 
 
     [HttpPost("{houseId:guid}/features")]
-    public async Task<IActionResult> UpsertFeatures(Guid houseId, [FromBody] IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
+    public async Task<IActionResult> UpsertFeatures(Guid houseId, [FromBody] IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
     {
-        var exists = await db.Houses.AnyAsync(h => h.Id == houseId, ct);
-        if (!exists) return NotFound();
 
-        // simple replace-strategy
-        await db.Database.ExecuteSqlRawAsync("DELETE FROM HouseFeatureValues WHERE HouseId = {0}", houseId);
+        if (values is null)
+            return BadRequest("Feature values are required.");
 
-        var items = values?.Select(v => new HouseFeatureValue
+        var houseExists = await db.Houses.AsNoTracking().AnyAsync(h => h.Id == houseId, ct);
+        if (!houseExists)
+            return NotFound();
+
+        // Normalize and filter incoming values
+        var normalized = values
+            .Where(v => v != null)
+            .Select(v => new { v.FeatureId, Raw = (v.RawValue ?? string.Empty).Trim() })
+            .Where(x => x.FeatureId != Guid.Empty && !string.IsNullOrWhiteSpace(x.Raw))
+            .GroupBy(x => x.FeatureId)
+            .Select(g => new HouseFeatureValue
+            {
+                HouseId = houseId,
+                FeatureId = g.Key,
+                RawValue = g.First().Raw
+            })
+            .ToList();
+
+        var featureIds = normalized.Select(i => i.FeatureId).Distinct().ToList();
+        if (featureIds.Count > 0)
         {
-            HouseId = houseId,
-            FeatureId = v.FeatureId,
-            RawValue = (v.RawValue ?? "").Trim()
-        }) ?? Enumerable.Empty<HouseFeatureValue>();
+            var existingFeatureIds = await db.Features
+                .AsNoTracking()
+                .Where(f => featureIds.Contains(f.Id))
+                .Select(f => f.Id)
+                .ToListAsync(ct);
 
-        db.HouseFeatures.AddRange(items);
-        await db.SaveChangesAsync(ct);
-        return NoContent();
+            var missing = featureIds.Except(existingFeatureIds).ToList();
+            if (missing.Any())
+            {
+                return BadRequest(new { Message = "Some features do not exist.", MissingFeatureIds = missing });
+            }
+        }
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            // Efficient server-side delete of existing values for this house
+            await db.HouseFeatures.Where(hf => hf.HouseId == houseId).ExecuteDeleteAsync(ct);
+
+            if (normalized.Count > 0)
+            {
+                await db.HouseFeatures.AddRangeAsync(normalized, ct);
+                await db.SaveChangesAsync(ct);
+            }
+
+            await tx.CommitAsync(ct);
+            return NoContent();
+        }
+        catch
+        {
+            await tx.RollbackAsync(ct);
+            throw;
+        }
     }
 }

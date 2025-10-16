@@ -42,6 +42,13 @@ public sealed class AdminApiClient : ApiClientBase
     public Task<ApiResult<object?>> DeleteHouseImageAsync(Guid houseId, Guid imageId, CancellationToken ct)
         => DeleteAsync($"api/admin/houses/{houseId}/images/{imageId}", ct);
 
+        // NEW: set-kind endpoint (no body)
+    public Task<ApiResult<object?>> SetHouseImageKindAsync(Guid houseId, Guid imageId, string kind, CancellationToken ct = default)
+        => PostAsync<object, object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={Uri.EscapeDataString(kind)}", new { }, ct);
+
+    // NEW: upsert features for a house
+    public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<AdmFeats.PostFeatureValueDto> values, CancellationToken ct = default)
+        => PostAsync<IEnumerable<AdmFeats.PostFeatureValueDto>, object>($"api/admin/houses/{houseId}/features", values, ct);
 
 
 }

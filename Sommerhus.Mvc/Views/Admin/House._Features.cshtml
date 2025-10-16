@@ -17,11 +17,11 @@
             {
                 <p>Ingen features oprettet endnu. Opret nogle i <a href="@Url.Action("Features", "Admin")">Features</a>-sektionen.</p>
             }
+            @{ IEnumerable<Guid> featureIds = Model.Features.Select(f => f.Id); }
             @if (Model.Features != null)
             {
                 foreach (var f in Model.Features)
                 {
-                    IEnumerable<Guid> featureIds = Model.Features.Select(f => f.Id);
                     var isChecked = featureIds.Contains(f.Id);
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="featureIds" value="@f.Id" id="f_@f.Id" @(isChecked ? "checked" : null) />

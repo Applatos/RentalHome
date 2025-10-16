@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Sommerhus.Mvc")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f0297874d80ae5869d26b50d97a3d99d7d8ca1e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d574c70c4e55685af4bbcfe6b201ee547d46439")]
 [assembly: System.Reflection.AssemblyProductAttribute("Sommerhus.Mvc")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Sommerhus.Mvc")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

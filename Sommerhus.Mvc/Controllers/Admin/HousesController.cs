@@ -1,3 +1,4 @@
+using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
@@ -57,8 +58,11 @@ public sealed class AdminController : Controller
 
 
     [HttpGet("api/admin/houses/{id:guid}")]
-    public async Task<IActionResult> House(Guid id, CancellationToken ct)
+    public async Task<IActionResult> House(Guid id, string tab = "overview", CancellationToken ct)
     {
+        ViewData["AdminTab"] = "houses";
+
+
         var res = await _api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
@@ -79,28 +83,9 @@ public sealed class AdminController : Controller
                 TempData["Err"] ??= cities.Message;
             }
         }
-        if (res.Data is null) return NotFound();
-        ViewData["AdminTab"] = "houses";
+        ViewBag.Tab = tab;
         return View(res.Data);
     }
-
-
-
-     [HttpGet]
-    public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
-    {
-        var res = await _api.GetHouseAsync(id, ct);
-        if (!res.Ok || res.Data is null)
-        {
-            TempData["Err"] = res.Message ?? "Hus ikke fundet.";
-            return RedirectToAction(nameof(Houses));
-        }
-        var cities = await _api.GetCitiesAsync(ct);
-        ViewBag.Cities = cities.Data.ToSelectList(res.Data.CityId);
-        ViewBag.Tab = tab;
-        return View("House", res.Data);
-    }
-
 
     // ========== Opret nyt hus ==========
     public async Task<IActionResult> NewHouse(CancellationToken ct)
@@ -135,7 +120,7 @@ public sealed class AdminController : Controller
         if (res.Ok && res.Data is Guid id)
         {
             TempData["Ok"] = "Hus oprettet.";
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(House), new { id });
         }
         return RedirectToAction(nameof(NewHouse));
     }
@@ -190,7 +175,7 @@ public sealed class AdminController : Controller
         if (res.Ok)
         {
             TempData["Ok"] = "Hus opdateret.";
-            return RedirectToAction(nameof(Details), new { id, tab = "overview" });
+            return RedirectToAction(nameof(House), new { id, tab = "overview" });
         }
 
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere hus.";
