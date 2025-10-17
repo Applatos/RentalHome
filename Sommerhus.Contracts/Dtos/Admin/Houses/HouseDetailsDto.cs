@@ -11,8 +11,8 @@ public record HouseDetailsDto(
     string CityLabel,
     Guid? AreaId,
     string? AreaLabel,
-    string? Address,
-    string? Description,
+    string Address,
+    string Description,
     DateTime CreatedUtc,
     IReadOnlyList<FeatureValueDto>? Features,
     IReadOnlyList<ImageDto>? Images);

@@ -25,8 +25,8 @@ public sealed class AdminApiClient : ApiClientBase
     public Task<ApiResult<Guid>> PostHouseAsync(UpsertHouseDto dto, CancellationToken ct)
         => PostAsync<UpsertHouseDto, Guid>("api/admin/houses", dto, ct);
 
-    public Task<ApiResult<Guid>> PutHouseAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
-        => PostAsync<UpsertHouseDto, Guid>($"api/admin/houses/{id}", dto, ct);
+    public Task<ApiResult<object?>> PutHouseAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
+        => PutAsync<UpsertHouseDto, object>($"api/admin/houses/{id}", dto, ct);
 
     public Task<ApiResult<object?>> DeleteHouseAsync(Guid id, CancellationToken ct = default)
         => DeleteAsync($"api/admin/houses/{id}", ct);
@@ -47,8 +47,8 @@ public sealed class AdminApiClient : ApiClientBase
         => PostAsync<object, object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={Uri.EscapeDataString(kind)}", new { }, ct);
 
     // NEW: upsert features for a house
-    public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<AdmFeats.PostFeatureValueDto> values, CancellationToken ct = default)
-        => PostAsync<IEnumerable<AdmFeats.PostFeatureValueDto>, object>($"api/admin/houses/{houseId}/features", values, ct);
+    //public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<AdmFeats.PostFeatureValueDto> values, CancellationToken ct = default)
+    //    => PostAsync<IEnumerable<AdmFeats.PostFeatureValueDto>, object>($"api/admin/houses/{houseId}/features", values, ct);
 
 
 }
