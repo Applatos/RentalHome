@@ -18,15 +18,15 @@
     <ul class="nav nav-tabs mt-2">
         <li class="nav-item">
             <a class="nav-link @(tab == "overview" ? "active" : "")"
-               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(tab == "images" ? "active" : "")"
-               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(tab == "features" ? "active" : "")"
-               href="@Url.Action("Details", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
         </li>
     </ul>
 

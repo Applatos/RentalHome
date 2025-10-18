@@ -212,8 +212,73 @@ public sealed class AdminController : Controller
         }
     }
 
+    public async Task<IActionResult> UploadHouseImages(Guid id, IEnumerable<IFormFile> files, CancellationToken ct = default)
+    {
+        if (files is null || !files.Any())
+        {
+            TempData["Err"] = "Vælg mindst ét billede.";
+            return RedirectToAction(nameof(House), new { id, tab = "images" });
+        }
+
+        var res = await _api.UploadHouseImagesAsync(id, files, ct);
 
 
+        if (res.Ok)
+        {
+            var uploadedCount = res.Data?.Count ?? 0;
+            TempData["Ok"] = uploadedCount > 0 ? $"Uploadede {uploadedCount} billede(r)." : "Ingen billeder blev uploadet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Fejl ved upload.";
+        }
+
+         return RedirectToAction(nameof(House), new { id, tab = "images" });
+    }
+
+    public async Task<IActionResult> SetHouseImageKind(Guid id, Guid ImageId, string kind, CancellationToken ct = default)
+    {
+        if (id == Guid.Empty) { 
+            TempData["Err"] = "Ugyldigt hus-id.";
+            return RedirectToAction(nameof(House), new { id, tab = "images" });
+        }
+
+        if (string.IsNullOrWhiteSpace(kind)) {             
+            TempData["Err"] = "Ugyldig billedetype.";
+            return RedirectToAction(nameof(House), new { id, tab = "images" });
+        }
+
+        var res = await _api.SetHouseImageKindAsync(id, ImageId, kind, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = $"Sat til {kind}.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke opdatere billede.";
+        }
+
+        return RedirectToAction(nameof(House), new { id, tab = "images" });
+    }
+
+    public async Task<IActionResult> DeleteHouseImage(Guid id,  Guid imageId, CancellationToken ct = default)
+    {
+        if (id == Guid.Empty)
+        {
+            TempData["Err"] = "Ugyldigt hus-id.";
+            return RedirectToAction(nameof(House), new { id, tab = "images" });
+        }
+        var res = await _api.DeleteHouseImageAsync(id, imageId, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Billede slettet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke slette billede.";
+        }
+        return RedirectToAction(nameof(House), new { id, tab = "images" });
+    }
 
 
 
