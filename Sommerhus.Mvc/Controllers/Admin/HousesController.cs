@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Mvc.Services;
-using System.Globalization;
-using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Admin.Features;
-using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -403,6 +400,133 @@ public sealed class AdminController : Controller
         return decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
     }
 
+
+    [HttpGet("api/admin/features")]
+    public async Task<IActionResult> Features(CancellationToken ct = default)
+    {
+        var res = await _api.GetFeaturesAsync(ct);
+        if (!res.Ok)
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke hente features.";
+            return View();
+        }
+        ViewData["AdminTab"] = "features";
+        return View(res.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateFeature([FromForm] UpsertFeatureDto dto, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Key) || string.IsNullOrWhiteSpace(dto.ValueType))
+        {
+            TempData["Err"] = "Navn, Key og Type er påkrævet.";
+            return RedirectToAction(nameof(Features));
+        }
+        var res = await _api.CreateFeatureAsync(dto, ct);
+        if (res.Ok && res.Data is Guid id)
+        {
+            TempData["Ok"] = $"Feature oprettet (#{id}).";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke oprette feature.";
+        }
+        return RedirectToAction(nameof(Features));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateFeature(Guid id, [FromForm] UpsertFeatureDto dto, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Key) || string.IsNullOrWhiteSpace(dto.ValueType))
+        {
+            TempData["Err"] = "Navn, Key og Type er påkrævet.";
+            return RedirectToAction(nameof(Features));
+        }
+        var res = await _api.UpdateFeatureAsync(id, dto, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Feature opdateret.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke opdatere feature.";
+        }
+        return RedirectToAction(nameof(Features));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFeature(Guid id, CancellationToken ct = default)
+    {
+        var res = await _api.DeleteFeatureAsync(id, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Feature slettet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke slette feature. er i brug på et sommerhus.";
+        }
+        return RedirectToAction(nameof(Features));
+    }
+
+    [HttpPost("/admin/features/{id:guid}/icon")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadFeatureIcon(Guid id, IFormFile file, CancellationToken ct = default)
+    {
+        ViewData["AdminTab"] = "features";
+
+        if (file is null || file.Length == 0)
+        {
+            TempData["Err"] = "Vælg en fil eller træk en fil ind i feltet.";
+            return RedirectToAction(nameof(Features));
+        }
+
+        using var stream = file.OpenReadStream();
+        var res = await _api.UploadFeatureIconAsync(id, stream, file.FileName, file.ContentType, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Ikon uploadet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke uploade ikon.";
+        }
+
+        return RedirectToAction(nameof(Features));
+    }
+
+
+
+    //// ===== DELETE FEATURE =====
+    //[HttpPost("/admin/features/{id:guid}/delete")]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> DeleteFeature(Guid id, CancellationToken ct)
+    //{
+    //    var ok = await _api.DeleteFeatureAsync(id, ct);
+    //    TempData[ok ? "Ok" : "Err"] = ok ? "Feature slettet." : "Kunne ikke slette feature. er i brug på et sommerhus.";
+    //    return RedirectToAction(nameof(Features));
+    //}
+
+    //[HttpPost("/admin/features/{id:guid}/icon")]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> UploadFeatureIcon(Guid id, IFormFile file, CancellationToken ct)
+    //{
+    //    if (file is null || file.Length == 0)
+    //    {
+    //        TempData["Err"] = "Vælg en fil eller træk en fil ind i feltet.";
+    //        return RedirectToAction(nameof(Features));
+    //    }
+
+    //    await using var s = file.OpenReadStream();
+    //    var ok = await _api.UploadFeatureIconAsync(id, s, file.FileName, file.ContentType, ct);
+    //    TempData[ok ? "Ok" : "Err"] = ok ? "Ikon uploadet." : "Kunne ikke uploade ikon.";
+    //    return RedirectToAction(nameof(Features));
+    //}
+
+
     //// POST: /admin/houses/{id}
     //[HttpPost("/admin/houses/{id:guid}")]
     //[ValidateAntiForgeryToken]
@@ -553,56 +677,5 @@ public sealed class AdminController : Controller
     //}
 
 
-    //// FEATURES (master)
-    //[HttpGet("/admin/features")]
-    //public async Task<IActionResult> Features(CancellationToken ct)
-    //{
-    //    var list = await _api.GetFeaturesAsync(ct);
-    //    ViewData["AdminTab"] = "features";
-    //    return View(list);
-    //}
-
-    //// ===== CREATE FEATURE =====
-    //[HttpPost("/admin/features/create")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> CreateFeature([FromForm] AdmFeats.UpsertFeatureDto dto, CancellationToken ct)
-    //{
-    //    // Simpel server-validering (kræver mindst Name, Key, ValueType)
-    //    if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Key) || string.IsNullOrWhiteSpace(dto.ValueType))
-    //    {
-    //        TempData["Err"] = "Navn, Key og Type er påkrævet.";
-    //        return RedirectToAction(nameof(Features));
-    //    }
-
-    //    var (ok, id) = await _api.CreateFeatureAsync(dto, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? $"Feature oprettet (#{id})." : "Kunne ikke oprette feature.";
-    //    return RedirectToAction(nameof(Features));
-    //}
-
-    //// ===== DELETE FEATURE =====
-    //[HttpPost("/admin/features/{id:guid}/delete")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> DeleteFeature(Guid id, CancellationToken ct)
-    //{
-    //    var ok = await _api.DeleteFeatureAsync(id, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? "Feature slettet." : "Kunne ikke slette feature. er i brug på et sommerhus.";
-    //    return RedirectToAction(nameof(Features));
-    //}
-
-    //[HttpPost("/admin/features/{id:guid}/icon")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> UploadFeatureIcon(Guid id, IFormFile file, CancellationToken ct)
-    //{
-    //    if (file is null || file.Length == 0)
-    //    {
-    //        TempData["Err"] = "Vælg en fil eller træk en fil ind i feltet.";
-    //        return RedirectToAction(nameof(Features));
-    //    }
-
-    //    await using var s = file.OpenReadStream();
-    //    var ok = await _api.UploadFeatureIconAsync(id, s, file.FileName, file.ContentType, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? "Ikon uploadet." : "Kunne ikke uploade ikon.";
-    //    return RedirectToAction(nameof(Features));
-    //}
 
 }

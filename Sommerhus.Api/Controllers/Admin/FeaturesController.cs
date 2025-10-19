@@ -101,8 +101,20 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var feature = await db.Features.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (feature is null) return NotFound();
 
+        var inUse = await db.HouseFeatures.AsNoTracking().AnyAsync(v => v.FeatureId == id, ct);
+        if (inUse)
+        {
+            return Conflict("Feature er knyttet til et eller flere huse og kan ikke slettes.");
+        }
         db.Features.Remove(feature);
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict("Feature er knyttet til et eller flere huse og kan ikke slettes.");
+        }
         return NoContent();
     }
 

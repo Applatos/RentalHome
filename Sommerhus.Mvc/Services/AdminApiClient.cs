@@ -79,33 +79,6 @@ public sealed class AdminApiClient : ApiClientBase
 
 
 
-// ===== Features =====
-
-//    public Task<bool> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
-//        => PostAsync($"api/admin/houses/{houseId}/features", values, ct);
-
-
-//    public async Task<(bool ok, IReadOnlyList<ImageDto>? images)> UploadHouseImagesAsync(Guid houseId, IEnumerable<IFormFile> files, CancellationToken ct)
-//    {
-//        using var form = new MultipartFormDataContent();
-//        foreach (var f in files)
-//        {
-//            var sc = new StreamContent(f.OpenReadStream());
-//            if (!string.IsNullOrWhiteSpace(f.ContentType))
-//                sc.Headers.ContentType = new MediaTypeHeaderValue(f.ContentType);
-//            form.Add(sc, "files", f.FileName);
-//        }
-//        var res = await http.PostAsync($"api/admin/houses/{houseId}/images", form, ct);
-//        if (!res.IsSuccessStatusCode) return (false, null);
-//        var data = await res.Content.ReadFromJsonAsync<List<ImageDto>>(cancellationToken: ct);
-//        return (true, data ?? []);
-//    }
-
-//    public Task<bool> SetHouseImageKindAsync(Guid houseId, Guid imageId, string kind, CancellationToken ct)
-//        => PostAsync<object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={kind}", new { }, ct);
-
-
-
 
 
 
@@ -142,21 +115,3 @@ public sealed class AdminApiClient : ApiClientBase
 
 
 
-
-
-
-//    // ===== Features =====
-//    public Task<IReadOnlyList<AdmFeats.FeatureDetailsDto>> GetFeaturesAsync(CancellationToken ct)
-//        => GetListAsync<AdmFeats.FeatureDetailsDto>("api/admin/features", ct);
-
-//    public async Task<(bool ok, Guid? id)> CreateFeatureAsync(AdmFeats.UpsertFeatureDto dto, CancellationToken ct)
-//    {
-//        var (ok, data) = await PostAsync<AdmFeats.UpsertFeatureDto, Guid>("api/admin/features", dto, ct);
-//        return ok ? (true, (Guid?)data) : (false, (Guid?)null);
-//    }
-//    public Task<bool> UpdateFeatureAsync(Guid id, AdmFeats.UpsertFeatureDto dto, CancellationToken ct)
-//        => PutAsync($"api/admin/features/{id}", dto, ct);
-
-//    public Task<bool> DeleteFeatureAsync(Guid id, CancellationToken ct)
-//        => DeleteOkOrNotFoundAsync($"api/admin/features/{id}", ct);
-//}
