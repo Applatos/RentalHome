@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -46,16 +47,39 @@ public sealed class AdminApiClient : ApiClientBase
     public Task<ApiResult<object?>> SetHouseImageKindAsync(Guid houseId, Guid imageId, string kind, CancellationToken ct = default)
         => PostAsync<object, object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={Uri.EscapeDataString(kind)}", new { }, ct);
 
-    // NEW: upsert features for a house
-    //public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<AdmFeats.PostFeatureValueDto> values, CancellationToken ct = default)
-    //    => PostAsync<IEnumerable<AdmFeats.PostFeatureValueDto>, object>($"api/admin/houses/{houseId}/features", values, ct);
 
-
-}
 
 
 
     // ===== Features =====
+    public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct = default)
+    {
+        var payload = values?.ToList() ?? new List<PostFeatureValueDto>();
+        return PostAsync<IEnumerable<PostFeatureValueDto>, object>($"api/admin/houses/{houseId}/features", payload, ct);
+    }
+
+    public Task<ApiResult<IReadOnlyList<FeatureDetailsDto>?>> GetFeaturesAsync(CancellationToken ct = default)
+     => GetAsync<IReadOnlyList<FeatureDetailsDto>>("api/admin/features", ct);
+
+    public Task<ApiResult<Guid>> CreateFeatureAsync(UpsertFeatureDto dto, CancellationToken ct = default)
+    => PostAsync<UpsertFeatureDto, Guid>("api/admin/features", dto, ct);
+
+    public Task<ApiResult<object?>> UpdateFeatureAsync(Guid id, UpsertFeatureDto dto, CancellationToken ct = default)
+    => PutAsync<UpsertFeatureDto, object>($"api/admin/features/{id}", dto, ct);
+
+    public Task<ApiResult<object?>> DeleteFeatureAsync(Guid id, CancellationToken ct = default)
+        => DeleteAsync($"api/admin/features/{id}", ct);
+
+    public Task<ApiResult<object?>> UploadFeatureIconAsync(Guid featureId, Stream stream, string fileName, string? contentType, CancellationToken ct = default)
+    {
+        var tuple = (stream, fileName, contentType);
+        return PostMultipartAsync<object>($"api/admin/features/{featureId}/icon", "file", new[]{ tuple }, ct);
+    }
+}
+
+
+
+// ===== Features =====
 
 //    public Task<bool> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
 //        => PostAsync($"api/admin/houses/{houseId}/features", values, ct);

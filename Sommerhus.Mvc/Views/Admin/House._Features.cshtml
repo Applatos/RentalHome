@@ -1,36 +1,109 @@
 ﻿@using Sommerhus.Contracts.Dtos.Admin.Features
-@using Sommerhus.Contracts.Dtos.Admin.Houses
-@using Sommerhus.Contracts.Dtos.Public.Houses
+@using Sommerhus.Contracts.Dtos.Shared
 
 @model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
 
-@if (TempData["Ok"] is string okMsg)
-{
-    <div class="alert alert-success">@okMsg</div>
+@{
+    var available = ViewBag.AllFeatures;
+    var current = (Model.Features ?? Array.Empty<FeatureValueDto>()).ToDictionary(f => f.Id);
+    var featuresError = ViewBag.FeaturesError as string;
 }
-<form method="post" action="@Url.Action("SaveHouseFeatures","Admin", new { id = Model.Id })" class="mt-2">
-    @Html.AntiForgeryToken()
+
+
+@if (TempData["Ok"] is string okMsg) { <div class="alert alert-success">@okMsg</div> }
+
+@if (TempData["Err"] is string errMsg) { <div class="alert alert-danger">@errMsg</div> }
+
+@if (!string.IsNullOrWhiteSpace(featuresError)) { <div class="alert alert-warning">@featuresError</div> }
+
+
+<form method="post" asp-controller="Admin" asp-action="SaveHouseFeatures"  asp-route-id="@Model.Id" class="mt-2">
+    @Html.AntiForgeryToken() 
 
     <div class="row">
         <div class="col-md-8">
-            @if (!(Model.Features?.Any() ?? false))
+            @if (available.Count == 0)
             {
                 <p>Ingen features oprettet endnu. Opret nogle i <a href="@Url.Action("Features", "Admin")">Features</a>-sektionen.</p>
             }
-            @{ IEnumerable<Guid> featureIds = Model.Features.Select(f => f.Id); }
-            @if (Model.Features != null)
+            else
             {
-                foreach (var f in Model.Features)
-                {
-                    var isChecked = featureIds.Contains(f.Id);
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="featureIds" value="@f.Id" id="f_@f.Id" @(isChecked ? "checked" : null) />
-                        <label class="form-check-label" for="f_@f.Id">@f.Name</label>
-                    </div>
-                }
-            }
-        </div>
-    </div>
+                <div class="row g-3">
+                    @foreach (var feature in available)
+                    {
+                        var hasValue = current.TryGetValue(feature.Id, out FeatureValueDto valueDto);
+                        var rawValue = hasValue ? (valueDto?.RawValue ?? string.Empty) : string.Empty;
+                        var valueType = feature.ValueType?.ToLowerInvariant() ?? "";
+                        var fieldName = $"feature_{feature.Id}"; 
+                        var iconUrl = feature.IconUrl;
+                        <div class="col-md-6 col-lg-4"> 
+                            <div class="feature-card border rounded p-3 h-100">
+                                <div class="d-flex gap-2 mb-2">
+                                    @if (!string.IsNullOrWhiteSpace(iconUrl))
+                                    {
+                                        <img src="@iconUrl" alt="" class="feature-icon" />
+                                    }
+                                    <div>
+                                        <div class="fw-semibold">@feature.Name</div>
+                                        <div class="small text-muted text-uppercase">@feature.ValueType </div>
+                                    </div>
+                                </div>
 
+                                @if (valueType == "bool")
+                                {
+                                    var checkboxId = $"feature_{feature.Id}_chk";
+                                    var isChecked = hasValue && string.Equals(rawValue, "true", StringComparison.OrdinalIgnoreCase);
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="@checkboxId" name="@fieldName" value="true" @(isChecked ? "checked" : null) />
+                                        <label class="form-check-label" for="@checkboxId">
+                                            Marker for at aktivere
+                                        </label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    var inputId = $"feature_{feature.Id}_input";
+                                    var inputType = valueType switch
+                                    {
+                                        "int" => "number",
+                                        "decimal" => "number",
+                                        _ => "text"
+                                    };
+                                    var step = valueType switch
+                                    {
+                                        "int" => "1",
+                                        "decimal" => "0.1",
+                                        _ => null
+                                    };
+                                    <div class="input-group">
+                                        <input class="form-control" id="@inputId" name="@fieldName" type="@inputType" value="@rawValue" maxlength="200" @(step is not null ? $"step=\"{step}\"" : null) />
+                                        @if (!string.IsNullOrWhiteSpace(feature.Unit))
+                                        {
+                                            <span class="input-group-text">@feature.Unit</span>
+                                        }
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        @(valueType == "int" ? "Helt tal" : valueType == "decimal" ? "Tal (komma eller punktum)" : "Tekst" )
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+         </div>
+    </div>
     <button class="btn btn-primary mt-3">Gem features</button>
 </form>
+
+<style>
+    .feature-card {
+        background-color: #fff;
+    }
+
+    .feature-icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+</style>

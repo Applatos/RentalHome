@@ -1,10 +1,12 @@
 using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Mvc.Services;
+using System.Globalization;
 using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas;
-using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
@@ -69,19 +71,15 @@ public sealed class AdminController : Controller
             TempData["Err"] = res.Message ?? "Hus ikke fundet.";
             return RedirectToAction(nameof(Houses));
         }
+        await PopulateCitiesAsync(res.Data.CityId, ct);
 
-        var cities = await _api.GetCitiesAsync(ct);
-        if (cities.Ok && cities.Data is not null)
+        if (string.Equals(tab, "features", StringComparison.OrdinalIgnoreCase))
         {
-            ViewBag.Cities = cities.Data.ToSelectList(res.Data.CityId);
+            await PopulateFeaturesAsync(ct);
         }
         else
         {
-            ViewBag.Cities = Enumerable.Empty<SelectListItem>();
-            if (!cities.Ok && !string.IsNullOrWhiteSpace(cities.Message))
-            {
-                TempData["Err"] ??= cities.Message;
-            }
+            ViewBag.AllFeatures ??= Array.Empty<FeatureDetailsDto>();
         }
         ViewBag.Tab = tab;
         return View(res.Data);
@@ -281,6 +279,129 @@ public sealed class AdminController : Controller
     }
 
 
+
+
+
+    // ==== Features ====
+
+
+    private async Task PopulateFeaturesAsync(CancellationToken ct)
+    {
+        var featuresRes = await _api.GetFeaturesAsync(ct);
+        if (featuresRes.Ok && featuresRes.Data is not null)
+        {
+            ViewBag.AllFeatures = featuresRes.Data;
+            ViewBag.FeaturesError = null;
+        }
+        else
+        {
+            ViewBag.AllFeatures = Array.Empty<FeatureDetailsDto>();
+            ViewBag.FeaturesError = featuresRes.Message ?? "Kunne ikke hente features.";
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveHouseFeatures(Guid id, CancellationToken ct = default)
+    {
+        var featuresRes = await _api.GetFeaturesAsync(ct);
+        if (!featuresRes.Ok || featuresRes.Data is null)
+        {
+            TempData["Err"] = featuresRes.Message ?? "Kunne ikke hente features.";
+            return RedirectToAction(nameof(House), new { id, tab = "features" });
+        }
+
+        var form = await Request.ReadFormAsync(ct);
+        var values = new List<PostFeatureValueDto>();
+        var errors = new List<string>();
+
+        foreach (var feature in featuresRes.Data)
+        {
+            var key = $"feature_{feature.Id}";
+            if (!form.TryGetValue(key, out var formValue) || formValue.Count == 0)
+            {
+                continue;
+            }
+
+            var raw = formValue[^1]?.Trim();
+            if (string.IsNullOrEmpty(raw))
+            {
+                continue;
+            }
+
+            var type = feature.ValueType?.Trim() ?? string.Empty;
+            switch (type.ToLowerInvariant())
+            {
+                case "bool":
+                    if (IsTruthy(raw))
+                    {
+                        values.Add(new PostFeatureValueDto(feature.Id, "true"));
+                    }
+                    break;
+                case "int":
+                    if (!TryParseInt(raw, out var intValue))
+                    {
+                        errors.Add($"{feature.Name}: indtast et helt tal.");
+                        continue;
+                    }
+                    values.Add(new PostFeatureValueDto(feature.Id, intValue.ToString(CultureInfo.InvariantCulture)));
+                    break;
+                case "decimal":
+                    if (!TryParseDecimal(raw, out var decValue))
+                    {
+                        errors.Add($"{feature.Name}: indtast et tal.");
+                        continue;
+                    }
+                    values.Add(new PostFeatureValueDto(feature.Id, decValue.ToString(CultureInfo.InvariantCulture)));
+                    break;
+                default:
+                    if (raw.Length > 200)
+                    {
+                        errors.Add($"{feature.Name}: teksten er for lang (maks 200 tegn).");
+                        continue;
+                    }
+                    values.Add(new PostFeatureValueDto(feature.Id, raw));
+                    break;
+            }
+        }
+
+        if (errors.Count > 0)
+        {
+            TempData["Err"] = string.Join(" ", errors);
+            return RedirectToAction(nameof(House), new { id, tab = "features" });
+        }
+
+        var res = await _api.UpsertHouseFeaturesAsync(id, values, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Features opdateret.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke gemme features.";
+        }
+
+        return RedirectToAction(nameof(House), new { id, tab = "features" });
+    }
+
+    private static bool IsTruthy(string value)
+        => value.Equals("true", StringComparison.OrdinalIgnoreCase)
+           || value.Equals("on", StringComparison.OrdinalIgnoreCase)
+           || value.Equals("1", StringComparison.OrdinalIgnoreCase);
+
+    private static bool TryParseInt(string input, out int value)
+    {
+        if (int.TryParse(input, NumberStyles.Integer, CultureInfo.CurrentCulture, out value))
+            return true;
+        return int.TryParse(input, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static bool TryParseDecimal(string input, out decimal value)
+    {
+        if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
+            return true;
+        return decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
+    }
 
     //// POST: /admin/houses/{id}
     //[HttpPost("/admin/houses/{id:guid}")]
