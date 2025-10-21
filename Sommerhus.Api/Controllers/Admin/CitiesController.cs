@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
+using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Public.Cities;
 using Sommerhus.Contracts.Dtos.Shared;
 

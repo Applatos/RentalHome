@@ -1,38 +1,78 @@
 @using Sommerhus.Contracts.Dtos.Admin.Areas
+@using Sommerhus.Mvc.Controllers.Admin
+@using Sommerhus.Mvc.Services
 @model AreaDetailsDto
+@{
+    var tab = (string)(ViewBag.Tab ?? "overview");
+    var galleryImages = ViewBag.AreaImages as IReadOnlyList<ImageDto>
+        ?? (Model.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>());
+}
+
+
+
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
 
     <a class="btn btn-link" asp-controller="Admin" asp-action="Areas">◂ Tilbage</a>
-    <h3>@Model.Name</h3>
-    <dl class="row small">
-        <dt class="col-sm-2">Byer</dt>
-        <dd class="col-sm-10">
-            @if (Model.Cities?.Any() == true)
-            {
-                <span>@string.Join(", ", Model.Cities.Select(c => c.Label))</span>
-            }
-            else
-            {
-                <span class="text-muted">—</span>
-            }
-        </dd>
-    </dl>
-
-    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    @if (TempData["Ok"] is string okMsg)
     {
-        <div class="mb-3">@Html.Raw(Model.Description)</div>
+        <div class="alert alert-success">@okMsg</div>
     }
 
-    @if (Model.Images?.Any() == true)
+    @if (TempData["Err"] is string errMsg)
     {
-        <div class="row row-cols-2 row-cols-md-4 g-2">
-            @foreach (var img in Model.Images)
-            {
-                <div class="col">
-                    <img src="@img.Url" class="img-fluid rounded" />
-                </div>
-            }
-        </div>
+        <div class="alert alert-danger">@errMsg</div>
     }
+
+    <h3 class="mb-3">@Model.Name</h3>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link @(tab == "overview" ? "active" : string.Empty)"
+               href="@Url.Action("Area", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "images" ? "active" : string.Empty)"
+               href="@Url.Action("Area", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
+        </li>
+    </ul>
+
+    <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (tab == "images")
+        {
+            @await Html.PartialAsync("Area._Images", new AreaGalleryVm(Model.Id, galleryImages))
+        }
+        else
+        {
+            <dl class="row small">
+                <dt class="col-sm-2">Byer</dt>
+                <dd class="col-sm-10">
+                    @if (Model.Cities?.Any() == true)
+                    {
+                        <span>@string.Join(", ", Model.Cities.Select(c => c.Label))</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </dd>
+            </dl>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="mb-3">@Html.Raw(Model.Description)</div>
+            }
+
+            @if (Model.Houses?.Any() == true)
+            {
+                <h5>Huse i området</h5>
+                <ul>
+                    @foreach (var house in Model.Houses)
+                    {
+                        <li>@house.Title</li>
+                    }
+                </ul>
+            }
+        }
+    </div>
 </section>

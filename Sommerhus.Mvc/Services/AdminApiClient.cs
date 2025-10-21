@@ -98,6 +98,18 @@ public sealed class AdminApiClient : ApiClientBase
     => GetAsync<IReadOnlyList<LookupItem>>("api/admin/areas/lookup", ct);
 
 
+    public Task<ApiResult<IReadOnlyList<ImageDto>?>> GetAreaImagesAsync(Guid areaId, CancellationToken ct = default)
+    => GetAsync<IReadOnlyList<ImageDto>>($"api/admin/areas/{areaId}/images", ct);
+
+    public Task<ApiResult<ImageDto?>> UploadAreaImageAsync(Guid areaId, IFormFile file, CancellationToken ct = default)
+    {
+        var tuple = (file.OpenReadStream(), file.FileName, file.ContentType);
+        return PostMultipartAsync<ImageDto>($"api/admin/areas/{areaId}/images", "file", new[] { tuple }, ct);
+    }
+
+    public Task<ApiResult<object?>> DeleteAreaImageAsync(Guid areaId, Guid imageId, CancellationToken ct = default)
+        => DeleteAsync($"api/admin/areas/{areaId}/images/{imageId}", ct);
+
 
 }
 

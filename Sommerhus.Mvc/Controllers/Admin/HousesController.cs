@@ -54,6 +54,8 @@ public sealed class AreaEditVm
     public bool IsNew => !Id.HasValue || Id == Guid.Empty;
 }
 
+public sealed record AreaGalleryVm(Guid AreaId, IReadOnlyList<ImageDto> Images, string? RedirectTo = null);
+
 
 public sealed class AdminController : Controller
 {
@@ -593,7 +595,7 @@ public sealed class AdminController : Controller
     }
 
     [HttpGet("/admin/areas/{id:guid}")]
-    public async Task<IActionResult> Area(Guid id, CancellationToken ct = default)
+    public async Task<IActionResult> Area(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         ViewData["AdminTab"] = "areas";
         var res = await _api.GetAreaAsync(id, ct);
@@ -602,6 +604,25 @@ public sealed class AdminController : Controller
             TempData["Err"] = res.Message ?? "Område ikke fundet.";
             return RedirectToAction(nameof(Areas));
         }
+
+        var imagesRes = await _api.GetAreaImagesAsync(id, ct);
+        IReadOnlyList<ImageDto> galleryImages;
+        if (imagesRes.Ok && imagesRes.Data is not null)
+        {
+            galleryImages = imagesRes.Data;
+        }
+        else
+        {
+            galleryImages = res.Data.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>();
+
+            if (!imagesRes.Ok && !string.IsNullOrWhiteSpace(imagesRes.Message))
+            {
+                TempData["Err"] ??= imagesRes.Message;
+            }
+        }
+
+        ViewBag.AreaImages = galleryImages;
+        ViewBag.Tab = tab;
         return View(res.Data);
     }
 
@@ -658,7 +679,8 @@ public sealed class AdminController : Controller
         }
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere område.";
         var areaRes = await _api.GetAreaAsync(id, ct);
-        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityIds ?? areaRes.Data?.CityIds, dto.Name, dto.Description, ct); ViewData["AdminTab"] = "areas";
+        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityIds ?? areaRes.Data?.CityIds, dto.Name, dto.Description, ct); 
+        ViewData["AdminTab"] = "areas";
         return View("EditArea", vm);
     }
 
@@ -674,6 +696,59 @@ public sealed class AdminController : Controller
         return RedirectToAction(nameof(Areas));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadAreaImage(Guid id, IFormFile? file, string? redirectTo, CancellationToken ct = default)
+    {
+        if (id == Guid.Empty)
+        {
+            TempData["Err"] = "Ugyldigt område.";
+            return RedirectAfterAreaImageChange(id, redirectTo);
+        }
+
+        if (file is null || file.Length == 0)
+        {
+            TempData["Err"] = "Vælg et billede.";
+            return RedirectAfterAreaImageChange(id, redirectTo);
+        }
+
+        var res = await _api.UploadAreaImageAsync(id, file, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Billede uploadet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke uploade billede.";
+        }
+
+        return RedirectAfterAreaImageChange(id, redirectTo);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAreaImage(Guid id, Guid imageId, string? redirectTo, CancellationToken ct = default)
+    {
+        if (id == Guid.Empty)
+        {
+            TempData["Err"] = "Ugyldigt område.";
+            return RedirectAfterAreaImageChange(id, redirectTo);
+        }
+
+        var res = await _api.DeleteAreaImageAsync(id, imageId, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Billede slettet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke slette billede.";
+        }
+
+        return RedirectAfterAreaImageChange(id, redirectTo);
+    }
+
+
     private async Task<AreaEditVm> BuildAreaEditVmAsync(
         AreaDetailsDto? area,
         IReadOnlyCollection<Guid>? selectedCityIds,
@@ -684,6 +759,24 @@ public sealed class AdminController : Controller
         var cityIds = selectedCityIds ?? area?.CityIds ?? Array.Empty<Guid>();
         var cities = await LoadCityOptionsAsync(cityIds, ct);
 
+        var images = new List<ImageDto>();
+        if (area?.Id is { } areaId && areaId != Guid.Empty)
+        {
+            var imagesRes = await _api.GetAreaImagesAsync(areaId, ct);
+            if (imagesRes.Ok && imagesRes.Data is not null)
+            {
+                images = imagesRes.Data.ToList();
+            }
+            else
+            {
+                images = area.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>();
+                if (!imagesRes.Ok && !string.IsNullOrWhiteSpace(imagesRes.Message))
+                {
+                    TempData["Err"] ??= imagesRes.Message;
+                }
+            }
+        }
+
 
         return new AreaEditVm
         {
@@ -691,10 +784,25 @@ public sealed class AdminController : Controller
             Name = name ?? area?.Name ?? string.Empty,
             CityIds = cityIds.ToList(),
             Description = description ?? area?.Description,
-            Images = area?.Images?.ToList() ?? new List<ImageDto>(),
+            Images = images,
             Cities = cities
         };
     }
+
+    private IActionResult RedirectAfterAreaImageChange(Guid id, string? redirectTo)
+    {
+        if (string.Equals(redirectTo, "edit", StringComparison.OrdinalIgnoreCase))
+        {
+            return id == Guid.Empty
+                ? RedirectToAction(nameof(Areas))
+                : RedirectToAction(nameof(EditArea), new { id });
+        }
+
+        return id == Guid.Empty
+            ? RedirectToAction(nameof(Areas))
+            : RedirectToAction(nameof(Area), new { id, tab = "images" });
+    }
+
 
     private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(IReadOnlyCollection<Guid>? selectedCityIds, CancellationToken ct)
     {

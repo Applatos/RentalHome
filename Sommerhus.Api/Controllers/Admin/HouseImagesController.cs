@@ -70,8 +70,6 @@ public sealed class HouseImagesController(AppDbContext db, IWebHostEnvironment e
             await db.SaveChangesAsync(ct);
 
             var url = UrlBuilder.HouseImageWebPath(houseId, safe);
-            // ImageDto i dit projekt bruges også i HouseAdminDetailsDto.Images  :contentReference[oaicite:9]{index=9}
-            // I dine controllere mappes den typisk som (id, absoluteUrl, alt, kindString)
             result.Add(new ImageDto(entity.Id, url, entity.Alt, entity.Kind.ToString()));
         }
 

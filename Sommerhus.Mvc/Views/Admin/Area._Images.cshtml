@@ -1,0 +1,40 @@
+﻿@using Sommerhus.Mvc.Controllers.Admin
+@using Sommerhus.Mvc.Services
+@model AreaGalleryVm
+
+<div class="mb-3">
+    <form method="post"
+          enctype="multipart/form-data"
+          action="@Url.Action("UploadAreaImage", "Admin", new { id = Model.AreaId, redirectTo = Model.RedirectTo })">
+        @Html.AntiForgeryToken()
+        <div class="input-group">
+            <input type="file" name="file" class="form-control" accept="image/*" />
+            <button type="submit" class="btn btn-outline-primary">Upload</button>
+        </div>
+        <small class="text-muted d-block mt-1">Upload ét billede ad gangen til områdets galleri.</small>
+    </form>
+</div>
+
+@if (Model.Images is null || Model.Images.Count == 0)
+{
+    <div class="alert alert-info">Ingen billeder endnu.</div>
+}
+else
+{
+    <div class="d-flex flex-wrap gap-3">
+        @foreach (var img in Model.Images)
+        {
+            <div class="border rounded p-2" style="width: 210px">
+                <img src="@img.Url" alt="" class="img-fluid" />
+                <div class="mt-2 d-flex flex-wrap gap-2">
+                    <form method="post"
+                          action="@Url.Action("DeleteAreaImage", "Admin", new { id = Model.AreaId, imageId = img.Id, redirectTo = Model.RedirectTo })"
+                          onsubmit="return confirm('Slet billede?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}
