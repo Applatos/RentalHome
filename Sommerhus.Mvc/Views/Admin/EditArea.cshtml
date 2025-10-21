@@ -23,9 +23,9 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="CityId" class="form-label">Tilknyttet by</label>
-            <select asp-for="CityId" class="form-select" asp-items="Model.Cities"></select>
-            <div class="form-text">Vælg byen området hører til (valgfrit).</div>
+            <label asp-for="CityIds" class="form-label">Tilknyttede byer</label>
+            <select asp-for="CityIds" class="form-select" asp-items="Model.Cities" multiple></select>
+            <div class="form-text">Vælg én eller flere byer området dækker</div>
         </div>
 
         <div class="mb-3">

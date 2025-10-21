@@ -4,7 +4,7 @@ public sealed record HouseListItemDto(
     Guid Id,
     string Name,
     string CityLabel,      // fx "8000 – Aarhus"
-    string? AreaLabel,     // null hvis ikke sat
+    IReadOnlyList<string> AreaLabels,    
     string? CoverUrl,      // lille thumbnail i listen (absolut URL)
     DateTime CreatedUtc
 );

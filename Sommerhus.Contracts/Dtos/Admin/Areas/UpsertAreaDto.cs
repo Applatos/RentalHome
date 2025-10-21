@@ -2,6 +2,6 @@
 
 public record UpsertAreaDto(
     string Name,
-    Guid? CityId,
+    IReadOnlyList<Guid>? CityIds,
     string? Description = null,
     IReadOnlyList<string>? Images = null);

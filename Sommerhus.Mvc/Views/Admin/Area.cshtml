@@ -6,8 +6,17 @@
     <a class="btn btn-link" asp-controller="Admin" asp-action="Areas">◂ Tilbage</a>
     <h3>@Model.Name</h3>
     <dl class="row small">
-        <dt class="col-sm-2">By</dt>
-        <dd class="col-sm-10">@(!string.IsNullOrWhiteSpace(Model.CityName) ? Model.CityName : "—")</dd>
+        <dt class="col-sm-2">Byer</dt>
+        <dd class="col-sm-10">
+            @if (Model.Cities?.Any() == true)
+            {
+                <span>@string.Join(", ", Model.Cities.Select(c => c.Label))</span>
+            }
+            else
+            {
+                <span class="text-muted">—</span>
+            }
+        </dd>
     </dl>
 
     @if (!string.IsNullOrWhiteSpace(Model.Description))

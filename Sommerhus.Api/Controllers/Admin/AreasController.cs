@@ -6,6 +6,7 @@ using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Shared;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -26,12 +27,23 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
             .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
             .ToListAsync(ct);
 
+
+
+    [HttpGet("lookup")]
+    public async Task<IReadOnlyList<LookupItem>> Lookup(CancellationToken ct)
+        => await db.Areas.AsNoTracking()
+            .OrderBy(a => a.Name)
+            .Select(a => new LookupItem(a.Id, a.Name))
+            .ToListAsync(ct);
+
+
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
     {
         var area = await db.Areas
             .Include(a => a.AreaImages)
-            .Include(a => a.City)
+            .Include(a => a.Cities)
             .Include(a => a.Houses)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
@@ -40,27 +52,47 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         return MapDetails(area);
     }
 
+
     [HttpPost]
     public async Task<ActionResult<AreaDetailsDto>> Create([FromBody] UpsertAreaDto dto, CancellationToken ct)
     {
         var name = (dto.Name ?? "").Trim();
-
-        if (dto.CityId.HasValue)
+        if (string.IsNullOrWhiteSpace(name))
         {
-            var cityExists = await db.Cities.AnyAsync(c => c.Id == dto.CityId.Value, ct);
-            if (!cityExists)
-            {
-                ModelState.AddModelError(nameof(dto.CityId), "Ukendt by");
-                return ValidationProblem(ModelState);
-            }
+            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
+            return ValidationProblem(ModelState);
         }
+
+
+        var requestedCityIds = dto.CityIds?.Where(id => id != Guid.Empty).Distinct().ToList() ?? new List<Guid>();
+        if (dto.CityIds is not null && dto.CityIds.Any(id => id == Guid.Empty))
+        {
+            ModelState.AddModelError(nameof(dto.CityIds), "Ukendt by");
+            return ValidationProblem(ModelState);
+        }
+
+        var cities = requestedCityIds.Count > 0
+        ? await db.Cities.Where(c => requestedCityIds.Contains(c.Id)).ToListAsync(ct)
+        : new List<City>();
+
+        if (cities.Count != requestedCityIds.Count)
+        {
+            ModelState.AddModelError(nameof(dto.CityIds), "Ukendt by");
+            return ValidationProblem(ModelState);
+        }
+
 
         var area = new Area
         {
             Name = name,
-            CityId = dto.CityId,
             Description = NormalizeDescription(dto.Description),
         };
+
+        foreach (var city in cities)
+        {
+            area.Cities.Add(city);
+        }
+
 
         var images = NormalizeImages(dto.Images).ToList();
         if (images.Count > 0)
@@ -73,39 +105,63 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         db.Areas.Add(area);
         await db.SaveChangesAsync(ct);
 
-        var created = await db.Areas.Include(a => a.AreaImages)
-            .Include(a => a.City).Include(a => a.Houses)
+        var created = await db.Areas.Include(a => a.Cities)
+            .Include(a => a.Houses)
             .FirstAsync(a => a.Id == area.Id, ct);
 
         var details = MapDetails(created);
         return CreatedAtAction(nameof(Get), new { id = details.Id }, details);
     }
 
+
+
+
+
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertAreaDto dto, CancellationToken ct)
     {
         var area = await db.Areas.Include(a => a.AreaImages)
-            .Include(a => a.City)
+            .Include(a => a.Cities)
             .Include(a => a.Houses)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (area is null) return NotFound();
 
         var name = (dto.Name ?? "").Trim();
-
-        if (dto.CityId.HasValue)
+        if (string.IsNullOrWhiteSpace(name))
         {
-            var cityExists = await db.Cities.AnyAsync(c => c.Id == dto.CityId.Value, ct);
-            if (!cityExists)
-            {
-                ModelState.AddModelError(nameof(dto.CityId), "Ukendt by");
-                return ValidationProblem(ModelState);
-            }
+            ModelState.AddModelError(nameof(dto.Name), "Navn er påkrævet");
+            return ValidationProblem(ModelState);
         }
 
+        var requestedCityIds = dto.CityIds?.Where(cid => cid != Guid.Empty).Distinct().ToList();
+        if (dto.CityIds is not null && dto.CityIds.Any(cid => cid == Guid.Empty))
+        {
+            ModelState.AddModelError(nameof(dto.CityIds), "Ukendt by");
+            return ValidationProblem(ModelState);
+        }
+
+
+        var cities = requestedCityIds.Count > 0
+            ? await db.Cities.Where(c => requestedCityIds.Contains(c.Id)).ToListAsync(ct)
+            : new List<City>();
+
+        if (cities.Count != requestedCityIds.Count)
+        {
+            ModelState.AddModelError(nameof(dto.CityIds), "Ukendt by");
+            return ValidationProblem(ModelState);
+        }
+
+
         area.Name = name;
-        area.CityId = dto.CityId;
         area.Description = NormalizeDescription(dto.Description);
+
+        area.Cities.Clear();
+        foreach (var city in cities)
+        {
+            area.Cities.Add(city);
+        }
+
 
         if (dto.Images is not null)
         {
@@ -124,7 +180,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var area = await db.Areas.Include(a => a.AreaImages)
-            .Include(a => a.City)
+            .Include(a => a.Cities)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (area is null) return NotFound();
@@ -167,7 +223,16 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
                     .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
                     .ToList();
 
+        var cityItems = area.Cities
+                    .OrderBy(c => c.Zip)
+                    .ThenBy(c => c.Name)
+                    .Select(c => new LookupItem(c.Id, $"{c.Zip} – {c.Name}"))
+                    .ToList();
 
-        return new AreaDetailsDto(area.Id, area.Name, area.CityId, area.City?.Name, area.Description, images, Houses: houses);
+        var cityIds = cityItems.Select(c => c.Id).ToList();
+
+
+
+        return new AreaDetailsDto(area.Id, area.Name, cityIds, cityItems, area.Description, images, Houses: houses);
     }
 }

@@ -6,6 +6,8 @@ using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
+using System.Collections.Generic;
+using System.Linq;
 
 using Sommerhus.Mvc.Services;
 
@@ -14,14 +16,22 @@ namespace Sommerhus.Mvc.Controllers.Admin;
 
 public static class SelectListExtensions
 {
-    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items, Guid? selectedId = null)
+    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items)
+        => items.ToSelectList((IEnumerable<Guid>?)null);
+
+    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items, Guid? selectedId)
+        => items.ToSelectList(selectedId.HasValue ? new[] { selectedId.Value } : null);
+
+    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items, IEnumerable<Guid>? selectedIds)
     {
-        return items.Select(i => new SelectListItem
-        {
-            Value = i.Id.ToString(),
-            Text = i.Label,
-            Selected = i.Id == selectedId
-        });
+        var selected = selectedIds is null ? new HashSet<Guid>() : selectedIds.ToHashSet();
+
+            return items.Select(i => new SelectListItem
+            {
+                Value = i.Id.ToString(),
+                Text = i.Label,
+                Selected = selected.Contains(i.Id)
+            });
     }
 }
 
@@ -29,13 +39,14 @@ public sealed class HouseEditVm
 {
     public UpsertHouseDto House { get; set; } = new();
     public IEnumerable<SelectListItem> Cities { get; set; } = Enumerable.Empty<SelectListItem>();
+    public IEnumerable<SelectListItem> Areas { get; set; } = Enumerable.Empty<SelectListItem>();
 }
 
 public sealed class AreaEditVm
 {
     public Guid? Id { get; init; }
     public string Name { get; set; } = string.Empty;
-    public Guid? CityId { get; set; }
+    public List<Guid> CityIds { get; set; } = new List<Guid>();
     public string? Description { get; set; }
     public IReadOnlyList<ImageDto> Images { get; init; } = Array.Empty<ImageDto>();
     public IReadOnlyList<SelectListItem> Cities { get; init; } = Array.Empty<SelectListItem>();
@@ -85,6 +96,7 @@ public sealed class AdminController : Controller
             return RedirectToAction(nameof(Houses));
         }
         await PopulateCitiesAsync(res.Data.CityId, ct);
+        await PopulateAreasAsync(res.Data.AreaIds, ct);
 
         if (string.Equals(tab, "features", StringComparison.OrdinalIgnoreCase))
         {
@@ -102,12 +114,25 @@ public sealed class AdminController : Controller
     public async Task<IActionResult> NewHouse(CancellationToken ct)
     {
         var cities = await _api.GetCitiesAsync(ct);
+        var areas = await _api.GetAreasLookupAsync(ct);
 
         var vm = new HouseEditVm
         {
-            House = new UpsertHouseDto(), // evt. defaults
-            Cities = cities.Data.ToSelectList().ToList()
+            House = new UpsertHouseDto(),
+            Cities = cities.Data.ToSelectList().ToList(),
+            Areas = areas.Data.ToSelectList().ToList()
         };
+
+        if (!cities.Ok)
+        {
+            TempData["Err"] ??= cities.Message ?? "Kunne ikke hente byer.";
+        }
+
+        if (!areas.Ok)
+        {
+            TempData["Err"] ??= areas.Message ?? "Kunne ikke hente områder.";
+        }
+
         ViewData["AdminTab"] = "houses";
         return View(vm);
     }
@@ -120,7 +145,10 @@ public sealed class AdminController : Controller
         if (!ModelState.IsValid)
         {
             var citiesRes = await _api.GetCitiesAsync(ct);
-            vm.Cities = citiesRes.Data.ToSelectList(vm.House.CityId).ToList();
+            vm.Cities = (citiesRes.Data ?? Array.Empty<LookupItem>()).ToSelectList(vm.House.CityId).ToList();
+
+            var areasRes = await _api.GetAreasLookupAsync(ct);
+            vm.Areas = (areasRes.Data ?? Array.Empty<LookupItem>()).ToSelectList(vm.House.AreaIds).ToList();
 
             TempData["Err"] = "Ugyldige felter.";
             return View("NewHouse", vm);
@@ -178,11 +206,26 @@ public sealed class AdminController : Controller
             CityId = dto.CityId,
             Address = dto.Address,
             Description = dto.Description,
-            AreaId = dto.AreaId
+            AreaIds = dto.AreaIds?.ToList() ?? new List<Guid>()
         };
 
         // Repopulate cities for the dropdown with the selected value from dto
         await PopulateCitiesAsync(dto.CityId, ct);
+        await PopulateAreasAsync(merged.AreaIds, ct);
+
+        var selectedAreaLookups = new List<LookupItem>();
+        if (ViewBag.Areas is IEnumerable<SelectListItem> areaOptions)
+        {
+            foreach (var option in areaOptions.Where(o => o.Selected))
+            {
+                if (Guid.TryParse(option.Value, out var Areaid))
+                {
+                    selectedAreaLookups.Add(new LookupItem(Areaid, option.Text));
+                }
+            }
+        }
+
+        merged = merged with { Areas = selectedAreaLookups };
 
         ViewBag.Tab = "overview";
         ViewData["AdminTab"] = "houses";
@@ -219,6 +262,23 @@ public sealed class AdminController : Controller
             if (!citiesRes.Ok && !string.IsNullOrWhiteSpace(citiesRes.Message))
             {
                 TempData["Err"] ??= citiesRes.Message;
+            }
+        }
+    }
+
+    private async Task PopulateAreasAsync(IEnumerable<Guid>? selectedAreaIds, CancellationToken ct)
+    {
+        var areasRes = await _api.GetAreasLookupAsync(ct);
+        if (areasRes.Ok && areasRes.Data is not null)
+        {
+            ViewBag.Areas = areasRes.Data.ToSelectList(selectedAreaIds?.ToList());
+        }
+        else
+        {
+            ViewBag.Areas = Enumerable.Empty<SelectListItem>();
+            if (!areasRes.Ok && !string.IsNullOrWhiteSpace(areasRes.Message))
+            {
+                TempData["Err"] ??= areasRes.Message;
             }
         }
     }
@@ -548,7 +608,7 @@ public sealed class AdminController : Controller
     [HttpGet("/admin/areas/new")]
     public async Task<IActionResult> NewArea(CancellationToken ct = default)
     {
-        var vm = await BuildAreaEditVmAsync(null, null, null, null, ct);
+        var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
         ViewData["AdminTab"] = "areas";
         return View("EditArea", vm);
     }
@@ -564,7 +624,7 @@ public sealed class AdminController : Controller
             return RedirectToAction(nameof(Area), new { id = res.Data.Id });
         }
         TempData["Err"] = res.Message ?? "Kunne ikke oprette område.";
-        var vm = await BuildAreaEditVmAsync(null, dto.CityId, dto.Name, dto.Description, ct);
+        var vm = await BuildAreaEditVmAsync(null, dto.CityIds, dto.Name, dto.Description, ct);
         ViewData["AdminTab"] = "areas";
         return View("EditArea", vm);
     }
@@ -581,7 +641,7 @@ public sealed class AdminController : Controller
         }
 
         var dto = res.Data;
-        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityId, dto.Name, dto.Description, ct);
+        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds ?? res.Data.CityIds, dto.Name, dto.Description, ct);
         ViewData["AdminTab"] = "areas";
         return View(vm);
     }
@@ -598,8 +658,7 @@ public sealed class AdminController : Controller
         }
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere område.";
         var areaRes = await _api.GetAreaAsync(id, ct);
-        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityId, dto.Name, dto.Description, ct);
-        ViewData["AdminTab"] = "areas";
+        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityIds ?? areaRes.Data?.CityIds, dto.Name, dto.Description, ct); ViewData["AdminTab"] = "areas";
         return View("EditArea", vm);
     }
 
@@ -617,68 +676,35 @@ public sealed class AdminController : Controller
 
     private async Task<AreaEditVm> BuildAreaEditVmAsync(
         AreaDetailsDto? area,
-        Guid? selectedCityId,
+        IReadOnlyCollection<Guid>? selectedCityIds,
         string? name,
         string? description,
         CancellationToken ct)
     {
-        var cityId = selectedCityId ?? area?.CityId;
-        var cities = await LoadCityOptionsAsync(cityId, ct);
+        var cityIds = selectedCityIds ?? area?.CityIds ?? Array.Empty<Guid>();
+        var cities = await LoadCityOptionsAsync(cityIds, ct);
+
 
         return new AreaEditVm
         {
             Id = area?.Id is { } idValue && idValue != Guid.Empty ? idValue : null,
             Name = name ?? area?.Name ?? string.Empty,
-            CityId = cityId,
+            CityIds = cityIds.ToList(),
             Description = description ?? area?.Description,
             Images = area?.Images?.ToList() ?? new List<ImageDto>(),
             Cities = cities
         };
     }
 
-    private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(Guid? selectedCityId, CancellationToken ct)
+    private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(IReadOnlyCollection<Guid>? selectedCityIds, CancellationToken ct)
     {
         var citiesRes = await _api.GetCitiesAsync(ct);
         if (citiesRes.Ok && citiesRes.Data is not null)
         {
-            var options = citiesRes.Data.ToSelectList(selectedCityId).ToList();
-            var hasEmpty = options.Any(o => string.IsNullOrEmpty(o.Value));
-            if (!hasEmpty)
-            {
-                options.Insert(0, new SelectListItem
-                {
-                    Value = string.Empty,
-                    Text = "— Ingen by —",
-                    Selected = selectedCityId is null
-                });
-            }
-            else if (selectedCityId is null)
-            {
-                foreach (var option in options)
-                {
-                    option.Selected = string.IsNullOrEmpty(option.Value);
-                }
-            }
-
-            return options;
+            return citiesRes.Data.ToSelectList(selectedCityIds).ToList();
         }
 
         TempData["Err"] ??= citiesRes.Message ?? "Kunne ikke hente byer.";
-        return new List<SelectListItem>
-        {
-            new() { Value = string.Empty, Text = "— Ingen by —", Selected = true }
-        };
+        return new List<SelectListItem>();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

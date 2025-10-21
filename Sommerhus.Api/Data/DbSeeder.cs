@@ -12,17 +12,23 @@ public static class Seeder
         var sizeF = new Feature { Id = Guid.NewGuid(), Name = "Areal", Key = "areal", ValueType = FeatureValueType.Int, Unit = "m2", SortOrder = 20 };
 
         var city = new City { Id = Guid.NewGuid(), Name = "Blåvand", Zip = "6857" };
-        var area = new Area { Id = Guid.NewGuid(), Name = "Blåvand", City = city, Description = "Hyggeligt område." };
+        var area = new Area
+        {
+            Id = Guid.NewGuid(),
+            Name = "Blåvand",
+            Description = "Hyggeligt område.",
+            Cities = new List<City> { city }
+        };
 
         var house = new VacationHouse
         {
             Id = Guid.NewGuid(),
             Title = "Blåvand Strand 4",
-            Subtitle = "Havudsigt og indendørs pool.",
             City = city,
             Address = "Strandvej 4",
             Description = "Super dejligt poolhus ...",
-            Facilities = "Trådløst internet, Brændeovn ..."
+            Facilities = "Trådløst internet, Brændeovn ...",
+            Areas = new List<Area> { area }
         };
 
         db.Features.AddRange(boolF, sizeF);

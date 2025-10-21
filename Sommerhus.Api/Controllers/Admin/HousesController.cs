@@ -19,14 +19,17 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
 
-        var q = db.Houses.AsNoTracking().Include(h => h.City).AsQueryable();
+        var q = db.Houses.AsNoTracking()
+            .Include(h => h.City)
+            .Include(h => h.Areas)
+            .AsQueryable();
+
 
         if (!string.IsNullOrWhiteSpace(query))
         {
             var term = query.Trim();
             q = q.Where(h =>
                 (h.Title != null && EF.Functions.Like(h.Title, $"%{term}%")) ||
-                (h.Subtitle != null && EF.Functions.Like(h.Subtitle, $"%{term}%")) ||
                 (h.City != null && h.City.Name != null && EF.Functions.Like(h.City.Name, $"%{term}%")) ||
                 (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }
@@ -34,7 +37,13 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         var total = await q.CountAsync(ct);
         var rows = await q.OrderByDescending(h => h.CreatedUtc)
             .Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(h => new HouseListItemDto(h.Id, h.Title, h.City!.Name, null, null, h.CreatedUtc))
+            .Select(h => new HouseListItemDto(
+                h.Id,
+                h.Title,
+                h.City != null ? $"{h.City.Zip} – {h.City.Name}" : string.Empty,
+                h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(),
+                null,
+                h.CreatedUtc))
             .ToListAsync(ct);
 
         return new PageResult<HouseListItemDto>
@@ -53,7 +62,7 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         var h = await db.Houses
             .Include(x => x.Images)
             .Include(x => x.City)
-            .Include(x => x.Area)
+            .Include(x => x.Areas)
             .Include(x => x.HouseFeatures).ThenInclude(x => x.Feature)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -79,7 +88,25 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         })
         .ToList();
 
-        return new HouseDetailsDto(h.Id, h.Title, h.CityId, h.City.Name, h.AreaId, h.Area?.Name, h.Address, h.Description, h.CreatedUtc, features, images);
+        var areaItems = h.Areas
+            .OrderBy(a => a.Name)
+            .Select(a => new LookupItem(a.Id, a.Name))
+            .ToList();
+
+        var areaIds = areaItems.Select(a => a.Id).ToList();
+
+        return new HouseDetailsDto(
+            h.Id,
+            h.Title,
+            h.CityId,
+            h.City != null ? $"{h.City.Zip} – {h.City.Name}" : string.Empty,
+            areaIds,
+            areaItems,
+            h.Address,
+            h.Description,
+            h.CreatedUtc,
+            features,
+            images);
     }
 
 
@@ -97,6 +124,29 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             CreatedUtc = DateTime.UtcNow
         };
 
+
+        var requestedAreaIds = dto.AreaIds?.Where(aid => aid != Guid.Empty).Distinct().ToList() ?? new();
+        if (dto.AreaIds is not null && dto.AreaIds.Any(aid => aid == Guid.Empty))
+        {
+            ModelState.AddModelError(nameof(dto.AreaIds), "Ukendt område");
+            return ValidationProblem(ModelState);
+        }
+
+        if (requestedAreaIds.Count > 0)
+        {
+            var areas = await db.Areas.Where(a => requestedAreaIds.Contains(a.Id)).ToListAsync(ct);
+            if (areas.Count != requestedAreaIds.Count)
+            {
+                ModelState.AddModelError(nameof(dto.AreaIds), "Ukendt område");
+                return ValidationProblem(ModelState);
+            }
+
+            foreach (var area in areas)
+            {
+                entity.Areas.Add(area);
+            }
+        }
+
         db.Houses.Add(entity);
         await db.SaveChangesAsync(ct);
 
@@ -110,13 +160,38 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
     {
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-        var h = await db.Houses.FirstOrDefaultAsync(x => x.Id == id, ct);
+        var h = await db.Houses
+               .Include(x => x.Areas)
+               .FirstOrDefaultAsync(x => x.Id == id, ct);
         if (h is null) return NotFound();
 
         h.Title = dto.Name;
         h.Address = dto.Address;
         h.CityId = dto.CityId;
         h.Description = dto.Description;
+
+        var requestedAreaIds = dto.AreaIds?.Where(aid => aid != Guid.Empty).Distinct().ToList() ?? new List<Guid>();
+        if (dto.AreaIds is not null && dto.AreaIds.Any(aid => aid == Guid.Empty))
+        {
+            ModelState.AddModelError(nameof(dto.AreaIds), "Ukendt område");
+            return ValidationProblem(ModelState);
+        }
+
+        var areas = requestedAreaIds.Count > 0
+            ? await db.Areas.Where(a => requestedAreaIds.Contains(a.Id)).ToListAsync(ct)
+            : new List<Area>();
+
+        if (areas.Count != requestedAreaIds.Count)
+        {
+            ModelState.AddModelError(nameof(dto.AreaIds), "Ukendt område");
+            return ValidationProblem(ModelState);
+        }
+
+        h.Areas.Clear();
+        foreach (var area in areas)
+        {
+            h.Areas.Add(area);
+        }
 
         await db.SaveChangesAsync(ct);
         return NoContent();

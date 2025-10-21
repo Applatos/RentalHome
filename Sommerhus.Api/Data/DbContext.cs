@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Models;
+using System.Reflection.Emit;
 
 namespace Sommerhus.Api.Data;
 
@@ -34,6 +35,23 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .WithMany(c => c.Houses)
                 .HasForeignKey(x => x.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Areas)
+                .WithMany(a => a.Houses)
+                .UsingEntity<Dictionary<string, object>>(
+                    "HouseAreas",
+                    j => j.HasOne<Area>()
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<VacationHouse>()
+                        .WithMany()
+                        .HasForeignKey("HouseId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey("HouseId", "AreaId");
+                        j.ToTable("HouseAreas");
+                    });
             e.HasMany(x => x.Images)
                 .WithOne(i => i.House!)
                 .HasForeignKey(i => i.HouseId)
@@ -78,6 +96,23 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .WithOne(i => i.Area!)
                 .HasForeignKey(i => i.AreaId)
                 .OnDelete(DeleteBehavior.Cascade);
-        });
+            e.HasMany(x => x.Cities)
+                .WithMany(c => c.Areas)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AreaCities",
+                    j => j.HasOne<City>()
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Area>()
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey("AreaId", "CityId");
+                        j.ToTable("AreaCities");
+                    });
+            });
     }
 }

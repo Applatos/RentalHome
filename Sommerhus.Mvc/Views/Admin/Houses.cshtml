@@ -37,6 +37,7 @@
             <tr>
                 <th>Titel</th>
                 <th>By</th>
+                <th>Områder</th>
                 <th>Oprettet</th>
                 <th class="text-end">Handling</th>
             </tr>
@@ -47,6 +48,16 @@
                 <tr>
                     <td>@h.Name</td>
                     <td>@h.CityLabel</td>
+                    <td>
+                        @if (h.AreaLabels?.Any() == true)
+                        {
+                            <span>@string.Join(", ", h.AreaLabels)</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
                     <td>@h.CreatedUtc.ToLocalTime().ToString()</td>
                     <td class="text-end">
                         <a class="btn btn-outline-dark btn-sm" asp-action="House" asp-controller="Admin" asp-route-id="@h.Id">Detaljer</a>

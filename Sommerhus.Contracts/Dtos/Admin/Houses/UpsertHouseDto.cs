@@ -21,5 +21,5 @@ public sealed class UpsertHouseDto
 
     [Required(ErrorMessage = "Beskrivelse er påkrævet")]
     public string Description { get; set; } = string.Empty;
-    public Guid? AreaId { get; set; }
+    public List<Guid> AreaIds { get; set; } = new();
 }

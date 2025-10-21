@@ -30,6 +30,13 @@
         </div>
 
         <div class="mb-2">
+            <label class="form-label">Områder</label>
+            <select class="form-select" asp-for="House.AreaIds" asp-items="Model.Areas" multiple></select>
+            <span class="text-danger" asp-validation-for="House.AreaIds"></span>
+            <div class="form-text">Valgfrit: vælg et eller flere områder.</div>
+        </div>
+
+        <div class="mb-2">
             <label class="form-label">Adresse</label>
             <input class="form-control" asp-for="House.Address" />
             <span class="text-danger" asp-validation-for="House.Address"></span>

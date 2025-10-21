@@ -22,6 +22,4 @@ public class Feature
     public string? IconUrl { get; set; }
 
     public int SortOrder { get; set; } = 0;
-
-    public List<HouseFeatureValue> Values { get; set; } = new();
 }

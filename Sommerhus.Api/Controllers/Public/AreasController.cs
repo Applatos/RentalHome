@@ -12,24 +12,24 @@ namespace Sommerhus.Api.Controllers.Public;
 [Route("api/[controller]")]
 public sealed class AreasController(AppDbContext db) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IEnumerable<AreaListItemDto>> Get([FromQuery] string? q, CancellationToken ct)
-    {
-        var query = db.Areas.AsNoTracking().AsQueryable();
+    //[HttpGet]
+    //public async Task<IEnumerable<AreaListItemDto>> Get([FromQuery] string? q, CancellationToken ct)
+    //{
+    //    var query = db.Areas.AsNoTracking().AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var term = q.Trim();
-            query = query.Where(a =>
-                EF.Functions.Like(a.Name, $"%{term}%") ||
-                (a.City != null && EF.Functions.Like(a.City.Name, $"%{term}%")));
-        }
+    //    if (!string.IsNullOrWhiteSpace(q))
+    //    {
+    //        var term = q.Trim();
+    //        query = query.Where(a =>
+    //            EF.Functions.Like(a.Name, $"%{term}%") ||
+    //            (a.City != null && EF.Functions.Like(a.City.Name, $"%{term}%")));
+    //    }
 
-        return await query
-            .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
-            .ToListAsync(ct);
-    }
+    //    return await query
+    //        .OrderBy(a => a.Name)
+    //        .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
+    //        .ToListAsync(ct);
+    //}
 
     //[HttpGet("{id:guid}")]
     //public async Task<ActionResult<AreaDetailsDto>> GetById(Guid id, CancellationToken ct)

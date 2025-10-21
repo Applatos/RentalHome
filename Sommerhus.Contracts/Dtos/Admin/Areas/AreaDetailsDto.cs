@@ -6,11 +6,10 @@ namespace Sommerhus.Contracts.Dtos.Admin.Areas;
 public sealed record AreaDetailsDto(
     Guid Id,
     string Name,
-    Guid? CityId,
-    string? CityName,
+    IReadOnlyList<Guid> CityIds,
+    IReadOnlyList<LookupItem> Cities,
     string? Description,
     IReadOnlyList<ImageDto> Images,
-    IReadOnlyList<LookupItem>? Cities = null,
     IReadOnlyList<AreaHouseDto>? Houses = null);
 
 public sealed record AreaHouseDto(Guid Id, string Title);

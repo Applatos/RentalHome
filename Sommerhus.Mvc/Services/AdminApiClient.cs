@@ -48,9 +48,6 @@ public sealed class AdminApiClient : ApiClientBase
         => PostAsync<object, object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={Uri.EscapeDataString(kind)}", new { }, ct);
 
 
-
-
-
     // ===== Features =====
     public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct = default)
     {
@@ -96,6 +93,10 @@ public sealed class AdminApiClient : ApiClientBase
 
     public Task<ApiResult<object?>> DeleteAreaAsync(Guid id, CancellationToken ct = default)
         => DeleteAsync($"api/admin/areas/{id}", ct);
+
+    public Task<ApiResult<IReadOnlyList<LookupItem>?>> GetAreasLookupAsync(CancellationToken ct = default)
+    => GetAsync<IReadOnlyList<LookupItem>>("api/admin/areas/lookup", ct);
+
 
 
 }

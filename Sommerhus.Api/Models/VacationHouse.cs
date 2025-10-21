@@ -7,7 +7,6 @@ public class VacationHouse
     public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required, MaxLength(140)] public string Title { get; set; } = "";
-    [MaxLength(240)] public string? Subtitle { get; set; }
     [MaxLength(200)] public string? Address { get; set; }
 
     [Required] public Guid CityId { get; set; }
@@ -19,8 +18,7 @@ public class VacationHouse
     public Guid? CoverImageId { get; set; }
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
-    public Guid? AreaId { get; set; }
-    public Area? Area { get; set; }
+    public ICollection<Area> Areas { get; set; } = new List<Area>();
 
     public List<HouseImage> Images { get; set; } = new();
     public List<HouseFeatureValue> HouseFeatures { get; set; } = new();

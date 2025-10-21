@@ -16,4 +16,6 @@ public class City
 
     public List<VacationHouse> Houses { get; set; } = new();
     public List<CityImage> Images { get; set; } = new();
+
+    public ICollection<Area> Areas { get; set; } = new List<Area>();
 }
