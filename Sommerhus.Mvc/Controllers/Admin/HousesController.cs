@@ -4,6 +4,9 @@ using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos.Shared;
+
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
@@ -27,6 +30,19 @@ public sealed class HouseEditVm
     public UpsertHouseDto House { get; set; } = new();
     public IEnumerable<SelectListItem> Cities { get; set; } = Enumerable.Empty<SelectListItem>();
 }
+
+public sealed class AreaEditVm
+{
+    public Guid? Id { get; init; }
+    public string Name { get; set; } = string.Empty;
+    public Guid? CityId { get; set; }
+    public string? Description { get; set; }
+    public IReadOnlyList<ImageDto> Images { get; init; } = Array.Empty<ImageDto>();
+    public IReadOnlyList<SelectListItem> Cities { get; init; } = Array.Empty<SelectListItem>();
+
+    public bool IsNew => !Id.HasValue || Id == Guid.Empty;
+}
+
 
 public sealed class AdminController : Controller
 {
@@ -228,17 +244,19 @@ public sealed class AdminController : Controller
             TempData["Err"] = res.Message ?? "Fejl ved upload.";
         }
 
-         return RedirectToAction(nameof(House), new { id, tab = "images" });
+        return RedirectToAction(nameof(House), new { id, tab = "images" });
     }
 
     public async Task<IActionResult> SetHouseImageKind(Guid id, Guid ImageId, string kind, CancellationToken ct = default)
     {
-        if (id == Guid.Empty) { 
+        if (id == Guid.Empty)
+        {
             TempData["Err"] = "Ugyldigt hus-id.";
             return RedirectToAction(nameof(House), new { id, tab = "images" });
         }
 
-        if (string.IsNullOrWhiteSpace(kind)) {             
+        if (string.IsNullOrWhiteSpace(kind))
+        {
             TempData["Err"] = "Ugyldig billedetype.";
             return RedirectToAction(nameof(House), new { id, tab = "images" });
         }
@@ -256,7 +274,7 @@ public sealed class AdminController : Controller
         return RedirectToAction(nameof(House), new { id, tab = "images" });
     }
 
-    public async Task<IActionResult> DeleteHouseImage(Guid id,  Guid imageId, CancellationToken ct = default)
+    public async Task<IActionResult> DeleteHouseImage(Guid id, Guid imageId, CancellationToken ct = default)
     {
         if (id == Guid.Empty)
         {
@@ -498,183 +516,168 @@ public sealed class AdminController : Controller
         return RedirectToAction(nameof(Features));
     }
 
+    // ===== Areas =====
+    [HttpGet("/admin/areas")]
+    public async Task<IActionResult> Areas(CancellationToken ct = default)
+    {
+        var res = await _api.GetAreasAsync(ct);
+        ViewData["AdminTab"] = "areas";
+
+        if (!res.Ok || res.Data is null)
+        {
+            TempData["Err"] ??= res.Message ?? "Kunne ikke hente områder.";
+            return View(Array.Empty<AreaListItemDto>());
+        }
+
+        return View(res.Data);
+    }
+
+    [HttpGet("/admin/areas/{id:guid}")]
+    public async Task<IActionResult> Area(Guid id, CancellationToken ct = default)
+    {
+        ViewData["AdminTab"] = "areas";
+        var res = await _api.GetAreaAsync(id, ct);
+        if (!res.Ok || res.Data is null)
+        {
+            TempData["Err"] = res.Message ?? "Område ikke fundet.";
+            return RedirectToAction(nameof(Areas));
+        }
+        return View(res.Data);
+    }
+
+    [HttpGet("/admin/areas/new")]
+    public async Task<IActionResult> NewArea(CancellationToken ct = default)
+    {
+        var vm = await BuildAreaEditVmAsync(null, null, null, null, ct);
+        ViewData["AdminTab"] = "areas";
+        return View("EditArea", vm);
+    }
+
+    [HttpPost("/admin/areas")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateArea([FromForm] UpsertAreaDto dto, CancellationToken ct = default)
+    {
+        var res = await _api.CreateAreaAsync(dto, ct);
+        if (res.Ok && res.Data is not null)
+        {
+            TempData["Ok"] = "Area oprettet.";
+            return RedirectToAction(nameof(Area), new { id = res.Data.Id });
+        }
+        TempData["Err"] = res.Message ?? "Kunne ikke oprette område.";
+        var vm = await BuildAreaEditVmAsync(null, dto.CityId, dto.Name, dto.Description, ct);
+        ViewData["AdminTab"] = "areas";
+        return View("EditArea", vm);
+    }
 
 
-    //// ===== DELETE FEATURE =====
-    //[HttpPost("/admin/features/{id:guid}/delete")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> DeleteFeature(Guid id, CancellationToken ct)
-    //{
-    //    var ok = await _api.DeleteFeatureAsync(id, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? "Feature slettet." : "Kunne ikke slette feature. er i brug på et sommerhus.";
-    //    return RedirectToAction(nameof(Features));
-    //}
+    [HttpGet("/admin/areas/{id:guid}/edit")]
+    public async Task<IActionResult> EditArea(Guid id, CancellationToken ct = default)
+    {
+        var res = await _api.GetAreaAsync(id, ct);
+        if (!res.Ok || res.Data is null)
+        {
+            TempData["Err"] = res.Message ?? "Område ikke fundet.";
+            return RedirectToAction(nameof(Areas));
+        }
 
-    //[HttpPost("/admin/features/{id:guid}/icon")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> UploadFeatureIcon(Guid id, IFormFile file, CancellationToken ct)
-    //{
-    //    if (file is null || file.Length == 0)
-    //    {
-    //        TempData["Err"] = "Vælg en fil eller træk en fil ind i feltet.";
-    //        return RedirectToAction(nameof(Features));
-    //    }
+        var dto = res.Data;
+        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityId, dto.Name, dto.Description, ct);
+        ViewData["AdminTab"] = "areas";
+        return View(vm);
+    }
 
-    //    await using var s = file.OpenReadStream();
-    //    var ok = await _api.UploadFeatureIconAsync(id, s, file.FileName, file.ContentType, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? "Ikon uploadet." : "Kunne ikke uploade ikon.";
-    //    return RedirectToAction(nameof(Features));
-    //}
+    [HttpPost("/admin/areas/{id:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateArea(Guid id, [FromForm] UpsertAreaDto dto, CancellationToken ct = default)
+    {
+        var res = await _api.UpdateAreaAsync(id, dto, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Område opdateret.";
+            return RedirectToAction(nameof(Area), new { id });
+        }
+        TempData["Err"] = res.Message ?? "Kunne ikke opdatere område.";
+        var areaRes = await _api.GetAreaAsync(id, ct);
+        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityId, dto.Name, dto.Description, ct);
+        ViewData["AdminTab"] = "areas";
+        return View("EditArea", vm);
+    }
+
+    [HttpPost("/admin/areas/{id:guid}/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteArea(Guid id, CancellationToken ct = default)
+    {
+        var res = await _api.DeleteAreaAsync(id, ct);
+        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
+            ? "Area slettet."
+            : res.Message ?? "Kunne ikke slette area.";
+
+        return RedirectToAction(nameof(Areas));
+    }
+
+    private async Task<AreaEditVm> BuildAreaEditVmAsync(
+        AreaDetailsDto? area,
+        Guid? selectedCityId,
+        string? name,
+        string? description,
+        CancellationToken ct)
+    {
+        var cityId = selectedCityId ?? area?.CityId;
+        var cities = await LoadCityOptionsAsync(cityId, ct);
+
+        return new AreaEditVm
+        {
+            Id = area?.Id is { } idValue && idValue != Guid.Empty ? idValue : null,
+            Name = name ?? area?.Name ?? string.Empty,
+            CityId = cityId,
+            Description = description ?? area?.Description,
+            Images = area?.Images?.ToList() ?? new List<ImageDto>(),
+            Cities = cities
+        };
+    }
+
+    private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(Guid? selectedCityId, CancellationToken ct)
+    {
+        var citiesRes = await _api.GetCitiesAsync(ct);
+        if (citiesRes.Ok && citiesRes.Data is not null)
+        {
+            var options = citiesRes.Data.ToSelectList(selectedCityId).ToList();
+            var hasEmpty = options.Any(o => string.IsNullOrEmpty(o.Value));
+            if (!hasEmpty)
+            {
+                options.Insert(0, new SelectListItem
+                {
+                    Value = string.Empty,
+                    Text = "— Ingen by —",
+                    Selected = selectedCityId is null
+                });
+            }
+            else if (selectedCityId is null)
+            {
+                foreach (var option in options)
+                {
+                    option.Selected = string.IsNullOrEmpty(option.Value);
+                }
+            }
+
+            return options;
+        }
+
+        TempData["Err"] ??= citiesRes.Message ?? "Kunne ikke hente byer.";
+        return new List<SelectListItem>
+        {
+            new() { Value = string.Empty, Text = "— Ingen by —", Selected = true }
+        };
+    }
 
 
-    //// POST: /admin/houses/{id}
-    //[HttpPost("/admin/houses/{id:guid}")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> SaveHouse(Guid id, [FromForm] UpdateHouseDto dto, CancellationToken ct)
-    //{
-    //    if (!ModelState.IsValid)
-    //    {
-    //        TempData["Err"] = "Ugyldige felter.";
-    //        return RedirectToAction(nameof(House), new { id });
-    //    }
 
-    //    var ok = await _api.UpdateHouseAsync(id, dto, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? "Gemt." : "Kunne ikke gemme.";
-    //    return RedirectToAction(nameof(House), new { id });
-    //}
 
-    //// POST: /admin/houses/{id}/images/upload
-    //[HttpPost("/admin/houses/{id:guid}/images/upload")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> UploadHouseImages(Guid id, List<IFormFile> files, CancellationToken ct)
-    //{
-    //    if (files is null || files.Count == 0)
-    //    {
-    //        TempData["Err"] = "Vælg mindst ét billede.";
-    //        return RedirectToAction(nameof(House), new { id, tab = "images" });
-    //    }
 
-    //    var (ok, imgs) = await _api.UploadHouseImagesAsync(id, files, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? $"Uploadede {imgs?.Count ?? 0} billede(r)." : "Fejl ved upload.";
-    //    return RedirectToAction(nameof(House), new { id, tab = "images" });
-    //}
 
-    //// POST: /admin/houses/{id}/images/{imageId}/set-kind
-    //[HttpPost("/admin/houses/{id:guid}/images/{imageId:guid}/set-kind")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> SetHouseImageKind(Guid id, Guid imageId, [FromForm] string kind, CancellationToken ct)
-    //{
-    //    var ok = await _api.SetHouseImageKindAsync(id, imageId, kind, ct);
-    //    TempData[ok ? "Ok" : "Err"] = ok ? $"Sat til {kind}." : "Kunne ikke opdatere billede.";
-    //    return RedirectToAction(nameof(House), new { id, tab = "images" });
-    //}
 
-    //// AREAS
-    //[HttpGet("/admin/areas")]
-    //public async Task<IActionResult> Areas(CancellationToken ct)
-    //{
-    //    var list = await _api.GetAreasAsync(ct);
-    //    ViewData["AdminTab"] = "areas";
-    //    return View(list);
-    //}
 
-    //[HttpGet("/admin/areas/{id:guid}")]
-    //public async Task<IActionResult> Area(Guid id, CancellationToken ct)
-    //{
-    //    var dto = await _api.GetAreaAsync(id, ct);
-    //    if (dto is null) return NotFound();
-    //    ViewData["AdminTab"] = "Areas";
-    //    return View(dto);
-    //}
 
-    //// AREAS – Opret (GET) til ny form
-    //[HttpGet("/admin/areas/new")]
-    //public IActionResult NewArea()
-    //{
-    //    // Tom formular til opret
-    //    return View("EditArea", new AdmAreas.AreaDetailsDto(
-    //        Id: Guid.Empty,
-    //        Name: string.Empty,
-    //        CityId: null,
-    //        CityName: null,
-    //        Description: null,
-    //        Images: new List<ImageDto>()
-    //    ));
-    //}
-
-    //// AREAS – Opret (POST)
-    //[ValidateAntiForgeryToken]
-    //[HttpPost("/admin/areas")]
-    //public async Task<IActionResult> CreateArea([FromForm] AdmAreas.UpsertAreaDto dto, CancellationToken ct = default)
-    //{
-    //    var result = await _api.CreateAreaAsync(dto, ct);
-
-    //    if (result.Ok && result.Payload is not null)
-    //    {
-    //        TempData["Ok"] = "Area oprettet.";
-    //        return RedirectToAction(nameof(Area), new { id = result.Payload.Id });
-    //    }
-
-    //    TempData["Err"] = result.ErrorMessage ?? "Kunne ikke oprette area.";
-    //    return View("EditArea", dto);
-    //}
-
-    //// AREAS – Rediger (GET)
-    //[HttpGet("/admin/areas/{id:guid}/edit")]
-    //public async Task<IActionResult> EditArea(Guid id, CancellationToken ct = default)
-    //{
-    //    var area = await _api.GetAreaAsync(id, ct);
-    //    if (area is null)
-    //    {
-    //        TempData["Err"] = "Area ikke fundet.";
-    //        return RedirectToAction(nameof(Areas));
-    //    }
-    //    return View("EditArea", area);
-    //}
-
-    //// AREAS – Rediger (POST)
-    //[ValidateAntiForgeryToken]
-    //[HttpPost("/admin/areas/{id:guid}")]
-    //public async Task<IActionResult> UpdateArea(
-    //    Guid id,
-    //    [FromForm] string Name,
-    //    [FromForm] Guid? CityId,
-    //    [FromForm] string? Description,
-    //    CancellationToken ct = default)
-    //{
-    //    var dto = new AdmAreas.UpsertHouseDto(Name, CityId, Description, null);
-    //    var res = await _api.UpdateAreaAsync(id, dto, ct);
-
-    //    if (res.Ok)
-    //    {
-    //        TempData["Ok"] = "Area opdateret.";
-    //        return RedirectToAction(nameof(Area), new { id });
-    //    }
-
-    //    TempData["Err"] = res.ErrorMessage ?? "Kunne ikke opdatere area.";
-    //    // Hent aktuel for at vise formular igen med data
-    //    var area = await _api.GetAreaAsync(id, ct);
-    //    if (area is null)
-    //        return RedirectToAction(nameof(Areas));
-
-    //    // Merge de seneste indtastninger
-    //    area = area with { Name = Name ?? area.Name, CityId = CityId, Description = Description ?? area.Description };
-    //    return View("AreaEdit", area);
-    //}
-
-    //// AREAS – Slet (POST)
-    //[ValidateAntiForgeryToken]
-    //[HttpPost("/admin/areas/{id:guid}/delete")]
-    //public async Task<IActionResult> DeleteArea(Guid id, CancellationToken ct = default)
-    //{
-    //    var res = await _api.DeleteAreaAsync(id, ct);
-    //    if (res.Ok)
-    //        TempData["Ok"] = "Area slettet.";
-    //    else
-    //        TempData["Err"] = res.ErrorMessage ?? "Kunne ikke slette area (tjek om den er i brug).";
-
-    //    return RedirectToAction(nameof(Areas));
-    //}
 
 
 

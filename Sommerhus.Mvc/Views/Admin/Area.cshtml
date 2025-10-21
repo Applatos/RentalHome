@@ -1,11 +1,19 @@
-@using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
-@model AdmAreas.AreaDetailsDto
+@using Sommerhus.Contracts.Dtos.Admin.Areas
+@model AreaDetailsDto
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
 
-    <a class="btn btn-link" href="@Url.Action("Areas", "Admin")">◂ Tilbage</a>
+    <a class="btn btn-link" asp-controller="Admin" asp-action="Areas">◂ Tilbage</a>
     <h3>@Model.Name</h3>
-    <div class="mb-3">@Html.Raw(Model.Description)</div>
+    <dl class="row small">
+        <dt class="col-sm-2">By</dt>
+        <dd class="col-sm-10">@(!string.IsNullOrWhiteSpace(Model.CityName) ? Model.CityName : "—")</dd>
+    </dl>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    {
+        <div class="mb-3">@Html.Raw(Model.Description)</div>
+    }
 
     @if (Model.Images?.Any() == true)
     {

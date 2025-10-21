@@ -4,7 +4,7 @@ using Sommerhus.Contracts.Dtos.Admin.Houses;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
-using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos.Admin.Areas;
 using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features;
 using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
 using PubCities = Sommerhus.Contracts.Dtos.Public.Cities;
@@ -75,7 +75,6 @@ public sealed class AdminApiClient : ApiClientBase
         var tuple = (stream, fileName, contentType);
         return PostMultipartAsync<object>($"api/admin/features/{featureId}/icon", "file", new[]{ tuple }, ct);
     }
-}
 
 
 
@@ -83,26 +82,23 @@ public sealed class AdminApiClient : ApiClientBase
 
 
 //// ===== Areas =====
-//    public Task<IReadOnlyList<AdmAreas.AreaListItemDto>> GetAreasAsync(CancellationToken ct)
-//            => GetListAsync<AdmAreas.AreaListItemDto>("api/admin/areas", ct);
+    public Task<ApiResult<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(CancellationToken ct = default)
+        => GetAsync<IReadOnlyList<AreaListItemDto>>("api/admin/areas", ct);
 
-//    public Task<AdmAreas.AreaDetailsDto?> GetAreaAsync(Guid id, CancellationToken ct)
-//        => GetAsync<AdmAreas.AreaDetailsDto>($"api/admin/areas/{id}", ct);
+    public Task<ApiResult<AreaDetailsDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
+        => GetAsync<AreaDetailsDto>($"api/admin/areas/{id}", ct);
 
-//    public Task<ApiResult<AdmAreas.AreaDetailsDto?>> CreateAreaAsync(AdmAreas.UpsertAreaDto dto, CancellationToken ct)
-//        => PostForResultAsync<AdmAreas.UpsertAreaDto, AdmAreas.AreaDetailsDto>("api/admin/areas", dto, ct);
+    public Task<ApiResult<AreaDetailsDto?>> CreateAreaAsync(UpsertAreaDto dto, CancellationToken ct = default)
+        => PostAsync<UpsertAreaDto, AreaDetailsDto>("api/admin/areas", dto, ct);
 
-//    public Task<ApiResult<object?>> UpdateAreaAsync(Guid id, AdmAreas.UpsertHouseDto dto, CancellationToken ct)
-//        => PutForResultAsync($"api/admin/areas/{id}", dto, ct);
+    public Task<ApiResult<object?>> UpdateAreaAsync(Guid id, UpsertAreaDto dto, CancellationToken ct = default)
+        => PutAsync<UpsertAreaDto, object>($"api/admin/areas/{id}", dto, ct);
 
-//    public Task<ApiResult<object?>> DeleteAreaAsync(Guid id, CancellationToken ct)
-//        => DeleteForResultAsync($"api/admin/areas/{id}", ct);
-
-
+    public Task<ApiResult<object?>> DeleteAreaAsync(Guid id, CancellationToken ct = default)
+        => DeleteAsync($"api/admin/areas/{id}", ct);
 
 
-
-
+}
 
 
 

@@ -1,11 +1,10 @@
-﻿@* @using PubAreas = Sommerhus.Contracts.Dtos.Public.Areas
- *@@using Sommerhus.Contracts.Dtos.Public.Houses
+﻿@using Sommerhus.Contracts.Dtos.Public.Houses
 @model IReadOnlyList<HouseListItemDto>
 @{
     ViewData["Title"] = "Luksus Sommerhuse i Danmark";
     var q = (string)(ViewBag.Query ?? "");
-    // var area = (string)(ViewBag.Area ?? "");
-    // var areas = (IReadOnlyList<PubAreas.AreaListItemDto>)(ViewBag.Areas ?? new List<PubAreas.AreaListItemDto>());
+    var area = (string)(ViewBag.Area ?? "");
+    var areas = (IReadOnlyList<AreaListItemDto>)(ViewBag.Areas ?? new List<AreaListItemDto>());
 }
 <section class="container">
     <header class="my-4 text-center">
@@ -17,15 +16,15 @@
         <div class="col-md-4">
             <input name="q" value="@q" class="form-control" placeholder="Søg..." />
         </div>
-@*         <div class="col-md-4">
+         <div class="col-md-4">
             <select name="area" class="form-select">
                 <option value="">Alle områder</option>
                 @foreach (var a in areas.OrderBy(a => a.Name))
                 {
-                    <option value="@a.Slug" selected="@(a.Slug == area)">@a.Name</option>
+                    <option value="@a.Id" selected="@(a.Id.ToString() == area)">@a.Name</option>
                 }
             </select>
-        </div> *@
+        </div>
         <div class="col-md-2"><button class="btn btn-dark w-100">Søg</button></div>
         <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/">Nulstil</a></div>
     </form>

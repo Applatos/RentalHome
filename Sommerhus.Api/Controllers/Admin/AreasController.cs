@@ -1,7 +1,3 @@
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
@@ -10,6 +6,11 @@ using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Shared;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -28,7 +29,10 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
     {
-        var area = await db.Areas.Include(a => a.AreaImages).Include(a => a.City)
+        var area = await db.Areas
+            .Include(a => a.AreaImages)
+            .Include(a => a.City)
+            .Include(a => a.Houses)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (area is null) return NotFound();
@@ -70,7 +74,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
         await db.SaveChangesAsync(ct);
 
         var created = await db.Areas.Include(a => a.AreaImages)
-            .Include(a => a.City)
+            .Include(a => a.City).Include(a => a.Houses)
             .FirstAsync(a => a.Id == area.Id, ct);
 
         var details = MapDetails(created);
@@ -82,6 +86,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
     {
         var area = await db.Areas.Include(a => a.AreaImages)
             .Include(a => a.City)
+            .Include(a => a.Houses)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (area is null) return NotFound();
@@ -97,8 +102,6 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
                 return ValidationProblem(ModelState);
             }
         }
-
-        var nameChanged = !string.Equals(area.Name, name, StringComparison.Ordinal);
 
         area.Name = name;
         area.CityId = dto.CityId;
@@ -153,39 +156,18 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
 
     private AreaDetailsDto MapDetails(Area area)
     {
+        var houses = area.Houses
+                   .OrderBy(h => h.Title)
+                   .ThenBy(h => h.Id)
+                   .Select(h => new AreaHouseDto(h.Id, h.Title))
+                   .ToList();
+
         var images = area.AreaImages
-            .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
-            .ToList();
+                    .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
+                    .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
+                    .ToList();
 
-        return new AreaDetailsDto(area.Id, area.Name, area.CityId, area.City?.Name, area.Description, images);
+
+        return new AreaDetailsDto(area.Id, area.Name, area.CityId, area.City?.Name, area.Description, images, Houses: houses);
     }
-
-    //private static string Slugify(string value)
-    //{
-    //    var normalized = value.ToLowerInvariant().Trim();
-    //    normalized = normalized.Normalize(NormalizationForm.FormD);
-    //    var builder = new StringBuilder();
-    //    foreach (var c in normalized)
-    //    {
-    //        var category = CharUnicodeInfo.GetUnicodeCategory(c);
-    //        if (category == UnicodeCategory.NonSpacingMark) continue;
-    //        builder.Append(c);
-    //    }
-
-    //    normalized = builder.ToString();
-    //    return string.IsNullOrEmpty(normalized) ? Guid.NewGuid().ToString("N") : normalized;
-    //}
-
-    //private async Task<string> GenerateUniqueSlugAsync(string value, Guid? ignoreId, CancellationToken ct)
-    //{
-    //    var baseSlug = Slugify(value);
-    //    var slug = baseSlug;
-    //    var suffix = 2;
-
-    //    while (await db.Areas.AnyAsync(a => a.Slug == slug && (!ignoreId.HasValue || a.Id != ignoreId.Value), ct))
-    //        slug = $"{baseSlug}-{suffix++}";
-
-    //    return slug;
-    //}
 }

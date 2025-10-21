@@ -1,9 +1,13 @@
-﻿using Sommerhus.Contracts.Dtos.Shared;
+﻿using System.Collections.Generic;
+using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Contracts.Dtos.Public.Areas;
 
-public record AreaDetailsDto(
+public record AreaDetailDto(
     Guid Id,
     string Name,
     string? Description,
-    IReadOnlyList<ImageDto> Images);
+    IReadOnlyList<ImageDto> Images,
+    IReadOnlyList<AreaHouseDto> Houses);
+
+public record AreaHouseDto(Guid Id, string Title);

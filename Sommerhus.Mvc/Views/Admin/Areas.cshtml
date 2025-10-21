@@ -1,39 +1,58 @@
-@* @using AdmAreas = Sommerhus.Contracts.Dtos.Admin.Areas
-@model IReadOnlyList<AdmAreas.AreaListItemDto>
+@using Admareas = Sommerhus.Contracts.Dtos.Admin.Areas
+@model IReadOnlyList<Admareas.AreaListItemDto>
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
 
     @if (TempData["Ok"] is string okMsg){ <div class="alert alert-success">@okMsg</div> }
     @if (TempData["Err"] is string errMsg){ <div class="alert alert-danger">@errMsg</div> }
 
-    <div class="d-flex justify-content-between mb-2">
-        <h2>Areas</h2>
-        <a class="btn btn-primary" href="@Url.Action("NewArea", "Admin")">+ Opret area</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Områder</h2>
+        <a class="btn btn-primary" asp-controller="Admin" asp-action="NewArea">+ Opret area</a>
     </div>
 
+    @if (Model is null || Model.Count == 0)
+    {
+        <p class="text-muted">Ingen områder fundet endnu.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Navn</th>
+                        <th scope="col">Huse</th>
+                        <th scope="col" class="text-end">Handling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        var confirmText = System.Text.Json.JsonSerializer.Serialize($"Slet area \"{a.Name}\"?");
+                        <tr>
+                            <td class="fw-semibold">@a.Name</td>
+                            <td>@a.HouseCount</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-dark btn-sm" asp-controller="Admin" asp-action="Area" asp-route-id="@a.Id">Detaljer</a>
+                                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Admin" asp-action="EditArea" asp-route-id="@a.Id">Rediger</a>
+                                    <form asp-controller="Admin"
+                                          asp-action="DeleteArea"
+                                          asp-route-id="@a.Id"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm(@confirmText);">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Slet</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 
-    <table class="table table-sm">
-        <thead><tr><th>Navn</th><th>Slug</th><th>Huse</th><th></th><th class="text-end">Handling</th></tr></thead>
-        <tbody>
-            @foreach (var a in Model)
-            {
-                <tr>
-                    <td>@a.Name</td>
-                    <td>@a.Slug</td>
-                    <td>@a.HouseCount</td>
-                    <td class="text-end"> 
-                        <div>
-                            <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Area" asp-route-id="@a.Id">Detaljer</a>
-                            <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="EditArea" asp-route-id="@a.Id">Edit</a>
-                            <form method="post" action="@Url.Action("DeleteArea", "Admin", new { id = a.Id })" class="d-inline" onsubmit='return confirm("Slet area \"@a.Name\"?");'>
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger">Slet</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
 </section>
- *@
