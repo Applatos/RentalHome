@@ -1,0 +1,63 @@
+﻿﻿@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Sommerhus.Contracts.Dtos.Public.Houses
+@using Sommerhus.Contracts.Dtos.Shared
+@model HouseListItemDto
+@{
+    var headlineParts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.City))
+    {
+        headlineParts.Add(Model.City);
+    }
+    if (!string.IsNullOrWhiteSpace(Model.Title))
+    {
+        headlineParts.Add(Model.Title);
+    }
+    var headline = string.Join(" - ", headlineParts);
+    var gallery = Model.Gallery ?? Array.Empty<ImageDto>();
+}
+
+<div class="house-card h-100 shadow-sm d-flex flex-column">
+    <div class="card-body pb-0">
+        <div class="header-row">
+            <div>
+                <h3 class="h5 mb-1">@headline</h3>
+                @if (!string.IsNullOrWhiteSpace(Model.Summary))
+                {
+                    <p class="muted small mb-0">@Model.Summary</p>
+                }
+            </div>
+            <a class="btn btn-dark btn-sm" href="@Url.Action("Details", "Houses", new { id = Model.Id })">Læs mere ▸</a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
+    {
+        <div class="px-3 pt-3 pb-3">
+            <div class="cover-wrap">
+                <div class="cover-overlay">
+                    @if (!string.IsNullOrWhiteSpace(Model.City))
+                    {
+                        <span class="badge rounded-pill">@Model.City</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Zip))
+                    {
+                        <span class="badge rounded-pill">@Model.Zip</span>
+                    }
+                </div>
+                <img src="@Model.CoverUrl" alt="@headline" loading="lazy" decoding="async" />
+            </div>
+        </div>
+    }
+
+    @if (gallery.Any())
+    {
+        <div class="thumbs d-flex gap-2 flex-wrap px-3 pb-3 pt-3">
+            @foreach (var image in gallery)
+            {
+                <img src="@image.Url" alt="@(image.Alt ?? headline)" class="thumb" loading="lazy" decoding="async" />
+            }
+        </div>
+    }
+</div>

@@ -8,7 +8,7 @@ using Sommerhus.Api.Data;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 
 namespace Sommerhus.Api.Controllers.Public;
 
@@ -71,7 +71,26 @@ public class HousesController(AppDbContext db) : ControllerBase
                 ? null
                 : UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(cover.HouseId, cover.FileName));
 
-            return new HouseListItemDto(h.Id, h.Title, h.City.Name, h.City.Zip, coverUrl);
+            var gallery = h.Images
+                .Where(i => cover is null || i.Id != cover.Id)
+                .OrderBy(i => i.Kind)
+                .ThenBy(i => i.FileName)
+                .Take(3)
+                .Select(i => new ImageDto(
+                    i.Id,
+                    UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)),
+                    i.Alt,
+                    i.Kind.ToString()))
+                .ToArray();
+
+            return new HouseListItemDto(
+                h.Id,
+                h.Title,
+                h.City?.Name ?? string.Empty,
+                h.City?.Zip ?? string.Empty,
+                coverUrl,
+                HouseSummaryFormatter.BuildSummary(h),
+                gallery);
         });
     }
 
@@ -114,5 +133,48 @@ public class HousesController(AppDbContext db) : ControllerBase
             h.Description,
             gallery,
             h.HouseFeatures.Select(Map).ToArray());
+    }
+}
+
+static class HouseSummaryFormatter
+{
+    private static readonly Regex HtmlTagRegex = new("<[^>]+>", RegexOptions.Compiled);
+    private static readonly Regex WhitespaceRegex = new("\\s+", RegexOptions.Compiled);
+
+    public static string? BuildSummary(VacationHouse house)
+    {
+        var source = string.IsNullOrWhiteSpace(house.Description)
+            ? house.Facilities
+            : house.Description;
+
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        var withoutHtml = HtmlTagRegex.Replace(source, " ");
+        var normalized = WhitespaceRegex.Replace(withoutHtml, " ").Trim();
+
+        if (normalized.Length == 0)
+        {
+            return null;
+        }
+
+        var maxLength = 160;
+        if (normalized.Length <= maxLength)
+        {
+            return normalized;
+        }
+
+        foreach (var endChar in new[] { '.', '!', '?' })
+        {
+            var sentenceEnd = normalized.IndexOf(endChar);
+            if (sentenceEnd >= 0 && sentenceEnd + 1 <= maxLength)
+            {
+                return normalized[..(sentenceEnd + 1)].Trim();
+            }
+        }
+
+        return normalized[..maxLength].TrimEnd() + "…";
     }
 }
