@@ -2,7 +2,6 @@
 using Sommerhus.Contracts.Dtos.Admin.Features;
 
 namespace Sommerhus.Contracts.Dtos.Admin.Houses;
-// === READ-DTO til Admin (bruges i Edit GET) ===
 
 public record HouseDetailsDto(
     Guid Id,

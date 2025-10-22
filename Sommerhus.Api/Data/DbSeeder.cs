@@ -1,4 +1,5 @@
 ﻿using Sommerhus.Api.Models;
+using System.Text.Json;
 
 namespace Sommerhus.Api.Data;
 
@@ -11,7 +12,10 @@ public static class Seeder
         var boolF = new Feature { Id = Guid.NewGuid(), Name = "Sauna", Key = "sauna", ValueType = FeatureValueType.Bool, SortOrder = 10 };
         var sizeF = new Feature { Id = Guid.NewGuid(), Name = "Areal", Key = "areal", ValueType = FeatureValueType.Int, Unit = "m2", SortOrder = 20 };
 
-        var city = new City { Id = Guid.NewGuid(), Name = "Blåvand", Zip = "6857" };
+
+        var cities = LoadDanishCities();
+        var city = cities.FirstOrDefault(c => c.Zip == "6857") ?? cities.First();
+
         var area = new Area
         {
             Id = Guid.NewGuid(),
@@ -32,7 +36,7 @@ public static class Seeder
         };
 
         db.Features.AddRange(boolF, sizeF);
-        db.Cities.Add(city);
+        db.Cities.AddRange(cities);
         db.Areas.Add(area);
         db.Houses.Add(house);
 
@@ -43,4 +47,88 @@ public static class Seeder
 
         db.SaveChanges();
     }
+
+
+    private static List<City> LoadDanishCities()
+    {
+        var cities = TryFetchDanishCities();
+        if (cities.Count > 0)
+        {
+            return cities;
+        }
+
+        return new List<City>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Blåvand",
+                Zip = "6857"
+            }
+        };
+    }
+
+
+    private static List<City> TryFetchDanishCities()
+    {
+        try
+        {
+            using var client = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(20)
+            };
+
+            using var response = client.GetAsync("https://api.dataforsyningen.dk/postnumre").GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+
+            using var responseStream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+            var postNumbers = JsonSerializer.Deserialize<List<PostNumberDto>>(responseStream, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (postNumbers is null)
+            {
+                return new List<City>();
+            }
+
+            var deduplicated = new Dictionary<string, City>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var postNumber in postNumbers) //Cleanup and deduplicate
+            {
+                if (string.IsNullOrWhiteSpace(postNumber?.Nr) || string.IsNullOrWhiteSpace(postNumber.Navn))
+                {
+                    continue;
+                }
+
+                var zip = postNumber.Nr.Trim();
+                if (deduplicated.ContainsKey(zip))
+                {
+                    continue;
+                }
+
+                deduplicated[zip] = new City
+                {
+                    Id = Guid.NewGuid(),
+                    Zip = zip,
+                    Name = postNumber.Navn.Trim()
+                };
+            }
+
+            return deduplicated.Values
+                .OrderBy(city => city.Zip, StringComparer.Ordinal)
+                .ThenBy(city => city.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch
+        {
+            return new List<City>();
+        }
+    }
+    private sealed class PostNumberDto
+    {
+        public string? Nr { get; set; }
+        public string? Navn { get; set; }
+    }
 }
+

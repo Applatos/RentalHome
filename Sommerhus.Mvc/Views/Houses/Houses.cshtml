@@ -1,0 +1,49 @@
+﻿@using Sommerhus.Contracts.Dtos.Public.Houses
+@model IReadOnlyList<HouseListItemDto>
+@{
+    ViewData["Title"] = "Luksus Sommerhuse i Danmark";
+    var q = (string)(ViewBag.Query ?? "");
+    var area = (string)(ViewBag.Area ?? "");
+    var areas = (IReadOnlyList<AreaListItemDto>)(ViewBag.Areas ?? new List<AreaListItemDto>());
+}
+<section class="container">
+    <header class="my-4 text-center">
+        <h2>Sommerhusudlejning - Enkelt og sikkert</h2>
+        <p>Find det helt rigtige sommerhus. Filtrér på område/by og søg i titler/beskrivelser.</p>
+    </header>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input name="q" value="@q" class="form-control" placeholder="Søg..." />
+        </div>
+        <div class="col-md-4">
+            <select name="area" class="form-select">
+                <option value="">Alle områder</option>
+                @foreach (var a in areas.OrderBy(a => a.Name))
+                {
+                    <option value="@a.Id" selected="@(a.Id.ToString() == area)">@a.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">Søg</button></div>
+        <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/">Nulstil</a></div>
+    </form>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var h in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrWhiteSpace(h.CoverUrl))
+                    {
+                        <img src="@h.CoverUrl" class="card-img-top" alt="@h.Title" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@h.CityName (@h.Zip) - @h.Title</h5>
+                        <a class="btn btn-dark" href="@Url.Action("Details", "Houses", new { id = h.Id })">Læs mere ▸</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

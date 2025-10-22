@@ -24,7 +24,6 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             .Include(h => h.Areas)
             .AsQueryable();
 
-
         if (!string.IsNullOrWhiteSpace(query))
         {
             var term = query.Trim();

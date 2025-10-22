@@ -17,19 +17,22 @@ namespace Sommerhus.Api.Controllers.Public;
 public class HousesController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<HouseListItemDto>> GetAll(
+    public async Task<IEnumerable<HouseListItemDto>> Search(
         [FromQuery] string? city,
         [FromQuery] string? zip,
         [FromQuery] string? q,
-        [FromQuery] int skip = 0,
-        [FromQuery] int take = 50,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
     {
-        take = take <= 0 ? 50 : Math.Min(take, 100);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 5, 50);
 
         var query = db.Houses.AsNoTracking()
             .Include(h => h.Images)
             .Include(h => h.City)
+            .Include(h => h.Areas)
+            .Include(h => h.HouseFeatures).ThenInclude(v => v.Feature)
             .OrderByDescending(h => h.CreatedUtc)
             .AsQueryable();
 
@@ -57,7 +60,7 @@ public class HousesController(AppDbContext db) : ControllerBase
                 (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }
 
-        var list = await query.Skip(Math.Max(0, skip)).Take(take).ToListAsync(ct);
+        var list = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
 
         return list.Select(h =>
         {
