@@ -1,5 +1,6 @@
-using Sommerhus.Contracts.Dtos.Public.Houses;
+using Sommerhus.Contracts.Dtos.Public.Areas;
 using Sommerhus.Contracts.Dtos.Public.Cities;
+using Sommerhus.Contracts.Dtos.Public.Houses;
 
 
 namespace Sommerhus.Mvc.Services;
@@ -29,11 +30,18 @@ public sealed class SommerhusApi : ApiClientBase
         => GetAsync<IReadOnlyList<LookupItem>>("api/admin/cities/search", ct);
 
 
-    //public Task<IReadOnlyList<PubAreas.AreaListItemDto>> GetAreasAsync(string? q = null, CancellationToken ct = default)
-    //    => GetListAsync<PubAreas.AreaListItemDto>(string.IsNullOrWhiteSpace(q) ? "api/areas" : $"api/areas?q={Uri.EscapeDataString(q)}", ct);
 
+    // ===== Areas =====
+    public Task<ApiResult<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
+    {
+        var url = string.IsNullOrWhiteSpace(q)
+            ? "api/areas"
+            : $"api/areas?q={Uri.EscapeDataString(q.Trim())}";
+        return GetAsync<IReadOnlyList<AreaListItemDto>>(url, ct);
+    }
 
-//    public Task<IReadOnlyList<string>> FindZipAsync(string q, CancellationToken ct = default)
-//        => GetListAsync<string>($"api/zipcodes?q={Uri.EscapeDataString(q)}", ct);
-//
+    public Task<ApiResult<AreaDetailDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
+        => GetAsync<AreaDetailDto>($"api/areas/{id}", ct);
+
+    //
 }

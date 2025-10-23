@@ -12,48 +12,54 @@ namespace Sommerhus.Api.Controllers.Public;
 [Route("api/[controller]")]
 public sealed class AreasController(AppDbContext db) : ControllerBase
 {
-    //[HttpGet]
-    //public async Task<IEnumerable<AreaListItemDto>> Get([FromQuery] string? q, CancellationToken ct)
-    //{
-    //    var query = db.Areas.AsNoTracking().AsQueryable();
+    [HttpGet]
+    public async Task<IEnumerable<AreaListItemDto>> Search([FromQuery] string? q, CancellationToken ct)
+    {
+        var query = db.Areas.AsNoTracking().AsQueryable();
 
-    //    if (!string.IsNullOrWhiteSpace(q))
-    //    {
-    //        var term = q.Trim();
-    //        query = query.Where(a =>
-    //            EF.Functions.Like(a.Name, $"%{term}%") ||
-    //            (a.City != null && EF.Functions.Like(a.City.Name, $"%{term}%")));
-    //    }
+        return await query
+            .OrderBy(a => a.Name)
+            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
+            .ToListAsync(ct);
+    }
 
-    //    return await query
-    //        .OrderBy(a => a.Name)
-    //        .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
-    //        .ToListAsync(ct);
-    //}
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
+    {
+        var area = await db.Areas
+            .Include(a => a.AreaImages)
+            .Include(a => a.Cities)
+            .Include(a => a.Houses)
+            .FirstOrDefaultAsync(a => a.Id == id, ct);
 
-    //[HttpGet("{id:guid}")]
-    //public async Task<ActionResult<AreaDetailsDto>> GetById(Guid id, CancellationToken ct)
-    //{
-    //    var area = await db.Areas
-    //        .Include(a => a.AreaImages)
-    //        .Include(a => a.Houses)
-    //        .FirstOrDefaultAsync(a => a.Id == id, ct);
+        if (area is null) return NotFound();
 
-    //    if (area is null) return NotFound();
+        return MapDetails(area);
+    }
 
-    //    var images = area.AreaImages
-    //        .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-    //        .Select(i => new ImageDto(i.Id,
-    //            UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)),
-    //            null, "Gallery"))
-    //        .ToList();
+    private AreaDetailsDto MapDetails(Area area)
+    {
+        var houses = area.Houses
+                   .OrderBy(h => h.Title)
+                   .ThenBy(h => h.Id)
+                   .Select(h => new AreaHouseDto(h.Id, h.Title))
+                   .ToList();
 
-    //    var houses = area.Houses
-    //        .OrderBy(h => h.Title)
-    //        .ThenBy(h => h.Id)
-    //        .Select(h => new AreaHouseDto(h.Id, h.Title))
-    //        .ToList();
+        var images = area.AreaImages
+                    .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
+                    .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
+                    .ToList();
 
-    //    return new AreaDetailsDto(area.Id, area.Name, area.Description, images, houses);
-    //}
+        var cityItems = area.Cities
+                    .OrderBy(c => c.Zip)
+                    .ThenBy(c => c.Name)
+                    .Select(c => new LookupItem(c.Id, $"{c.Zip} – {c.Name}"))
+                    .ToList();
+
+        var cityIds = cityItems.Select(c => c.Id).ToList();
+
+
+
+        return new AreaDetailsDto(area.Id, area.Name, cityIds, cityItems, area.Description, images, Houses: houses);
+    }
 }

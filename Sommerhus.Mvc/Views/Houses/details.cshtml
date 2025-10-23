@@ -99,12 +99,14 @@
             <div class="d-flex gap-3">
                 @foreach (var f in Model.Features)
                 {
-                    <div class="d-flex align-items-center gap-2">
-                        @if (!string.IsNullOrWhiteSpace(f.IconUrl))
-                        {
-                            <img src="@f.IconUrl" alt="ikon" width="28" height="28" />
-                        }
-                        <small>@f.Name</small>
+                    <div class="flex-column">
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrWhiteSpace(f.IconUrl))
+                            {
+                                <img src="@f.IconUrl" alt="ikon" width="28" height="28" />
+                            }
+                            <small>@f.Name</small>
+                        </div>
                     </div>
                 }
             </div>

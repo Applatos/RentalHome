@@ -1,22 +1,68 @@
-@* @using PubAreas = Sommerhus.Contracts.Dtos.Public.Areas
-@model PubAreas.AreaDetailsDto
+@using Sommerhus.Contracts.Dtos.Public.Areas
+@model AreaDetailDto
 @{
     ViewData["Title"] = Model.Name;
+    var error = TempData["Err"] as string;
 }
-<section class="container my-3">
-    <h2>@Model.Name</h2>
-    <div class="mb-3">@Html.Raw(Model.Description)</div>
 
-    @if (Model.Images?.Any() == true)
-    {
-        <div class="row row-cols-2 row-cols-md-4 g-3">
-            @foreach (var img in Model.Images)
-            {
-                <div class="col">
-                    <img src="@img.Url" class="img-fluid rounded" alt="@img.Alt" />
-                </div>
-            }
+<section class="py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h2 mb-1">@Model.Name</h1>
+            <p class="text-muted mb-0">Et kig på området og de tilknyttede sommerhuse.</p>
         </div>
+        <a class="btn btn-outline-secondary" asp-action="Index">Tilbage til oversigten</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(error))
+    {
+        <div class="alert alert-warning" role="alert">@error</div>
     }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    {
+        <div class="mb-4 lead">@Html.Raw(Model.Description)</div>
+    }
+    else
+    {
+        <p class="text-muted">Der er endnu ingen beskrivelse af dette område.</p>
+    }
+
+    @if (Model.Images?.Count > 0)
+    {
+        <section class="mb-4">
+            <h2 class="h4">Stemningsbilleder</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+                @foreach (var image in Model.Images)
+                {
+                    <div class="col">
+                        <div class="ratio ratio-4x3 bg-light rounded overflow-hidden">
+                            <img src="@image.Url" alt="@(!string.IsNullOrWhiteSpace(image.Alt) ? image.Alt : Model.Name)" class="w-100 h-100" style="object-fit: cover;" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <section>
+        <h2 class="h4">Sommerhuse i @Model.Name</h2>
+        @if (Model.Houses?.Count > 0)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var house in Model.Houses)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@house.Title</span>
+                        <a class="btn btn-sm btn-outline-dark" asp-controller="Houses" asp-action="Details" asp-route-id="@house.Id">Se sommerhus</a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">Der er endnu ingen sommerhuse tilknyttet dette område.</p>
+        }
+    </section>
 </section>
- *@
+ 
