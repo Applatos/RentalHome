@@ -12,7 +12,6 @@ public sealed class HousesController(SommerhusApi _api) : Controller
         return RedirectToAction("Houses");
     }
 
-
     // HOUSES (master + pagination)
     [HttpGet("/houses")]
     public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] int page = 0, [FromQuery] int pageSize = 10, CancellationToken ct = default)
@@ -32,9 +31,13 @@ public sealed class HousesController(SommerhusApi _api) : Controller
     [HttpGet("/houses/{id:guid}")]
     public async Task<IActionResult> Details(Guid id, CancellationToken ct)
     {
-        var dto = await _api.GetHouseAsync(id, ct);
-        if (dto is null) return NotFound();
-        return View(dto);
+        var res = await _api.GetHouseAsync(id, ct);
+        if (!res.Ok)
+        {
+            TempData["Err"] = res.Message ?? "could not find house list";
+            return View();
+        }
+        return View(res.Data);
     }
 
     //[HttpPost("/admin/houses/{id:guid}/images/{imgId:guid}/delete")]

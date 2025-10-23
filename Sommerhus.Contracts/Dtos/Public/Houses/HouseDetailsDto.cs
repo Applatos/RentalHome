@@ -11,4 +11,4 @@ public record HouseDetailsDto(
     string? Address,
     string? Description,
     IReadOnlyList<ImageDto> Images,
-    IReadOnlyList<FeatureDetailsDto> Features);
+    IReadOnlyList<FeatureValueDto> Features);

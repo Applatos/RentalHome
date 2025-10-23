@@ -48,6 +48,8 @@ public sealed class AdminApiClient : ApiClientBase
         => PostAsync<object, object>($"api/admin/houses/{houseId}/images/{imageId}/set-kind?kind={Uri.EscapeDataString(kind)}", new { }, ct);
 
 
+
+
     // ===== Features =====
     public Task<ApiResult<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct = default)
     {

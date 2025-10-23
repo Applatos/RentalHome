@@ -75,7 +75,7 @@ public class HousesController(AppDbContext db) : ControllerBase
                 .Where(i => cover is null || i.Id != cover.Id)
                 .OrderBy(i => i.Kind)
                 .ThenBy(i => i.FileName)
-                .Take(3)
+                .Take(5)
                 .Select(i => new ImageDto(
                     i.Id,
                     UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)),
@@ -110,19 +110,22 @@ public class HousesController(AppDbContext db) : ControllerBase
             .ToArray();
 
 
-        FeatureDetailsDto Map(HouseFeatureValue v)
+        var features = h.HouseFeatures
+        .Select(hf =>
         {
-            var f = v.Feature!;
-            var display = string.IsNullOrWhiteSpace(v.RawValue) ? string.Empty :
-                f.ValueType == FeatureValueType.Bool
-                    ? (bool.TryParse(v.RawValue, out var b) ? (b ? "Ja" : "Nej") : string.Empty)
-                    : v.RawValue ?? string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(f.Unit) && !string.IsNullOrWhiteSpace(display))
-                display = $"{display} {f.Unit}";
-
-            return new FeatureDetailsDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, f.IconUrl);
-        }
+            var f = hf.Feature;
+            var icon = string.IsNullOrWhiteSpace(f?.IconUrl) ? null : UrlBuilder.ToAbsolute(Request, f!.IconUrl);
+            return new FeatureValueDto(
+                Id: hf.FeatureId,
+                Name: f.Name,
+                ValueType: f.ValueType.ToString(),
+                Unit: f.Unit,
+                IconUrl: icon,
+                RawValue: hf.RawValue
+            );
+        })
+        .ToList();
 
         return new HouseDetailsDto(
             h.Id,
@@ -132,7 +135,7 @@ public class HousesController(AppDbContext db) : ControllerBase
             h.Address,
             h.Description,
             gallery,
-            h.HouseFeatures.Select(Map).ToArray());
+            features);
     }
 }
 
