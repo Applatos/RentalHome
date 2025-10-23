@@ -1,0 +1,68 @@
+name: "Feature: Pricing v1 (Quote)"
+description: "Implementer backend logik til at beregne prisoverslag baseret på sæson, periode og gebyrer"
+labels: ["feature", "backend", "pricing"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Mål
+        Beregne prisoverslag ("quote") for et hus ud fra datoer og regler.
+        Kun læsning — ingen booking endnu.
+
+  - type: checkboxes
+    id: functional
+    attributes:
+      label: "🧮 Funktionelt"
+      options:
+        - label: Endpoint `POST /api/pricing/quote` returnerer korrekt JSON (currency, nights, items, subtotal, tax, total)
+        - label: Sæsonpriser håndterer skift midt i ophold
+        - label: Rengøringsgebyr og moms beregnes korrekt
+        - label: Ugyldige intervaller (arrival ≥ departure) giver meningsfuld 4xx-fejl
+        - label: Samme input ⇒ samme output
+        - label: Tidszone og datoer håndteres korrekt (DateOnly, Europe/Copenhagen)
+
+  - type: checkboxes
+    id: architecture
+    attributes:
+      label: "🏗️ Arkitektur & struktur"
+      options:
+        - label: Al prislogik ligger i `Sommerhus.Pricing` eller under `Api/Services/Pricing`
+        - label: DI-registrering for `IPriceRule` og `PricingPipeline`
+        - label: Feature flag `Pricing.EnabledV1` kan slå beregning fra
+        - label: DTO’er placeret i `Sommerhus.Contracts`
+
+  - type: checkboxes
+    id: data
+    attributes:
+      label: "💾 Data & migration"
+      options:
+        - label: RateSeason-entitet oprettet (HouseId, Name, StartDate, EndDate, NightlyPrice)
+        - label: Migration kørt og testet
+        - label: Seed med to sæsoner pr. testhus (lav + høj)
+
+  - type: checkboxes
+    id: quality
+    attributes:
+      label: "✅ Kvalitet & tests"
+      options:
+        - label: Unit tests (enkelt sæson, sæsonskift, gebyr, moms, invalid input)
+        - label: Integrationstest mod `/api/pricing/quote`
+        - label: Swagger viser eksempel-payload og response
+        - label: Logging af quote-request med correlation id
+        - label: CI-build kører grønt (build + test)
+
+  - type: checkboxes
+    id: ui
+    attributes:
+      label: "💻 MVC (UI)"
+      options:
+        - label: MVC viser quote (antal nætter, line items, total)
+        - label: Fejl fra API vises pænt til brugeren
+
+  - type: checkboxes
+    id: excluded
+    attributes:
+      label: "🚫 Ikke med i v1"
+      options:
+        - label: Ingen booking-persistens endnu
+        - label: Ingen rabatter, kuponkoder eller multivaluta
