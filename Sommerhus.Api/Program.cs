@@ -1,6 +1,11 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Sommerhus.Api.Data;
-using Microsoft.EntityFrameworkCore;
+using Sommerhus.Api.Pricing;
+using Sommerhus.Pricing.Abstractions;
+using Sommerhus.Pricing.Engine;
+using Sommerhus.Pricing.Engine.Rules;
+
 
 namespace Sommerhus.Api;
 
@@ -18,6 +23,13 @@ public class Program
         });
 
         builder.Services.AddControllers();
+
+        builder.Services.AddScoped<IRatePlanStore, EfRatePlanStore>();
+        builder.Services.AddScoped<IPriceRule, BaseNightlyRateRule>();
+        builder.Services.AddScoped<IPriceRule, SeasonalAdjustmentRule>();
+        builder.Services.AddScoped<IPriceRule, CleaningFeeRule>();
+        builder.Services.AddScoped<IPriceRule, TaxRule>();
+        builder.Services.AddScoped<IPricingPipeline, PricingPipeline>();
 
         // Swagger
         builder.Services.AddEndpointsApiExplorer();

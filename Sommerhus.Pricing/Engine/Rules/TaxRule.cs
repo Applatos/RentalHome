@@ -1,6 +1,4 @@
-﻿
-// 3) Moms (hvis relevant)
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Sommerhus.Pricing.Abstractions;
 
 public sealed class TaxRule : IPriceRule
@@ -9,7 +7,7 @@ public sealed class TaxRule : IPriceRule
     public TaxRule(IConfiguration cfg) => _rate = cfg.GetValue("Pricing:VatRate", 0m);
     public Task ApplyAsync(PricingContext ctx, CancellationToken ct)
     {
-        ctx.Tax = Math.Round(ctx.Subtotal * _rate, 2, MidpointRounding.AwayFromZero);
+        ctx.Tax = Math.Round(ctx.Subtotal * _rate, 2);
         return Task.CompletedTask;
     }
 }

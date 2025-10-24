@@ -9,10 +9,6 @@
 	<!-- References to other projects in solution -->
 	<ItemGroup>
 		<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
-		<ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Models\" />
 	</ItemGroup>
 
 </Project>

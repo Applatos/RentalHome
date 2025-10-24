@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Models;
-using System.Reflection.Emit;
+using Sommerhus.Pricing.Models;
 
 namespace Sommerhus.Api.Data;
 
@@ -16,6 +16,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<Area> Areas => Set<Area>();
     public DbSet<AreaImage> AreaImages => Set<AreaImage>();
+
+    public DbSet<RatePlan> RatePlans => Set<RatePlan>();
+    public DbSet<RateSeason> RateSeasons => Set<RateSeason>();
+    public DbSet<RateModifier> RateModifiers => Set<RateModifier>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -114,5 +118,38 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                         j.ToTable("AreaCities");
                     });
             });
+
+        // Rate plan + pricing
+        b.Entity<RatePlan>(e =>
+        {
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.HasOne<VacationHouse>()
+                .WithMany()
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Seasons)
+                .WithOne(s => s.RatePlan!)
+                .HasForeignKey(s => s.RatePlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Modifiers)
+                .WithOne(m => m.RatePlan!)
+                .HasForeignKey(m => m.RatePlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<RateSeason>(e =>
+        {
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.NightlyPrice).HasColumnType("TEXT");
+            e.HasIndex(x => new { x.RatePlanId, x.StartDate, x.EndDate });
+        });
+
+        b.Entity<RateModifier>(e =>
+        {
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Value).HasColumnType("TEXT");
+            e.HasIndex(x => x.RatePlanId);
+        });
     }
 }

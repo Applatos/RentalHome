@@ -21,7 +21,8 @@
 
 	<ItemGroup>
 	  <Folder Include="wwwroot\uploads\features\" />
-	  <ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
+		<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
+		<ProjectReference Include="..\Sommerhus.Pricing\Sommerhus.Pricing.csproj" />
 	</ItemGroup>
 
 </Project>
