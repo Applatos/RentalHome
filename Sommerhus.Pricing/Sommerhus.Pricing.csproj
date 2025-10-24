@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<!-- References to other projects in solution -->
+	<ItemGroup>
+		<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
+		<ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Models\" />
+	</ItemGroup>
+
+</Project>
