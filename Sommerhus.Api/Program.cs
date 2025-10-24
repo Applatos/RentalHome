@@ -27,8 +27,8 @@ public class Program
         builder.Services.AddScoped<IRatePlanStore, EfRatePlanStore>();
         builder.Services.AddScoped<IPriceRule, BaseNightlyRateRule>();
         builder.Services.AddScoped<IPriceRule, SeasonalAdjustmentRule>();
-        builder.Services.AddScoped<IPriceRule, CleaningFeeRule>();
-        builder.Services.AddScoped<IPriceRule, TaxRule>();
+        //builder.Services.AddScoped<IPriceRule, CleaningFeeRule>();
+        //builder.Services.AddScoped<IPriceRule, TaxRule>();
         builder.Services.AddScoped<IPricingPipeline, PricingPipeline>();
 
         // Swagger
