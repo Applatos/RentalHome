@@ -27,7 +27,7 @@ public static class Seeder
 
         var house = new VacationHouse
         {
-            Id = Guid.NewGuid(),
+            Id = new Guid("5fb7097c-335c-4d07-b4fd-000004e2d28c"),
             Title = "Blåvand Strand 4",
             City = city,
             Address = "Strandvej 4",

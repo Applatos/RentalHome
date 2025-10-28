@@ -1,15 +1,17 @@
 using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
-using System.Collections.Generic;
-using System.Linq;
-
 using Sommerhus.Mvc.Services;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -56,8 +58,34 @@ public sealed class AreaEditVm
 
 public sealed record AreaGalleryVm(Guid AreaId, IReadOnlyList<ImageDto> Images, string? RedirectTo = null);
 
+public class SeasonRow
+{
+    public Guid? Id { get; set; }
+    [Required] public string Name { get; set; } = "";
 
-public sealed class AdminController : Controller
+    [DataType(DataType.Date)] public DateOnly StartDate { get; set; }
+    [DataType(DataType.Date)] public DateOnly EndDate { get; set; }
+
+    [Range(0.01, double.MaxValue)] public decimal NightlyPrice { get; set; }
+    [Range(1, 365)] public int? MinStayNights { get; set; }
+
+    // Markeret i UI, filtreres væk på serveren før mapping
+    public bool IsDeleted { get; set; }
+}
+
+public class HousePricingForm
+{
+    public Guid? PlanId { get; set; }
+
+    [Required] public string Name { get; set; } = "";
+    [Required, StringLength(3)] public string Currency { get; set; } = "DKK";
+    public bool IsActive { get; set; }
+
+    public List<SeasonRow> Seasons { get; set; } = new();
+}
+
+
+    public sealed class AdminController : Controller
 {
     private readonly AdminApiClient _api;
     public AdminController(AdminApiClient api) => _api = api;
@@ -815,4 +843,62 @@ public sealed class AdminController : Controller
         TempData["Err"] ??= citiesRes.Message ?? "Kunne ikke hente byer.";
         return new List<SelectListItem>();
     }
+
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveHousePricing(Guid id, [FromForm] HousePricingForm form, CancellationToken ct = default)
+    {
+        var validSeasons = form.Seasons
+            .Where(s => !s.IsDeleted)
+            .Select(s => new UpsertRateSeasonDto(s.Id, s.Name, s.StartDate, s.EndDate, s.NightlyPrice, s.MinStayNights))
+            .ToList();
+
+        var dto = new UpsertRatePlanDto(form.PlanId, form.Name, form.Currency, form.IsActive, validSeasons);
+
+        if (!ModelState.IsValid)
+        {
+            TempData["Err"] = "Ugyldige felter i prisplan.";
+            return RedirectToAction(nameof(House), new { id, tab = "pricing" });
+        }
+
+        var res = await _api.PutHousePricingAsync(id, dto, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Priser opdateret.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke gemme priser.";
+        }
+
+        return RedirectToAction(nameof(House), new { id, tab = "pricing" });
+    }
+
+    [HttpGet]
+    public IActionResult NewSeasonRow(string currency = "DKK")
+    {
+        var idx = Guid.NewGuid().ToString("N"); // unikt token
+        ViewData["Index"] = idx;
+        ViewData["Currency"] = (currency ?? "DKK").ToUpperInvariant();
+        return PartialView("_SeasonRow", model: null);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteRatePlan(Guid houseId, Guid ratePlanId, CancellationToken ct = default)
+    {
+        var res = await _api.DeleteHouseRatePlanAsync(houseId, ratePlanId, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Prisplan slettet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke slette prisplan.";
+        }
+        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+    }
+
 }

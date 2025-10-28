@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -8,6 +9,8 @@ using Sommerhus.Contracts.Dtos.Admin.Areas;
 using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features;
 using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
 using PubCities = Sommerhus.Contracts.Dtos.Public.Cities;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using Sommerhus.Contracts.Dtos.Admin.Pricing;
 
 namespace Sommerhus.Mvc.Services;
 
@@ -113,6 +116,27 @@ public sealed class AdminApiClient : ApiClientBase
         => DeleteAsync($"api/admin/areas/{areaId}/images/{imageId}", ct);
 
 
+    // ===== Pricing =====
+
+    public Task<ApiResult<RatePlanDetailsDto?>> PutHousePricingAsync(Guid houseId, UpsertRatePlanDto dto, CancellationToken ct)
+        => PutAsync<UpsertRatePlanDto, RatePlanDetailsDto>($"api/admin/houses/{houseId}/pricing", dto, ct);
+
+    public Task<ApiResult<RatePlanDetailsDto?>> GetHousePricingAsync(Guid houseId, CancellationToken ct)
+        => GetAsync<RatePlanDetailsDto>($"api/admin/houses/{houseId}/pricing", ct);
+
+
+
+    //public Task<ApiResult<object?>> ActivateHousePricingAsync(Guid houseId, CancellationToken ct)
+    //    => PostAsync<object, object>($"api/admin/houses/{houseId}/pricing/activate", new { }, ct);
+
+    //public Task<ApiResult<object?>> DeactivateHousePricingAsync(Guid houseId, CancellationToken ct)
+    //    => PostAsync<object, object>($"api/admin/houses/{houseId}/pricing/deactivate", new { }, ct);
+
+    //public Task<ApiResult<object?>> DeleteHousePricingAsync(Guid houseId, CancellationToken ct)
+    //    => DeleteAsync($"api/admin/houses/{houseId}/pricing", ct);
+
+    public Task<ApiResult<object?>> DeleteHouseRatePlanAsync(Guid houseId, Guid ratePlanId, CancellationToken ct)
+        => DeleteAsync($"api/admin/houses/{houseId}/pricing/rate-plans/{ratePlanId}", ct);
 }
 
 

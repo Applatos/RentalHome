@@ -1,0 +1,81 @@
+﻿@using System.Globalization
+@using Sommerhus.Contracts.Dtos.Admin.Pricing
+@model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
+
+@{
+    var plan = Model.Pricing;
+    var seasons = plan?.Seasons ?? Array.Empty<RateSeasonDetailsDto>();
+    var currency = plan?.Currency ?? "DKK";
+}
+
+<form method="post" asp-controller="Admin" asp-action="SaveHousePricing" asp-route-id="@Model.Id" class="mt-3" id="house-pricing-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="PlanId" value="@(plan?.Id.ToString() ?? string.Empty)" />
+
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Prisplan</label>
+            <input class="form-control" name="Name" value="@(plan?.Name ?? "Standard")" placeholder="Standard" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Valuta</label>
+            <input class="form-control text-uppercase" name="Currency" value="@currency" maxlength="3" />
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(plan is null || plan.IsActive ? "checked" : null) id="plan-active" />
+                <label class="form-check-label" for="plan-active">Aktiv</label>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <!-- Tilføj sæson uden JS via htmx -->
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    hx-get="@Url.Action("NewSeasonRow", "Admin", new { currency = currency })"
+                    hx-target="#seasons-body"
+                    hx-swap="beforeend">
+                Tilføj sæson
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table class="table table-sm align-middle" id="pricing-seasons-table">
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th>Startdato</th>
+                    <th>Slutdato</th>
+                    <th>Pris pr. nat</th>
+                    <th>Min. nætter</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="seasons-body">
+                @for (var i = 0; i < seasons.Count; i++)
+                {
+                    var season = seasons[i];
+                    var idx = season.Id.ToString();
+                    @await Html.PartialAsync("_SeasonRow",
+                        model: season,
+                        viewData: new ViewDataDictionary(ViewData) {
+                            ["Index"] = idx,
+                            ["Currency"] = currency
+                        })
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-primary">Gem priser</button>
+    </div>
+</form>
+
+@section Styles {
+    <style>
+        tr.season-row:has(.del-flag:checked) { display: none; }
+    </style>
+}
+   <script src="~/lib/htmx/htmx.min.js"></script> 
+}

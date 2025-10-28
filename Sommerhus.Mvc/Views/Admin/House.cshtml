@@ -28,6 +28,10 @@
             <a class="nav-link @(tab == "features" ? "active" : "")"
                href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "features" })">Features</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "pricing" ? "active" : "")"
+               href="@Url.Action("House", "Admin", new { id = Model.Id, tab = "pricing" })">Priser</a>
+        </li>
     </ul>
 
     <div class="border-start border-end border-bottom p-3 rounded-bottom">
@@ -42,6 +46,10 @@
         else if (tab == "features")
         {
             @await Html.PartialAsync("House._Features", Model)
+        }
+        else if (tab == "pricing")
+        {
+            @await Html.PartialAsync("House._Pricing", Model)
         }
     </div>
 </section>
