@@ -15,14 +15,25 @@ public sealed class EfRatePlanStore : IRatePlanStore
 
     public EfRatePlanStore(AppDbContext db) => _db = db;
 
-    public async Task<RatePlan?> GetActivePlanAsync(Guid houseId, CancellationToken ct)
+    public async Task<PricePlan?> GetActivePlanAsync(Guid houseId, CancellationToken ct)
     {
-        return await _db.RatePlans
+        return await _db.PricePlans
             .AsNoTracking()
-            .Include(p => p.Seasons)
-            .Include(p => p.Modifiers)
+            .Include(p => p.SeasonPrices)
             .Where(p => p.HouseId == houseId && p.IsActive)
             .OrderByDescending(p => p.UpdatedUtc ?? p.CreatedUtc)
             .FirstOrDefaultAsync(ct);
+    }
+
+
+    public async Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid GroupId, CancellationToken ct)
+    {
+        return await _db.SeasonSpans
+            .AsNoTracking()
+            .Include(s => s.GroupId)
+            .Where(s => s.GroupId == GroupId)
+            .OrderBy(s => s.StartDate)
+            .ThenBy(s => s.EndDate)
+            .ToListAsync(ct);
     }
 }

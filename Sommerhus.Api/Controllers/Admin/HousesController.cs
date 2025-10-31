@@ -9,6 +9,7 @@ using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Pricing.Models;
 using System.Numerics;
+using System.Reflection.Metadata;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -65,6 +66,7 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             .Include(x => x.Images)
             .Include(x => x.City)
             .Include(x => x.Areas)
+            .Include(x => x.Group)
             .Include(x => x.HouseFeatures).ThenInclude(x => x.Feature)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -90,16 +92,26 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
         })
         .ToList();
 
-        var plan = await db.RatePlans
+        var plan = await db.PricePlans
             .AsNoTracking()
-            .Include(rp => rp.Seasons)
-            .Include(rp => rp.Modifiers)
-            .Where(rp => rp.HouseId == h.Id && rp.IsActive)
+            .Include(p => p.SeasonPrices)
+            .Where(p => p.HouseId == h.Id && p.IsActive)
             .OrderByDescending(rp => rp.IsActive)
             .ThenByDescending(rp => rp.UpdatedUtc ?? rp.CreatedUtc)
             .FirstOrDefaultAsync(ct);
 
         var planDto = plan is not null ? MapPlan(plan) : null;
+
+        
+        var calenderSegments = await db.SeasonSpans
+            .AsNoTracking()
+            .Where(s => s.GroupId == h.GroupId)
+            .OrderBy(s => s.StartDate)
+            .ThenBy(s => s.EndDate)
+            .Select(s => new SeasonSpanDto(s.Id, s.GroupId, s.StartDate, s.EndDate, s.Code) )
+            .ToListAsync(ct);
+
+
 
 
         var areaItems = h.Areas
@@ -121,6 +133,7 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             h.CreatedUtc,
             features,
             images,
+            calenderSegments,
             planDto);
     }
 
@@ -138,7 +151,6 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             Description = dto.Description,
             CreatedUtc = DateTime.UtcNow
         };
-
 
         var requestedAreaIds = dto.AreaIds?.Where(aid => aid != Guid.Empty).Distinct().ToList() ?? new();
         if (dto.AreaIds is not null && dto.AreaIds.Any(aid => aid == Guid.Empty))
@@ -290,104 +302,80 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
     }
 
     [HttpPut("{houseId:guid}/pricing")]
-    public async Task<IActionResult> UpsertPricing(Guid houseId, [FromBody] UpsertRatePlanDto dto, CancellationToken ct)
+    public async Task<IActionResult> UpsertPricing(Guid houseId, [FromBody] PricePlanDetailsDto dto, CancellationToken ct)
     {
+
+
+        var house = await db.Houses.AsNoTracking().Include(h => h.Group).FirstOrDefaultAsync(ct);
+
         var houseExists = await db.Houses.AsNoTracking().AnyAsync(h => h.Id == houseId, ct);
         if (!houseExists)
             return NotFound();
         // Validate and normalize the incoming DTO
-        var (planName, currency, seasons) = NormalizeRatePlan(dto);
 
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
         // If updating an existing plan, verify it exists
-        var plan = await db.RatePlans
-            .Include(p => p.Seasons)
-            .Where(p => p.HouseId == houseId && p.Id == dto.PlanId)
+        var plan = await db.PricePlans
+            .Include(p => p.SeasonPrices)
+            .Where(p => p.HouseId == houseId && p.Id == dto.planId)
             .OrderByDescending(p => p.IsActive)
             .ThenByDescending(p => p.UpdatedUtc ?? p.CreatedUtc)
             .FirstOrDefaultAsync(ct);
 
-        // If no PlanId provided, get the latest active or most recent plan
-        if (plan is null)
-        {
-            plan = await db.RatePlans
-                .Include(p => p.Seasons)
-                .Where(p => p.HouseId == houseId)
-                .OrderByDescending(p => p.IsActive)
-                .ThenByDescending(p => p.UpdatedUtc ?? p.CreatedUtc)
-                .FirstOrDefaultAsync(ct);
-        }
-
         // If no existing plan found, create a new one
         if (plan is null)
         {
-            plan = new RatePlan
+            plan = new PricePlan
             {
-                Id = dto.PlanId ?? Guid.NewGuid(),
                 HouseId = houseId,
-                CreatedUtc = DateTime.UtcNow
+                Name = dto.Name,
+                Currency = dto.Currency,
             };
-            db.RatePlans.Add(plan);
+            db.PricePlans.Add(plan);
         }
 
-        // If PlanId is provided but not found, return 404
-        if (dto.PlanId.HasValue && plan is null)
-        {
-            return NotFound();
-        }
-
-        plan.Name = planName;
-        plan.Currency = currency;
-        plan.IsActive = dto.IsActive;
-        plan.UpdatedUtc = DateTime.UtcNow;
-
-        await db.RateSeasons
-            .Where(s => s.RatePlanId == plan.Id)
+        //Burde lave transaction her, så alt eller intet bliver gemt. (Lige nu risikere vi at vi sletter felter og derefter fejler uden at gemme nye)
+        await db.SeasonPrices
+            .Where(s => s.PricePlanId == plan.Id)
             .ExecuteDeleteAsync(ct);
 
-        if (seasons.Count > 0)
+        // Add new season rates for a house / plan
+        if (dto.SeasonPrices.Count > 0)
         {
-            var entities = seasons.Select(s => new RateSeason
-            {
-                Id = s.Id ?? Guid.NewGuid(),
-                RatePlanId = plan.Id,
-                Name = s.Name,
-                StartDate = s.Start,
-                EndDate = s.End,
-                NightlyPrice = s.Price,
-                MinStayNights = s.MinStay
+            var entities = dto.SeasonPrices.Select(s => new SeasonPrice {
+                Id = Guid.NewGuid(),
+                PricePlanId = plan.Id,
+                Code = s.Code,
+                NightlyPrice = s.NightlyPrice,
             }).ToList();
-
-            await db.RateSeasons.AddRangeAsync(entities, ct);
+            await db.SeasonPrices.AddRangeAsync(entities, ct);
         }
+
 
         await db.SaveChangesAsync(ct);
 
-        var refreshed = await db.RatePlans
+        var refreshed = await db.PricePlans
             .AsNoTracking()
-            .Include(p => p.Seasons)
+            .Include(p => p.SeasonPrices)
             .FirstAsync(p => p.Id == plan.Id, ct);
 
         return Ok(MapPlan(refreshed));
     }
 
-    private static RatePlanDetailsDto MapPlan(RatePlan plan)
+    private static PricePlanDetailsDto MapPlan(PricePlan plan)
     {
-        var seasons = plan.Seasons
-            .OrderBy(s => s.StartDate)
-            .Select(s => new RateSeasonDetailsDto(
+        var rates = plan.SeasonPrices
+             .OrderBy(s => s.Code, StringComparer.OrdinalIgnoreCase)
+             .Select(s => new SeasonPriceDto(
                 s.Id,
-                s.RatePlanId,
-                s.Name,
-                s.StartDate,
-                s.EndDate,
-                s.NightlyPrice,
-                s.MinStayNights))
+                s.PricePlanId,
+                s.Code,
+                s.NightlyPrice))
             .ToList();
 
-        return new RatePlanDetailsDto(
+        return new PricePlanDetailsDto(
             plan.Id,
             plan.HouseId,
             plan.Name,
@@ -395,101 +383,7 @@ public sealed class HousesController(AppDbContext db) : ControllerBase
             plan.IsActive,
             plan.CreatedUtc,
             plan.UpdatedUtc,
-            seasons);
+            rates);
     }
 
-    private (string Name, string Currency, List<NormalizedSeason> Seasons) NormalizeRatePlan(UpsertRatePlanDto dto)
-    {
-        var name = dto.Name?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            ModelState.AddModelError(nameof(dto.Name), "Planens navn er påkrævet.");
-        }
-        else if (name.Length > 100)
-        {
-            ModelState.AddModelError(nameof(dto.Name), "Planens navn må højst være 100 tegn.");
-        }
-
-        var currency = (dto.Currency ?? string.Empty).Trim().ToUpperInvariant();
-        if (currency.Length != 3 || currency.Any(c => !char.IsLetter(c)))
-        {
-            ModelState.AddModelError(nameof(dto.Currency), "Valuta skal være en ISO-kode med 3 bogstaver.");
-        }
-
-        var seasons = NormalizeSeasons(dto);
-        return (name, currency, seasons);
-    }
-
-    private List<NormalizedSeason> NormalizeSeasons(UpsertRatePlanDto dto)
-    {
-        var normalized = new List<NormalizedSeason>();
-
-        if (dto.Seasons is null || dto.Seasons.Count == 0)
-        {
-            ModelState.AddModelError(nameof(dto.Seasons), "Tilføj mindst én sæson.");
-            return normalized;
-        }
-
-        for (var index = 0; index < dto.Seasons.Count; index++)
-        {
-            var season = dto.Seasons[index];
-            if (season is null)
-            {
-                ModelState.AddModelError($"{nameof(dto.Seasons)}[{index}]", "Sæson er påkrævet.");
-                continue;
-            }
-
-            var name = season.Name?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                ModelState.AddModelError($"{nameof(dto.Seasons)}[{index}].Name", "Navn er påkrævet.");
-                continue;
-            }
-
-            var start = season.StartDate;
-            var end = season.EndDate;
-            if (end < start)
-            {
-                ModelState.AddModelError($"{nameof(dto.Seasons)}[{index}]", $"Slutdato skal være efter startdato for '{name}'.");
-                continue;
-            }
-
-            var price = decimal.Round(season.NightlyPrice, 2, MidpointRounding.AwayFromZero);
-            if (price <= 0)
-            {
-                ModelState.AddModelError($"{nameof(dto.Seasons)}[{index}].NightlyPrice", $"Pris for '{name}' skal være positiv.");
-                continue;
-            }
-
-            int? minStay = null;
-            if (season.MinStayNights is not null)
-            {
-                if (season.MinStayNights < 1)
-                {
-                    ModelState.AddModelError($"{nameof(dto.Seasons)}[{index}].MinStayNights", $"Minimumsnætter for '{name}' skal være mindst 1.");
-                    continue;
-                }
-
-                minStay = season.MinStayNights;
-            }
-
-            normalized.Add(new NormalizedSeason(season.Id, name, start, end, price, minStay));
-        }
-
-        var ordered = normalized.OrderBy(s => s.Start).ToList();
-        for (var i = 1; i < ordered.Count; i++)
-        {
-            var prev = ordered[i - 1];
-            var current = ordered[i];
-            if (current.Start <= prev.End)
-            {
-                ModelState.AddModelError(nameof(UpsertRatePlanDto.Seasons), $"Sæson '{current.Name}' overlapper med '{prev.Name}'.");
-                break;
-            }
-        }
-
-        return normalized;
-    }
-
-    public record NormalizedSeason(Guid? Id, string Name, DateOnly Start, DateOnly End, decimal Price, int? MinStay);
 }

@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Sommerhus.Contracts.Dtos.Pricing;
+namespace Sommerhus.Contracts.Dtos.Shared;
 
 public record PriceQuoteRequestDto(Guid HouseId, DateOnly Arrival, DateOnly Departure, int Guests, Guid? AreaId);
 

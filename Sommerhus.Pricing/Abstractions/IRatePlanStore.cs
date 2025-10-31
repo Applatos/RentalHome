@@ -7,5 +7,6 @@ namespace Sommerhus.Pricing.Abstractions;
 
 public interface IRatePlanStore
 {
-    Task<RatePlan?> GetActivePlanAsync(Guid houseId, CancellationToken ct);
+    Task<PricePlan?> GetActivePlanAsync(Guid houseId, CancellationToken ct);
+    Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid houseId, CancellationToken ct);
 }

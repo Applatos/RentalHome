@@ -17,9 +17,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Area> Areas => Set<Area>();
     public DbSet<AreaImage> AreaImages => Set<AreaImage>();
 
-    public DbSet<RatePlan> RatePlans => Set<RatePlan>();
-    public DbSet<RateSeason> RateSeasons => Set<RateSeason>();
-    public DbSet<RateModifier> RateModifiers => Set<RateModifier>();
+    public DbSet<HouseGroup> HouseGroups => Set <HouseGroup>();
+
+
+    // Pricing
+    public DbSet<PricePlan> PricePlans => Set<PricePlan>();
+    public DbSet<PriceModifier> PriceModifiers => Set<PriceModifier>();
+    public DbSet<SeasonPrice> SeasonPrices => Set<SeasonPrice>();
+    public DbSet<SeasonCode> SeasonCodes => Set<SeasonCode>();
+    public DbSet<SeasonSpan> SeasonSpans => Set<SeasonSpan>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -64,6 +70,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .WithOne(v => v.House!)
                 .HasForeignKey(v => v.HouseId)
                 .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Group)
+                .WithMany()
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         b.Entity<HouseImage>(e =>
@@ -120,32 +130,51 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             });
 
         // Rate plan + pricing
-        b.Entity<RatePlan>(e =>
+        b.Entity<PricePlan>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(4);
             e.HasOne<VacationHouse>()
                 .WithMany()
                 .HasForeignKey(x => x.HouseId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasMany(x => x.Seasons)
-                .WithOne(s => s.RatePlan!)
-                .HasForeignKey(s => s.RatePlanId)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasMany(x => x.Modifiers)
-                .WithOne(m => m.RatePlan!)
-                .HasForeignKey(m => m.RatePlanId)
+            e.HasMany(x => x.SeasonPrices)
+                .WithOne(s => s.PricePlan!)
+                .HasForeignKey(s => s.PricePlanId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        b.Entity<RateSeason>(e =>
+
+        b.Entity<SeasonPrice>(e =>
         {
-            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.NightlyPrice).HasColumnType("TEXT");
-            e.HasIndex(x => new { x.RatePlanId, x.StartDate, x.EndDate });
+            e.Property(x => x.Code).IsRequired().HasMaxLength(10);
+            e.HasIndex(x => new { x.PricePlanId, x.Code }).IsUnique();
+            e.HasOne<PricePlan>()
+                .WithMany(p => p.SeasonPrices)
+                .HasForeignKey(x => x.PricePlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<SeasonCode>()
+                .WithMany()
+                .HasForeignKey(x => x.Code)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<RateModifier>(e =>
+        b.Entity<SeasonSpan>(e =>
+        {
+            e.HasOne<SeasonCode>()
+                .WithMany()
+                .HasForeignKey(x => x.Code)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<HouseGroup>()
+                .WithMany()
+                .HasForeignKey(x => x.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.StartDate).IsRequired();
+            e.Property(x => x.EndDate).IsRequired();
+            e.HasIndex(x => new { x.GroupId, x.StartDate, x.EndDate }).IsUnique();
+        });
+
+        b.Entity<PriceModifier>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
             e.Property(x => x.Value).HasColumnType("TEXT");

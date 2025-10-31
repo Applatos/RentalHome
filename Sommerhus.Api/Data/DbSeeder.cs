@@ -36,7 +36,38 @@ public static class Seeder
             Areas = new List<Area> { area }
         };
 
+        var seasonA = new SeasonCode
+        {
+            Code = "A",
+            Color = "#FF5733",
+            Name = "Højsæson"
+        };
+
+
+        var seasonB = new SeasonCode
+        {
+            Code = "B",
+            Name = "Sommer",
+            Color = "#33C1FF"
+        };
+
+        var groupA = new HouseGroup
+        {
+            Id = Guid.NewGuid(),
+            Name = "Vesterhavet"
+        };
+
+        var groupB = new HouseGroup
+        {
+            Id = Guid.NewGuid(),
+            Name = "Tyskland"
+        };
+
+
+
+        db.SeasonCodes.AddRange(seasonA, seasonB);
         db.Features.AddRange(boolF, sizeF);
+        db.AddRange(groupA, groupB);
         db.Cities.AddRange(cities);
         db.Areas.Add(area);
         db.Houses.Add(house);
@@ -46,78 +77,53 @@ public static class Seeder
             new HouseFeatureValue { House = house, Feature = sizeF, RawValue = "210" }
         );
 
-
-        var seasons = new List<RateSeason>();
+        var CalenderSegments = new List<SeasonSpan>();
         var currentYear = DateTime.UtcNow.Year;
-        foreach (var year in new[] { currentYear, currentYear + 1 })
+        var seededYears = new[] { currentYear, currentYear + 1 };
+
+        foreach (var year in seededYears)
         {
             var winterEndDay = DateTime.IsLeapYear(year) ? 29 : 28;
-            seasons.Add(new RateSeason
-            {
-                Name = $"Vinter {year}",
+            CalenderSegments.Add( new SeasonSpan {
+                GroupId = groupA.Id,
+                Id = Guid.NewGuid(),
+                Code = "A",
                 StartDate = new DateOnly(year, 1, 1),
-                EndDate = new DateOnly(year, 2, winterEndDay),
-                NightlyPrice = 800m
+                EndDate = new DateOnly(year, 2, winterEndDay)
             });
-
-            seasons.Add(new RateSeason
+            CalenderSegments.Add(new SeasonSpan
             {
-                Name = $"Forår {year}",
+                Id = Guid.NewGuid(),
+                GroupId = groupB.Id,
+                Code = "B",
                 StartDate = new DateOnly(year, 3, 1),
-                EndDate = new DateOnly(year, 5, 31),
-                NightlyPrice = 950m
+                EndDate = new DateOnly(year, 5, 31)
             });
+        };
 
-            seasons.Add(new RateSeason
-            {
-                Name = $"Sommer {year}",
-                StartDate = new DateOnly(year, 6, 1),
-                EndDate = new DateOnly(year, 8, 31),
-                NightlyPrice = 1400m,
-                MinStayNights = 3
-            });
+        var seasonRates = new List<SeasonPrice>
+        {
+            new SeasonPrice { Code = "A", NightlyPrice = 800m },
+            new SeasonPrice { Code = "B", NightlyPrice = 950m },
+        };
 
-            seasons.Add(new RateSeason
-            {
-                Name = $"Efterår {year}",
-                StartDate = new DateOnly(year, 9, 1),
-                EndDate = new DateOnly(year, 12, 31),
-                NightlyPrice = 850m
-            });
-        }
 
-        var plan = new RatePlan
+
+        var plan = new PricePlan
         {
             HouseId = house.Id,
             Name = "Standard",
             Currency = "DKK",
-            Seasons = seasons,
-            Modifiers =
-            {
-                new RateModifier
-                {
-                    Name = "Weekend-tillæg",
-                    Scope = PriceScope.PerNight,
-                    Kind = AdjustmentKind.Absolute,
-                    Value = 200m,
-                    Trigger = ModifierTrigger.Weekend
-                },
-                new RateModifier
-                {
-                    Name = "Langtidsrabat",
-                    Scope = PriceScope.PerBooking,
-                    Kind = AdjustmentKind.Percent,
-                    Value = -0.1m,
-                    Trigger = ModifierTrigger.MinNights,
-                    ThresholdNights = 7
-                }
-            }
+            SeasonPrices = seasonRates
         };
 
-        db.RatePlans.Add(plan);
+        db.PricePlans.Add(plan);
+        db.SeasonSpans.AddRange(CalenderSegments);
 
         db.SaveChanges();
     }
+
+    
 
 
     private static List<City> LoadDanishCities()

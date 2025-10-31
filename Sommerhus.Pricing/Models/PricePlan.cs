@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sommerhus.Pricing.Models;
 
-public class RatePlan
+public class PricePlan
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -20,7 +20,5 @@ public class RatePlan
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedUtc { get; set; }
 
-    public ICollection<RateSeason> Seasons { get; set; } = new List<RateSeason>();
-    public ICollection<RateModifier> Modifiers { get; set; } = new List<RateModifier>();
+    public ICollection<SeasonPrice> SeasonPrices { get; set; } = new List<SeasonPrice>();
 }
-

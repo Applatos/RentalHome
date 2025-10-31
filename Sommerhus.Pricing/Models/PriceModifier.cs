@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Sommerhus.Pricing.Models;
 
 // RateModifier.cs
-public class RateModifier
+public class PriceModifier
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid RatePlanId { get; set; }
@@ -23,5 +23,5 @@ public class RateModifier
 
     public bool IsActive { get; set; } = true;
 
-    public RatePlan? RatePlan { get; set; }
+    public PricePlan? RatePlan { get; set; }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sommerhus.Api.Data;
 
@@ -10,9 +11,11 @@ using Sommerhus.Api.Data;
 namespace Sommerhus.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251029162540_PricingKalenderSeasonV2")]
+    partial class PricingKalenderSeasonV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
@@ -207,22 +210,6 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("HouseFeatures");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.HouseGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("HouseGroups");
-                });
-
             modelBuilder.Entity("Sommerhus.Api.Models.HouseImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -276,9 +263,6 @@ namespace Sommerhus.Api.Migrations
                     b.Property<string>("Facilities")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("GroupId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -288,9 +272,53 @@ namespace Sommerhus.Api.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("Houses");
+                });
+
+            modelBuilder.Entity("Sommerhus.Pricing.Models.HouseGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HouseGroups");
+                });
+
+            modelBuilder.Entity("Sommerhus.Pricing.Models.HouseSeasonSpan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("HouseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseId", "StartDate", "EndDate")
+                        .IsUnique();
+
+                    b.ToTable("HouseSeasonSpans");
                 });
 
             modelBuilder.Entity("Sommerhus.Pricing.Models.PriceModifier", b =>
@@ -329,7 +357,7 @@ namespace Sommerhus.Api.Migrations
 
                     b.HasIndex("RatePlanId");
 
-                    b.ToTable("PriceModifiers");
+                    b.ToTable("RateModifiers");
                 });
 
             modelBuilder.Entity("Sommerhus.Pricing.Models.PricePlan", b =>
@@ -367,28 +395,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("PricePlans");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonCode", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("SeasonCodes");
-                });
-
-            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonPrice", b =>
+            modelBuilder.Entity("Sommerhus.Pricing.Models.PricePlanCodePrice", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -410,17 +417,15 @@ namespace Sommerhus.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code");
-
                     b.HasIndex("PricePlanId1");
 
                     b.HasIndex("PricePlanId", "Code")
                         .IsUnique();
 
-                    b.ToTable("SeasonPrices");
+                    b.ToTable("SeasonRates");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonSpan", b =>
+            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonCode", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -430,23 +435,16 @@ namespace Sommerhus.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("EndDate")
+                    b.Property<string>("Color")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code");
-
-                    b.HasIndex("GroupId", "StartDate", "EndDate")
-                        .IsUnique();
-
-                    b.ToTable("SeasonSpans");
+                    b.ToTable("SeasonCodes");
                 });
 
             modelBuilder.Entity("AreaCities", b =>
@@ -539,14 +537,16 @@ namespace Sommerhus.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Sommerhus.Api.Models.HouseGroup", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("City");
+                });
 
-                    b.Navigation("Group");
+            modelBuilder.Entity("Sommerhus.Pricing.Models.HouseSeasonSpan", b =>
+                {
+                    b.HasOne("Sommerhus.Api.Models.VacationHouse", null)
+                        .WithMany()
+                        .HasForeignKey("HouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sommerhus.Pricing.Models.PriceModifier", b =>
@@ -569,14 +569,8 @@ namespace Sommerhus.Api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonPrice", b =>
+            modelBuilder.Entity("Sommerhus.Pricing.Models.PricePlanCodePrice", b =>
                 {
-                    b.HasOne("Sommerhus.Pricing.Models.SeasonCode", null)
-                        .WithMany()
-                        .HasForeignKey("Code")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Sommerhus.Pricing.Models.PricePlan", null)
                         .WithMany("SeasonPrices")
                         .HasForeignKey("PricePlanId")
@@ -588,21 +582,6 @@ namespace Sommerhus.Api.Migrations
                         .HasForeignKey("PricePlanId1");
 
                     b.Navigation("PricePlan");
-                });
-
-            modelBuilder.Entity("Sommerhus.Pricing.Models.SeasonSpan", b =>
-                {
-                    b.HasOne("Sommerhus.Pricing.Models.SeasonCode", null)
-                        .WithMany()
-                        .HasForeignKey("Code")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sommerhus.Api.Models.HouseGroup", null)
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>

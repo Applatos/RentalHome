@@ -1,4 +1,4 @@
-﻿using Sommerhus.Contracts.Dtos.Pricing;
+﻿using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Pricing.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ public sealed class PricingPipeline : IPricingPipeline
     private readonly IEnumerable<IPriceRule> _rules;
     public PricingPipeline(IEnumerable<IPriceRule> rules) => _rules = rules;
 
-    public async Task<PriceQuoteResult> QuoteAsync(PriceQuoteRequest req, CancellationToken ct)
+    public async Task<PriceQuoteResponseDto> QuoteAsync(PriceQuoteRequestDto req, CancellationToken ct)
     {
 
         var ctx = new PricingContext { Request = req };
@@ -17,7 +17,7 @@ public sealed class PricingPipeline : IPricingPipeline
             await r.ApplyAsync(ctx, ct);
         }
 
-        return new PriceQuoteResult(
+        return new PriceQuoteResponseDto(
             ctx.Currency,
             ctx.Nights.Count(),
             ctx.Items,

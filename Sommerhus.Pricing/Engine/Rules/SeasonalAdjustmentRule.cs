@@ -20,36 +20,36 @@ public class SeasonalAdjustmentRule : IPriceRule
         if (nights.Count == 0) return;
 
         var plan = ctx.RatePlan ??= await _store.GetActivePlanAsync(ctx.Request.HouseId, ct);
-        if (plan is null || plan.Modifiers.Count == 0) return;
+        //if (plan is null || plan.Modifiers.Count == 0) return;
 
         var baseTotal = nights.Sum(n => ctx.NightlyRates.TryGetValue(n, out var rate) ? rate : 0m);
         var weekendNights = nights.Where(IsWeekendNight).ToList();
 
-        foreach (var modifier in plan.Modifiers.Where(m => m.IsActive))
-        {
-            if (modifier.Scope == PriceScope.PerNight)
-            {
-                var applicableNights = FilterNightsForModifier(modifier, nights, weekendNights);
-                if (applicableNights.Count == 0) continue;
+        //foreach (var modifier in plan.Modifiers.Where(m => m.IsActive))
+        //{
+        //    if (modifier.Scope == PriceScope.PerNight)
+        //    {
+        //        var applicableNights = FilterNightsForModifier(modifier, nights, weekendNights);
+        //        if (applicableNights.Count == 0) continue;
 
-                var amount = CalculatePerNightAmount(modifier, applicableNights, ctx);
-                if (amount == 0) continue;
+        //        var amount = CalculatePerNightAmount(modifier, applicableNights, ctx);
+        //        if (amount == 0) continue;
 
-                ctx.Items.Add(new PriceLineItem("MOD", modifier.Name, amount));
-            }
-            else
-            {
-                if (!ShouldApplyBookingModifier(modifier, nights.Count, weekendNights.Count)) continue;
+        //        ctx.Items.Add(new PriceLineItem("MOD", modifier.Name, amount));
+        //    }
+        //    else
+        //    {
+        //        if (!ShouldApplyBookingModifier(modifier, nights.Count, weekendNights.Count)) continue;
 
-                var amount = CalculatePerBookingAmount(modifier, baseTotal);
-                if (amount == 0) continue;
+        //        var amount = CalculatePerBookingAmount(modifier, baseTotal);
+        //        if (amount == 0) continue;
 
-                ctx.Items.Add(new PriceLineItem("MOD", modifier.Name, amount));
-            }
-        }
+        //        ctx.Items.Add(new PriceLineItem("MOD", modifier.Name, amount));
+        //    }
+        //}
     }
 
-    private static IReadOnlyList<DateOnly> FilterNightsForModifier(RateModifier modifier, IReadOnlyList<DateOnly> nights, IReadOnlyList<DateOnly> weekendNights)
+    private static IReadOnlyList<DateOnly> FilterNightsForModifier(PriceModifier modifier, IReadOnlyList<DateOnly> nights, IReadOnlyList<DateOnly> weekendNights)
     {
         return modifier.Trigger switch
         {
@@ -62,7 +62,7 @@ public class SeasonalAdjustmentRule : IPriceRule
         };
     }
 
-    private static bool ShouldApplyBookingModifier(RateModifier modifier, int nightsCount, int weekendNightCount)
+    private static bool ShouldApplyBookingModifier(PriceModifier modifier, int nightsCount, int weekendNightCount)
     {
         return modifier.Trigger switch
         {
@@ -73,7 +73,7 @@ public class SeasonalAdjustmentRule : IPriceRule
         };
     }
 
-    private static decimal CalculatePerNightAmount(RateModifier modifier, IReadOnlyList<DateOnly> nights, PricingContext ctx)
+    private static decimal CalculatePerNightAmount(PriceModifier modifier, IReadOnlyList<DateOnly> nights, PricingContext ctx)
     {
         if (nights.Count == 0) return 0;
 
@@ -85,7 +85,7 @@ public class SeasonalAdjustmentRule : IPriceRule
         };
     }
 
-    private static decimal CalculatePerBookingAmount(RateModifier modifier, decimal baseTotal)
+    private static decimal CalculatePerBookingAmount(PriceModifier modifier, decimal baseTotal)
     {
         return modifier.Kind switch
         {

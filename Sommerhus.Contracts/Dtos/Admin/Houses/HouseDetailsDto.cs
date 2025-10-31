@@ -16,5 +16,6 @@ public record HouseDetailsDto(
     DateTime CreatedUtc,
     IReadOnlyList<FeatureValueDto>? Features,
     IReadOnlyList<ImageDto>? Images,
-    RatePlanDetailsDto? Pricing);
+    IReadOnlyList<SeasonSpanDto> Calendar,
+    PricePlanDetailsDto? Pricing);
 

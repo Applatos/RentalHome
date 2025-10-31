@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Sommerhus.Pricing.Abstractions;
+using Sommerhus.Contracts.Dtos.Shared;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ public sealed class CleaningFeeRule : IPriceRule
     }
     public Task ApplyAsync(PricingContext ctx, CancellationToken ct)
     {
-        if (_fee > 0) ctx.Items.Add(new PriceLineItem("CLEAN", "Rengøring", _fee));
+        if (_fee > 0) ctx.Items.Add(new PriceQuoteLineItemDto("CLEAN", "Rengøring", _fee));
         return Task.CompletedTask;
     }
 }

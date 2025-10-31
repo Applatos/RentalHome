@@ -22,4 +22,8 @@ public class VacationHouse
 
     public List<HouseImage> Images { get; set; } = new();
     public List<HouseFeatureValue> HouseFeatures { get; set; } = new();
+
+    public Guid? GroupId { get; set; }           // FK → HouseGroup
+    public HouseGroup? Group { get; set; } 
+
 }

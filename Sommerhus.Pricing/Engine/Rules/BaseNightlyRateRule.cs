@@ -1,5 +1,6 @@
 ﻿// Base nightly price fra RateSeason
 using Sommerhus.Pricing.Abstractions;
+using Sommerhus.Contracts.Dtos.Shared;
 using System;
 using System.Linq;
 using System.Threading;
@@ -20,19 +21,29 @@ public sealed class BaseNightlyRateRule : IPriceRule
 
         ctx.Currency = plan.Currency;
 
-        // Hent sæsoner der overlapper
+        var calendar = await _store.GetSeasonCalendarAsync(ctx.Request.HouseId, ct);
+        if (calendar.Count == 0 || plan.SeasonPrices.Count == 0) return;
+
+        var rateLookup = plan.SeasonPrices
+            .ToDictionary(r => r.Code, r => r, StringComparer.OrdinalIgnoreCase);
+
         var from = nights.First();
         var to = nights.Last();
 
-        var seasons = plan.Seasons
-            .Where(s => (s.StartDate <= to) && (s.EndDate >= from))
+
+        var relevantSegments = calendar
+            .Where(s => s.StartDate <= to && s.EndDate >= from)
             .ToList();
 
         foreach (var date in nights)
         {
-            var season = seasons.FirstOrDefault(x => x.StartDate <= date && date <= x.EndDate);
-            ctx.NightlyRates[date] = season!.NightlyPrice;
-            ctx.Items.Add(new PriceLineItem("BASE", $"Nat {date} ({season.Name})", season.NightlyPrice));
+            var segment = relevantSegments.FirstOrDefault(x => x.StartDate <= date && date <= x.EndDate);
+            if (segment is null) continue;
+
+            if (!rateLookup.TryGetValue(segment.Code, out var rate)) continue;
+
+            ctx.NightlyRates[date] = rate.NightlyPrice;
+            ctx.Items.Add(new PriceQuoteLineItemDto("BASE", $"Nat {date} ({segment.Code})", rate.NightlyPrice));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Sommerhus.Contracts.Dtos.Pricing;
+﻿using Sommerhus.Contracts.Dtos.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace Sommerhus.Pricing.Abstractions
 {
     public interface IPricingPipeline
     {
-        Task<PriceQuoteResult> QuoteAsync(PriceQuoteRequest req, CancellationToken ct);
+        Task<PriceQuoteResponseDto> QuoteAsync(PriceQuoteRequestDto req, CancellationToken ct);
     }
 }
