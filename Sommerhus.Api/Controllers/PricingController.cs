@@ -69,7 +69,7 @@ public class PricingController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("/admin/calendar/group/{groupId:guid}/spans")]
+    [HttpPut("admin/calendar/group/{groupId:guid}/spans")]
     public async Task<ActionResult<IEnumerable<SeasonSpanDto>>> UpsertGroupSpans(Guid groupId, [FromBody] IReadOnlyList<SeasonSpanDto> spans, CancellationToken ct)
     {
         var groupExists = await _db.HouseGroups
@@ -131,7 +131,7 @@ public class PricingController : ControllerBase
         }
     }
 
-    [HttpGet("/admin/pricing/plans/{houseId:guid}")]
+    [HttpGet("admin/pricing/plans/{houseId:guid}")]
     public async Task<ActionResult<IEnumerable<PricePlanDetailsDto>>> listPricePlans(Guid houseId, CancellationToken ct)
     {
         var plans = await _db.PricePlans
