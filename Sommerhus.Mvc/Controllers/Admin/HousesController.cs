@@ -58,30 +58,28 @@ public sealed class AreaEditVm
 
 public sealed record AreaGalleryVm(Guid AreaId, IReadOnlyList<ImageDto> Images, string? RedirectTo = null);
 
-public class SeasonRow
+public class SeasonPriceRow
 {
     public Guid? Id { get; set; }
-    [Required] public string Name { get; set; } = "";
+    public Guid? RatePlanId { get; set; }
+    public string Code { get; set; } = string.Empty;
+    [Range(0.00, double.MaxValue)] public decimal? NightlyPrice { get; set; }
 
-    [DataType(DataType.Date)] public DateOnly StartDate { get; set; }
-    [DataType(DataType.Date)] public DateOnly EndDate { get; set; }
-
-    [Range(0.01, double.MaxValue)] public decimal NightlyPrice { get; set; }
-    [Range(1, 365)] public int? MinStayNights { get; set; }
-
-    // Markeret i UI, filtreres væk på serveren før mapping
-    public bool IsDeleted { get; set; }
 }
 
 public class HousePricingForm
 {
     public Guid? PlanId { get; set; }
 
-    [Required] public string Name { get; set; } = "";
-    [Required, StringLength(3)] public string Currency { get; set; } = "DKK";
+    [Required] 
+    public string Name { get; set; } = "";
+    
+    [Required, StringLength(3)] 
+    public string Currency { get; set; } = "DKK";
+
     public bool IsActive { get; set; }
 
-    public List<SeasonRow> Seasons { get; set; } = new();
+    public List<SeasonPriceRow> SeasonPrices { get; set; } = new();
 }
 
 
@@ -136,9 +134,37 @@ public class HousePricingForm
         {
             ViewBag.AllFeatures ??= Array.Empty<FeatureDetailsDto>();
         }
+
+        if (string.Equals(tab, "pricing"))
+        {
+            await PopulateSeasonCodesAsync(ct); // skal implementere denne metode   
+        }
+        else
+        {
+            ViewBag.SeasonCodes ??= Array.Empty<SeasonCodeDto>();
+            ViewBag.SeasonCodesError ??= null;
+        }
+
+
         ViewBag.Tab = tab;
         return View(res.Data);
     }
+
+    private async Task PopulateSeasonCodesAsync(CancellationToken ct)
+    {
+        var codesRes = await _api.GetSeasonCodesAsync(ct);
+        if (codesRes.Ok && codesRes.Data is not null)
+        {
+            ViewBag.SeasonCodes = codesRes.Data;
+            ViewBag.SeasonCodesError = null;
+        }
+        else
+        {
+            ViewBag.SeasonCodes = Array.Empty<SeasonCodeDto>();
+            ViewBag.SeasonCodesError = codesRes.Message ?? "Kunne ikke hente sæsonkoder.";
+        }
+    }
+
 
     // ========== Opret nyt hus ==========
     public async Task<IActionResult> NewHouse(CancellationToken ct)
@@ -850,18 +876,35 @@ public class HousePricingForm
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveHousePricing(Guid id, [FromForm] HousePricingForm form, CancellationToken ct = default)
     {
-        var validSeasons = form.Seasons
-            .Where(s => !s.IsDeleted)
-            .Select(s => new UpsertRateSeasonDto(s.Id, s.Name, s.StartDate, s.EndDate, s.NightlyPrice, s.MinStayNights))
-            .ToList();
-
-        var dto = new UpsertRatePlanDto(form.PlanId, form.Name, form.Currency, form.IsActive, validSeasons);
 
         if (!ModelState.IsValid)
         {
             TempData["Err"] = "Ugyldige felter i prisplan.";
             return RedirectToAction(nameof(House), new { id, tab = "pricing" });
         }
+
+        var trimmedCurrency = (form.Currency ?? "DKK").Trim().ToUpperInvariant();
+        var planName = string.IsNullOrWhiteSpace(form.Name) ? "Standard" : form.Name.Trim();
+
+        var priceRows = form.SeasonPrices
+            .Where(p => !string.IsNullOrWhiteSpace(p.Code) && p.NightlyPrice is not null)
+            .Select(p => new SeasonPriceDto(
+                p.Id ?? Guid.Empty,
+                p.RatePlanId ?? form.PlanId ?? Guid.Empty,
+                p.Code.Trim().ToUpperInvariant(),
+                p.NightlyPrice!.Value))
+            .ToList();
+
+        var dto = new PricePlanDetailsDto(
+            form.PlanId ?? Guid.Empty,
+            id,
+            planName,
+            trimmedCurrency,
+            form.IsActive,
+            DateTime.UtcNow,
+            DateTime.UtcNow,
+            priceRows);
+
 
         var res = await _api.PutHousePricingAsync(id, dto, ct);
         if (res.Ok)
@@ -876,14 +919,6 @@ public class HousePricingForm
         return RedirectToAction(nameof(House), new { id, tab = "pricing" });
     }
 
-    [HttpGet]
-    public IActionResult NewSeasonRow(string currency = "DKK")
-    {
-        var idx = Guid.NewGuid().ToString("N"); // unikt token
-        ViewData["Index"] = idx;
-        ViewData["Currency"] = (currency ?? "DKK").ToUpperInvariant();
-        return PartialView("_SeasonRow", model: null);
-    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]

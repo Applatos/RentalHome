@@ -1,16 +1,9 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
-using AdmFeats = Sommerhus.Contracts.Dtos.Admin.Features;
-using AdmHouses = Sommerhus.Contracts.Dtos.Admin.Houses;
-using PubCities = Sommerhus.Contracts.Dtos.Public.Cities;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using Sommerhus.Contracts.Dtos.Admin.Pricing;
+using Sommerhus.Contracts.Dtos.Shared;
+
 
 namespace Sommerhus.Mvc.Services;
 
@@ -118,13 +111,11 @@ public sealed class AdminApiClient : ApiClientBase
 
     // ===== Pricing =====
 
-    public Task<ApiResult<RatePlanDetailsDto?>> PutHousePricingAsync(Guid houseId, UpsertRatePlanDto dto, CancellationToken ct)
-        => PutAsync<UpsertRatePlanDto, RatePlanDetailsDto>($"api/admin/houses/{houseId}/pricing", dto, ct);
+    public Task<ApiResult<PricePlanDetailsDto?>> PutHousePricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
+        => PutAsync<PricePlanDetailsDto, PricePlanDetailsDto>($"api/admin/houses/{houseId}/pricing", dto, ct);
 
-    public Task<ApiResult<RatePlanDetailsDto?>> GetHousePricingAsync(Guid houseId, CancellationToken ct)
-        => GetAsync<RatePlanDetailsDto>($"api/admin/houses/{houseId}/pricing", ct);
-
-
+    public Task<ApiResult<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct = default)
+        => GetAsync<IReadOnlyList<SeasonCodeDto>>("api/season-codes", ct);
 
     //public Task<ApiResult<object?>> ActivateHousePricingAsync(Guid houseId, CancellationToken ct)
     //    => PostAsync<object, object>($"api/admin/houses/{houseId}/pricing/activate", new { }, ct);

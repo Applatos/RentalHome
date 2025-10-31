@@ -17,6 +17,11 @@ public static class Seeder
         var cities = LoadDanishCities();
         var city = cities.FirstOrDefault(c => c.Zip == "6857") ?? cities.First();
 
+
+        var groupA = new HouseGroup { Id = Guid.NewGuid(), Name = "Vesterhavet"};
+        var groupB = new HouseGroup{ Id = Guid.NewGuid(), Name = "Tyskland" };
+
+
         var area = new Area
         {
             Id = Guid.NewGuid(),
@@ -33,35 +38,14 @@ public static class Seeder
             Address = "Strandvej 4",
             Description = "Super dejligt poolhus ...",
             Facilities = "Trådløst internet, Brændeovn ...",
-            Areas = new List<Area> { area }
+            Areas = new List<Area> { area },
+            Group = groupA
         };
 
-        var seasonA = new SeasonCode
-        {
-            Code = "A",
-            Color = "#FF5733",
-            Name = "Højsæson"
-        };
+        var seasonA = new SeasonCode { Code = "A", Color = "#FF5733", Name = "Højsæson" };
 
 
-        var seasonB = new SeasonCode
-        {
-            Code = "B",
-            Name = "Sommer",
-            Color = "#33C1FF"
-        };
-
-        var groupA = new HouseGroup
-        {
-            Id = Guid.NewGuid(),
-            Name = "Vesterhavet"
-        };
-
-        var groupB = new HouseGroup
-        {
-            Id = Guid.NewGuid(),
-            Name = "Tyskland"
-        };
+        var seasonB = new SeasonCode { Code = "B", Name = "Sommer", Color = "#33C1FF" };
 
 
 
