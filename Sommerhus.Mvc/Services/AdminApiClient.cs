@@ -117,24 +117,23 @@ public sealed class AdminApiClient : ApiClientBase
     public Task<ApiResult<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct = default)
         => GetAsync<IReadOnlyList<SeasonCodeDto>>("api/season-codes", ct);
 
-    //public Task<ApiResult<object?>> ActivateHousePricingAsync(Guid houseId, CancellationToken ct)
-    //    => PostAsync<object, object>($"api/admin/houses/{houseId}/pricing/activate", new { }, ct);
-
-    //public Task<ApiResult<object?>> DeactivateHousePricingAsync(Guid houseId, CancellationToken ct)
-    //    => PostAsync<object, object>($"api/admin/houses/{houseId}/pricing/deactivate", new { }, ct);
-
-    //public Task<ApiResult<object?>> DeleteHousePricingAsync(Guid houseId, CancellationToken ct)
-    //    => DeleteAsync($"api/admin/houses/{houseId}/pricing", ct);
-
     public Task<ApiResult<object?>> DeleteHouseRatePlanAsync(Guid houseId, Guid ratePlanId, CancellationToken ct)
         => DeleteAsync($"api/admin/houses/{houseId}/pricing/rate-plans/{ratePlanId}", ct);
+
+
+
+
+    // ===== House groups & season codes =====
+    public Task<ApiResult<IReadOnlyList<LookupItem>?>> GetHouseGroupsAsync(CancellationToken ct = default)
+        => GetAsync<IReadOnlyList<LookupItem>>("api/admin/house-groups", ct);
+
+    public Task<ApiResult<LookupItem?>> CreateHouseGroupAsync(HouseGroupDto dto, CancellationToken ct = default)
+        => PostAsync<HouseGroupDto, LookupItem>("api/admin/house-groups", dto, ct);
+
+    public Task<ApiResult<SeasonCodeDto?>> CreateSeasonCodeAsync(SeasonCodeDto dto, CancellationToken ct = default)
+        => PostAsync<SeasonCodeDto, SeasonCodeDto>("api/season-codes", dto, ct);
+
 }
-
-
-
-//    // ===== Cities (admin lister) =====
-//    //public Task<IReadOnlyList<PubCities.CityListItemDto>> GetCitiesAsync(CancellationToken ct)
-//    //    => GetListAsync<PubCities.CityListItemDto>("api/admin/cities", ct);
 
 
 

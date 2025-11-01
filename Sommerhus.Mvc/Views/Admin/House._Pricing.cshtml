@@ -27,7 +27,7 @@
         displayRows.Add((code.Code, code.Label, code.Color, existingPrice));
     }
 
-    var knownCodes = new HashSet<string>(displayRows.Select(r => r.Code), StringComparer.OrdinalIgnoreCase);
+    var knownCodes = new HashSet<string>(displayRows.Select(r => r.Code));
     foreach (var price in planPrices.OrderBy(p => p.Code, StringComparer.OrdinalIgnoreCase))
     {
         if (knownCodes.Add(price.Code))

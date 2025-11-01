@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Sommerhus.Api.Data;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Pricing.Abstractions;
-using Sommerhus.Api.Data;
-using System.Linq;
 using Sommerhus.Pricing.Models;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Sommerhus.Api.Controllers;
 
@@ -206,6 +207,57 @@ public class PricingController : ControllerBase
             .ToListAsync(ct);
 
         return Ok(rows);
+    }
+
+
+    [HttpPost("season-codes")]
+    public async Task<ActionResult<SeasonCodeDto>> CreateSeasonCode([FromBody] SeasonCodeDto dto, CancellationToken ct)
+    {
+        if (dto is null || string.IsNullOrWhiteSpace(dto.Code))
+        {
+            return BadRequest("Kode er påkrævet.");
+        }
+
+        var code = dto.Code.Trim().ToUpperInvariant();
+
+        var exists = await _db.SeasonCodes
+            .AsNoTracking()
+            .AnyAsync(c => c.Code == code, ct);
+
+        if (exists)
+        {
+            return Conflict($"Sæsonkoden '{code}' findes allerede.");
+        }
+
+        string? color = null;
+        if (!string.IsNullOrWhiteSpace(dto.Color))
+        {
+            var normalized = dto.Color.Trim();
+            if (!Regex.IsMatch(normalized, "^#?[0-9A-Fa-f]{6}$"))
+            {
+                return BadRequest("Farvekoden skal være et hex-format på 6 cifre.");
+            }
+
+            color = normalized.StartsWith("#", StringComparison.Ordinal)
+                ? normalized.ToUpperInvariant()
+                : $"#{normalized.ToUpperInvariant()}";
+        }
+
+        var sortOrder = Math.Max(0, dto.SortOrder);
+
+        var entity = new SeasonCode
+        {
+            Code = code,
+            Name = string.IsNullOrWhiteSpace(dto.Label) ? code : dto.Label.Trim(),
+            Color = color ?? "#6C757D",
+            SortOrder = sortOrder
+        };
+
+        await _db.SeasonCodes.AddAsync(entity, ct);
+        await _db.SaveChangesAsync(ct);
+
+        var result = new SeasonCodeDto(entity.Code, entity.Name, entity.Color, entity.SortOrder);
+        return Created($"season-codes/{entity.Code}", result);
     }
 
 }

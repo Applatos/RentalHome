@@ -67,6 +67,37 @@ public class SeasonPriceRow
 
 }
 
+public sealed class CreateHouseGroupForm
+{
+    [Required, StringLength(100)]
+    public string Name { get; set; } = string.Empty;
+}
+
+public sealed class CreateSeasonCodeForm
+{
+    [Required, StringLength(10)]
+    public string Code { get; set; } = string.Empty;
+
+    [StringLength(100)]
+    public string? Label { get; set; }
+
+    [StringLength(7)]
+    public string? Color { get; set; }
+
+    [Range(0, 1000)]
+    public int SortOrder { get; set; }
+}
+
+public sealed class PricingAdminVm
+{
+    public IReadOnlyList<LookupItem> Groups { get; init; } = Array.Empty<LookupItem>();
+    public IReadOnlyList<SeasonCodeDto> SeasonCodes { get; init; } = Array.Empty<SeasonCodeDto>();
+    public CreateHouseGroupForm GroupForm { get; init; } = new();
+    public CreateSeasonCodeForm SeasonCodeForm { get; init; } = new();
+    public string? GroupError { get; init; }
+    public string? SeasonError { get; init; }
+}
+
 public class HousePricingForm
 {
     public Guid? PlanId { get; set; }
@@ -137,7 +168,7 @@ public class HousePricingForm
 
         if (string.Equals(tab, "pricing"))
         {
-            await PopulateSeasonCodesAsync(ct); // skal implementere denne metode   
+            await PopulateSeasonCodesAsync(ct);
         }
         else
         {
@@ -935,5 +966,123 @@ public class HousePricingForm
         }
         return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
     }
+
+
+    // ===== Pricing setup =====
+    [HttpGet("/admin/pricing")]
+    public async Task<IActionResult> Pricing(CancellationToken ct = default)
+    {
+        ViewData["AdminTab"] = "pricing";
+        var vm = await BuildPricingVmAsync(null, null, ct);
+        return View(vm);
+    }
+
+    [HttpPost("/admin/pricing/groups")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateHouseGroup([FromForm][Bind(Prefix = "GroupForm")] CreateHouseGroupForm form, CancellationToken ct = default)
+    {
+        ViewData["AdminTab"] = "pricing";
+
+        if (!ModelState.IsValid)
+        {
+            var invalidVm = await BuildPricingVmAsync(form, null, ct);
+            return View("Pricing", invalidVm);
+        }
+
+        var res = await _api.CreateHouseGroupAsync(new HouseGroupDto(form.Name), ct);
+
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Gruppe oprettet.";
+            return RedirectToAction(nameof(Pricing));
+        }
+
+        if (res.Errors is { Count: > 0 })
+        {
+            foreach (var (key, errors) in res.Errors)
+            {
+                var targetKey = string.IsNullOrWhiteSpace(key) ? "GroupForm.Name" : $"GroupForm.{key}";
+                foreach (var error in errors)
+                {
+                    ModelState.AddModelError(targetKey, error);
+                }
+            }
+        }
+        else
+        {
+            ModelState.AddModelError("GroupForm.Name", res.Message ?? "Kunne ikke oprette gruppe.");
+        }
+
+        var vm = await BuildPricingVmAsync(form, null, ct);
+        return View("Pricing", vm);
+    }
+
+    [HttpPost("/admin/pricing/season-codes")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateSeasonCode([FromForm][Bind(Prefix = "SeasonCodeForm")] CreateSeasonCodeForm form, CancellationToken ct = default)
+    {
+        ViewData["AdminTab"] = "pricing";
+
+        if (!ModelState.IsValid)
+        {
+            var invalidVm = await BuildPricingVmAsync(null, form, ct);
+            return View("Pricing", invalidVm);
+        }
+
+        var dto = new SeasonCodeDto(form.Code, form.Label, form.Color, form.SortOrder);
+        var res = await _api.CreateSeasonCodeAsync(dto, ct);
+
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Sæsonkode oprettet.";
+            return RedirectToAction(nameof(Pricing));
+        }
+
+        if (res.Errors is { Count: > 0 })
+        {
+            foreach (var (key, errors) in res.Errors)
+            {
+                var targetKey = string.IsNullOrWhiteSpace(key) ? "SeasonCodeForm.Code" : $"SeasonCodeForm.{key}";
+                foreach (var error in errors)
+                {
+                    ModelState.AddModelError(targetKey, error);
+                }
+            }
+        }
+        else
+        {
+            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? "Kunne ikke oprette sæsonkode.");
+        }
+
+        var vm = await BuildPricingVmAsync(null, form, ct);
+        return View("Pricing", vm);
+    }
+
+    private async Task<PricingAdminVm> BuildPricingVmAsync(
+        CreateHouseGroupForm? groupForm,
+        CreateSeasonCodeForm? codeForm,
+        CancellationToken ct)
+    {
+        var groupsRes = await _api.GetHouseGroupsAsync(ct);
+        var seasonCodesRes = await _api.GetSeasonCodesAsync(ct);
+
+        var vm = new PricingAdminVm
+        {
+            Groups = groupsRes.Data ?? Array.Empty<LookupItem>(),
+            SeasonCodes = seasonCodesRes.Data ?? Array.Empty<SeasonCodeDto>(),
+            GroupForm = groupForm ?? new CreateHouseGroupForm(),
+            SeasonCodeForm = codeForm ?? new CreateSeasonCodeForm(),
+            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? "Kunne ikke hente grupper.",
+            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? "Kunne ikke hente sæsonkoder."
+        };
+
+        if (codeForm is null && vm.SeasonCodes.Count > 0 && vm.SeasonCodeForm.SortOrder == 0)
+        {
+            vm.SeasonCodeForm.SortOrder = vm.SeasonCodes.Max(c => c.SortOrder) + 1;
+        }
+
+        return vm;
+    }
+
 
 }
