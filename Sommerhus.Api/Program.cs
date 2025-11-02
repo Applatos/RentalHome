@@ -24,11 +24,13 @@ public class Program
 
         builder.Services.AddControllers();
 
+        builder.Services.AddScoped<Services.Admin.Houses.AdminHouseService>();
+        builder.Services.AddScoped<Services.Admin.Areas.AdminAreaService>();
+        builder.Services.AddScoped<Services.Public.Houses.PublicHouseService>();
+
         builder.Services.AddScoped<IRatePlanStore, EfRatePlanStore>();
         builder.Services.AddScoped<IPriceRule, BaseNightlyRateRule>();
-        builder.Services.AddScoped<IPriceRule, SeasonalAdjustmentRule>();
-        //builder.Services.AddScoped<IPriceRule, CleaningFeeRule>();
-        //builder.Services.AddScoped<IPriceRule, TaxRule>();
+        builder.Services.AddScoped<IPriceRule, CleaningFeeRule>();
         builder.Services.AddScoped<IPricingPipeline, PricingPipeline>();
 
         // Swagger
@@ -49,7 +51,7 @@ public class Program
                 .AllowCredentials());
         });
         var app = builder.Build();
-        app.UseDeveloperExceptionPage();
+
 
         app.UseStaticFiles();
         app.UseCors("mvc");
@@ -66,9 +68,13 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.Database.EnsureDeleted();
             await db.Database.MigrateAsync();
-            Seeder.SeedMinimal(db);
+
+            if (app.Environment.IsDevelopment())
+            {
+                Seeder.SeedMinimal(db);
+            }
+
         }
 
         await app.RunAsync();
