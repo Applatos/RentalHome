@@ -1,4 +1,4 @@
-﻿namespace Sommerhus.Api.Models;
+﻿namespace Sommerhus.Domain.Models;
 public class AreaCities
 {
     public Guid AreaId { get; set; } 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Models;
+using Sommerhus.Domain.Models;
 using Sommerhus.Pricing.Models;
 
 namespace Sommerhus.Api.Data;

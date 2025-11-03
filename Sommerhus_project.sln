@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Contracts", "Somm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Pricing", "Sommerhus.Pricing\Sommerhus.Pricing.csproj", "{4C205ADB-5099-431B-B8B2-C63C35218F4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Domain", "Sommerhus.Domain\Sommerhus.Domain.csproj", "{DC9D8845-583A-4CE2-AF75-0131996621CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.Build.0 = Release|Any CPU
+                {DC9D8845-583A-4CE2-AF75-0131996621CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {DC9D8845-583A-4CE2-AF75-0131996621CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {DC9D8845-583A-4CE2-AF75-0131996621CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {DC9D8845-583A-4CE2-AF75-0131996621CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
