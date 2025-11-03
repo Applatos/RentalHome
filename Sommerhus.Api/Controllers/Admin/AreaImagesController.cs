@@ -1,73 +1,69 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
-using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
+using Sommerhus.Api.Infrastructure.Storage;
+using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/areas/{areaId:guid}/images")]
-public sealed class AreaImagesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
+public sealed class AreaImagesController(AppDbContext db, IImageStorage storage) : ControllerBase
 {
-    private static string Folder(Guid areaId) => Path.Combine("uploads", "areas", areaId.ToString());
-
     [HttpGet]
-    public async Task<IEnumerable<object>> List(Guid areaId, CancellationToken ct)
+    public async Task<IEnumerable<ImageDto>> List(Guid areaId, CancellationToken ct)
     {
-        var imgs = await db.AreaImages.Where(i => i.AreaId == areaId)
-            .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => new
-            {
-                i.Id,
-                Url = UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(areaId, i.FileName))
-            })
+        var images = await db.AreaImages.AsNoTracking()
+            .Where(i => i.AreaId == areaId)
+            .OrderBy(i => i.SortOrder)
+            .ThenBy(i => i.Id)
+            .Select(i => new { i.Id, i.FileName })
             .ToListAsync(ct);
 
-        return imgs;
+        return images.Select(i => new ImageDto(
+            i.Id,
+            storage.GetUrl(Request, ImageCategory.Area, areaId, i.FileName),
+            null,
+            "Gallery"));
     }
 
     [HttpPost]
     [RequestSizeLimit(50_000_000)]
-    public async Task<ActionResult<object>> Upload(Guid areaId, IFormFile file, CancellationToken ct)
+    public async Task<ActionResult<ImageDto>> Upload(Guid areaId, IFormFile file, CancellationToken ct)
     {
-        var exists = await db.Areas.AnyAsync(a => a.Id == areaId, ct);
-        if (!exists) return NotFound();
+        var exists = await db.Areas.AsNoTracking().AnyAsync(a => a.Id == areaId, ct);
+        if (!exists)
+        {
+            return NotFound();
+        }
 
-        if (file is null || file.Length == 0) return BadRequest("Tom fil");
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest("Tom fil");
+        }
 
-        var ext = Path.GetExtension(file.FileName);
-        var safeName = $"{Guid.NewGuid():N}{ext}";
-        var relFolder = Folder(areaId);
-        var absFolder = Path.Combine(env.WebRootPath, relFolder);
-        Directory.CreateDirectory(absFolder);
+        var stored = await storage.SaveAsync(ImageCategory.Area, areaId, file, ct);
 
-        var absPath = Path.Combine(absFolder, safeName);
-        using (var fs = System.IO.File.Create(absPath))
-            await file.CopyToAsync(fs, ct);
-
-        var img = new AreaImage { AreaId = areaId, FileName = safeName, SortOrder = 0 };
-        db.AreaImages.Add(img);
+        var image = new AreaImage { AreaId = areaId, FileName = stored.FileName, SortOrder = 0 };
+        db.AreaImages.Add(image);
         await db.SaveChangesAsync(ct);
 
-        return Ok(new
-        {
-            img.Id,
-            Url = UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(areaId, img.FileName))
-        });
+        var dto = new ImageDto(image.Id, storage.GetUrl(Request, ImageCategory.Area, areaId, image.FileName), null, "Gallery");
+        return CreatedAtAction(nameof(List), new { areaId }, dto);
     }
 
     [HttpDelete("{imageId:guid}")]
     public async Task<IActionResult> Delete(Guid areaId, Guid imageId, CancellationToken ct)
     {
-        var img = await db.AreaImages.FirstOrDefaultAsync(i => i.Id == imageId && i.AreaId == areaId, ct);
-        if (img is null) return NotFound();
+        var image = await db.AreaImages.FirstOrDefaultAsync(i => i.Id == imageId && i.AreaId == areaId, ct);
+        if (image is null)
+        {
+            return NotFound();
+        }
 
-        db.AreaImages.Remove(img);
+        db.AreaImages.Remove(image);
         await db.SaveChangesAsync(ct);
 
-        var abs = Path.Combine(env.WebRootPath, Folder(areaId), img.FileName);
-        if (System.IO.File.Exists(abs)) System.IO.File.Delete(abs);
+        await storage.DeleteAsync(ImageCategory.Area, areaId, image.FileName, ct);
 
         return NoContent();
     }

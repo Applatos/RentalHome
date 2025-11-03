@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
 using Sommerhus.Api.Models;
 using Microsoft.AspNetCore.Http;
-using Sommerhus.Api.Utils;
 using Sommerhus.Api.Services.Admin.Houses;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Api.Infrastructure;

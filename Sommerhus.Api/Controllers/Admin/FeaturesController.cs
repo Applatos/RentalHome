@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
 using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/features")]
-public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
+public sealed class FeaturesController(AppDbContext db, IImageStorage storage) : ControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<FeatureDetailsDto>> GetAll(CancellationToken ct)
@@ -21,7 +21,7 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
 
         return items.Select(f => new FeatureDetailsDto(
             f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit,
-            f.IconUrl is null ? null : UrlBuilder.ToAbsolute(Request, f.IconUrl)
+            storage.GetUrl(Request, f.IconUrl)
         ));
     }
 
@@ -135,25 +135,15 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
             return BadRequest("Kun PNG og JPEG er tilladt.");
 
         // Gem filen
-        var root = Path.Combine(env.WebRootPath, "uploads", "features", id.ToString());
-        Directory.CreateDirectory(root);
+        await storage.DeleteAsync(feature.IconUrl, ct);
 
-        var ext = Path.GetExtension(file.FileName);
-        var safeName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid():N}{ext}";
-        var fullPath = Path.Combine(root, safeName);
+        var stored = await storage.SaveAsync(ImageCategory.Feature, id, file, ct);
 
-        var diskPath = UrlBuilder.FeatureIconDiskPath(env, id, safeName);
-        Directory.CreateDirectory(Path.GetDirectoryName(diskPath)!);
-
-        using (var stream = System.IO.File.Create(diskPath))
-            await file.CopyToAsync(stream, ct);
-
-        // Opdater database
-        feature.IconUrl = UrlBuilder.FeatureIconWebPath(id, safeName);
+        feature.IconUrl = stored.RelativePath;
         await db.SaveChangesAsync(ct);
 
         // Returner den absolutte URL
-        var absolute = UrlBuilder.ToAbsolute(Request, feature.IconUrl);
+        var absolute = storage.GetUrl(Request, feature.IconUrl);
         return Ok(new { iconUrl = absolute });
     }
 
@@ -163,6 +153,7 @@ public sealed class FeaturesController(AppDbContext db, IWebHostEnvironment env)
         var feature = await db.Features.FirstOrDefaultAsync(f => f.Id == id, ct);
         if (feature is null) return NotFound();
 
+        await storage.DeleteAsync(feature.IconUrl, ct);
         feature.IconUrl = null;
         await db.SaveChangesAsync(ct);
         return NoContent();

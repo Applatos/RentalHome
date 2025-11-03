@@ -4,9 +4,9 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
 
@@ -15,10 +15,12 @@ namespace Sommerhus.Api.Services.Admin.Areas;
 public sealed class AdminAreaService
 {
     private readonly AppDbContext db;
+    private readonly IImageStorage imageStorage;
 
-    public AdminAreaService(AppDbContext db)
+    public AdminAreaService(AppDbContext db, IImageStorage imageStorage)
     {
         this.db = db;
+        this.imageStorage = imageStorage;
     }
 
     public async Task<IReadOnlyList<AreaListItemDto>> GetAllAsync(CancellationToken ct)
@@ -239,7 +241,7 @@ public sealed class AdminAreaService
         }
     }
 
-    private static AreaDetailsDto MapDetails(Area area, HttpRequest request)
+    private AreaDetailsDto MapDetails(Area area, HttpRequest request)
     {
         var houses = area.Houses
             .OrderBy(h => h.Title)
@@ -250,7 +252,11 @@ public sealed class AdminAreaService
         var images = area.AreaImages
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
+            .Select(i => new ImageDto(
+                i.Id,
+                imageStorage.GetUrl(request, ImageCategory.Area, area.Id, i.FileName),
+                null,
+                "Gallery"))
             .ToList();
 
         var cityItems = area.Cities

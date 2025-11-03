@@ -1,20 +1,20 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Sommerhus.Contracts.Dtos.Public.Houses;
-using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
-using Sommerhus.Api.Data;
-using Sommerhus.Contracts.Dtos.Admin.Features;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Sommerhus.Api.Infrastructure.Storage;
+using Sommerhus.Api.Models;
+using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Public.Houses;
+using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public class HousesController(AppDbContext db) : ControllerBase
+public class HousesController(AppDbContext db, IImageStorage storage) : ControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<HouseListItemDto>> Search(
@@ -69,7 +69,7 @@ public class HousesController(AppDbContext db) : ControllerBase
 
             string? coverUrl = cover is null
                 ? null
-                : UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(cover.HouseId, cover.FileName));
+                : storage.GetUrl(Request, ImageCategory.House, cover.HouseId, cover.FileName);
 
             var gallery = h.Images
                 .Where(i => cover is null || i.Id != cover.Id)
@@ -78,7 +78,7 @@ public class HousesController(AppDbContext db) : ControllerBase
                 .Take(5)
                 .Select(i => new ImageDto(
                     i.Id,
-                    UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)),
+                    storage.GetUrl(Request, ImageCategory.House, i.HouseId, i.FileName),
                     i.Alt,
                     i.Kind.ToString()))
                 .ToArray();
@@ -106,26 +106,24 @@ public class HousesController(AppDbContext db) : ControllerBase
         if (h is null) return NotFound();
 
         var gallery = h.Images
-            .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()))
+            .Select(i => new ImageDto(i.Id, storage.GetUrl(Request, ImageCategory.House, i.HouseId, i.FileName), i.Alt, i.Kind.ToString()))
             .ToArray();
 
-
         var features = h.HouseFeatures
-        .Select(hf =>
-        {
-
-            var f = hf.Feature;
-            var icon = string.IsNullOrWhiteSpace(f?.IconUrl) ? null : UrlBuilder.ToAbsolute(Request, f!.IconUrl);
-            return new FeatureValueDto(
-                Id: hf.FeatureId,
-                Name: f.Name,
-                ValueType: f.ValueType.ToString(),
-                Unit: f.Unit,
-                IconUrl: icon,
-                RawValue: hf.RawValue
-            );
-        })
-        .ToList();
+            .Select(hf =>
+            {
+                var f = hf.Feature;
+                var icon = storage.GetUrl(Request, f?.IconUrl);
+                return new FeatureValueDto(
+                    Id: hf.FeatureId,
+                    Name: f?.Name ?? string.Empty,
+                    ValueType: f?.ValueType.ToString() ?? string.Empty,
+                    Unit: f?.Unit,
+                    IconUrl: icon,
+                    RawValue: hf.RawValue
+                );
+            })
+            .ToList();
 
         return new HouseDetailsDto(
             h.Id,
@@ -178,6 +176,6 @@ static class HouseSummaryFormatter
             }
         }
 
-        return normalized[..maxLength].TrimEnd() + "…";
+        return normalized[..maxLength].TrimEnd();
     }
 }
