@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Repository;
 using Sommerhus.Domain.Models;
-using Sommerhus.Api.Infrastructure.Storage;
+using Sommerhus.Application.Storage;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 
 namespace Sommerhus.Api.Controllers.Admin;

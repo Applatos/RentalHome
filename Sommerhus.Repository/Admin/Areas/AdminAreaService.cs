@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Repository;
-using Sommerhus.Api.Infrastructure.Storage;
-using Sommerhus.Api.Services.Shared;
+using Sommerhus.Application.Admin.Areas;
+using Sommerhus.Application.Common;
+using Sommerhus.Application.Storage;
 using Sommerhus.Domain.Models;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
 
-namespace Sommerhus.Api.Services.Admin.Areas;
+namespace Sommerhus.Repository.Admin.Areas;
 
-public sealed class AdminAreaService
+public sealed class AdminAreaService : IAdminAreaService
 {
     private readonly AppDbContext db;
     private readonly IImageStorage imageStorage;

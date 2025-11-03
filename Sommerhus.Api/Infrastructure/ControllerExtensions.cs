@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Api.Services.Shared;
+using Sommerhus.Application.Common;
 
 namespace Sommerhus.Api.Infrastructure;
 

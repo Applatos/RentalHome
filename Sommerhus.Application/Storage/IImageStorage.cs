@@ -1,4 +1,6 @@
-namespace Sommerhus.Api.Infrastructure.Storage;
+using Microsoft.AspNetCore.Http;
+
+namespace Sommerhus.Application.Storage;
 
 public enum ImageCategory
 {

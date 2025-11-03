@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Pricing", "Sommer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Domain", "Sommerhus.Domain\Sommerhus.Domain.csproj", "{1817D833-C83E-440C-8DE1-1693927DA3B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Application", "Sommerhus.Application\Sommerhus.Application.csproj", "{05C3D68F-733F-4E57-AD7B-5B730F057FAC}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Repository", "Sommerhus.Repository\Sommerhus.Repository.csproj", "{C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}"
 EndProject
 Global
@@ -23,6 +25,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05C3D68F-733F-4E57-AD7B-5B730F057FAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05C3D68F-733F-4E57-AD7B-5B730F057FAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05C3D68F-733F-4E57-AD7B-5B730F057FAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05C3D68F-733F-4E57-AD7B-5B730F057FAC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4D291809-426B-4816-951D-406EE90A004F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D291809-426B-4816-951D-406EE90A004F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D291809-426B-4816-951D-406EE90A004F}.Release|Any CPU.ActiveCfg = Release|Any CPU

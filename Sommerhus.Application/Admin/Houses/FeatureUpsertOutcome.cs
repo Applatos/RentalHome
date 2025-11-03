@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Sommerhus.Api.Services.Admin.Houses;
+namespace Sommerhus.Application.Admin.Houses;
 
 public sealed record FeatureUpsertOutcome(bool HouseFound, IReadOnlyList<Guid> MissingFeatureIds)
 {
