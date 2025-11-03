@@ -28,7 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
+    <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
+        <ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
 	<ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
   </ItemGroup>
 

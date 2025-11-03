@@ -98,7 +98,7 @@
 //            return Conflict(new ProblemDetails
 //            {
 //                Title = "Kan ikke slette postnummer/by",
-//                Detail = "Postnummer/by er i brug (fx huse/områder/billeder refererer til den). Fjern referencerne først.",
+//                Detail = "Postnummer/by er i brug (fx huse/omrder/billeder refererer til den). Fjern referencerne frst.",
 //                Status = StatusCodes.Status409Conflict,
 //                Instance = HttpContext?.Request?.Path.Value
 //            });
