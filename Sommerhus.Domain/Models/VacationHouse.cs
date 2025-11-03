@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Sommerhus.Api.Models;
+namespace Sommerhus.Domain.Models;
 
 public class VacationHouse
 {

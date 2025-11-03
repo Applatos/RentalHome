@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
 using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Services.Shared;
-using Sommerhus.Api.Models;
+using Sommerhus.Domain.Models;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
 

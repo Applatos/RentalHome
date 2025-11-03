@@ -20,7 +20,7 @@ namespace Sommerhus.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
 
-            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Area", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("Areas");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.AreaImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.AreaImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,7 +77,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("AreaImages");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.City", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.City", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,7 +109,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("Cities");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.CityImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.CityImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,7 +138,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("CityImages");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.Feature", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Feature", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -176,7 +176,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("Features");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.HouseFeatureValue", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.HouseFeatureValue", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +202,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("HouseFeatureValues");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.HouseImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.HouseImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,7 +231,7 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.VacationHouse", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.VacationHouse", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -277,9 +277,9 @@ namespace Sommerhus.Api.Migrations
                     b.ToTable("Houses");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Area", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.City", "City")
+                    b.HasOne("Sommerhus.Domain.Models.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -287,9 +287,9 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.AreaImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.AreaImage", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.Area", "Area")
+                    b.HasOne("Sommerhus.Domain.Models.Area", "Area")
                         .WithMany("AreaImages")
                         .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -298,9 +298,9 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("Area");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.CityImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.CityImage", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.City", "City")
+                    b.HasOne("Sommerhus.Domain.Models.City", "City")
                         .WithMany("Images")
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -309,15 +309,15 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.HouseFeatureValue", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.HouseFeatureValue", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.Feature", "Feature")
+                    b.HasOne("Sommerhus.Domain.Models.Feature", "Feature")
                         .WithMany("Values")
                         .HasForeignKey("FeatureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sommerhus.Api.Models.VacationHouse", "House")
+                    b.HasOne("Sommerhus.Domain.Models.VacationHouse", "House")
                         .WithMany("HouseFeatures")
                         .HasForeignKey("HouseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -328,9 +328,9 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("House");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.HouseImage", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.HouseImage", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.VacationHouse", "House")
+                    b.HasOne("Sommerhus.Domain.Models.VacationHouse", "House")
                         .WithMany("Images")
                         .HasForeignKey("HouseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -339,14 +339,14 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("House");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.VacationHouse", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.VacationHouse", b =>
                 {
-                    b.HasOne("Sommerhus.Api.Models.Area", "Area")
+                    b.HasOne("Sommerhus.Domain.Models.Area", "Area")
                         .WithMany("Houses")
                         .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Sommerhus.Api.Models.City", "City")
+                    b.HasOne("Sommerhus.Domain.Models.City", "City")
                         .WithMany("Houses")
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -357,26 +357,26 @@ namespace Sommerhus.Api.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.Area", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Area", b =>
                 {
                     b.Navigation("AreaImages");
 
                     b.Navigation("Houses");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.City", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.City", b =>
                 {
                     b.Navigation("Houses");
 
                     b.Navigation("Images");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.Feature", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Feature", b =>
                 {
                     b.Navigation("Values");
                 });
 
-            modelBuilder.Entity("Sommerhus.Api.Models.VacationHouse", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.VacationHouse", b =>
                 {
                     b.Navigation("HouseFeatures");
 
