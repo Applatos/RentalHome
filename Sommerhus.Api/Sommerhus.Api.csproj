@@ -6,24 +6,17 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<!-- EF Core -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+        <ItemGroup>
+                <!-- Swagger / OpenAPI -->
+                <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+        </ItemGroup>
 
-		<!-- Swagger / OpenAPI -->
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="wwwroot\uploads\features\" />
-		<ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
+        <ItemGroup>
+          <Folder Include="wwwroot\uploads\features\" />
+                <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
                 <ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
-		<ProjectReference Include="..\Sommerhus.Pricing\Sommerhus.Pricing.csproj" />
-	</ItemGroup>
+                <ProjectReference Include="..\Sommerhus.Pricing\Sommerhus.Pricing.csproj" />
+                <ProjectReference Include="..\Sommerhus.Repository\Sommerhus.Repository.csproj" />
+        </ItemGroup>
 
 </Project>

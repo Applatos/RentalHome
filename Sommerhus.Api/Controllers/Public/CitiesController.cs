@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 using Sommerhus.Contracts.Dtos.Public.Cities;
 
 namespace Sommerhus.Api.Controllers.Public;

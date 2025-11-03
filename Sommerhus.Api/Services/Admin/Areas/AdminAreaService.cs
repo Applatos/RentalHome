@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Domain.Models;
