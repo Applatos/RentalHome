@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
-using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Public.Cities;
 using Sommerhus.Contracts.Dtos.Shared;
 
@@ -19,22 +17,9 @@ public sealed class CitiesController(AppDbContext db) : ControllerBase
             .ToListAsync(ct);
 
     [HttpGet("lookup")]
-    public async Task<IReadOnlyList<LookupItem>> GetCities(CancellationToken ct)
-    => await db.Cities
-        .OrderBy(c => c.Zip)
-        .Select(c => new LookupItem(c.Id, c.Zip + " – " + c.Name))
-        .ToListAsync(ct);
-
-    [HttpGet("search")]
-    public async Task<IReadOnlyList<LookupItem>> Search(string term, CancellationToken ct)
-    {
-        term = term?.Trim() ?? "";
-        return await db.Cities
-            .Where(c => c.Name.Contains(term) || c.Zip.Contains(term))
-            .OrderBy(c => c.Zip).Take(20)
-            .Select(c => new LookupItem(c.Id, c.Zip + " – " + c.Name))
+    public async Task<IEnumerable<LookupItem>> Lookup(CancellationToken ct)
+        => await db.Cities.AsNoTracking()
+            .OrderBy(c => c.Name)
+            .Select(c => new LookupItem(c.Id, c.Name))
             .ToListAsync(ct);
-    }
-
 }
-

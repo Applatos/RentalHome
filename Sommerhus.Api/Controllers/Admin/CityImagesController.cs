@@ -1,17 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
-using System.IO;
-using System.Linq;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/cities/{cityId:guid}/images")]
-public sealed class CityImagesController(AppDbContext db, IWebHostEnvironment env) : ControllerBase
+public sealed class CityImagesController(AppDbContext db, IImageStorage storage) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ImageDto>>> List(Guid cityId, CancellationToken ct)
@@ -21,12 +17,19 @@ public sealed class CityImagesController(AppDbContext db, IWebHostEnvironment en
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == cityId, ct);
 
-        if (city is null) return NotFound();
+        if (city is null)
+        {
+            return NotFound();
+        }
 
         var images = city.Images
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.CityImageWebPath(city.Id, i.FileName)), i.Alt, "city"))
+            .Select(i => new ImageDto(
+                i.Id,
+                storage.GetUrl(Request, ImageCategory.City, city.Id, i.FileName),
+                i.Alt,
+                "city"))
             .ToList();
 
         return images;
@@ -43,21 +46,18 @@ public sealed class CityImagesController(AppDbContext db, IWebHostEnvironment en
         }
 
         var city = await db.Cities.Include(c => c.Images).FirstOrDefaultAsync(c => c.Id == cityId, ct);
-        if (city is null) return NotFound();
+        if (city is null)
+        {
+            return NotFound();
+        }
 
-        var dir = Path.Combine(env.WebRootPath, "uploads", "cities", cityId.ToString());
-        Directory.CreateDirectory(dir);
-
-        var unique = $"{Guid.NewGuid():N}{Path.GetExtension(Path.GetFileName(file.FileName))}";
-        var path = Path.Combine(dir, unique);
-        using (var fs = System.IO.File.Create(path))
-            await file.CopyToAsync(fs, ct);
+        var stored = await storage.SaveAsync(ImageCategory.City, cityId, file, ct);
 
         var sortOrder = city.Images.Count == 0 ? 0 : city.Images.Max(i => i.SortOrder) + 10;
         var image = new CityImage
         {
             CityId = cityId,
-            FileName = unique,
+            FileName = stored.FileName,
             Alt = string.IsNullOrWhiteSpace(alt) ? null : alt.Trim(),
             SortOrder = sortOrder
         };
@@ -65,7 +65,7 @@ public sealed class CityImagesController(AppDbContext db, IWebHostEnvironment en
         db.CityImages.Add(image);
         await db.SaveChangesAsync(ct);
 
-        var dto = new ImageDto(image.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.CityImageWebPath(cityId, image.FileName)), image.Alt, "city");
+        var dto = new ImageDto(image.Id, storage.GetUrl(Request, ImageCategory.City, cityId, image.FileName), image.Alt, "city");
         return CreatedAtAction(nameof(List), new { cityId }, dto);
     }
 
@@ -73,13 +73,15 @@ public sealed class CityImagesController(AppDbContext db, IWebHostEnvironment en
     public async Task<IActionResult> Delete(Guid cityId, Guid imageId, CancellationToken ct)
     {
         var image = await db.CityImages.FirstOrDefaultAsync(i => i.Id == imageId && i.CityId == cityId, ct);
-        if (image is null) return NotFound();
-
-        var path = Path.Combine(env.WebRootPath, "uploads", "cities", cityId.ToString(), image.FileName);
-        if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+        if (image is null)
+        {
+            return NotFound();
+        }
 
         db.CityImages.Remove(image);
         await db.SaveChangesAsync(ct);
+
+        await storage.DeleteAsync(ImageCategory.City, cityId, image.FileName, ct);
         return NoContent();
     }
 }

@@ -6,7 +6,6 @@ using Sommerhus.Api.Models;
 using Sommerhus.Api.Services.Admin.Areas;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Shared;

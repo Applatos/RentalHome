@@ -4,9 +4,9 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Api.Data;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
@@ -18,10 +18,12 @@ namespace Sommerhus.Api.Services.Admin.Houses;
 public sealed class AdminHouseService
 {
     private readonly AppDbContext db;
+    private readonly IImageStorage imageStorage;
 
-    public AdminHouseService(AppDbContext db)
+    public AdminHouseService(AppDbContext db, IImageStorage imageStorage)
     {
         this.db = db;
+        this.imageStorage = imageStorage;
     }
 
     public async Task<PageResult<HouseListItemDto>> SearchAsync(string? query, int page, int pageSize, CancellationToken ct)
@@ -340,11 +342,15 @@ public sealed class AdminHouseService
             .ToList();
     }
 
-    private static HouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
+    private HouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
     {
         var images = house.Images
             .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
-            .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(request, UrlBuilder.HouseImageWebPath(i.HouseId, i.FileName)), i.Alt, i.Kind.ToString()))
+            .Select(i => new ImageDto(
+                i.Id,
+                imageStorage.GetUrl(request, ImageCategory.House, i.HouseId, i.FileName),
+                i.Alt,
+                i.Kind.ToString()))
             .ToList();
 
         var features = house.HouseFeatures
@@ -356,7 +362,7 @@ public sealed class AdminHouseService
                     f?.Name ?? string.Empty,
                     f?.ValueType.ToString() ?? string.Empty,
                     f?.Unit,
-                    f?.IconUrl,
+                    imageStorage.GetUrl(request, f?.IconUrl),
                     hf.RawValue);
             })
             .ToList();

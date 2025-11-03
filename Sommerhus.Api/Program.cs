@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Sommerhus.Api.Data;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Pricing;
 using Sommerhus.Pricing.Abstractions;
 using Sommerhus.Pricing.Engine;
@@ -26,7 +27,12 @@ public class Program
 
         builder.Services.AddScoped<Services.Admin.Houses.AdminHouseService>();
         builder.Services.AddScoped<Services.Admin.Areas.AdminAreaService>();
-        builder.Services.AddScoped<Services.Public.Houses.PublicHouseService>();
+        builder.Services.AddOptions<StorageOptions>()
+            .BindConfiguration(StorageOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddSingleton<IImageStorage, PhysicalImageStorage>();
 
         builder.Services.AddScoped<IRatePlanStore, EfRatePlanStore>();
         builder.Services.AddScoped<IPriceRule, BaseNightlyRateRule>();

@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Models;
-using Sommerhus.Api.Utils;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
 
@@ -10,12 +9,18 @@ namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class AreasController(AppDbContext db) : ControllerBase
+public sealed class AreasController(AppDbContext db, IImageStorage storage) : ControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<AreaListItemDto>> Search([FromQuery] string? q, CancellationToken ct)
     {
         var query = db.Areas.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            query = query.Where(a => EF.Functions.Like(a.Name, $"%{term}%"));
+        }
 
         return await query
             .OrderBy(a => a.Name)
@@ -47,7 +52,7 @@ public sealed class AreasController(AppDbContext db) : ControllerBase
 
         var images = area.AreaImages
                     .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-                    .Select(i => new ImageDto(i.Id, UrlBuilder.ToAbsolute(Request, UrlBuilder.AreaImageWebPath(area.Id, i.FileName)), null, "Gallery"))
+                    .Select(i => new ImageDto(i.Id, storage.GetUrl(Request, ImageCategory.Area, area.Id, i.FileName), null, "Gallery"))
                     .ToList();
 
         var cityItems = area.Cities
