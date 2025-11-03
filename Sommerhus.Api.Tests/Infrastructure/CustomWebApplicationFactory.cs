@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 
 namespace Sommerhus.Api.Tests.Infrastructure;
 

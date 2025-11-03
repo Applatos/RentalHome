@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 
 namespace Sommerhus.Api.Controllers.Public;
 

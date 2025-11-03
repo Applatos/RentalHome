@@ -1,8 +1,8 @@
 //using Microsoft.AspNetCore.Mvc;
 //using Microsoft.EntityFrameworkCore;
-//using Sommerhus.Api.Data;
+//using Sommerhus.Repository;
 //using Sommerhus.Contracts.Dtos.Admin.Cities;
-//using Sommerhus.Api.Models;
+//using Sommerhus.Domain.Models;
 //using System.Text.RegularExpressions;
 
 //namespace Sommerhus.Api.Controllers.Admin;
@@ -98,7 +98,7 @@
 //            return Conflict(new ProblemDetails
 //            {
 //                Title = "Kan ikke slette postnummer/by",
-//                Detail = "Postnummer/by er i brug (fx huse/områder/billeder refererer til den). Fjern referencerne først.",
+//                Detail = "Postnummer/by er i brug (fx huse/omrÃ¥der/billeder refererer til den). Fjern referencerne fÃ¸rst.",
 //                Status = StatusCodes.Status409Conflict,
 //                Instance = HttpContext?.Request?.Path.Value
 //            });

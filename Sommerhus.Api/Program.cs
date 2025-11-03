@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Api.Pricing;
 using Sommerhus.Pricing.Abstractions;
@@ -16,12 +15,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Db
-        builder.Services.AddDbContext<AppDbContext>(opt =>
-        {
-            opt.UseSqlite(builder.Configuration.GetConnectionString("Default")
-                ?? "Data Source=sommerhus.db");
-        });
+        builder.Services.AddSommerhusPersistence(builder.Configuration);
 
         builder.Services.AddControllers();
 
@@ -69,19 +63,6 @@ public class Program
         app.UseSwaggerUI();
 
         app.MapControllers();
-
-        // Migration + seed
-        using (var scope = app.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await db.Database.MigrateAsync();
-
-            if (app.Environment.IsDevelopment())
-            {
-                Seeder.SeedMinimal(db);
-            }
-
-        }
 
         await app.RunAsync();
     }

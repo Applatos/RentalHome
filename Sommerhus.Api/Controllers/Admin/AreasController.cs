@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
-using Sommerhus.Api.Models;
+using Sommerhus.Repository;
+using Sommerhus.Domain.Models;
 using Sommerhus.Api.Services.Admin.Areas;
 using Sommerhus.Api.Services.Shared;
 using Sommerhus.Api.Infrastructure;

@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Contracts", "Somm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Pricing", "Sommerhus.Pricing\Sommerhus.Pricing.csproj", "{4C205ADB-5099-431B-B8B2-C63C35218F4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Domain", "Sommerhus.Domain\Sommerhus.Domain.csproj", "{1817D833-C83E-440C-8DE1-1693927DA3B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sommerhus.Repository", "Sommerhus.Repository\Sommerhus.Repository.csproj", "{C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,10 +40,18 @@ Global
 		{0B2A3CC1-1E0B-4A95-848D-9B1DB5F4C88A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B2A3CC1-1E0B-4A95-848D-9B1DB5F4C88A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
+                {4C205ADB-5099-431B-B8B2-C63C35218F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {4C205ADB-5099-431B-B8B2-C63C35218F4C}.Release|Any CPU.Build.0 = Release|Any CPU
+                {1817D833-C83E-440C-8DE1-1693927DA3B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {1817D833-C83E-440C-8DE1-1693927DA3B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {1817D833-C83E-440C-8DE1-1693927DA3B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {1817D833-C83E-440C-8DE1-1693927DA3B0}.Release|Any CPU.Build.0 = Release|Any CPU
+                {C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {C863EE69-E4CF-4B97-97DA-151E8DE8A6C2}.Release|Any CPU.Build.0 = Release|Any CPU
+        EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

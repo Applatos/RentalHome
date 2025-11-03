@@ -1,8 +1,8 @@
 // Sommerhus.Api/Controllers/Admin/FeaturesController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
-using Sommerhus.Api.Models;
+using Sommerhus.Repository;
+using Sommerhus.Domain.Models;
 using Sommerhus.Api.Infrastructure.Storage;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 
