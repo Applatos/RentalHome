@@ -1,26 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Sommerhus.Repository;
-using Sommerhus.Domain.Models;
-using Sommerhus.Api.Services.Admin.Areas;
-using Sommerhus.Api.Services.Shared;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
+using Sommerhus.Application.Admin.Areas;
+using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Shared;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/areas")]
-public sealed class AreasController(AdminAreaService service) : ControllerBase
+public sealed class AreasController(IAdminAreaService service) : ControllerBase
 {
 
     [HttpGet]

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Repository;
-using Sommerhus.Api.Infrastructure.Storage;
-using Sommerhus.Api.Services.Shared;
+using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Common;
+using Sommerhus.Application.Storage;
 using Sommerhus.Domain.Models;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
@@ -13,9 +13,9 @@ using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Pricing.Models;
 
-namespace Sommerhus.Api.Services.Admin.Houses;
+namespace Sommerhus.Repository.Admin.Houses;
 
-public sealed class AdminHouseService
+public sealed class AdminHouseService : IAdminHouseService
 {
     private readonly AppDbContext db;
     private readonly IImageStorage imageStorage;
@@ -187,7 +187,7 @@ public sealed class AdminHouseService
             return FeatureUpsertOutcome.NotFound;
         }
 
-        var normalized = NormalizeFeatureValues(houseId, values);
+        var normalized = FeatureValueNormalizer.Normalize(houseId, values);
 
         var featureIds = normalized.Select(i => i.FeatureId).Distinct().ToList();
         if (featureIds.Count > 0)
@@ -316,31 +316,6 @@ public sealed class AdminHouseService
         {
             [nameof(UpsertHouseDto.AreaIds)] = new[] { "Ukendt område" }
         });
-
-    private static List<HouseFeatureValue> NormalizeFeatureValues(Guid houseId, IEnumerable<PostFeatureValueDto>? values)
-    {
-        if (values is null)
-        {
-            return new List<HouseFeatureValue>();
-        }
-
-        return values
-            .Where(v => v is not null)
-            .Select(v => new
-            {
-                v.FeatureId,
-                Raw = (v.RawValue ?? string.Empty).Trim()
-            })
-            .Where(x => x.FeatureId != Guid.Empty && !string.IsNullOrWhiteSpace(x.Raw))
-            .GroupBy(x => x.FeatureId)
-            .Select(g => new HouseFeatureValue
-            {
-                HouseId = houseId,
-                FeatureId = g.Key,
-                RawValue = g.First().Raw
-            })
-            .ToList();
-    }
 
     private HouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
     {

@@ -15,5 +15,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
     <ProjectReference Include="..\Sommerhus.Pricing\Sommerhus.Pricing.csproj" />
+    <ProjectReference Include="..\Sommerhus.Application\Sommerhus.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 </Project>

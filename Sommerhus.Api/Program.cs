@@ -1,10 +1,27 @@
 using Microsoft.OpenApi.Models;
-using Sommerhus.Repository;
-using Sommerhus.Api.Infrastructure.Storage;
-using Sommerhus.Api.Pricing;
+using Sommerhus.Application.Admin.Areas;
+using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Storage;
+using Sommerhus.Application.Public.Areas;
+using Sommerhus.Application.Public.Cities;
+using Sommerhus.Application.Public.Features;
+using Sommerhus.Application.Public.Houses;
+using Sommerhus.Application.Public.Images;
+using Sommerhus.Application.Public.ZipCodes;
 using Sommerhus.Pricing.Abstractions;
 using Sommerhus.Pricing.Engine;
 using Sommerhus.Pricing.Engine.Rules;
+using Sommerhus.Repository;
+using Sommerhus.Repository.Admin.Areas;
+using Sommerhus.Repository.Admin.Houses;
+using Sommerhus.Repository.Pricing;
+using Sommerhus.Repository.Public.Areas;
+using Sommerhus.Repository.Public.Cities;
+using Sommerhus.Repository.Public.Features;
+using Sommerhus.Repository.Public.Houses;
+using Sommerhus.Repository.Public.Images;
+using Sommerhus.Repository.Public.ZipCodes;
+using Sommerhus.Api.Infrastructure.Storage;
 
 
 namespace Sommerhus.Api;
@@ -19,8 +36,14 @@ public class Program
 
         builder.Services.AddControllers();
 
-        builder.Services.AddScoped<Services.Admin.Houses.AdminHouseService>();
-        builder.Services.AddScoped<Services.Admin.Areas.AdminAreaService>();
+        builder.Services.AddScoped<IAdminHouseService, AdminHouseService>();
+        builder.Services.AddScoped<IAdminAreaService, AdminAreaService>();
+        builder.Services.AddScoped<IHouseQueryService, HouseQueryService>();
+        builder.Services.AddScoped<IAreaQueryService, AreaQueryService>();
+        builder.Services.AddScoped<IFeatureQueryService, FeatureQueryService>();
+        builder.Services.AddScoped<ICityQueryService, CityQueryService>();
+        builder.Services.AddScoped<IZipCodeQueryService, ZipCodeQueryService>();
+        builder.Services.AddScoped<IHouseImageQueryService, HouseImageQueryService>();
         builder.Services.AddOptions<StorageOptions>()
             .BindConfiguration(StorageOptions.SectionName)
             .ValidateDataAnnotations()

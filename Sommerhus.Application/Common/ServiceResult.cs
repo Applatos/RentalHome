@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
-namespace Sommerhus.Api.Services.Shared;
+namespace Sommerhus.Application.Common;
 
 public enum ServiceResultStatus
 {

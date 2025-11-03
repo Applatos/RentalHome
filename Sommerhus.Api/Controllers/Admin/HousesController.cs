@@ -1,24 +1,20 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sommerhus.Repository;
-using Sommerhus.Domain.Models;
-using Microsoft.AspNetCore.Http;
-using Sommerhus.Api.Services.Admin.Houses;
-using Sommerhus.Api.Services.Shared;
+using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
+using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Pricing.Models;
-using System.Numerics;
-using System.Reflection.Metadata;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/houses")]
-public sealed class HousesController(AdminHouseService service) : ControllerBase
+public sealed class HousesController(IAdminHouseService service) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<HouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
