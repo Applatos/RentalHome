@@ -21,7 +21,7 @@ public sealed class AdminApiClient
     public Task<ApiResponse<HouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct)
         => ApiHttp.GetAsync<HouseDetailsDto?>(http, $"api/admin/houses/{id}", ct);
 
-    public Task<ApiResponse<Guid?>> PostHouseAsync(UpsertHouseDto dto, CancellationToken ct)
+    public Task<ApiResponse<Guid>> PostHouseAsync(UpsertHouseDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<UpsertHouseDto, Guid>(http, "api/admin/houses", dto, ct);
 
     public Task<ApiResponse<object?>> PutHouseAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
@@ -57,7 +57,7 @@ public sealed class AdminApiClient
     public Task<ApiResponse<IReadOnlyList<FeatureDetailsDto>?>> GetFeaturesAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<FeatureDetailsDto>?>(http, "api/admin/features", ct);
 
-    public Task<ApiResponse<Guid?>> CreateFeatureAsync(UpsertFeatureDto dto, CancellationToken ct)
+    public Task<ApiResponse<Guid>> CreateFeatureAsync(UpsertFeatureDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<UpsertFeatureDto, Guid>(http, "api/admin/features", dto, ct);
 
     public Task<ApiResponse<object?>> UpdateFeatureAsync(Guid id, UpsertFeatureDto dto, CancellationToken ct)
