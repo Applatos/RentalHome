@@ -37,7 +37,6 @@ public sealed class FeaturesController(IAdminFeatureService service) : Controlle
         return result.Status switch
         {
             ServiceResultStatus.Success => Ok(new { iconUrl = result.Value }),
-            _ => this.FromResult(result),
         };
     }
 

@@ -75,16 +75,16 @@ public sealed class ServiceResult<T> : ServiceResult
     public static ServiceResult<T> Success(T value)
         => new(ServiceResultStatus.Success, value, EmptyErrors);
 
-    public static ServiceResult<T> NotFound()
+    public new static ServiceResult<T> NotFound()
         => new(ServiceResultStatus.NotFound, default, EmptyErrors);
 
-    public static ServiceResult<T> Invalid(string field, string message)
+    public new static ServiceResult<T> Invalid(string field, string message)
         => Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
             [field] = new[] { message }
         });
 
-    public static ServiceResult<T> Invalid(IDictionary<string, string[]> errors)
+    public new static ServiceResult<T> Invalid(IDictionary<string, string[]> errors)
     {
         var copy = new Dictionary<string, string[]>(StringComparer.Ordinal);
         foreach (var pair in errors)
@@ -95,13 +95,13 @@ public sealed class ServiceResult<T> : ServiceResult
         return new(ServiceResultStatus.Invalid, default, new ReadOnlyDictionary<string, string[]>(copy));
     }
 
-    public static ServiceResult<T> Conflict(string field, string message)
+    public new static ServiceResult<T> Conflict(string field, string message)
         => new(ServiceResultStatus.Conflict, default, new ReadOnlyDictionary<string, string[]>(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
             [field] = new[] { message }
         }));
 
-    public static ServiceResult<T> Unavailable(string message)
+    public new static ServiceResult<T> Unavailable(string message)
         => new(ServiceResultStatus.Unavailable, default, new ReadOnlyDictionary<string, string[]>(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
             [string.Empty] = new[] { message }

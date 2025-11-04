@@ -6,7 +6,7 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Repository.Admin.Images;
 
-internal abstract class AdminImageServiceBase
+public abstract class AdminImageServiceBase
 {
     protected AdminImageServiceBase(AppDbContext db, IImageStorage storage)
     {

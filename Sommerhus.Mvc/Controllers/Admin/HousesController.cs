@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Mvc.Services;
