@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Application.Admin.Images;
@@ -7,6 +8,7 @@ using Sommerhus.Contracts.Dtos.Shared;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = "AdminBasic")]
 [Route("api/admin/cities/{cityId:guid}/images")]
 public sealed class CityImagesController(IAdminCityImageService service) : ControllerBase
 {

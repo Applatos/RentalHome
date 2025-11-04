@@ -1,4 +1,5 @@
 using AspNetCoreGeneratedDocument;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
@@ -113,6 +114,7 @@ public class HousePricingForm
 }
 
 
+    [Authorize]
     public sealed class AdminController : Controller
 {
     private readonly AdminApiClient _api;
