@@ -17,6 +17,7 @@ public static class ControllerExtensions
             ServiceResultStatus.NotFound => controller.NotFound(),
             ServiceResultStatus.Invalid => controller.ValidationProblem((ValidationProblemDetails)result.Errors),
             ServiceResultStatus.Conflict => controller.Problem(statusCode: StatusCodes.Status409Conflict, detail: string.Join("\n", Flatten(result.Errors))),
+            ServiceResultStatus.Unavailable => controller.Problem(statusCode: StatusCodes.Status503ServiceUnavailable, detail: string.Join("\n", Flatten(result.Errors))),
             _ => throw new InvalidOperationException($"Unsupported service result status: {result.Status}")
         };
     }
@@ -29,6 +30,7 @@ public static class ControllerExtensions
             ServiceResultStatus.NotFound => controller.NotFound(),
             ServiceResultStatus.Invalid => controller.ValidationProblem((ValidationProblemDetails)result.Errors),
             ServiceResultStatus.Conflict => controller.Problem(statusCode: StatusCodes.Status409Conflict, detail: string.Join("\n", Flatten(result.Errors))),
+            ServiceResultStatus.Unavailable => controller.Problem(statusCode: StatusCodes.Status503ServiceUnavailable, detail: string.Join("\n", Flatten(result.Errors))),
             _ => throw new InvalidOperationException($"Unsupported service result status: {result.Status}")
         };
     }

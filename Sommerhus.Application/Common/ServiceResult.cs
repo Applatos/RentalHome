@@ -7,7 +7,8 @@ public enum ServiceResultStatus
     Success,
     NotFound,
     Invalid,
-    Conflict
+    Conflict,
+    Unavailable
 }
 
 public class ServiceResult
@@ -53,6 +54,12 @@ public class ServiceResult
         {
             [field] = new[] { message }
         }));
+
+    public static ServiceResult Unavailable(string message)
+        => new(ServiceResultStatus.Unavailable, new ReadOnlyDictionary<string, string[]>(new Dictionary<string, string[]>(StringComparer.Ordinal)
+        {
+            [string.Empty] = new[] { message }
+        }));
 }
 
 public sealed class ServiceResult<T> : ServiceResult
@@ -92,5 +99,11 @@ public sealed class ServiceResult<T> : ServiceResult
         => new(ServiceResultStatus.Conflict, default, new ReadOnlyDictionary<string, string[]>(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
             [field] = new[] { message }
+        }));
+
+    public static ServiceResult<T> Unavailable(string message)
+        => new(ServiceResultStatus.Unavailable, default, new ReadOnlyDictionary<string, string[]>(new Dictionary<string, string[]>(StringComparer.Ordinal)
+        {
+            [string.Empty] = new[] { message }
         }));
 }
