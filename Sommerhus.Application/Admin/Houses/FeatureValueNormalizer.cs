@@ -1,4 +1,5 @@
 using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Application.Admin.Houses;

@@ -32,7 +32,7 @@ public sealed class PhysicalImageStorage : IImageStorage
 
         Directory.CreateDirectory(Path.GetDirectoryName(physicalPath)!);
 
-        await using var stream = System.IO.File.Create(physicalPath);
+        await using var stream = File.Create(physicalPath);
         await file.CopyToAsync(stream, ct);
 
         return new StoredImage(safeName, relativePath);

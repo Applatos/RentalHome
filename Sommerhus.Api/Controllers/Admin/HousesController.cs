@@ -109,27 +109,4 @@ public sealed class HousesController(IAdminHouseService service) : ControllerBas
             _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to upsert pricing.")
         };
     }
-
-    //private static PricePlanDetailsDto MapPlan(PricePlan plan)
-    //{
-    //    var rates = plan.SeasonPrices
-    //         .OrderBy(s => s.Code, StringComparer.OrdinalIgnoreCase)
-    //         .Select(s => new SeasonPriceDto(
-    //            s.Id,
-    //            s.PricePlanId,
-    //            s.Code,
-    //            s.NightlyPrice))
-    //        .ToList();
-
-    //    return new PricePlanDetailsDto(
-    //        plan.Id,
-    //        plan.HouseId,
-    //        plan.Name,
-    //        plan.Currency,
-    //        plan.IsActive,
-    //        plan.CreatedUtc,
-    //        plan.UpdatedUtc,
-    //        rates);
-    //}
-
 }
