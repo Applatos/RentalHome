@@ -26,12 +26,22 @@ public sealed class EfRatePlanStore : IRatePlanStore
     }
 
 
-    public async Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid GroupId, CancellationToken ct)
+    public async Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid houseId, CancellationToken ct)
     {
+        var houseGroup = await _db.Houses
+            .AsNoTracking()
+            .Where(h => h.Id == houseId)
+            .Select(h => new { h.Id, h.GroupId })
+            .FirstOrDefaultAsync(ct);
+
+        if (houseGroup?.GroupId is not Guid groupId)
+        {
+            return Array.Empty<SeasonSpan>();
+        }
+
         return await _db.SeasonSpans
             .AsNoTracking()
-            .Include(s => s.GroupId)
-            .Where(s => s.GroupId == GroupId)
+            .Where(s => s.GroupId == groupId)
             .OrderBy(s => s.StartDate)
             .ThenBy(s => s.EndDate)
             .ToListAsync(ct);

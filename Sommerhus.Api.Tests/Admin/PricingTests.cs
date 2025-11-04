@@ -41,6 +41,7 @@ public class PricingTests : IClassFixture<CustomWebApplicationFactory>
         var quote = await response.Content.ReadFromJsonAsync<PriceQuoteResponseDto>();
         quote.Should().NotBeNull();
         quote!.Nights.Should().BeGreaterThan(0);
+        quote.Subtotal.Should().BeGreaterThan(0);
         quote.Total.Should().BeGreaterThan(0);
     }
 
