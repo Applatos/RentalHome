@@ -25,7 +25,7 @@ public sealed class SommerhusApi
         => ApiHttp.GetAsync<HouseDetailsDto?>(http, $"api/houses/{id}", ct);
 
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct = default)
-        => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/cities/search", ct);
+        => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/cities/lookup", ct);
 
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
     {
