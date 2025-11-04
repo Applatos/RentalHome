@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Sommerhus.Application.Admin.Areas;
 using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Admin.Pricing;
 using Sommerhus.Application.Storage;
 using Sommerhus.Application.Public.Areas;
 using Sommerhus.Application.Public.Cities;
@@ -14,6 +15,7 @@ using Sommerhus.Pricing.Engine.Rules;
 using Sommerhus.Repository;
 using Sommerhus.Repository.Admin.Areas;
 using Sommerhus.Repository.Admin.Houses;
+using Sommerhus.Repository.Admin.Pricing;
 using Sommerhus.Repository.Pricing;
 using Sommerhus.Repository.Public.Areas;
 using Sommerhus.Repository.Public.Cities;
@@ -37,6 +39,7 @@ public class Program
         builder.Services.AddControllers();
 
         builder.Services.AddScoped<IAdminHouseService, AdminHouseService>();
+        builder.Services.AddScoped<IAdminPricingService, AdminPricingService>();
         builder.Services.AddScoped<IAdminAreaService, AdminAreaService>();
         builder.Services.AddScoped<IHouseQueryService, HouseQueryService>();
         builder.Services.AddScoped<IAreaQueryService, AreaQueryService>();
