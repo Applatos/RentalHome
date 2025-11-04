@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using Sommerhus.Contracts.Dtos.Shared;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = "AdminBasic")]
 [Route("api/admin/houses")]
 public sealed class HousesController(IAdminHouseService service) : ControllerBase
 {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 using Sommerhus.Application.Admin.Areas;
 using Sommerhus.Application.Admin.Cities;
@@ -31,6 +32,7 @@ using Sommerhus.Repository.Public.Features;
 using Sommerhus.Repository.Public.Houses;
 using Sommerhus.Repository.Public.Images;
 using Sommerhus.Repository.Public.ZipCodes;
+using Sommerhus.Api.Infrastructure;
 using Sommerhus.Api.Infrastructure.Storage;
 
 
@@ -45,6 +47,17 @@ public class Program
         builder.Services.AddSommerhusPersistence(builder.Configuration);
 
         builder.Services.AddControllers();
+
+        builder.Services.AddOptions<AdminAuthOptions>()
+            .BindConfiguration(AdminAuthOptions.SectionName)
+            .ValidateOnStart();
+
+        builder.Services.AddAuthentication("AdminBasic")
+            .AddScheme<AuthenticationSchemeOptions, AdminBasicAuthenticationHandler>(
+                "AdminBasic",
+                static _ => { });
+
+        builder.Services.AddAuthorization();
 
         builder.Services.AddScoped<IAdminAreaService, AdminAreaService>();
         builder.Services.AddScoped<IAdminCityService, AdminCityService>();
@@ -99,6 +112,8 @@ public class Program
         app.UseMiddleware<ProblemDetailsMiddleware>();
 
         app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.UseSwagger();
         app.UseSwaggerUI();
 

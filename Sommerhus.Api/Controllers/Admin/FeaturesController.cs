@@ -1,5 +1,6 @@
 // Sommerhus.Api/Controllers/Admin/FeaturesController.cs
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Application.Admin.Features;
@@ -9,6 +10,7 @@ using Sommerhus.Contracts.Dtos.Admin.Features;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = "AdminBasic")]
 [Route("api/admin/features")]
 public sealed class FeaturesController(IAdminFeatureService service) : ControllerBase
 {

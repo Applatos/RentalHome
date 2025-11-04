@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Application.Admin.HouseGroups;
@@ -8,6 +9,7 @@ using Sommerhus.Contracts.Dtos.Shared;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = "AdminBasic")]
 [Route("api/admin/house-groups")]
 public sealed class HouseGroupsController(IAdminHouseGroupService service) : ControllerBase
 {
