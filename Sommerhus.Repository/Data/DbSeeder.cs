@@ -19,7 +19,7 @@ public static class Seeder
         var city = cities.FirstOrDefault(c => c.Zip == "6857") ?? cities.First();
 
 
-        var groupA = new HouseGroup { Id = Guid.NewGuid(), Name = "Vesterhavet"};
+        var groupA = new HouseGroup{ Id = Guid.NewGuid(), Name = "Vesterhavet"};
         var groupB = new HouseGroup{ Id = Guid.NewGuid(), Name = "Tyskland" };
 
 
@@ -44,9 +44,7 @@ public static class Seeder
         };
 
         var seasonA = new SeasonCode { Code = "A", Color = "#FF5733", Name = "Højsæson" };
-
-
-        var seasonB = new SeasonCode { Code = "B", Name = "Sommer", Color = "#33C1FF" };
+        var seasonB = new SeasonCode { Code = "B",  Color = "#33C1FF", Name = "Sommer" };
 
 
 
@@ -108,8 +106,6 @@ public static class Seeder
         db.SaveChanges();
     }
 
-    
-
 
     private static List<City> LoadDanishCities()
     {
@@ -144,11 +140,7 @@ public static class Seeder
             response.EnsureSuccessStatusCode();
 
             using var responseStream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-            var postNumbers = JsonSerializer.Deserialize<List<PostNumberDto>>(responseStream, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
+            var postNumbers = JsonSerializer.Deserialize<List<PostNumberDto>>(responseStream);
             if (postNumbers is null)
             {
                 return new List<City>();

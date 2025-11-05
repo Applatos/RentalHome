@@ -6,6 +6,13 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="wwwroot\uploads\demo-images\**" />
+	  <Content Remove="wwwroot\uploads\demo-images\**" />
+	  <EmbeddedResource Remove="wwwroot\uploads\demo-images\**" />
+	  <None Remove="wwwroot\uploads\demo-images\**" />
+	</ItemGroup>
+
         <ItemGroup>
                 <!-- Swagger / OpenAPI -->
                 <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />

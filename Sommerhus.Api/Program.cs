@@ -111,7 +111,6 @@ public class Program
 
         app.UseMiddleware<ProblemDetailsMiddleware>();
 
-        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseSwagger();

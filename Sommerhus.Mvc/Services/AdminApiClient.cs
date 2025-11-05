@@ -14,6 +14,12 @@ public sealed class AdminApiClient
 
     public AdminApiClient(HttpClient http) => this.http = http;
 
+
+
+
+
+
+
     // Houses
     public Task<ApiResponse<PageResult<HouseListItemDto>>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
         => ApiHttp.GetAsync<PageResult<HouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
@@ -53,6 +59,12 @@ public sealed class AdminApiClient
     public Task<ApiResponse<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
         => ApiHttp.PostAsync<IEnumerable<PostFeatureValueDto>, object?>(http, $"api/admin/houses/{houseId}/features", values?.ToList() ?? new List<PostFeatureValueDto>(), ct);
 
+
+
+
+
+
+
     // Features
     public Task<ApiResponse<IReadOnlyList<FeatureDetailsDto>?>> GetFeaturesAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<FeatureDetailsDto>?>(http, "api/admin/features", ct);
@@ -72,6 +84,11 @@ public sealed class AdminApiClient
         AddFile(form, "file", stream, fileName, contentType);
         return await ApiHttp.SendAsync<object?>(http, (client, token) => client.PostAsync($"api/admin/features/{featureId}/icon", form, token), ct);
     }
+
+
+
+
+
 
     // Areas
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(CancellationToken ct)
@@ -105,25 +122,39 @@ public sealed class AdminApiClient
     public Task<ApiResponse<object?>> DeleteAreaImageAsync(Guid areaId, Guid imageId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/areas/{areaId}/images/{imageId}", ct);
 
-    // Pricing
+
+
+
+
+    // Pricing (price plans)
     public Task<ApiResponse<PricePlanDetailsDto?>> PutHousePricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
         => ApiHttp.PutAsync<PricePlanDetailsDto, PricePlanDetailsDto?>(http, $"api/admin/houses/{houseId}/pricing", dto, ct);
-
-    public Task<ApiResponse<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct)
-        => ApiHttp.GetAsync<IReadOnlyList<SeasonCodeDto>?>(http, "api/season-codes", ct);
 
     public Task<ApiResponse<object?>> DeleteHouseRatePlanAsync(Guid houseId, Guid ratePlanId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/pricing/rate-plans/{ratePlanId}", ct);
 
-    // House groups & season codes
+
+
+
+
+    // House groups
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetHouseGroupsAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/house-groups", ct);
 
     public Task<ApiResponse<LookupItem?>> CreateHouseGroupAsync(HouseGroupDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<HouseGroupDto, LookupItem?>(http, "api/admin/house-groups", dto, ct);
 
+
+
+
+
+
+    // Season Codes
+    public Task<ApiResponse<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<SeasonCodeDto>?>(http, "api/admin/pricing/season-codes", ct);
+
     public Task<ApiResponse<SeasonCodeDto?>> CreateSeasonCodeAsync(SeasonCodeDto dto, CancellationToken ct)
-        => ApiHttp.PostAsync<SeasonCodeDto, SeasonCodeDto?>(http, "api/season-codes", dto, ct);
+        => ApiHttp.PostAsync<SeasonCodeDto, SeasonCodeDto?>(http, "api/admin/pricing/season-codes", dto, ct);
 
     private static void AddFile(MultipartFormDataContent form, string fieldName, Stream stream, string fileName, string? contentType)
     {
