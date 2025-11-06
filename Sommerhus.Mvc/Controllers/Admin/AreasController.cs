@@ -2,7 +2,7 @@
 
 namespace Sommerhus.Mvc.Controllers.Admin
 {
-    public class AreaController : Controller
+    public class AreasController : Controller
     {
         public IActionResult Index()
         {
