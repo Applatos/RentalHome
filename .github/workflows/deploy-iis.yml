@@ -29,6 +29,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Ensure publish dir exists
+        shell: pwsh
+        run: |
+          if (!(Test-Path $env:PUBLISH_DIR)) { New-Item -ItemType Directory -Path $env:PUBLISH_DIR | Out-Null }
+          Write-Host "Using publish dir: $env:PUBLISH_DIR"
+    
+      - name: Who am I (runner identity)?
+        run: whoami
+
       - name: Restore
         run: dotnet restore
 
