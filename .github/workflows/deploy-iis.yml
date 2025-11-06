@@ -76,18 +76,25 @@ jobs:
           $dst = "$env:API_SITE_ROOT"
           $null = robocopy $src $dst /MIR /R:1 /W:1
           $code = $LASTEXITCODE
-          if ($code -gt 7) { throw "Robocopy failed with exit code $code" }
-          else { Write-Host "Robocopy completed (code $code)." }
-          
+          if ($code -gt 7) {
+            exit 1
+          } else {
+            $global:LASTEXITCODE = 0   # <- vigtigt: nulstil så pwsh ikke afslutter med 3
+            exit 0
+          }
       - name: Deploy MVC files
         run:  |
           $src = "$env:PUBLISH_DIR\Sommerhus.Mvc"
           $dst = "$env:MVC_SITE_ROOT"
           $null = robocopy $src $dst /MIR /R:1 /W:1
           $code = $LASTEXITCODE
-          if ($code -gt 7) { throw "Robocopy failed with exit code $code" }
-          else { Write-Host "Robocopy completed (code $code)." }
-
+          if ($code -gt 7) {
+            exit 1
+          } else {
+            $global:LASTEXITCODE = 0   # <- vigtigt: nulstil så pwsh ikke afslutter med 3
+            exit 0
+          }
+          
       # Start pools igen
       - name: Start AppPools
         shell: pwsh
