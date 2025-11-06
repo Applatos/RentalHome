@@ -71,10 +71,10 @@ jobs:
 
       # Kopiér med robocopy (hurtigt og sikkert)
       - name: Deploy API files
-        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Api" "$env:API_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
+        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Api" "$env:API_SITE_ROOT" /MIR /R:2 /W:2
 
       - name: Deploy MVC files
-        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Mvc" "$env:MVC_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
+        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Mvc" "$env:MVC_SITE_ROOT" /MIR /R:2 /W:2
 
       # Start pools igen
       - name: Start AppPools
