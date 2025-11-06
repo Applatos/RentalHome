@@ -1,5 +1,5 @@
 ﻿//using Sommerhus.Contracts.Dtos.Admin.Areas;
-//using Sommerhus.Api.Models;
+//using Sommerhus.Domain.Models;
 
 //namespace Sommerhus.Api.Mapping;
 

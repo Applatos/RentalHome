@@ -61,7 +61,6 @@
                     <td>@h.CreatedUtc.ToLocalTime().ToString()</td>
                     <td class="text-end">
                         <a class="btn btn-outline-dark btn-sm" asp-action="House" asp-controller="Admin" asp-route-id="@h.Id">Detaljer</a>
-                        <a class="btn btn-outline-secondary btn-sm" asp-action="EditHouse" asp-controller="Admin" asp-route-id="@h.Id">Rediger</a>
                         <form method="post" action="@Url.Action("DeleteHouse", "Admin", new { id = h.Id })" class="d-inline" onsubmit='return confirm("Slet hus \"@h.Name\"?");'>
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-outline-danger btn-sm">Slet</button>

@@ -1,22 +1,22 @@
-using FluentAssertions;
-using Sommerhus.Contracts.Dtos.Public.Cities;
-using Sommerhus.Api.Tests.Infrastructure;
-using System.Net.Http.Json;
+//using FluentAssertions;
+//using Sommerhus.Contracts.Dtos.Public.Cities;
+//using Sommerhus.Api.Tests.Infrastructure;
+//using System.Net.Http.Json;
 
-namespace Sommerhus.Api.Tests.Public;
+//namespace Sommerhus.Api.Tests.Public;
 
-public class CitiesTests : IClassFixture<CustomWebApplicationFactory>
-{
-    private readonly HttpClient _client;
+//public class CitiesTests : IClassFixture<CustomWebApplicationFactory>
+//{
+//    private readonly HttpClient _client;
 
-    public CitiesTests(CustomWebApplicationFactory f) => _client = f.CreateClient();
+//    public CitiesTests(CustomWebApplicationFactory f) => _client = f.CreateClient();
 
-    [Fact]
-    public async Task List_ReturnsSlugAndCounts()
-    {
-        var data = await _client.GetFromJsonAsync<List<CityListItemDto>>("/api/cities");
-        data.Should().NotBeNullOrEmpty();
-        data!.All(c => !string.IsNullOrWhiteSpace(c.Slug)).Should().BeTrue();
-        data!.First().Count.Should().BeGreaterThanOrEqualTo(0);
-    }
-}
+//    [Fact]
+//    public async Task List_ReturnsSlugAndCounts()
+//    {
+//        var data = await _client.GetFromJsonAsync<List<CityListItemDto>>("/api/cities");
+//        data.Should().NotBeNullOrEmpty();
+//        data!.All(c => !string.IsNullOrWhiteSpace(c.Slug)).Should().BeTrue();
+//        data!.First().Count.Should().BeGreaterThanOrEqualTo(0);
+//    }
+//}

@@ -1,18 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Application.Public.Cities;
 using Sommerhus.Contracts.Dtos.Public.Cities;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class CitiesController(AppDbContext db) : ControllerBase
+public sealed class CitiesController(ICityQueryService cities) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<CityListItemDto>> Get(CancellationToken ct)
-        => await db.Cities.AsNoTracking()
-            .OrderBy(c => c.Name)
-            .Select(c => new CityListItemDto(c.Id, c.Name, c.Zip))
-            .ToListAsync(ct);
+    public Task<IEnumerable<CityListItemDto>> Get(CancellationToken ct)
+        => cities.GetAsync(ct);
 }

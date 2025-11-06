@@ -1,19 +1,37 @@
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Sommerhus.Api.Data;
+using Sommerhus.Repository;
 
 namespace Sommerhus.Api.Tests.Infrastructure;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private const string AdminUsername = "admin";
+    private const string AdminPassword = "sommerhus123";
+    private static readonly AuthenticationHeaderValue AdminAuthHeader = new(
+        "Basic",
+        Convert.ToBase64String(Encoding.UTF8.GetBytes($"{AdminUsername}:{AdminPassword}")));
     private SqliteConnection? _conn;
     private string? _tempWebRoot;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdminAuth:Username"] = AdminUsername,
+                ["AdminAuth:Password"] = AdminPassword
+            });
+        });
+
         builder.UseEnvironment("Testing");
 
         // Isoleret wwwroot til uploads i tests
@@ -62,6 +80,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             Seeder.SeedMinimal(db);
         });
+    }
+    protected override void ConfigureClient(HttpClient client)
+    {
+        client.DefaultRequestHeaders.Authorization = AdminAuthHeader;
     }
     protected override void Dispose(bool disposing)
     {

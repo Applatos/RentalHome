@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Mvc.Services;
+using System.Net;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
@@ -38,6 +40,31 @@ public sealed class HousesController(SommerhusApi _api) : Controller
             return View();
         }
         return View(res.Data);
+    }
+
+    [HttpPost("/houses/{id:guid}/quote")]
+    public async Task<IActionResult> Quote(Guid id, [FromBody] PriceQuoteRequestDto payload, CancellationToken ct)
+    {
+        var request = payload with { HouseId = id };
+        var res = await _api.GetPriceQuoteAsync(request, ct);
+
+        if (res.Ok)
+        {
+            if (res.Data is null)
+            {
+                return StatusCode((int)(res.StatusCode ?? HttpStatusCode.NoContent));
+            }
+
+            return Json(res.Data);
+        }
+
+        if (res.HasValidationErrors)
+        {
+            return BadRequest(new { errors = res.Errors });
+        }
+
+        var status = (int)(res.StatusCode ?? HttpStatusCode.BadGateway);
+        return StatusCode(status, new { message = res.Message ?? "Kunne ikke hente pris" });
     }
 
     //[HttpPost("/admin/houses/{id:guid}/images/{imgId:guid}/delete")]

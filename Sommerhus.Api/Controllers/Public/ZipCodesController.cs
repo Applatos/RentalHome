@@ -1,24 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Sommerhus.Api.Data;
+using Sommerhus.Application.Public.ZipCodes;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ZipCodesController(AppDbContext db) : ControllerBase
+public sealed class ZipCodesController(IZipCodeQueryService zipCodes) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<string>> Find([FromQuery] string q, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(q)) return [];
-        var term = q.Trim();
-        return await db.Cities.AsNoTracking()
-            .Where(c => c.Zip != null && EF.Functions.Like(c.Zip, $"{term}%"))
-            .OrderBy(c => c.Zip)
-            .Select(c => c.Zip!)
-            .Distinct()
-            .Take(20)
-            .ToListAsync(ct);
-    }
+    public Task<IEnumerable<string>> Find([FromQuery(Name = "q")] string query, CancellationToken ct)
+        => zipCodes.FindAsync(query, ct);
 }

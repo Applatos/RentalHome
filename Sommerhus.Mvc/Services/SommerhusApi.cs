@@ -1,47 +1,44 @@
 using Sommerhus.Contracts.Dtos.Public.Areas;
 using Sommerhus.Contracts.Dtos.Public.Cities;
 using Sommerhus.Contracts.Dtos.Public.Houses;
-
+using Sommerhus.Contracts.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 
-public sealed class SommerhusApi : ApiClientBase
+public sealed class SommerhusApi
 {
-    public SommerhusApi(HttpClient http) : base(http) { }
+    private readonly HttpClient http;
 
-    // ===== Public API =====
+    public SommerhusApi(HttpClient http) => this.http = http;
 
-    // ===== Houses =====
-    public Task<ApiResult<IReadOnlyList<HouseListItemDto>>> GetHousesAsync(string? q = null, int skip = 0, int take = 20, CancellationToken ct = default)
+    public Task<ApiResponse<IReadOnlyList<HouseListItemDto>?>> GetHousesAsync(string? q = null, int skip = 0, int take = 20, CancellationToken ct = default)
     {
-        var qs = new List<string>();
-        if (!string.IsNullOrWhiteSpace(q)) qs.Add($"q={Uri.EscapeDataString(q.Trim())}");
-        if (skip > 0) qs.Add($"skip={skip}");
-        if (take > 0) qs.Add($"take={Math.Min(take, 100)}");
+        var filters = new List<string>();
+        if (!string.IsNullOrWhiteSpace(q)) filters.Add($"q={Uri.EscapeDataString(q.Trim())}");
+        if (skip > 0) filters.Add($"skip={skip}");
+        if (take > 0) filters.Add($"take={Math.Min(take, 100)}");
 
-        var url = "api/houses" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
-        return GetAsync<IReadOnlyList<HouseListItemDto>>(url, ct)!;
+        var url = filters.Count > 0 ? $"api/houses?{string.Join("&", filters)}" : "api/houses";
+        return ApiHttp.GetAsync<IReadOnlyList<HouseListItemDto>?>(http, url, ct);
     }
 
-    public Task<ApiResult<HouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct = default)
-        => GetAsync<HouseDetailsDto>($"api/houses/{id}", ct);
+    public Task<ApiResponse<HouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct = default)
+        => ApiHttp.GetAsync<HouseDetailsDto?>(http, $"api/houses/{id}", ct);
 
-    public Task<ApiResult<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct = default)
-        => GetAsync<IReadOnlyList<LookupItem>>("api/admin/cities/search", ct);
+    public Task<ApiResponse<PriceQuoteResponseDto?>> GetPriceQuoteAsync(PriceQuoteRequestDto request, CancellationToken ct = default)
+        => ApiHttp.PostAsync<PriceQuoteRequestDto, PriceQuoteResponseDto?>(http, "api/pricing/quote", request, ct);
 
+    public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct = default)
+        => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/cities/lookup", ct);
 
-
-    // ===== Areas =====
-    public Task<ApiResult<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
+    public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
     {
         var url = string.IsNullOrWhiteSpace(q)
             ? "api/areas"
             : $"api/areas?q={Uri.EscapeDataString(q.Trim())}";
-        return GetAsync<IReadOnlyList<AreaListItemDto>>(url, ct);
+        return ApiHttp.GetAsync<IReadOnlyList<AreaListItemDto>?>(http, url, ct);
     }
 
-    public Task<ApiResult<AreaDetailDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
-        => GetAsync<AreaDetailDto>($"api/areas/{id}", ct);
-
-    //
+    public Task<ApiResponse<AreaDetailDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
+        => ApiHttp.GetAsync<AreaDetailDto?>(http, $"api/areas/{id}", ct);
 }
