@@ -15,8 +15,8 @@ jobs:
       PUBLISH_DIR: C:\_deploy
       API_PROJECT: .\Sommerhus.Api\Sommerhus.Api.csproj
       MVC_PROJECT: .\Sommerhus.Mvc\Sommerhus.Mvc.csproj
-      API_SITE_ROOT: C:\inetpub\wwwroot\Sommerhus.Api
-      MVC_SITE_ROOT: C:\inetpub\wwwroot\Sommerhus.Mvc
+      API_SITE_ROOT: C:\WebServer\api_c1_vh_mms.smedt.dk\1.0.0\publish
+      MVC_SITE_ROOT: C:\WebServer\mvc_c1_vh_mms.smedt.dk\1.0.0\publish
       API_APPPOOL: SommerhusApiPool
       MVC_APPPOOL: SommerhusMvcPool
 
