@@ -2,7 +2,7 @@ name: Build & Deploy to IIS (Self-hosted)
 
 on:
   push:
-    branches: [ "main" ]   # deploy når du pusher til main
+    branches: [ "master" ]   # deploy når du pusher til main
   workflow_dispatch:       # mulighed for manuel kørsel
 
 jobs:
