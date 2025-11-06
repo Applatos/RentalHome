@@ -1,0 +1,83 @@
+name: Build & Deploy to IIS (Self-hosted)
+
+on:
+  push:
+    branches: [ "main" ]   # deploy når du pusher til main
+  workflow_dispatch:       # mulighed for manuel kørsel
+
+jobs:
+  deploy:
+    # Kør PÅ DIN VM (self-hosted), ikke GitHub's egne build-agenter
+    runs-on: self-hosted
+
+    env:
+      CONFIGURATION: Release
+      PUBLISH_DIR: C:\_deploy
+      API_PROJECT: .\Sommerhus.Api\Sommerhus.Api.csproj
+      MVC_PROJECT: .\Sommerhus.Mvc\Sommerhus.Mvc.csproj
+      API_SITE_ROOT: C:\inetpub\wwwroot\Sommerhus.Api
+      MVC_SITE_ROOT: C:\inetpub\wwwroot\Sommerhus.Mvc
+      API_APPPOOL: SommerhusApiPool
+      MVC_APPPOOL: SommerhusMvcPool
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration $env:CONFIGURATION --no-restore
+
+      - name: Publish API
+        run: >
+          dotnet publish $env:API_PROJECT -c $env:CONFIGURATION
+          -o "$env:PUBLISH_DIR\Sommerhus.Api"
+
+      - name: Publish MVC
+        run: >
+          dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
+          -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
+
+      # Sæt site i "app_offline" tilstand for at undgå låste filer
+      - name: Put API app offline
+        run: New-Item -Path "$env:API_SITE_ROOT\app_offline.htm" -ItemType File -Force
+
+      - name: Put MVC app offline
+        run: New-Item -Path "$env:MVC_SITE_ROOT\app_offline.htm" -ItemType File -Force
+
+      # (Valgfrit) Stop app pools for helt at frigive låse
+      - name: Stop AppPools
+        shell: pwsh
+        run: |
+          Import-Module WebAdministration
+          Stop-WebAppPool -Name $env:API_APPPOOL
+          Stop-WebAppPool -Name $env:MVC_APPPOOL
+
+      # Kopiér med robocopy (hurtigt og sikkert)
+      - name: Deploy API files
+        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Api" "$env:API_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
+
+      - name: Deploy MVC files
+        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Mvc" "$env:MVC_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
+
+      # Start pools igen
+      - name: Start AppPools
+        shell: pwsh
+        run: |
+          Import-Module WebAdministration
+          Start-WebAppPool -Name $env:API_APPPOOL
+          Start-WebAppPool -Name $env:MVC_APPPOOL
+
+      # Fjern app_offline.htm, så sites går live
+      - name: Bring API online
+        run: Remove-Item -Path "$env:API_SITE_ROOT\app_offline.htm" -ErrorAction SilentlyContinue
+
+      - name: Bring MVC online
+        run: Remove-Item -Path "$env:MVC_SITE_ROOT\app_offline.htm" -ErrorAction SilentlyContinue
