@@ -19,15 +19,11 @@ jobs:
       MVC_SITE_ROOT: C:\WebServer\mvc_c1_vh_mms.smedt.dk\1.0.0\publish
       API_APPPOOL: SommerhusApiPool
       MVC_APPPOOL: SommerhusMvcPool
+      ConnectionStrings__Default: 'Data Source=C:\Data\Sommerhus\api\db\sommerhus.db'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-    #  - name: Setup .NET 8 SDK
-    #    uses: actions/setup-dotnet@v4
-    #    with:
-    #      dotnet-version: '8.0.x'
 
       - name: Ensure publish dir exists
         shell: pwsh
@@ -54,6 +50,19 @@ jobs:
           dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
 
+      - name: Restore dotnet-ef tool
+        run: dotnet tool restore --tool-manifest .\Sommerhus.Api\.config\dotnet-tools.json
+
+      - name: Apply EF Core migrations
+        shell: pwsh
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+        run: >
+          dotnet ef database update
+          --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
+          --startup-project .\Sommerhus.Api\Sommerhus.Api.csproj
+
+
       # Sæt site i "app_offline" tilstand for at undgå låste filer
       - name: Put API app offline
         run: New-Item -Path "$env:API_SITE_ROOT\app_offline.htm" -ItemType File -Force
@@ -71,11 +80,55 @@ jobs:
 
       # Kopiér med robocopy (hurtigt og sikkert)
       - name: Deploy API files
-        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Api" "$env:API_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
-
+        run: |
+          $src = "$env:PUBLISH_DIR\Sommerhus.Api"
+          $dst = "$env:API_SITE_ROOT"
+              # Persistente paths i destination som IKKE må røres
+          $excludeDirs = @(
+            Join-Path $dst 'wwwroot\uploads'
+            Join-Path $dst 'Data'
+            Join-Path $dst 'logs'
+          )
+          $excludeFiles = @(
+            Join-Path $dst 'sommerhus.db'          # SQLite 
+          )
+          $roboArgs = @($src, $dst, '/MIR', '/R:1', '/W:1', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
+          if ($excludeDirs) { $roboArgs += @('/XD'); $roboArgs += $excludeDirs }
+          if ($excludeFiles){ $roboArgs += @('/XF'); $roboArgs += $excludeFiles }
+          
+          $null = robocopy $roboArgs
+          $code = $LASTEXITCODE
+          if ($code -gt 7) {
+            exit 1
+          } else {
+            $global:LASTEXITCODE = 0   # <- vigtigt: nulstil så pwsh ikke afslutter med 3
+            exit 0
+          }
       - name: Deploy MVC files
-        run: robocopy "$env:PUBLISH_DIR\Sommerhus.Mvc" "$env:MVC_SITE_ROOT" /MIR /R:2 /W:2 | powershell -Command "$LASTEXITCODE = 0"
-
+        run:  |
+          $src = "$env:PUBLISH_DIR\Sommerhus.Mvc"
+          $dst = "$env:MVC_SITE_ROOT"
+          $excludeDirs = @(
+            Join-Path $dst 'wwwroot\uploads'
+            Join-Path $dst 'Data'
+            Join-Path $dst 'logs'
+          )
+          $excludeFiles = @(
+            Join-Path $dst 'sommerhus.db'          # SQLite 
+          )
+          $roboArgs = @($src, $dst, '/MIR', '/R:1', '/W:1', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
+          if ($excludeDirs) { $roboArgs += @('/XD'); $roboArgs += $excludeDirs }
+          if ($excludeFiles){ $roboArgs += @('/XF'); $roboArgs += $excludeFiles }
+          
+          $null = robocopy $src $dst /MIR /R:1 /W:1
+          $code = $LASTEXITCODE
+          if ($code -gt 7) {
+            exit 1
+          } else {
+            $global:LASTEXITCODE = 0   # <- vigtigt: nulstil så pwsh ikke afslutter med 3
+            exit 0
+          }
+          
       # Start pools igen
       - name: Start AppPools
         shell: pwsh
