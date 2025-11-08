@@ -46,6 +46,10 @@ public class Program
 
         builder.Services.AddSommerhusPersistence(builder.Configuration);
 
+        // Bind StorageOptions
+        //builder.Services.Configure<StorageOptions>(
+        //    builder.Configuration.GetSection(StorageOptions.SectionName));
+
         builder.Services.AddControllers();
 
         builder.Services.AddOptions<AdminAuthOptions>()

@@ -7,12 +7,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="wwwroot\uploads\demo-images\**" />
-	  <Content Remove="wwwroot\uploads\demo-images\**" />
-	  <EmbeddedResource Remove="wwwroot\uploads\demo-images\**" />
-	  <None Remove="wwwroot\uploads\demo-images\**" />
+		<Compile Remove="wwwroot\uploads\demo-images\**" />
+		<Content Remove="wwwroot\uploads\demo-images\**" />
+		<EmbeddedResource Remove="wwwroot\uploads\demo-images\**" />
+		<None Remove="wwwroot\uploads\demo-images\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Update="sommerhus.db" CopyToPublishDirectory="Never" />
+	</ItemGroup>
         <ItemGroup>
                 <!-- Swagger / OpenAPI -->
                 <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />

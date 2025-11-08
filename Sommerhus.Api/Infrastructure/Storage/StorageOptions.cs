@@ -7,5 +7,8 @@ public sealed class StorageOptions
     public const string SectionName = "Storage";
 
     [Required]
-    public string UploadsFolder { get; set; } = "uploads";
+    public string UploadsPath { get; set; } = "uploads";
+    public string? LogsPath { get; init; }              // valgfrit
+    public string? DbPath { get; init; }                // hvis SQLite/LocalDB fil
 }
+

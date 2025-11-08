@@ -10,9 +10,8 @@ public sealed class AdminBasicAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    ISystemClock clock,
     IOptions<AdminAuthOptions> adminOptions)
-    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder, clock)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     private readonly AdminAuthOptions adminOptions = adminOptions.Value;
 

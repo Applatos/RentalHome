@@ -91,9 +91,9 @@ public sealed class PhysicalImageStorage : IImageStorage
 
         var sanitizedFile = Path.GetFileName(fileName);
         var segments = new List<string>();
-        if (!string.IsNullOrWhiteSpace(options.UploadsFolder))
+        if (!string.IsNullOrWhiteSpace(options.UploadsPath))
         {
-            segments.Add(options.UploadsFolder.Trim('/', '\\'));
+            segments.Add(options.UploadsPath.Trim('/', '\\'));
         }
 
         segments.Add(folder);
