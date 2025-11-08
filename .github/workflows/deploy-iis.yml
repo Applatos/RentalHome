@@ -19,7 +19,7 @@ jobs:
       MVC_SITE_ROOT: C:\WebServer\mvc_c1_vh_mms.smedt.dk\1.0.0\publish
       API_APPPOOL: SommerhusApiPool
       MVC_APPPOOL: SommerhusMvcPool
-      ConnectionStrings__Default: 'Data Source=C:\WebServer\Data\sommerhus.db'
+      ConnectionStrings__Default: 'Data Source=C:\Data\Sommerhus\api\db\sommerhus.db'
 
     steps:
       - name: Checkout
