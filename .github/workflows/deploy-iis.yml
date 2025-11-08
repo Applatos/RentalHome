@@ -51,12 +51,14 @@ jobs:
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
 
       - name: Restore dotnet-ef tool
-        run: dotnet tool restore --tool-manifest .\Sommerhus.Api\.config\dotnet-tools.json
+        working-directory: Sommerhus.Api
+        run: dotnet tool restore
 
       - name: Apply EF Core migrations
         shell: pwsh
         env:
           ASPNETCORE_ENVIRONMENT: Production
+        working-directory: Sommerhus.Api
         run: >
           dotnet ef database update
           --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
