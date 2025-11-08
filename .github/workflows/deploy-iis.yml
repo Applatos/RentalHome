@@ -19,6 +19,7 @@ jobs:
       MVC_SITE_ROOT: C:\WebServer\mvc_c1_vh_mms.smedt.dk\1.0.0\publish
       API_APPPOOL: SommerhusApiPool
       MVC_APPPOOL: SommerhusMvcPool
+      ConnectionStrings__Default: 'Data Source=C:\WebServer\Data\sommerhus.db'
 
     steps:
       - name: Checkout
@@ -48,6 +49,19 @@ jobs:
         run: >
           dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
+
+      - name: Restore dotnet-ef tool
+        run: dotnet tool restore --tool-manifest .\Sommerhus.Api\.config\dotnet-tools.json
+
+      - name: Apply EF Core migrations
+        shell: pwsh
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+        run: >
+          dotnet ef database update
+          --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
+          --startup-project .\Sommerhus.Api\Sommerhus.Api.csproj
+
 
       # Sæt site i "app_offline" tilstand for at undgå låste filer
       - name: Put API app offline
