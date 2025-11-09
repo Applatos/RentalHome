@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sommerhus.Domain.Models;
-using Sommerhus.Pricing.Models;
+using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Repository;
 

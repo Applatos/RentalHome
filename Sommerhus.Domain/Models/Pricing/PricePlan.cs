@@ -1,16 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sommerhus.Pricing.Models;
+namespace Sommerhus.Domain.Models.Pricing;
 
 public class PricePlan
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    // En plan hører til et sommerhus
     public Guid HouseId { get; set; }
 
     public string Name { get; set; } = "Standard";

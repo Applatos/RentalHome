@@ -1,17 +1,18 @@
-﻿using Sommerhus.Pricing.Abstractions;
-using Sommerhus.Pricing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Sommerhus.Application.Pricing.Abstractions;
+using Sommerhus.Domain.Models.Pricing;
 
-namespace Sommerhus.Pricing.Engine.Rules;
+namespace Sommerhus.Application.Pricing.Engine.Rules;
 
-    // Just a marker class for now
+// Just a marker class for now
 public class SeasonalAdjustmentRule : IPriceRule
 {
-    IRatePlanStore _store;
+    private readonly IRatePlanStore _store;
+
     public SeasonalAdjustmentRule(IRatePlanStore store) => _store = store;
 
     public async Task ApplyAsync(PricingContext ctx, CancellationToken ct)

@@ -1,12 +1,10 @@
-﻿using Sommerhus.Pricing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Sommerhus.Contracts.Dtos.Shared;
-using System.Threading.Tasks;
+using Sommerhus.Domain.Models.Pricing;
 
-namespace Sommerhus.Pricing.Abstractions;
+namespace Sommerhus.Application.Pricing.Abstractions;
 
 public sealed class PricingContext
 {
@@ -24,7 +22,7 @@ public sealed class PricingContext
         {
             var arrival = Request.Arrival;
             var count = Request.Departure.DayNumber - arrival.DayNumber;
-            return Enumerable.Range(0, count).Select(i => arrival.AddDays(i)); // captures arrival
+            return Enumerable.Range(0, count).Select(i => arrival.AddDays(i));
         }
     }
 }
