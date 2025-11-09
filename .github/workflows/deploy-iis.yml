@@ -51,18 +51,18 @@ jobs:
           dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
 
-      - name: Restore dotnet-ef tool
-        working-directory: Sommerhus.Api
-        run: dotnet tool restore
+  #    - name: Restore dotnet-ef tool
+  #      working-directory: Sommerhus.Api
+  #      run: dotnet tool restore
 
-      - name: Apply EF Core migrations
-        shell: pwsh
-        env:
-          ASPNETCORE_ENVIRONMENT: Production
-        run: >
-          dotnet ef database update
-          --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
-          --startup-project .\Sommerhus.Api\Sommerhus.Api.csproj
+  #    - name: Apply EF Core migrations
+  #      shell: pwsh
+  #      env:
+  #        ASPNETCORE_ENVIRONMENT: Production
+  #      run: >
+  #        dotnet ef database update
+  #        --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
+  #        --startup-project .\Sommerhus.Api\Sommerhus.Api.csproj
 
 
       # Sæt site i "app_offline" tilstand for at undgå låste filer
