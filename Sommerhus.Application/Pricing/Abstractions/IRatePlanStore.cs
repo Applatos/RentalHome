@@ -1,9 +1,10 @@
-﻿using Sommerhus.Pricing.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Sommerhus.Domain.Models.Pricing;
 
-namespace Sommerhus.Pricing.Abstractions;
+namespace Sommerhus.Application.Pricing.Abstractions;
 
 public interface IRatePlanStore
 {

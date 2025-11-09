@@ -11,7 +11,7 @@ using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Pricing.Models;
+using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Repository.Admin.Houses;
 

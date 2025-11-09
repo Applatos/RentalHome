@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sommerhus.Pricing.Models;
+namespace Sommerhus.Domain.Models.Pricing;
 
 public class SeasonCode
 {

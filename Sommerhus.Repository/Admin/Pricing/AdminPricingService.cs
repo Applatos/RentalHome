@@ -5,8 +5,8 @@ using Sommerhus.Application.Admin.Pricing;
 using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
 using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Pricing.Abstractions;
-using Sommerhus.Pricing.Models;
+using Sommerhus.Application.Pricing.Abstractions;
+using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Repository.Admin.Pricing;
 

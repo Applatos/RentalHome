@@ -275,7 +275,7 @@ namespace Sommerhus.Repository.Migrations
                     b.ToTable("Houses");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RateModifier", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RateModifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -314,7 +314,7 @@ namespace Sommerhus.Repository.Migrations
                     b.ToTable("RateModifiers");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RatePlan", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RatePlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -349,7 +349,7 @@ namespace Sommerhus.Repository.Migrations
                     b.ToTable("RatePlans");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RateSeason", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RateSeason", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -475,9 +475,9 @@ namespace Sommerhus.Repository.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RateModifier", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RateModifier", b =>
                 {
-                    b.HasOne("Sommerhus.Pricing.Models.RatePlan", "RatePlan")
+                    b.HasOne("Sommerhus.Domain.Models.Pricing.RatePlan", "RatePlan")
                         .WithMany("Modifiers")
                         .HasForeignKey("RatePlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -486,7 +486,7 @@ namespace Sommerhus.Repository.Migrations
                     b.Navigation("RatePlan");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RatePlan", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RatePlan", b =>
                 {
                     b.HasOne("Sommerhus.Domain.Models.VacationHouse", null)
                         .WithMany()
@@ -495,9 +495,9 @@ namespace Sommerhus.Repository.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RateSeason", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RateSeason", b =>
                 {
-                    b.HasOne("Sommerhus.Pricing.Models.RatePlan", "RatePlan")
+                    b.HasOne("Sommerhus.Domain.Models.Pricing.RatePlan", "RatePlan")
                         .WithMany("Seasons")
                         .HasForeignKey("RatePlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -525,7 +525,7 @@ namespace Sommerhus.Repository.Migrations
                     b.Navigation("Images");
                 });
 
-            modelBuilder.Entity("Sommerhus.Pricing.Models.RatePlan", b =>
+            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.RatePlan", b =>
                 {
                     b.Navigation("Modifiers");
 
