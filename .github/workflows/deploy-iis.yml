@@ -59,7 +59,6 @@ jobs:
         shell: pwsh
         env:
           ASPNETCORE_ENVIRONMENT: Production
-        working-directory: Sommerhus.Api
         run: >
           dotnet ef database update
           --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
