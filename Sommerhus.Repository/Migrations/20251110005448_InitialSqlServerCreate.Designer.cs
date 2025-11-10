@@ -12,7 +12,7 @@ using Sommerhus.Repository;
 namespace Sommerhus.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251110003712_InitialSqlServerCreate")]
+    [Migration("20251110005448_InitialSqlServerCreate")]
     partial class InitialSqlServerCreate
     {
         /// <inheritdoc />
@@ -163,8 +163,7 @@ namespace Sommerhus.Repository.Migrations
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("Name")
                         .IsRequired()

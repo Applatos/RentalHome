@@ -44,7 +44,7 @@ namespace Sommerhus.Repository.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false, collation: "NOCASE"),
+                    Key = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     ValueType = table.Column<int>(type: "int", nullable: false),
                     Unit = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     IconUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
