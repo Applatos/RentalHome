@@ -33,7 +33,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         b.Entity<Feature>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Key).IsRequired().HasMaxLength(60).UseCollation("NOCASE");
+            e.Property(x => x.Key).IsRequired().HasMaxLength(60);
             e.HasIndex(x => x.Key).IsUnique();
         });
 
