@@ -12,4 +12,4 @@ public sealed class StorageOptions
     public string? DbPath { get; init; }                // hvis SQLite/LocalDB fil
 }
 
-// "Default": "Data Source=sommerhus.db"
+//
