@@ -333,7 +333,8 @@ namespace Sommerhus.Repository.Migrations
             modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.SeasonCode", b =>
                 {
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -391,7 +392,7 @@ namespace Sommerhus.Repository.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");

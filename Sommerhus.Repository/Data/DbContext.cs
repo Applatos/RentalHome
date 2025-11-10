@@ -101,6 +101,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        b.Entity<SeasonCode>(e =>
+        {
+            e.Property(x => x.Code).HasMaxLength(10);
+        });
+
         // Area
         b.Entity<Area>(e =>
         {
