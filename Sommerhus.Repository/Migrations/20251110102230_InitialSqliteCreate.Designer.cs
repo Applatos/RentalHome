@@ -11,7 +11,7 @@ using Sommerhus.Repository;
 namespace Sommerhus.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251110100555_InitialSqliteCreate")]
+    [Migration("20251110102230_InitialSqliteCreate")]
     partial class InitialSqliteCreate
     {
         /// <inheritdoc />
