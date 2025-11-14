@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authentication;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Sommerhus.Application.Admin.Areas;
 using Sommerhus.Application.Admin.Cities;
@@ -34,6 +35,10 @@ using Sommerhus.Repository.Public.Images;
 using Sommerhus.Repository.Public.ZipCodes;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Api.Infrastructure.Storage;
+using Microsoft.IdentityModel.Tokens;
+using Sommerhus.Api.Infrastructure.Auth;
+using Sommerhus.Repository.Identity;
+using Sommerhus.Contracts.Security;
 
 
 namespace Sommerhus.Api;
@@ -52,16 +57,41 @@ public class Program
 
         builder.Services.AddControllers();
 
-        builder.Services.AddOptions<AdminAuthOptions>()
-            .BindConfiguration(AdminAuthOptions.SectionName)
+        builder.Services.AddHttpContextAccessor();
+
+        builder.Services.AddOptions<JwtOptions>()
+            .BindConfiguration(JwtOptions.SectionName)
+            .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        builder.Services.AddAuthentication("AdminBasic")
-            .AddScheme<AuthenticationSchemeOptions, AdminBasicAuthenticationHandler>(
-                "AdminBasic",
-                static _ => { });
+        var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("JWT configuration is missing.");
 
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+            });
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(AdminRoles.Admin, policy => policy.RequireRole(AdminRoles.Admin));
+        });
 
         builder.Services.AddScoped<IAdminAreaService, AdminAreaService>();
         builder.Services.AddScoped<IAdminCityService, AdminCityService>();

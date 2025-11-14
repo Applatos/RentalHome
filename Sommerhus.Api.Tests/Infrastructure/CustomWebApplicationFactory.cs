@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -8,83 +9,94 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Sommerhus.Contracts.Dtos.Admin;
 using Sommerhus.Repository;
+using Sommerhus.Repository.Identity;
 
 namespace Sommerhus.Api.Tests.Infrastructure;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private const string AdminUsername = "admin";
-    private const string AdminPassword = "sommerhus123";
-    private static readonly AuthenticationHeaderValue AdminAuthHeader = new(
-        "Basic",
-        Convert.ToBase64String(Encoding.UTF8.GetBytes($"{AdminUsername}:{AdminPassword}")));
+    private const string AdminPassword = "Sommerhus123!";
     private SqliteConnection? _conn;
     private string? _tempWebRoot;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["AdminAuth:Username"] = AdminUsername,
-                ["AdminAuth:Password"] = AdminPassword
+                ["DefaultAdmin:UserName"] = AdminUsername,
+                ["DefaultAdmin:Password"] = AdminPassword,
+                ["DefaultAdmin:Email"] = "admin@test.local",
+                ["Jwt:Issuer"] = "Sommerhus.Api",
+                ["Jwt:Audience"] = "Sommerhus.Admin",
+                ["Jwt:Key"] = "TestsJwtKey_Value_1234567890ABCDEF",
+                ["Jwt:AccessTokenMinutes"] = "120"
             });
         });
 
         builder.UseEnvironment("Testing");
 
-        // Isoleret wwwroot til uploads i tests
         _tempWebRoot = Path.Combine(Path.GetTempPath(), "sommerhus_api_tests_wwwroot", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempWebRoot);
         builder.UseWebRoot(_tempWebRoot);
-
 
         builder.ConfigureLogging(logging =>
         {
             logging.ClearProviders();
             logging.AddConsole();
-
-            // globalt: kun fejl
             logging.SetMinimumLevel(LogLevel.Information);
-
-            // specifikt for EF Core: slå helt ned
             logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.None);
             logging.AddFilter("Microsoft.EntityFrameworkCore.Infrastructure", LogLevel.None);
         });
 
         builder.ConfigureServices(services =>
         {
-            // Fjern eksisterende DbContext
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
             if (descriptor != null)
                 services.Remove(descriptor);
 
-            // Opret én persistent connection til shared in-memory
             _conn = new SqliteConnection("DataSource=:memory:");
             _conn.Open();
 
-            // Registrer DbContext med den connection
             services.AddDbContext<AppDbContext>(opt =>
             {
                 opt.UseSqlite(_conn);
             });
 
-            // Byg provider og migrer + seed
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var adminSeeder = scope.ServiceProvider.GetRequiredService<AdminIdentitySeeder>();
 
             db.Database.Migrate();
 
             Seeder.SeedMinimal(db);
+            adminSeeder.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
         });
     }
+
     protected override void ConfigureClient(HttpClient client)
     {
-        client.DefaultRequestHeaders.Authorization = AdminAuthHeader;
+        base.ConfigureClient(client);
+
+        var response = client.PostAsJsonAsync("admin/auth/login", new AdminLoginRequest
+        {
+            Username = AdminUsername,
+            Password = AdminPassword
+        }).GetAwaiter().GetResult();
+
+        response.EnsureSuccessStatusCode();
+        var token = response.Content.ReadFromJsonAsync<AdminTokenResponse>().GetAwaiter().GetResult()
+            ?? throw new InvalidOperationException("Unable to deserialize admin login response.");
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
     }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -99,6 +111,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (!string.IsNullOrWhiteSpace(_tempWebRoot) && Directory.Exists(_tempWebRoot))
                 Directory.Delete(_tempWebRoot, true);
         }
-        catch { /* no-throw on cleanup */ }
+        catch { /* ignore cleanup failures */ }
     }
 }

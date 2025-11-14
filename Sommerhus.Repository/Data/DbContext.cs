@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Sommerhus.Repository.Identity;
 
 namespace Sommerhus.Repository;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<VacationHouse> Houses => Set<VacationHouse>();
     public DbSet<HouseImage> Images => Set<HouseImage>();
@@ -29,6 +32,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     protected override void OnModelCreating(ModelBuilder b)
     {
+        base.OnModelCreating(b);
+
         // Feature
         b.Entity<Feature>(e =>
         {

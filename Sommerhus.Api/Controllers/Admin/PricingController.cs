@@ -4,11 +4,12 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Application.Admin.Pricing;
 using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
+using Sommerhus.Contracts.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "AdminBasic")]
+[Authorize(Roles = AdminRoles.Admin)]
 [Route("api/admin")]
 public sealed class PricingController(IAdminPricingService service) : ControllerBase
 {

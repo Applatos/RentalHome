@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
@@ -8,11 +6,12 @@ using Sommerhus.Application.Admin.Areas;
 using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Areas;
 using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Contracts.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "AdminBasic")]
+[Authorize(Roles = AdminRoles.Admin)]
 [Route("api/admin/areas")]
 public sealed class AreasController(IAdminAreaService service) : ControllerBase
 {
