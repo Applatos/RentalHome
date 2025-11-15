@@ -87,7 +87,7 @@ jobs:
           $dst = "$env:API_SITE_ROOT"
               # Persistente paths i destination som IKKE må røres
           $excludeDirs = @(
-            Join-Path $dst 'wwwroot\uploads'
+            Join-Path $dst 'wwwroot'
             Join-Path $dst 'Data'
             Join-Path $dst 'logs'
           )
