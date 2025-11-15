@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
+using Sommerhus.Contracts.Security;
 using Sommerhus.Application.Admin.Images;
 using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Shared;
@@ -8,7 +9,7 @@ using Sommerhus.Contracts.Dtos.Shared;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "AdminBasic")]
+[Authorize(Roles = AdminRoles.Admin)]
 [Route("api/admin/areas/{areaId:guid}/images")]
 public sealed class AreaImagesController(IAdminAreaImageService service) : ControllerBase
 {

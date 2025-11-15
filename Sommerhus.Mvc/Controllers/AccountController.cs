@@ -1,17 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using Sommerhus.Contracts.Dtos.Admin;
+using Sommerhus.Contracts.Security;
 using Sommerhus.Mvc.Infrastructure;
+using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers;
 
-public sealed class AccountController(IOptions<AdminAuthOptions> options) : Controller
+public sealed class AccountController(AdminAuthClient authClient) : Controller
 {
-    private readonly AdminAuthOptions adminOptions = options.Value;
+    private readonly AdminAuthClient adminAuthClient = authClient;
 
     [AllowAnonymous]
     [HttpGet("/account/login")]
@@ -35,12 +38,28 @@ public sealed class AccountController(IOptions<AdminAuthOptions> options) : Cont
             return View(model);
         }
 
-        if (IsValid(model.Username, model.Password))
-        {
-            var claims = new[]
+        var response = await adminAuthClient.LoginAsync(
+            new AdminLoginRequest
             {
-                new Claim(ClaimTypes.Name, model.Username)
+                Username = model.Username,
+                Password = model.Password
+            },
+            HttpContext.RequestAborted);
+
+        if (response.Ok && response.Data is { } token && !string.IsNullOrWhiteSpace(token.Token))
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, model.Username),
+                new Claim(ClaimTypes.Role, AdminRoles.Admin),
+                new Claim(SommerhusClaimTypes.AdminAccessToken, token.Token)
             };
+
+            if (token.ExpiresAt != default)
+            {
+                claims.Add(new Claim(ClaimTypes.Expiration, token.ExpiresAt.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)));
+            }
+
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
@@ -61,10 +80,6 @@ public sealed class AccountController(IOptions<AdminAuthOptions> options) : Cont
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Houses");
     }
-
-    private bool IsValid(string username, string password)
-        => string.Equals(username, adminOptions.Username, StringComparison.Ordinal) &&
-           string.Equals(password, adminOptions.Password, StringComparison.Ordinal);
 
     private IActionResult RedirectToLocal(string? returnUrl)
     {
