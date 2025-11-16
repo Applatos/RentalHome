@@ -42,9 +42,12 @@ jobs:
         run: dotnet build --configuration $env:CONFIGURATION --no-restore
 
       - name: Publish API
-        run: >
-          dotnet publish $env:API_PROJECT -c $env:CONFIGURATION
-          -o "$env:PUBLISH_DIR\Sommerhus.Api"
+        run: |
+          dotnet publish $env:API_PROJECT -c $env:CONFIGURATION `
+            --no-self-contained /p:CopyLocalLockFileAssemblies=true `
+            -o "$env:PUBLISH_DIR\Sommerhus.Api"
+
+
 
       - name: Publish MVC
         run: >
