@@ -33,7 +33,6 @@ public static class ServiceCollectionExtensions
         services.AddOptions<DefaultAdminOptions>()
             .BindConfiguration(DefaultAdminOptions.SectionName)
             .ValidateOnStart();
-
         services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = false;
