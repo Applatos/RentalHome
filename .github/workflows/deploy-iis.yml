@@ -41,31 +41,25 @@ jobs:
       - name: Build
         run: dotnet build --configuration $env:CONFIGURATION --no-restore
 
+      - name: Clean previous publish directory
+        shell: pwsh
+        run: |
+          if (Test-Path $env:PUBLISH_DIR) {
+            Write-Host "Cleaning directory: $env:PUBLISH_DIR"
+            Remove-Item -Path $env:PUBLISH_DIR -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $env:PUBLISH_DIR | Out-Null
+
       - name: Publish API
         run: |
           dotnet publish $env:API_PROJECT -c $env:CONFIGURATION `
             --no-self-contained /p:CopyLocalLockFileAssemblies=true `
             -o "$env:PUBLISH_DIR\Sommerhus.Api"
 
-
-
       - name: Publish MVC
         run: >
           dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
-
-  #    - name: Restore dotnet-ef tool
-  #      working-directory: Sommerhus.Api
-  #      run: dotnet tool restore
-
-  #    - name: Apply EF Core migrations
-  #      shell: pwsh
-  #      env:
-  #        ASPNETCORE_ENVIRONMENT: Production
-  #      run: >
-  #        dotnet ef database update
-  #        --project .\Sommerhus.Repository\Sommerhus.Repository.csproj
-  #        --startup-project .\Sommerhus.Api\Sommerhus.Api.csproj
 
 
       # Sæt site i "app_offline" tilstand for at undgå låste filer
