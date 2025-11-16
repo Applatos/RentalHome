@@ -89,10 +89,10 @@ public static class ServiceCollectionExtensions
             using var scope = serviceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            //await db.Database.MigrateAsync(cancellationToken);
+            await db.Database.MigrateAsync(cancellationToken);
 
             var identitySeeder = scope.ServiceProvider.GetRequiredService<AdminIdentitySeeder>();
-            //await identitySeeder.SeedAsync(cancellationToken);
+            await identitySeeder.SeedAsync(cancellationToken);
 
             if (environment.IsDevelopment())
             {
