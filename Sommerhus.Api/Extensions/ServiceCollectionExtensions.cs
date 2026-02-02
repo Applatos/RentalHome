@@ -42,6 +42,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminFeatureService, AdminFeatureService>();
         services.AddScoped<IAdminHouseGroupService, AdminHouseGroupService>();
         services.AddScoped<IAdminHouseService, AdminHouseService>();
+        services.AddScoped<IAdminHouseFeatureService, AdminHouseFeatureService>();
+        services.AddScoped<IAdminHousePricingService, AdminHousePricingService>();
         services.AddScoped<IAdminPricingService, AdminPricingService>();
         services.AddScoped<IAdminAreaImageService, AdminAreaImageService>();
         services.AddScoped<IAdminCityImageService, AdminCityImageService>();

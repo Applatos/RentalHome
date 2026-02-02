@@ -26,6 +26,10 @@ public sealed class BaseNightlyRateRule : IPriceRule
         }
 
         var plan = ctx.RatePlan ??= await _store.GetActivePlanAsync(ctx.Request.HouseId, ct);
+        if (plan is null)
+        {
+            return;
+        }
 
         ctx.Currency = plan.Currency;
 

@@ -1,5 +1,8 @@
-﻿namespace Sommerhus.Contracts.Dtos.Admin.Features;
+﻿namespace Sommerhus.Contracts.Dtos.Shared;
 
+/// <summary>
+/// Represents a feature value assigned to a house.
+/// </summary>
 public sealed record FeatureValueDto(
     Guid Id,
     string Name,

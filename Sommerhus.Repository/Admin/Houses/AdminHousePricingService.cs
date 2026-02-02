@@ -1,0 +1,100 @@
+using Microsoft.EntityFrameworkCore;
+using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Common;
+using Sommerhus.Contracts.Dtos.Admin.Pricing;
+using Sommerhus.Domain.Models.Pricing;
+
+namespace Sommerhus.Repository.Admin.Houses;
+
+public sealed class AdminHousePricingService : IAdminHousePricingService
+{
+    private readonly AppDbContext db;
+
+    public AdminHousePricingService(AppDbContext db)
+    {
+        this.db = db;
+    }
+
+    public async Task<ServiceResult<PricePlanDetailsDto>> UpsertPricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
+    {
+        var house = await db.Houses.AsNoTracking().Include(h => h.Group).FirstOrDefaultAsync(h => h.Id == houseId, ct);
+        if (house is null)
+        {
+            return ServiceResult<PricePlanDetailsDto>.NotFound();
+        }
+
+        PricePlan? plan = null;
+        if (dto.planId != Guid.Empty)
+        {
+            plan = await db.PricePlans
+                .Include(p => p.SeasonPrices)
+                .FirstOrDefaultAsync(p => p.HouseId == houseId && p.Id == dto.planId, ct);
+        }
+
+        plan ??= new PricePlan
+        {
+            HouseId = houseId
+        };
+
+        plan.Name = dto.Name;
+        plan.Currency = dto.Currency;
+        plan.IsActive = dto.IsActive;
+        plan.UpdatedUtc = DateTime.UtcNow;
+
+        if (db.Entry(plan).State == EntityState.Detached)
+        {
+            db.PricePlans.Add(plan);
+        }
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+
+        await db.SeasonPrices
+            .Where(s => s.PricePlanId == plan.Id)
+            .ExecuteDeleteAsync(ct);
+
+        if (dto.SeasonPrices.Count > 0)
+        {
+            var entities = dto.SeasonPrices.Select(s => new SeasonPrice
+            {
+                Id = Guid.NewGuid(),
+                PricePlanId = plan.Id,
+                Code = s.Code,
+                NightlyPrice = s.NightlyPrice,
+            }).ToList();
+
+            await db.SeasonPrices.AddRangeAsync(entities, ct);
+        }
+
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+
+        var refreshed = await db.PricePlans
+            .AsNoTracking()
+            .Include(p => p.SeasonPrices)
+            .FirstAsync(p => p.Id == plan.Id, ct);
+
+        return ServiceResult<PricePlanDetailsDto>.Success(MapPlan(refreshed));
+    }
+
+    private static PricePlanDetailsDto MapPlan(PricePlan plan)
+    {
+        var rates = plan.SeasonPrices
+             .OrderBy(s => s.Code, StringComparer.OrdinalIgnoreCase)
+             .Select(s => new SeasonPriceDto(
+                s.Id,
+                s.PricePlanId,
+                s.Code,
+                s.NightlyPrice))
+            .ToList();
+
+        return new PricePlanDetailsDto(
+            plan.Id,
+            plan.HouseId,
+            plan.Name,
+            plan.Currency,
+            plan.IsActive,
+            plan.CreatedUtc,
+            plan.UpdatedUtc,
+            rates);
+    }
+}

@@ -68,6 +68,26 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 opt.UseSqlite(_conn);
             });
 
+            // Override JWT bearer validation to use test config values
+            services.PostConfigure<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions>(
+                Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme,
+                options =>
+                {
+                    var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes("TestsJwtKey_Value_1234567890ABCDEF"));
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "Sommerhus.Api",
+                        ValidAudience = "Sommerhus.Admin",
+                        IssuerSigningKey = key,
+                        ClockSkew = TimeSpan.FromMinutes(1)
+                    };
+                });
+
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

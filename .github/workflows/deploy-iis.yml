@@ -2,8 +2,8 @@ name: Build & Deploy to IIS (Self-hosted)
 
 on:
   push:
-    branches: [ "master" ]   # deploy når du pusher til main
-  workflow_dispatch:       # mulighed for manuel kørsel
+    branches: ["master"] # deploy når du pusher til main
+  workflow_dispatch: # mulighed for manuel kørsel
 
 jobs:
   deploy:
@@ -31,7 +31,7 @@ jobs:
         run: |
           if (!(Test-Path $env:PUBLISH_DIR)) { New-Item -ItemType Directory -Path $env:PUBLISH_DIR | Out-Null }
           Write-Host "Using publish dir: $env:PUBLISH_DIR"
-    
+
       - name: Who am I (runner identity)?
         run: whoami
 
@@ -60,7 +60,6 @@ jobs:
         run: >
           dotnet publish $env:MVC_PROJECT -c $env:CONFIGURATION
           -o "$env:PUBLISH_DIR\Sommerhus.Mvc"
-
 
       # Sæt site i "app_offline" tilstand for at undgå låste filer
       - name: Put API app offline
@@ -94,7 +93,7 @@ jobs:
           $roboArgs = @($src, $dst, '/MIR', '/R:1', '/W:1', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
           if ($excludeDirs) { $roboArgs += @('/XD'); $roboArgs += $excludeDirs }
           if ($excludeFiles){ $roboArgs += @('/XF'); $roboArgs += $excludeFiles }
-          
+
           $null = robocopy $roboArgs
           $code = $LASTEXITCODE
           if ($code -gt 7) {
@@ -104,7 +103,7 @@ jobs:
             exit 0
           }
       - name: Deploy MVC files
-        run:  |
+        run: |
           $src = "$env:PUBLISH_DIR\Sommerhus.Mvc"
           $dst = "$env:MVC_SITE_ROOT"
           $excludeDirs = @(
@@ -118,16 +117,16 @@ jobs:
           $roboArgs = @($src, $dst, '/MIR', '/R:1', '/W:1', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
           if ($excludeDirs) { $roboArgs += @('/XD'); $roboArgs += $excludeDirs }
           if ($excludeFiles){ $roboArgs += @('/XF'); $roboArgs += $excludeFiles }
-          
-          $null = robocopy $src $dst /MIR /R:1 /W:1
+
+          $null = robocopy @roboArgs
           $code = $LASTEXITCODE
           if ($code -gt 7) {
             exit 1
           } else {
-            $global:LASTEXITCODE = 0   # <- vigtigt: nulstil så pwsh ikke afslutter med 3
+            $global:LASTEXITCODE = 0   # Reset so pwsh doesn't exit with code 3
             exit 0
           }
-          
+
       # Start pools igen
       - name: Start AppPools
         shell: pwsh

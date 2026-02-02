@@ -97,6 +97,7 @@ public static class Seeder
             HouseId = house.Id,
             Name = "Standard",
             Currency = "DKK",
+            IsActive = true,
             SeasonPrices = seasonRates
         };
 

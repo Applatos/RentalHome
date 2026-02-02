@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
@@ -113,9 +114,9 @@ public class PricingTests : IDisposable
         using var response = await client.DeleteAsync($"/api/admin/houses/{SeededHouseId}/pricing/rate-plans/{foreignPlan.Id}");
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var problem = await response.ReadProblem();
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
         problem.Should().NotBeNull();
-        problem!.Detail.Should().Contain("Rate plan belongs to another house.");
+        problem!.Errors.Values.SelectMany(v => v).Should().Contain(m => m.Contains("Rate plan belongs to another house."));
     }
 
     private static async Task<Guid> SeedRatePlanAsync(IServiceProvider services, Guid houseId, string name)

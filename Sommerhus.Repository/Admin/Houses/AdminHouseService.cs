@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Application.Admin.Houses;
 using Sommerhus.Application.Common;
 using Sommerhus.Application.Storage;
-using Sommerhus.Domain.Models;
-using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
 using Sommerhus.Contracts.Dtos.Admin.Pricing;
+using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Repository.Admin.Houses;
@@ -179,106 +179,6 @@ public sealed class AdminHouseService : IAdminHouseService
         return ServiceResult.Success();
     }
 
-    public async Task<FeatureUpsertOutcome> UpsertFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
-    {
-        var houseExists = await db.Houses.AsNoTracking().AnyAsync(h => h.Id == houseId, ct);
-        if (!houseExists)
-        {
-            return FeatureUpsertOutcome.NotFound;
-        }
-
-        var normalized = FeatureValueNormalizer.Normalize(houseId, values);
-
-        var featureIds = normalized.Select(i => i.FeatureId).Distinct().ToList();
-        if (featureIds.Count > 0)
-        {
-            var existingFeatureIds = await db.Features
-                .AsNoTracking()
-                .Where(f => featureIds.Contains(f.Id))
-                .Select(f => f.Id)
-                .ToListAsync(ct);
-
-            var missing = featureIds.Except(existingFeatureIds).ToList();
-            if (missing.Count > 0)
-            {
-                return new FeatureUpsertOutcome(true, missing);
-            }
-        }
-
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
-        await db.HouseFeatures.Where(hf => hf.HouseId == houseId).ExecuteDeleteAsync(ct);
-
-        if (normalized.Count > 0)
-        {
-            await db.HouseFeatures.AddRangeAsync(normalized, ct);
-            await db.SaveChangesAsync(ct);
-        }
-
-        await tx.CommitAsync(ct);
-        return FeatureUpsertOutcome.Success;
-    }
-
-    public async Task<ServiceResult<PricePlanDetailsDto>> UpsertPricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
-    {
-        var house = await db.Houses.AsNoTracking().Include(h => h.Group).FirstOrDefaultAsync(h => h.Id == houseId, ct);
-        if (house is null)
-        {
-            return ServiceResult<PricePlanDetailsDto>.NotFound();
-        }
-
-        PricePlan? plan = null;
-        if (dto.planId != Guid.Empty)
-        {
-            plan = await db.PricePlans
-                .Include(p => p.SeasonPrices)
-                .FirstOrDefaultAsync(p => p.HouseId == houseId && p.Id == dto.planId, ct);
-        }
-
-        plan ??= new PricePlan
-        {
-            HouseId = houseId
-        };
-
-        plan.Name = dto.Name;
-        plan.Currency = dto.Currency;
-        plan.IsActive = dto.IsActive;
-        plan.UpdatedUtc = DateTime.UtcNow;
-
-        if (db.Entry(plan).State == EntityState.Detached)
-        {
-            db.PricePlans.Add(plan);
-        }
-
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
-
-        await db.SeasonPrices
-            .Where(s => s.PricePlanId == plan.Id)
-            .ExecuteDeleteAsync(ct);
-
-        if (dto.SeasonPrices.Count > 0)
-        {
-            var entities = dto.SeasonPrices.Select(s => new SeasonPrice
-            {
-                Id = Guid.NewGuid(),
-                PricePlanId = plan.Id,
-                Code = s.Code,
-                NightlyPrice = s.NightlyPrice,
-            }).ToList();
-
-            await db.SeasonPrices.AddRangeAsync(entities, ct);
-        }
-
-        await db.SaveChangesAsync(ct);
-        await tx.CommitAsync(ct);
-
-        var refreshed = await db.PricePlans
-            .AsNoTracking()
-            .Include(p => p.SeasonPrices)
-            .FirstAsync(p => p.Id == plan.Id, ct);
-
-        return ServiceResult<PricePlanDetailsDto>.Success(MapPlan(refreshed));
-    }
-
     private async Task<ServiceResult<IReadOnlyList<Area>>> ResolveAreasAsync(IEnumerable<Guid>? areaIds, CancellationToken ct)
     {
         if (areaIds is null)
@@ -367,6 +267,17 @@ public sealed class AdminHouseService : IAdminHouseService
             planDto);
     }
 
+    private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)
+    {
+        var dict = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        foreach (var pair in errors)
+        {
+            dict[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
+        }
+
+        return dict;
+    }
+
     private static PricePlanDetailsDto MapPlan(PricePlan plan)
     {
         var rates = plan.SeasonPrices
@@ -387,16 +298,5 @@ public sealed class AdminHouseService : IAdminHouseService
             plan.CreatedUtc,
             plan.UpdatedUtc,
             rates);
-    }
-
-    private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)
-    {
-        var dict = new Dictionary<string, string[]>(StringComparer.Ordinal);
-        foreach (var pair in errors)
-        {
-            dict[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
-        }
-
-        return dict;
     }
 }

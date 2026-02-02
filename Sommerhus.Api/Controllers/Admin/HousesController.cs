@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
@@ -15,22 +14,25 @@ namespace Sommerhus.Api.Controllers.Admin;
 [ApiController]
 [Authorize(Roles = AdminRoles.Admin)]
 [Route("api/admin/houses")]
-public sealed class HousesController(IAdminHouseService service) : ControllerBase
+public sealed class HousesController(
+    IAdminHouseService houseService,
+    IAdminHouseFeatureService featureService,
+    IAdminHousePricingService pricingService) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<HouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
-        => service.SearchAsync(query, page, pageSize, ct);
+        => houseService.SearchAsync(query, page, pageSize, ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)
-        => this.FromResult(await service.GetDetailsAsync(id, Request, ct));
+        => this.FromResult(await houseService.GetDetailsAsync(id, Request, ct));
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertHouseDto dto, CancellationToken ct)
     {
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-        var result = await service.CreateAsync(dto, ct);
+        var result = await houseService.CreateAsync(dto, ct);
         return result.Status switch
         {
             ServiceResultStatus.Success => CreatedAtAction(nameof(Get), new { id = result.Value }, result.Value),
@@ -46,7 +48,7 @@ public sealed class HousesController(IAdminHouseService service) : ControllerBas
     {
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-        var result = await service.UpdateAsync(id, dto, ct);
+        var result = await houseService.UpdateAsync(id, dto, ct);
         return result.Status switch
         {
             ServiceResultStatus.Success => NoContent(),
@@ -61,7 +63,7 @@ public sealed class HousesController(IAdminHouseService service) : ControllerBas
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await service.DeleteAsync(id, ct);
+        var result = await houseService.DeleteAsync(id, ct);
         return result.Status switch
         {
             ServiceResultStatus.Success => NoContent(),
@@ -79,7 +81,7 @@ public sealed class HousesController(IAdminHouseService service) : ControllerBas
             return BadRequest("Feature values are required.");
         }
 
-        var outcome = await service.UpsertFeaturesAsync(houseId, values, ct);
+        var outcome = await featureService.UpsertFeaturesAsync(houseId, values, ct);
         if (!outcome.HouseFound)
         {
             return NotFound();
@@ -100,7 +102,7 @@ public sealed class HousesController(IAdminHouseService service) : ControllerBas
             return ValidationProblem(ModelState);
         }
 
-        var result = await service.UpsertPricingAsync(houseId, dto, ct);
+        var result = await pricingService.UpsertPricingAsync(houseId, dto, ct);
 
         return result.Status switch
         {
