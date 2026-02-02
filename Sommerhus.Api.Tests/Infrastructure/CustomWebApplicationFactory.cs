@@ -73,17 +73,17 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var adminSeeder = scope.ServiceProvider.GetRequiredService<AdminIdentitySeeder>();
 
-            db.Database.Migrate();
+            db.Database.EnsureCreated();
 
             Seeder.SeedMinimal(db);
             adminSeeder.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
         });
     }
 
-    protected override void ConfigureClient(HttpClient client)
+    public HttpClient CreateAuthenticatedClient()
     {
-        base.ConfigureClient(client);
-
+        var client = CreateClient();
+        
         var response = client.PostAsJsonAsync("admin/auth/login", new AdminLoginRequest
         {
             Username = AdminUsername,
@@ -95,6 +95,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             ?? throw new InvalidOperationException("Unable to deserialize admin login response.");
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        return client;
     }
 
     protected override void Dispose(bool disposing)

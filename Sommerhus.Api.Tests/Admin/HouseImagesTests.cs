@@ -13,18 +13,24 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Api.Tests.Admin;
 
-public class HouseImagesTests : IClassFixture<CustomWebApplicationFactory>
+public class HouseImagesTests : IDisposable
 {
     private readonly CustomWebApplicationFactory factory;
     private readonly HttpClient client;
     private readonly IWebHostEnvironment environment;
 
-    public HouseImagesTests(CustomWebApplicationFactory factory)
+    public HouseImagesTests()
     {
-        this.factory = factory;
-        client = factory.CreateClient();
+        factory = new CustomWebApplicationFactory();
+        client = factory.CreateAuthenticatedClient();
         using var scope = factory.Services.CreateScope();
         environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    }
+
+    public void Dispose()
+    {
+        client.Dispose();
+        factory.Dispose();
     }
 
     [Fact]

@@ -12,18 +12,24 @@ using Xunit.Abstractions;
 
 namespace Sommerhus.Api.Tests.Admin;
 
-public class PricingTests : IClassFixture<CustomWebApplicationFactory>
+public class PricingTests : IDisposable
 {
     private readonly CustomWebApplicationFactory factory;
     private readonly HttpClient client;
     private readonly ITestOutputHelper output;
     private static readonly Guid SeededHouseId = new("5fb7097c-335c-4d07-b4fd-000004e2d28c");
 
-    public PricingTests(CustomWebApplicationFactory factory, ITestOutputHelper output)
+    public PricingTests(ITestOutputHelper output)
     {
-        this.factory = factory;
+        factory = new CustomWebApplicationFactory();
         this.output = output;
-        client = factory.CreateClient();
+        client = factory.CreateAuthenticatedClient();
+    }
+
+    public void Dispose()
+    {
+        client.Dispose();
+        factory.Dispose();
     }
 
     [Fact]
