@@ -13,10 +13,11 @@ public class HousesController(IHouseQueryService houses) : ControllerBase
         [FromQuery] string? city,
         [FromQuery] string? zip,
         [FromQuery(Name = "q")] string? query,
+        [FromQuery] Guid? area,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
-        => houses.SearchAsync(city, zip, query, page, pageSize, Request, ct);
+        => houses.SearchAsync(city, zip, query, area, page, pageSize, Request, ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)

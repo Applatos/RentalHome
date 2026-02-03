@@ -59,6 +59,6 @@ public sealed class HouseGroupServiceTests : IClassFixture<CustomWebApplicationF
 
         result.Status.Should().Be(ServiceResultStatus.Conflict);
         result.Errors.Should().ContainKey(nameof(HouseGroupDto.name));
-        result.Errors[nameof(HouseGroupDto.name)].Should().Contain("En gruppe med dette navn findes allerede.");
+        result.Errors[nameof(HouseGroupDto.name)].Should().Contain("A group with this name already exists.");
     }
 }

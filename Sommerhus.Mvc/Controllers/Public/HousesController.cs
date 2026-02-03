@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Contracts.Dtos.Public.Areas;
+using Sommerhus.Contracts.Dtos.Public.Houses;
 using Sommerhus.Contracts.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using System.Net;
@@ -16,16 +18,26 @@ public sealed class HousesController(SommerhusApi _api) : Controller
 
     // HOUSES (master + pagination)
     [HttpGet("/houses")]
-    public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] int page = 0, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] Guid? area, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
-        var res = await _api.GetHousesAsync(q, page, pageSize, ct);
+        var areasTask = _api.GetAreasAsync(null, ct);
+        var housesTask = _api.GetHousesAsync(q, area, page, pageSize, ct);
 
-        if (!res.Ok)
+        await Task.WhenAll(areasTask, housesTask);
+
+        var areasRes = areasTask.Result;
+        var housesRes = housesTask.Result;
+
+        ViewBag.Query = q ?? "";
+        ViewBag.Area = area?.ToString() ?? "";
+        ViewBag.Areas = areasRes.Ok && areasRes.Data is not null ? areasRes.Data : Array.Empty<AreaListItemDto>();
+
+        if (!housesRes.Ok)
         {
-            TempData["Err"] = res.Message ?? "could not find house list";
-            return View();
+            TempData["Err"] = housesRes.Message ?? "Could not load houses";
+            return View(Array.Empty<HouseListItemDto>());
         }
-        return View(res.Data);
+        return View(housesRes.Data);
     }
 
 

@@ -11,12 +11,13 @@ public sealed class SommerhusApi
 
     public SommerhusApi(HttpClient http) => this.http = http;
 
-    public Task<ApiResponse<IReadOnlyList<HouseListItemDto>?>> GetHousesAsync(string? q = null, int skip = 0, int take = 20, CancellationToken ct = default)
+    public Task<ApiResponse<IReadOnlyList<HouseListItemDto>?>> GetHousesAsync(string? q = null, Guid? areaId = null, int page = 1, int pageSize = 20, CancellationToken ct = default)
     {
         var filters = new List<string>();
         if (!string.IsNullOrWhiteSpace(q)) filters.Add($"q={Uri.EscapeDataString(q.Trim())}");
-        if (skip > 0) filters.Add($"skip={skip}");
-        if (take > 0) filters.Add($"take={Math.Min(take, 100)}");
+        if (areaId.HasValue && areaId.Value != Guid.Empty) filters.Add($"area={areaId.Value}");
+        if (page > 1) filters.Add($"page={page}");
+        if (pageSize != 20) filters.Add($"pageSize={Math.Min(pageSize, 100)}");
 
         var url = filters.Count > 0 ? $"api/houses?{string.Join("&", filters)}" : "api/houses";
         return ApiHttp.GetAsync<IReadOnlyList<HouseListItemDto>?>(http, url, ct);

@@ -11,6 +11,9 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Repository.Admin.Images;
 
+/// <summary>
+/// Manages images for VacationHouse entities.
+/// </summary>
 public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseImageService
 {
     public AdminHouseImageService(AppDbContext db, IImageStorage storage)
@@ -37,7 +40,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
         }
 
         var dtos = images
-            .Select(i => new ImageDto(i.Id, BuildUrl(request, ImageCategory.House, houseId, i.FileName), i.Alt, i.Kind.ToString()))
+            .Select(i => ToDto(i.Id, request, ImageCategory.House, houseId, i.FileName, i.Alt, i.Kind.ToString()))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
@@ -45,10 +48,9 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
 
     public async Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid houseId, IFormFileCollection files, HttpRequest request, CancellationToken ct)
     {
-        if (files is null || files.Count == 0)
-        {
-            return ServiceResult<IReadOnlyList<ImageDto>>.Invalid("files", "At least one image file must be provided.");
-        }
+        var validationError = ValidateFileCollection(files);
+        if (validationError is not null)
+            return validationError;
 
         var exists = await Db.Houses.AsNoTracking().AnyAsync(h => h.Id == houseId, ct);
         if (!exists)
@@ -69,7 +71,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
                 return ServiceResult<IReadOnlyList<ImageDto>>.Invalid("files", "Only image files are allowed.");
             }
 
-            var stored = await Storage.SaveAsync(ImageCategory.House, houseId, file, ct);
+            var stored = await SaveToStorageAsync(ImageCategory.House, houseId, file, ct);
             added.Add(new HouseImage
             {
                 HouseId = houseId,
@@ -87,7 +89,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
         await Db.SaveChangesAsync(ct);
 
         var dtos = added
-            .Select(img => new ImageDto(img.Id, BuildUrl(request, ImageCategory.House, houseId, img.FileName), img.Alt, img.Kind.ToString()))
+            .Select(img => ToDto(img.Id, request, ImageCategory.House, houseId, img.FileName, img.Alt, img.Kind.ToString()))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
@@ -104,7 +106,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
         Db.Images.Remove(image);
         await Db.SaveChangesAsync(ct);
 
-        await Storage.DeleteAsync(ImageCategory.House, houseId, image.FileName, ct);
+        await DeleteFromStorageAsync(ImageCategory.House, houseId, image.FileName, ct);
         return ServiceResult.Success();
     }
 

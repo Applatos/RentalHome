@@ -11,6 +11,9 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Repository.Admin.Images;
 
+/// <summary>
+/// Manages images for Area entities.
+/// </summary>
 public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaImageService
 {
     public AdminAreaImageService(AppDbContext db, IImageStorage storage)
@@ -34,7 +37,7 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
             .ToListAsync(ct);
 
         var dtos = images
-            .Select(i => new ImageDto(i.Id, BuildUrl(request, ImageCategory.Area, areaId, i.FileName), null, "Gallery"))
+            .Select(i => ToDto(i.Id, request, ImageCategory.Area, areaId, i.FileName, null, "Gallery"))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
@@ -42,15 +45,9 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
 
     public async Task<ServiceResult<ImageDto>> UploadAsync(Guid areaId, IFormFile file, HttpRequest request, CancellationToken ct)
     {
-        if (file is null || file.Length == 0)
-        {
-            return ServiceResult<ImageDto>.Invalid("file", "Image file is required.");
-        }
-
-        if (!IsValidImageFile(file))
-        {
-            return ServiceResult<ImageDto>.Invalid("file", "Only image files are allowed.");
-        }
+        var validationError = ValidateSingleFile<ImageDto>(file);
+        if (validationError is not null)
+            return validationError;
 
         var exists = await Db.Areas.AsNoTracking().AnyAsync(a => a.Id == areaId, ct);
         if (!exists)
@@ -58,14 +55,13 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
             return ServiceResult<ImageDto>.NotFound();
         }
 
-        var stored = await Storage.SaveAsync(ImageCategory.Area, areaId, file, ct);
+        var stored = await SaveToStorageAsync(ImageCategory.Area, areaId, file!, ct);
 
         var image = new AreaImage { AreaId = areaId, FileName = stored.FileName, SortOrder = 0 };
         Db.AreaImages.Add(image);
         await Db.SaveChangesAsync(ct);
 
-        var dto = new ImageDto(image.Id, BuildUrl(request, ImageCategory.Area, areaId, image.FileName), null, "Gallery");
-        return ServiceResult<ImageDto>.Success(dto);
+        return ServiceResult<ImageDto>.Success(ToDto(image.Id, request, ImageCategory.Area, areaId, image.FileName, null, "Gallery"));
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid areaId, Guid imageId, CancellationToken ct)
@@ -79,8 +75,7 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
         Db.AreaImages.Remove(image);
         await Db.SaveChangesAsync(ct);
 
-        await Storage.DeleteAsync(ImageCategory.Area, areaId, image.FileName, ct);
-
+        await DeleteFromStorageAsync(ImageCategory.Area, areaId, image.FileName, ct);
         return ServiceResult.Success();
     }
 }

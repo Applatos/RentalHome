@@ -11,6 +11,9 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Repository.Admin.Images;
 
+/// <summary>
+/// Manages images for City entities.
+/// </summary>
 public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityImageService
 {
     public AdminCityImageService(AppDbContext db, IImageStorage storage)
@@ -33,7 +36,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
         var dtos = city.Images
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id, BuildUrl(request, ImageCategory.City, city.Id, i.FileName), i.Alt, "city"))
+            .Select(i => ToDto(i.Id, request, ImageCategory.City, city.Id, i.FileName, i.Alt, "city"))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
@@ -41,15 +44,9 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
 
     public async Task<ServiceResult<ImageDto>> UploadAsync(Guid cityId, IFormFile file, string? alt, HttpRequest request, CancellationToken ct)
     {
-        if (file is null || file.Length == 0)
-        {
-            return ServiceResult<ImageDto>.Invalid("file", "Image file is required.");
-        }
-
-        if (!IsValidImageFile(file))
-        {
-            return ServiceResult<ImageDto>.Invalid("file", "Only image files are allowed.");
-        }
+        var validationError = ValidateSingleFile<ImageDto>(file);
+        if (validationError is not null)
+            return validationError;
 
         var city = await Db.Cities.Include(c => c.Images).FirstOrDefaultAsync(c => c.Id == cityId, ct);
         if (city is null)
@@ -57,7 +54,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
             return ServiceResult<ImageDto>.NotFound();
         }
 
-        var stored = await Storage.SaveAsync(ImageCategory.City, cityId, file, ct);
+        var stored = await SaveToStorageAsync(ImageCategory.City, cityId, file!, ct);
 
         var sortOrder = city.Images.Count == 0 ? 0 : city.Images.Max(i => i.SortOrder) + 10;
         var image = new CityImage
@@ -71,8 +68,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
         Db.CityImages.Add(image);
         await Db.SaveChangesAsync(ct);
 
-        var dto = new ImageDto(image.Id, BuildUrl(request, ImageCategory.City, cityId, image.FileName), image.Alt, "city");
-        return ServiceResult<ImageDto>.Success(dto);
+        return ServiceResult<ImageDto>.Success(ToDto(image.Id, request, ImageCategory.City, cityId, image.FileName, image.Alt, "city"));
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid cityId, Guid imageId, CancellationToken ct)
@@ -86,7 +82,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
         Db.CityImages.Remove(image);
         await Db.SaveChangesAsync(ct);
 
-        await Storage.DeleteAsync(ImageCategory.City, cityId, image.FileName, ct);
+        await DeleteFromStorageAsync(ImageCategory.City, cityId, image.FileName, ct);
         return ServiceResult.Success();
     }
 }

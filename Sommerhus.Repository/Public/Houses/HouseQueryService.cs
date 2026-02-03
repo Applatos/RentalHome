@@ -24,7 +24,7 @@ public sealed class HouseQueryService : IHouseQueryService
         this.storage = storage;
     }
 
-    public async Task<IEnumerable<HouseListItemDto>> SearchAsync(string? city, string? zip, string? query, int page, int pageSize, HttpRequest request, CancellationToken ct)
+    public async Task<IEnumerable<HouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, HttpRequest request, CancellationToken ct)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -36,6 +36,11 @@ public sealed class HouseQueryService : IHouseQueryService
             .Include(h => h.HouseFeatures).ThenInclude(v => v.Feature)
             .OrderByDescending(h => h.CreatedUtc)
             .AsQueryable();
+
+        if (areaId.HasValue && areaId.Value != Guid.Empty)
+        {
+            houseQuery = houseQuery.Where(h => h.Areas.Any(a => a.Id == areaId.Value));
+        }
 
         if (!string.IsNullOrWhiteSpace(city))
         {

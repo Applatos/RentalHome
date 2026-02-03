@@ -15,8 +15,22 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class HouseGroupsController(IAdminHouseGroupService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IReadOnlyList<LookupItem>> List(CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<HouseGroupListItemDto>>> List(CancellationToken ct)
+    {
+        var result = await service.ListAsync(ct);
+        return this.FromResult(result);
+    }
+
+    [HttpGet("lookup")]
+    public async Task<IReadOnlyList<LookupItem>> Lookup(CancellationToken ct)
         => await service.GetAllAsync(ct);
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<HouseGroupDetailsDto>> Get(Guid id, CancellationToken ct)
+    {
+        var result = await service.GetAsync(id, ct);
+        return this.FromResult(result);
+    }
 
     [HttpPost]
     public async Task<ActionResult<LookupItem>> Create([FromBody] HouseGroupDto dto, CancellationToken ct)
@@ -27,5 +41,44 @@ public sealed class HouseGroupsController(IAdminHouseGroupService service) : Con
             ServiceResultStatus.Success => Created($"/api/admin/house-groups/{result.Value!.Id}", result.Value),
             _ => this.FromResult(result),
         };
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<HouseGroupDetailsDto>> Update(Guid id, [FromBody] UpsertHouseGroupDto dto, CancellationToken ct)
+    {
+        var result = await service.UpdateAsync(id, dto, ct);
+        return this.FromResult(result);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var result = await service.DeleteAsync(id, ct);
+        return this.FromResult(result);
+    }
+
+    [HttpPost("{groupId:guid}/calendar")]
+    public async Task<ActionResult<SeasonSpanDto>> AddSeasonSpan(Guid groupId, [FromBody] UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var result = await service.AddSeasonSpanAsync(groupId, dto, ct);
+        return result.Status switch
+        {
+            ServiceResultStatus.Success => Created($"/api/admin/house-groups/{groupId}/calendar/{result.Value!.Id}", result.Value),
+            _ => this.FromResult(result),
+        };
+    }
+
+    [HttpPut("{groupId:guid}/calendar/{spanId:guid}")]
+    public async Task<ActionResult<SeasonSpanDto>> UpdateSeasonSpan(Guid groupId, Guid spanId, [FromBody] UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var result = await service.UpdateSeasonSpanAsync(groupId, spanId, dto, ct);
+        return this.FromResult(result);
+    }
+
+    [HttpDelete("{groupId:guid}/calendar/{spanId:guid}")]
+    public async Task<ActionResult> DeleteSeasonSpan(Guid groupId, Guid spanId, CancellationToken ct)
+    {
+        var result = await service.DeleteSeasonSpanAsync(groupId, spanId, ct);
+        return this.FromResult(result);
     }
 }

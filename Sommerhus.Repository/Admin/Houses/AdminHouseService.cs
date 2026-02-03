@@ -90,7 +90,7 @@ public sealed class AdminHouseService : IAdminHouseService
             .Include(p => p.SeasonPrices)
             .Where(p => p.HouseId == house.Id && p.IsActive)
             .OrderByDescending(rp => rp.IsActive)
-            .ThenByDescending(rp => rp.UpdatedUtc ?? rp.CreatedUtc)
+            .ThenByDescending(rp => rp.UpdatedUtc.HasValue ? rp.UpdatedUtc.Value : rp.CreatedUtc)
             .FirstOrDefaultAsync(ct);
 
         var calendarSegments = await db.SeasonSpans
@@ -98,7 +98,7 @@ public sealed class AdminHouseService : IAdminHouseService
             .Where(s => s.GroupId == house.GroupId)
             .OrderBy(s => s.StartDate)
             .ThenBy(s => s.EndDate)
-            .Select(s => new SeasonSpanDto(s.Id, s.GroupId, s.StartDate, s.EndDate, s.Code))
+            .Select(s => new SeasonSpanDto(s.Id, s.StartDate, s.EndDate, s.Code, null, null))
             .ToListAsync(ct);
 
         var details = MapDetails(house, request, plan, calendarSegments);

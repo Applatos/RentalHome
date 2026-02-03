@@ -266,7 +266,7 @@ public sealed class AdminPricingService : IAdminPricingService
     }
 
     private static SeasonSpanDto MapSpan(SeasonSpan span)
-        => new(span.Id, span.GroupId, span.StartDate, span.EndDate, span.Code);
+        => new(span.Id, span.StartDate, span.EndDate, span.Code);
 
     private static PricePlanDetailsDto MapPlan(PricePlan plan)
         => new(plan.Id, plan.HouseId, plan.Name, plan.Currency, plan.IsActive, plan.CreatedUtc, plan.UpdatedUtc,

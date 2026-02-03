@@ -29,10 +29,11 @@ public record SeasonPriceDto(
 // Season House Span dtos (Use cases: get and post season house spans for a rate plan)
 public record SeasonSpanDto(
     Guid Id, 
-    Guid GroupId, 
     DateOnly StartDate, 
     DateOnly EndDate, 
-    string Code);
+    string Code,
+    string? SeasonName = null,
+    string? Color = null);
 
 public record SeasonCodeDto(
     string Code,

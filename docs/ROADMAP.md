@@ -155,34 +155,125 @@ the codebase. The approach was revised to:
 
 ---
 
-## Phase 4: Image Handling Consistency
+## Phase 4: Image Handling Consistency ✅ COMPLETED
 
 **Goal**: Unify image handling patterns across House/Area/City.
 
 ### Tasks
 
-- [ ] Review current image service implementations
-- [ ] Create generic `IEntityImageService<TEntity>` interface
-- [ ] Refactor `AdminHouseImageService`, `AdminAreaImageService`, `AdminCityImageService`
-- [ ] Consolidate duplicate code into shared base class
-- [ ] Ensure consistent URL generation
+- [x] Review current image service implementations
+- [x] Create generic `IAdminEntityImageService<TEntity>` interface
+- [x] Enhance `AdminImageServiceBase` with more shared logic
+- [x] Refactor services to use enhanced base class
+- [x] Ensure consistent URL generation and error handling
 
-### Files to Create
+### Files Created
 
-- `Sommerhus.Application/Admin/Images/IEntityImageService.cs`
-- `Sommerhus.Repository/Admin/Images/EntityImageService.cs` (base)
+- `Sommerhus.Application/Admin/Images/IAdminEntityImageService.cs` - Generic interfaces
 
-### Files to Modify
+### Files Modified
 
-- Existing image services (3 files)
-- Image controllers
+- `Sommerhus.Repository/Admin/Images/AdminImageServiceBase.cs` - Added helper methods:
+  - `ValidateSingleFile<T>()` - Single file validation
+  - `ValidateFileCollection()` - Batch file validation
+  - `ToDto()` - Consistent DTO creation
+  - `SaveToStorageAsync()` - Storage abstraction
+  - `DeleteFromStorageAsync()` - Storage abstraction
+- `Sommerhus.Repository/Admin/Images/AdminAreaImageService.cs` - Uses base helpers
+- `Sommerhus.Repository/Admin/Images/AdminCityImageService.cs` - Uses base helpers
+- `Sommerhus.Repository/Admin/Images/AdminHouseImageService.cs` - Uses base helpers
 
-### Verification
+### Result
 
-```powershell
-dotnet test --filter "FullyQualifiedName~Images"
-# Manual: Upload images via admin UI for houses, areas, cities
+- Build: ✅ Passes
+
+---
+
+## HIGH PRIORITY: Pricing System Fix ✅ COMPLETED
+
+**Goal**: Fix the pricing display issues and implement proper season calendar management.
+
+### Architecture
+
 ```
+HouseGroup ──┬── SeasonSpan (date range + SeasonCode)
+             └── SeasonSpan (date range + SeasonCode)
+
+VacationHouse ──┬── belongs to HouseGroup
+                └── has PricePlan ──── SeasonPrice (price per SeasonCode)
+```
+
+### Root Cause (Fixed)
+
+**Bug in `DbSeeder.cs`**: SeasonSpan Code "B" was incorrectly assigned to `groupB` instead of the house's `groupA`.
+
+### Completed Tasks
+
+- [x] Debug why pricing returns incorrect/no price
+- [x] Fix DbSeeder to assign all SeasonSpans to house's HouseGroup
+- [x] Add full year coverage for SeasonSpans (Jan-Dec with alternating A/B codes)
+- [x] Enhanced HouseGroup API with full CRUD operations
+- [x] Added SeasonSpan calendar management endpoints
+
+### Files Modified
+
+- `Sommerhus.Repository/Data/DbSeeder.cs` - Fixed season span group assignment + full year coverage
+- `Sommerhus.Application/Admin/HouseGroups/IAdminHouseGroupService.cs` - Extended interface
+- `Sommerhus.Repository/Admin/HouseGroups/AdminHouseGroupService.cs` - Full implementation
+- `Sommerhus.Api/Controllers/Admin/HouseGroupsController.cs` - Extended with calendar endpoints
+- `Sommerhus.Contracts/Dtos/Admin/Pricing/HouseGroupDtos.cs` - New DTOs
+
+### New API Endpoints
+
+- `GET /api/admin/house-groups` - List all groups with house count
+- `GET /api/admin/house-groups/{id}` - Get group details with calendar
+- `PUT /api/admin/house-groups/{id}` - Update group
+- `DELETE /api/admin/house-groups/{id}` - Delete group (if no houses)
+- `POST /api/admin/house-groups/{groupId}/calendar` - Add season span
+- `PUT /api/admin/house-groups/{groupId}/calendar/{spanId}` - Update span
+- `DELETE /api/admin/house-groups/{groupId}/calendar/{spanId}` - Delete span
+
+---
+
+## HIGH PRIORITY: Area Search Fix ✅ COMPLETED
+
+**Goal**: Fix the area search dropdown on the public frontend.
+
+### Completed Tasks
+
+- [x] Add `area` parameter to API `HousesController.Search()` endpoint
+- [x] Add `areaId` parameter to `IHouseQueryService.SearchAsync()`
+- [x] Implement area filtering in `HouseQueryService`
+- [x] Update `SommerhusApi.GetHousesAsync()` to include area filter
+- [x] Update MVC `HousesController.Houses()` to accept area and load areas for ViewBag
+
+### Files Modified
+
+- `Sommerhus.Application/Public/Houses/IHouseQueryService.cs` - Added areaId parameter
+- `Sommerhus.Repository/Public/Houses/HouseQueryService.cs` - Implemented area filtering
+- `Sommerhus.Api/Controllers/Public/HousesController.cs` - Added area query parameter
+- `Sommerhus.Mvc/Services/SommerhusApi.cs` - Added areaId parameter
+- `Sommerhus.Mvc/Controllers/Public/HousesController.cs` - Integrated area filter + ViewBag
+
+---
+
+## HIGH PRIORITY: Frontend Robustness ✅ PARTIAL
+
+**Goal**: Prevent invalid data entry and improve UX across the admin frontend.
+
+### Completed Tasks
+
+- [x] Replaced currency free-text input with dropdown (DKK, EUR, SEK, NOK, GBP, USD)
+
+### Files Modified
+
+- `Sommerhus.Mvc/Views/Admin/House._Pricing.cshtml` - Currency dropdown
+
+### Remaining Tasks
+
+- [ ] Add HouseGroup dropdown to house edit form
+- [ ] Add client-side validation for required fields
+- [ ] Add confirmation dialogs for destructive actions
 
 ---
 

@@ -61,7 +61,14 @@
         </div>
         <div class="col-md-2">
             <label class="form-label">Valuta</label>
-            <input class="form-control text-uppercase" name="Currency" value="@currency" maxlength="3" />
+            <select class="form-select" name="Currency">
+                <option value="DKK" selected="@(currency == "DKK")">DKK</option>
+                <option value="EUR" selected="@(currency == "EUR")">EUR</option>
+                <option value="SEK" selected="@(currency == "SEK")">SEK</option>
+                <option value="NOK" selected="@(currency == "NOK")">NOK</option>
+                <option value="GBP" selected="@(currency == "GBP")">GBP</option>
+                <option value="USD" selected="@(currency == "USD")">USD</option>
+            </select>
         </div>
         <div class="col-md-2">
             <div class="form-check mt-4">
