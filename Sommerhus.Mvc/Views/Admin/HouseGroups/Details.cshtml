@@ -1,0 +1,265 @@
+@using Sommerhus.Contracts.Dtos.Admin.Pricing
+@using Sommerhus.Mvc.Controllers.Admin
+@model HouseGroupDetailsVm
+@{
+    ViewData["Title"] = $"Admin - {Model.Group.Name}";
+    var tab = (string)(ViewBag.Tab ?? "overview");
+}
+
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Model.Group.Name</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Group.Id" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-pencil"></i> Rediger gruppe
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Tilbage til oversigt
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Ok"] is string ok)
+    {
+        <div class="alert alert-success">@ok</div>
+    }
+    @if (TempData["Err"] is string err)
+    {
+        <div class="alert alert-danger">@err</div>
+    }
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link @(tab == "overview" ? "active" : "")"
+               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "overview" })">Oversigt</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "calendar" ? "active" : "")"
+               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "calendar" })">Sæsonkalender</a>
+        </li>
+    </ul>
+
+    <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (tab == "calendar")
+        {
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5>Sæsonkalender</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSeasonSpanModal">
+                    <i class="bi bi-plus-lg"></i> Tilføj sæsonperiode
+                </button>
+            </div>
+
+            @if (Model.Group.Calendar.Count == 0)
+            {
+                <div class="text-center py-5">
+                    <h6 class="text-muted">Ingen sæsonperioder defineret</h6>
+                    <p class="text-muted">Tilføj sæsonperioder for at definere hvornår forskellige sæsoner gælder for denne husgruppe.</p>
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addSeasonSpanModal">
+                        Tilføj første sæsonperiode
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Sæson</th>
+                                <th>Startdato</th>
+                                <th>Slutdato</th>
+                                <th class="text-end">Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var span in Model.Group.Calendar.OrderBy(s => s.StartDate))
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(span.Color))
+                                        {
+                                            <span class="badge rounded-pill" style="background-color: @span.Color">
+                                                @span.Code
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@span.Code</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(span.SeasonName))
+                                        {
+                                            <small class="text-muted ms-2">@span.SeasonName</small>
+                                        }
+                                    </td>
+                                    <td>@span.StartDate.ToString("dd-MM-yyyy")</td>
+                                    <td>@span.EndDate.ToString("dd-MM-yyyy")</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-secondary" 
+                                                    data-bs-toggle="modal" data-bs-target="#editSeasonSpanModal"
+                                                    data-span-id="@span.Id"
+                                                    data-start-date="@span.StartDate.ToString("yyyy-MM-dd")"
+                                                    data-end-date="@span.EndDate.ToString("yyyy-MM-dd")"
+                                                    data-code="@span.Code">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form asp-action="DeleteSeasonSpan" asp-route-groupId="@Model.Group.Id" asp-route-spanId="@span.Id" 
+                                                  method="post" class="d-inline"
+                                                  onsubmit="return confirm('Er du sikker på at du vil slette denne sæsonperiode?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Gruppeinformation</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Navn:</dt>
+                        <dd class="col-sm-8">@Model.Group.Name</dd>
+                        <dt class="col-sm-4">ID:</dt>
+                        <dd class="col-sm-8"><code>@Model.Group.Id</code></dd>
+                        <dt class="col-sm-4">Sæsonperioder:</dt>
+                        <dd class="col-sm-8">@Model.Group.Calendar.Count</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Brug af gruppen</h5>
+                    <p class="text-muted">
+                        Denne husgruppe kan tildeles til huse for at dele en fælles sæsonkalender.
+                        Huse i samme gruppe vil automatisk bruge de samme sæsonperioder til prisberegning.
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Add Season Span Modal -->
+<div class="modal fade" id="addSeasonSpanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tilføj sæsonperiode</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="AddSeasonSpan" asp-route-groupId="@Model.Group.Id">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="mb-3">
+                        <label for="Code" class="form-label">Sæsonkode *</label>
+                        <select name="Code" id="Code" class="form-select" required>
+                            <option value="">Vælg sæsonkode</option>
+                            @foreach (var code in Model.SeasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
+                            {
+                                <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="StartDate" class="form-label">Startdato *</label>
+                        <input type="date" name="StartDate" id="StartDate" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="EndDate" class="form-label">Slutdato *</label>
+                        <input type="date" name="EndDate" id="EndDate" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
+                    <button type="submit" class="btn btn-primary">Tilføj periode</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Season Span Modal -->
+<div class="modal fade" id="editSeasonSpanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rediger sæsonperiode</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="editSeasonSpanForm">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <input type="hidden" id="editSpanId" name="spanId" />
+                    
+                    <div class="mb-3">
+                        <label for="editCode" class="form-label">Sæsonkode *</label>
+                        <select name="Code" id="editCode" class="form-select" required>
+                            <option value="">Vælg sæsonkode</option>
+                            @foreach (var code in Model.SeasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
+                            {
+                                <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editStartDate" class="form-label">Startdato *</label>
+                        <input type="date" name="StartDate" id="editStartDate" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editEndDate" class="form-label">Slutdato *</label>
+                        <input type="date" name="EndDate" id="editEndDate" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
+                    <button type="submit" class="btn btn-primary">Gem ændringer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle edit modal
+            const editModal = document.getElementById('editSeasonSpanModal');
+            if (editModal) {
+                editModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const spanId = button.getAttribute('data-span-id');
+                    const startDate = button.getAttribute('data-start-date');
+                    const endDate = button.getAttribute('data-end-date');
+                    const code = button.getAttribute('data-code');
+
+                    document.getElementById('editSpanId').value = spanId;
+                    document.getElementById('editStartDate').value = startDate;
+                    document.getElementById('editEndDate').value = endDate;
+                    document.getElementById('editCode').value = code;
+
+                    // Update form action
+                    const form = document.getElementById('editSeasonSpanForm');
+                    form.action = `/admin/house-groups/@Model.Group.Id/calendar/${spanId}`;
+                });
+            }
+        });
+    </script>
+}

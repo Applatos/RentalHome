@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Application.Admin.Houses;
+using Sommerhus.Application.Admin.HouseGroups;
 using Sommerhus.Application.Common;
 using Sommerhus.Contracts.Dtos.Admin.Features;
 using Sommerhus.Contracts.Dtos.Admin.Houses;
@@ -17,7 +18,8 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class HousesController(
     IAdminHouseService houseService,
     IAdminHouseFeatureService featureService,
-    IAdminHousePricingService pricingService) : ControllerBase
+    IAdminHousePricingService pricingService,
+    IAdminHouseGroupService houseGroupService) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<HouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
@@ -111,5 +113,31 @@ public sealed class HousesController(
             ServiceResultStatus.Invalid => ValidationProblem("Invalid pricing data."),
             _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to upsert pricing.")
         };
+    }
+
+    // House season span management (when house has a group)
+    [HttpPost("{houseId:guid}/calendar")]
+    public async Task<ActionResult<SeasonSpanDto>> AddSeasonSpan(Guid houseId, [FromBody] UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var result = await houseGroupService.AddHouseSeasonSpanAsync(houseId, dto, ct);
+        return result.Status switch
+        {
+            ServiceResultStatus.Success => Created($"/api/admin/houses/{houseId}/calendar/{result.Value!.Id}", result.Value),
+            _ => this.FromResult(result),
+        };
+    }
+
+    [HttpPut("{houseId:guid}/calendar/{spanId:guid}")]
+    public async Task<ActionResult<SeasonSpanDto>> UpdateSeasonSpan(Guid houseId, Guid spanId, [FromBody] UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var result = await houseGroupService.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
+        return this.FromResult(result);
+    }
+
+    [HttpDelete("{houseId:guid}/calendar/{spanId:guid}")]
+    public async Task<ActionResult> DeleteSeasonSpan(Guid houseId, Guid spanId, CancellationToken ct)
+    {
+        var result = await houseGroupService.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
+        return this.FromResult(result);
     }
 }

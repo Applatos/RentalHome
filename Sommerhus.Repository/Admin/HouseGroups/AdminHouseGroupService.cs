@@ -27,15 +27,23 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
     {
         var groups = await _db.HouseGroups
             .AsNoTracking()
-            .Select(g => new HouseGroupListItemDto(
-                g.Id,
-                g.Name,
-                _db.Houses.Count(h => h.GroupId == g.Id)
-            ))
-            .OrderBy(g => g.Name)
+            .Select(g => new { g.Id, g.Name })
             .ToListAsync(ct);
 
-        return ServiceResult<IReadOnlyList<HouseGroupListItemDto>>.Success(groups);
+        var houseCounts = await _db.Houses
+            .AsNoTracking()
+            .Where(h => h.GroupId.HasValue)
+            .GroupBy(h => h.GroupId!.Value)
+            .Select(g => new { GroupId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.GroupId, g => g.Count, ct);
+
+        var result = groups.Select(g => new HouseGroupListItemDto(
+            g.Id,
+            g.Name,
+            houseCounts.TryGetValue(g.Id, out var count) ? count : 0
+        )).OrderBy(g => g.Name).ToList();
+
+        return ServiceResult<IReadOnlyList<HouseGroupListItemDto>>.Success(result);
     }
 
     public async Task<ServiceResult<HouseGroupDetailsDto>> GetAsync(Guid id, CancellationToken ct)
@@ -173,6 +181,34 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
         await _db.SaveChangesAsync(ct);
 
         return ServiceResult.Success();
+    }
+
+    // House season span management (when house has a group)
+    public async Task<ServiceResult<SeasonSpanDto>> AddHouseSeasonSpanAsync(Guid houseId, UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var house = await _db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
+        if (house is null || house.GroupId is null)
+            return ServiceResult<SeasonSpanDto>.NotFound();
+
+        return await AddSeasonSpanAsync(house.GroupId.Value, dto, ct);
+    }
+
+    public async Task<ServiceResult<SeasonSpanDto>> UpdateHouseSeasonSpanAsync(Guid houseId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var house = await _db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
+        if (house is null || house.GroupId is null)
+            return ServiceResult<SeasonSpanDto>.NotFound();
+
+        return await UpdateSeasonSpanAsync(house.GroupId.Value, spanId, dto, ct);
+    }
+
+    public async Task<ServiceResult> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
+    {
+        var house = await _db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
+        if (house is null || house.GroupId is null)
+            return ServiceResult.NotFound();
+
+        return await DeleteSeasonSpanAsync(house.GroupId.Value, spanId, ct);
     }
 
     private async Task<IReadOnlyList<SeasonSpanDto>> GetCalendarAsync(Guid groupId, CancellationToken ct)

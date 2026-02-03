@@ -141,8 +141,40 @@ public sealed class AdminApiClient
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetHouseGroupsAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/house-groups", ct);
 
+    public Task<ApiResponse<IReadOnlyList<HouseGroupListItemDto>?>> GetHouseGroupListAsync(CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<HouseGroupListItemDto>?>(http, "api/admin/house-groups", ct);
+
+    public Task<ApiResponse<HouseGroupDetailsDto?>> GetHouseGroupAsync(Guid id, CancellationToken ct)
+        => ApiHttp.GetAsync<HouseGroupDetailsDto?>(http, $"api/admin/house-groups/{id}", ct);
+
     public Task<ApiResponse<LookupItem?>> CreateHouseGroupAsync(HouseGroupDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<HouseGroupDto, LookupItem?>(http, "api/admin/house-groups", dto, ct);
+
+    public Task<ApiResponse<HouseGroupDetailsDto?>> UpdateHouseGroupAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct)
+        => ApiHttp.PutAsync<UpsertHouseGroupDto, HouseGroupDetailsDto?>(http, $"api/admin/house-groups/{id}", dto, ct);
+
+    public Task<ApiResponse<object?>> DeleteHouseGroupAsync(Guid id, CancellationToken ct)
+        => ApiHttp.DeleteAsync(http, $"api/admin/house-groups/{id}", ct);
+
+    // Season spans for house groups
+    public Task<ApiResponse<SeasonSpanDto?>> AddSeasonSpanAsync(Guid groupId, UpsertSeasonSpanDto dto, CancellationToken ct)
+        => ApiHttp.PostAsync<UpsertSeasonSpanDto, SeasonSpanDto?>(http, $"api/admin/house-groups/{groupId}/calendar", dto, ct);
+
+    public Task<ApiResponse<SeasonSpanDto?>> UpdateSeasonSpanAsync(Guid groupId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
+        => ApiHttp.PutAsync<UpsertSeasonSpanDto, SeasonSpanDto?>(http, $"api/admin/house-groups/{groupId}/calendar/{spanId}", dto, ct);
+
+    public Task<ApiResponse<object?>> DeleteSeasonSpanAsync(Guid groupId, Guid spanId, CancellationToken ct)
+        => ApiHttp.DeleteAsync(http, $"api/admin/house-groups/{groupId}/calendar/{spanId}", ct);
+
+    // House season spans (when house has a group)
+    public Task<ApiResponse<SeasonSpanDto?>> AddHouseSeasonSpanAsync(Guid houseId, UpsertSeasonSpanDto dto, CancellationToken ct)
+        => ApiHttp.PostAsync<UpsertSeasonSpanDto, SeasonSpanDto?>(http, $"api/admin/houses/{houseId}/calendar", dto, ct);
+
+    public Task<ApiResponse<SeasonSpanDto?>> UpdateHouseSeasonSpanAsync(Guid houseId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
+        => ApiHttp.PutAsync<UpsertSeasonSpanDto, SeasonSpanDto?>(http, $"api/admin/houses/{houseId}/calendar/{spanId}", dto, ct);
+
+    public Task<ApiResponse<object?>> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
+        => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/calendar/{spanId}", ct);
 
 
 

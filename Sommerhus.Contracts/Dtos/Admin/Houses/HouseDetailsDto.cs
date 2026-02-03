@@ -17,5 +17,6 @@ public record HouseDetailsDto(
     IReadOnlyList<FeatureValueDto>? Features,
     IReadOnlyList<ImageDto>? Images,
     IReadOnlyList<SeasonSpanDto> Calendar,
-    PricePlanDetailsDto? Pricing);
+    PricePlanDetailsDto? Pricing,
+    Guid? GroupId);
 

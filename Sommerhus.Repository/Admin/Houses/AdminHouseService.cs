@@ -264,7 +264,8 @@ public sealed class AdminHouseService : IAdminHouseService
             features,
             images,
             calendar,
-            planDto);
+            planDto,
+            house.GroupId);
     }
 
     private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)

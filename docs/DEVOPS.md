@@ -487,6 +487,167 @@ robocopy "C:\WebServer\api_...\publish\wwwroot\uploads" "C:\Backups\Uploads" /MI
 
 ---
 
+## House Groups Management
+
+### Overview
+
+House groups are used to organize vacation houses and share season calendars between multiple houses. This section covers the complete workflow for managing house groups and season spans.
+
+### House Groups Structure
+
+```
+House Group
+├── Properties: Id, Name
+├── Season Spans: List of date ranges with season codes
+└── Houses: Collection of vacation houses
+```
+
+### Season Calendar Management
+
+Season spans define when different seasons (high season, low season, etc.) apply to house groups:
+
+```csharp
+public record SeasonSpanDto(
+    Guid Id,
+    DateOnly StartDate,
+    DateOnly EndDate,
+    string Code,           // Season code (A, B, C, etc.)
+    string? SeasonName,    // Display name
+    string? Color          // Visual color coding
+);
+```
+
+### Admin Interface
+
+#### House Groups Management
+
+- **URL**: `/admin/house-groups`
+- **Features**:
+  - List all house groups with house counts
+  - Create/edit/delete house groups
+  - Manage season calendars per group
+  - Calendar UI with date pickers
+
+#### House Season Calendar
+
+- **URL**: `/admin/houses/{id}?tab=pricing`
+- **Features**:
+  - View/edit season spans for house's group
+  - Add new season periods with calendar UI
+  - Delete existing season spans
+  - Only available when house is assigned to a group
+
+### API Endpoints
+
+#### House Groups
+
+```http
+GET    /api/admin/house-groups              # List groups
+POST   /api/admin/house-groups              # Create group
+PUT    /api/admin/house-groups/{id}         # Update group
+DELETE /api/admin/house-groups/{id}         # Delete group
+```
+
+#### Season Spans (Groups)
+
+```http
+POST   /api/admin/house-groups/{id}/calendar     # Add season span
+PUT    /api/admin/house-groups/{id}/calendar/{id} # Update season span
+DELETE /api/admin/house-groups/{id}/calendar/{id} # Delete season span
+```
+
+#### Season Spans (Houses)
+
+```http
+POST   /api/admin/houses/{id}/calendar     # Add season span
+PUT    /api/admin/houses/{id}/calendar/{id} # Update season span
+DELETE /api/admin/houses/{id}/calendar/{id} # Delete season span
+```
+
+### Common Workflows
+
+#### Creating a New House Group
+
+1. Navigate to `/admin/house-groups`
+2. Click "Opret ny gruppe"
+3. Enter group name (e.g., "Vestkysten")
+4. Save group
+5. Click on group to manage season calendar
+6. Add season spans using calendar UI
+
+#### Assigning House to Group
+
+1. Navigate to house details: `/admin/houses/{id}?tab=overview`
+2. Edit house and select group from dropdown
+3. Save changes
+4. House now inherits group's season calendar
+
+#### Managing Season Calendar
+
+1. **Via House Group**: `/admin/house-groups/{id}`
+   - Add/edit/delete season spans for entire group
+   - Changes affect all houses in group
+
+2. **Via Individual House**: `/admin/houses/{id}?tab=pricing`
+   - Same season span management interface
+   - Changes apply to group (affects all houses)
+
+### Season Codes Setup
+
+Season codes must be created before they can be used in season spans:
+
+1. Navigate to `/admin/pricing`
+2. Create season codes with:
+   - **Code**: Short identifier (A, B, C, etc.)
+   - **Label**: Display name (Højsæson, Lavsæson, etc.)
+   - **Color**: Hex color for UI
+   - **Sort Order**: Display order
+
+### Data Synchronization
+
+#### Development Environment
+
+```powershell
+# House groups and season spans are stored in SQLite
+# Database file: Sommerhus.Api/app_data/sommerhus.db
+
+# Tables involved:
+# - HouseGroups
+# - SeasonSpans
+# - VacationHouses (GroupId foreign key)
+```
+
+#### Production Environment
+
+```powershell
+# Season calendar changes affect pricing calculations
+# Ensure all environments have consistent season codes
+# Test season span overlaps before deployment
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **LINQ Translation Error**: Fixed in Phase 6 - house groups listing now works
+2. **Missing Season Calendar**: House must be assigned to a group
+3. **Season Code Not Found**: Create season codes in pricing admin first
+4. **Date Validation**: End date must be after start date
+
+#### Debugging Season Calendar Issues
+
+```csharp
+// Check house group assignment
+var house = await _db.Houses.Include(h => h.Group).FirstOrDefaultAsync(h => h.Id == houseId);
+Console.WriteLine($"House Group: {house.Group?.Name ?? "None"}");
+
+// Check season spans for group
+var spans = await _db.SeasonSpans.Where(s => s.GroupId == house.GroupId).ToListAsync();
+Console.WriteLine($"Season Spans: {spans.Count}");
+```
+
+---
+
 ## Development Workflows
 
 ### Complete Feature Development Workflow

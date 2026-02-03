@@ -1,0 +1,70 @@
+@using Sommerhus.Contracts.Dtos.Admin.Pricing
+@model IReadOnlyList<HouseGroupListItemDto>
+@{
+    ViewData["Title"] = "Admin - Husgrupper";
+}
+
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+
+    @if (TempData["Ok"] is string ok)
+    {
+        <div class="alert alert-success">@ok</div>
+    }
+    @if (TempData["Err"] is string err)
+    {
+        <div class="alert alert-danger">@err</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Husgrupper</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Opret ny gruppe
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <h5 class="text-muted">Ingen husgrupper oprettet endnu</h5>
+            <p class="text-muted">Husgrupper bruges til at dele sæsonkalendere mellem flere huse.</p>
+            <a asp-action="Create" class="btn btn-outline-primary">Opret første gruppe</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var group in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@group.Name</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    @group.HouseCount @(group.HouseCount == 1 ? "hus" : "huse") tilknyttet
+                                </small>
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Details" asp-route-id="@group.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-calendar3"></i> Kalender
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Rediger
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@group.Id" method="post" 
+                                      onsubmit="return confirm('Er du sikker på at du vil slette denne husgruppe?');"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Slet
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

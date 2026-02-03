@@ -271,9 +271,80 @@ VacationHouse ──┬── belongs to HouseGroup
 
 ### Remaining Tasks
 
-- [ ] Add HouseGroup dropdown to house edit form
+- [x] Add HouseGroup dropdown to house edit form
 - [ ] Add client-side validation for required fields
 - [ ] Add confirmation dialogs for destructive actions
+
+---
+
+## Phase 6: House Groups Management ✅ COMPLETED
+
+**Goal**: Fix house groups admin functionality and implement season span management.
+
+### Issues Fixed
+
+- [x] **LINQ Translation Error**: Fixed EF Core query translation issue in house groups listing
+- [x] **House Groups Admin Page**: Created dedicated house groups management interface
+- [x] **Season Span Calendar**: Implemented calendar UI for managing season spans
+- [x] **House Season Calendar**: Added season span management to house details page
+
+### Features Implemented
+
+#### House Groups Admin Interface
+
+- **Index Page**: `/admin/house-groups` - List all house groups with house counts
+- **Details Page**: `/admin/house-groups/{id}` - Manage group and season calendar
+- **Create/Edit**: Full CRUD operations for house groups
+- **Season Calendar**: Add/edit/delete season spans with calendar UI
+
+#### House Season Calendar Integration
+
+- **House Details**: Season calendar management in `/admin/houses/{id}?tab=pricing`
+- **Group Integration**: Houses inherit season calendar from their assigned group
+- **Calendar UI**: Date pickers for start/end dates with validation
+- **Modal Interface**: Clean modal dialogs for season span operations
+
+### Technical Implementation
+
+#### Backend Changes
+
+- **API Endpoints**: Added house season span endpoints to `HousesController`
+- **Service Layer**: Extended `IAdminHouseGroupService` with house season span methods
+- **Data Transfer**: Added `GroupId` to `HouseDetailsDto` for group awareness
+- **Query Optimization**: Fixed EF Core LINQ translation in house groups listing
+
+#### Frontend Changes
+
+- **New Controller**: `HouseGroupsController` with full CRUD operations
+- **Calendar UI**: Date pickers and modal dialogs for season management
+- **Navigation**: Added "House Groups" tab to admin navigation
+- **Integration**: Season calendar embedded in house pricing page
+
+### API Endpoints Added
+
+```http
+GET    /api/admin/house-groups              # List house groups
+GET    /api/admin/house-groups/{id}         # Get house group details
+POST   /api/admin/house-groups              # Create house group
+PUT    /api/admin/house-groups/{id}         # Update house group
+DELETE /api/admin/house-groups/{id}         # Delete house group
+
+POST   /api/admin/house-groups/{id}/calendar     # Add season span
+PUT    /api/admin/house-groups/{id}/calendar/{id} # Update season span
+DELETE /api/admin/house-groups/{id}/calendar/{id} # Delete season span
+
+POST   /api/admin/houses/{id}/calendar     # Add house season span
+PUT    /api/admin/houses/{id}/calendar/{id} # Update house season span
+DELETE /api/admin/houses/{id}/calendar/{id} # Delete house season span
+```
+
+### Result
+
+- **Build**: ✅ Passes
+- **Tests**: ✅ 11/11 pass
+- **House Groups Error**: ✅ Fixed
+- **Season Calendar**: ✅ Fully functional with calendar UI
+- **Documentation**: ✅ Updated
 
 ---
 

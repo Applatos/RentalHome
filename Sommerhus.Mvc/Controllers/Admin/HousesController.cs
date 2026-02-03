@@ -1059,6 +1059,65 @@ public class HousePricingForm
         return View("Pricing", vm);
     }
 
+    // House season span management
+    [HttpPost("/admin/houses/{houseId:guid}/calendar")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddHouseSeasonSpan(Guid houseId, [FromForm] UpsertSeasonSpanDto dto, CancellationToken ct = default)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Err"] = "Ugyldige data for sæsonperiode.";
+            return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        }
+
+        var res = await _api.AddHouseSeasonSpanAsync(houseId, dto, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Sæsonperiode tilføjet.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke tilføje sæsonperiode.";
+        }
+
+        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+    }
+
+    [HttpPost("/admin/houses/{houseId:guid}/calendar/{spanId:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateHouseSeasonSpan(Guid houseId, Guid spanId, [FromForm] UpsertSeasonSpanDto dto, CancellationToken ct = default)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Err"] = "Ugyldige data for sæsonperiode.";
+            return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        }
+
+        var res = await _api.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
+        if (res.Ok)
+        {
+            TempData["Ok"] = "Sæsonperiode opdateret.";
+        }
+        else
+        {
+            TempData["Err"] = res.Message ?? "Kunne ikke opdatere sæsonperiode.";
+        }
+
+        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+    }
+
+    [HttpPost("/admin/houses/{houseId:guid}/calendar/{spanId:guid}/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteHouseSeasonSpan(Guid houseId, Guid spanId, CancellationToken ct = default)
+    {
+        var res = await _api.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
+        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
+            ? "Sæsonperiode slettet."
+            : res.Message ?? "Kunne ikke slette sæsonperiode.";
+
+        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+    }
+
     private async Task<PricingAdminVm> BuildPricingVmAsync(
         CreateHouseGroupForm? groupForm,
         CreateSeasonCodeForm? codeForm,
