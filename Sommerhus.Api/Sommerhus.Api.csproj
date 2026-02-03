@@ -8,9 +8,13 @@
 
 	<ItemGroup>
 		<Compile Remove="wwwroot\uploads\demo-images\**" />
+		<Compile Remove="wwwroot\uploads\features\**" />
 		<Content Remove="wwwroot\uploads\demo-images\**" />
+		<Content Remove="wwwroot\uploads\features\**" />
 		<EmbeddedResource Remove="wwwroot\uploads\demo-images\**" />
+		<EmbeddedResource Remove="wwwroot\uploads\features\**" />
 		<None Remove="wwwroot\uploads\demo-images\**" />
+		<None Remove="wwwroot\uploads\features\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -24,11 +28,14 @@
         </ItemGroup>
 
         <ItemGroup>
-          <Folder Include="wwwroot\uploads\features\" />
                 <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
                 <ProjectReference Include="..\Sommerhus.Contracts\Sommerhus.Contracts.csproj" />
                 <ProjectReference Include="..\Sommerhus.Application\Sommerhus.Application.csproj" />
                 <ProjectReference Include="..\Sommerhus.Repository\Sommerhus.Repository.csproj" />
+        </ItemGroup>
+
+        <ItemGroup>
+          <Folder Include="wwwroot\uploads\" />
         </ItemGroup>
 
 </Project>
