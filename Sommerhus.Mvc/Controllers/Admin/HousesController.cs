@@ -722,8 +722,9 @@ public class HousePricingForm
 
     [HttpPost("/admin/areas")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateArea([FromForm] UpsertAreaDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> CreateArea([FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
+        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
         var res = await _api.CreateAreaAsync(dto, ct);
         if (res.Ok && res.Data is not null)
         {
@@ -731,11 +732,10 @@ public class HousePricingForm
             return RedirectToAction(nameof(Area), new { id = res.Data.Id });
         }
         TempData["Err"] = res.Message ?? "Kunne ikke oprette område.";
-        var vm = await BuildAreaEditVmAsync(null, dto.CityIds, dto.Name, dto.Description, ct);
+        var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
         ViewData["AdminTab"] = "areas";
-        return View("EditArea", vm);
+        return View("EditArea", rebuiltVm);
     }
-
 
     [HttpGet("/admin/areas/{id:guid}/edit")]
     public async Task<IActionResult> EditArea(Guid id, CancellationToken ct = default)
@@ -748,15 +748,16 @@ public class HousePricingForm
         }
 
         var dto = res.Data;
-        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds ?? res.Data.CityIds, dto.Name, dto.Description, ct);
+        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds, dto.Name, dto.Description, ct);
         ViewData["AdminTab"] = "areas";
-        return View(vm);
+        return View("EditArea", vm);
     }
 
     [HttpPost("/admin/areas/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateArea(Guid id, [FromForm] UpsertAreaDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateArea(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
+        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
         var res = await _api.UpdateAreaAsync(id, dto, ct);
         if (res.Ok)
         {
@@ -764,10 +765,9 @@ public class HousePricingForm
             return RedirectToAction(nameof(Area), new { id });
         }
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere område.";
-        var areaRes = await _api.GetAreaAsync(id, ct);
-        var vm = await BuildAreaEditVmAsync(areaRes.Data, dto.CityIds ?? areaRes.Data?.CityIds, dto.Name, dto.Description, ct); 
+        var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
         ViewData["AdminTab"] = "areas";
-        return View("EditArea", vm);
+        return View("EditArea", rebuiltVm);
     }
 
     [HttpPost("/admin/areas/{id:guid}/delete")]

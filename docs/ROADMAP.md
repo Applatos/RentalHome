@@ -277,33 +277,24 @@ VacationHouse ──┬── belongs to HouseGroup
 
 ---
 
-## Phase 5: Remove Sommerhus.Pricing Project
+## Phase 5: Remove Sommerhus.Pricing Project ✅ COMPLETED
 
 **Goal**: Clean up unused project or implement pricing engine.
 
-### Decision Point
+### Decision Made
 
-**Option A**: Delete empty `Sommerhus.Pricing/` project
-**Option B**: Move pricing engine from `Sommerhus.Application/Pricing/` to dedicated project
+**Option A**: Delete empty `Sommerhus.Pricing/` project (chosen)
 
-### Tasks (Option A)
+### Tasks Completed
 
-- [ ] Remove `Sommerhus.Pricing.csproj` from solution
-- [ ] Delete `Sommerhus.Pricing/` folder
-- [ ] Verify no broken references
+- [x] Remove `Sommerhus.Pricing.csproj` from solution
+- [x] Delete `Sommerhus.Pricing/` folder
+- [x] Verify no broken references
 
-### Tasks (Option B)
+### Result
 
-- [ ] Move `Application/Pricing/Engine/` to `Sommerhus.Pricing/`
-- [ ] Update project references
-- [ ] Update namespaces
-
-### Verification
-
-```powershell
-dotnet build Sommerhus_project.sln
-dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj
-```
+- Build: ✅ Passes
+- Tests: **11/11 pass** ✅
 
 ---
 

@@ -60,6 +60,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (descriptor != null)
                 services.Remove(descriptor);
 
+            // Remove the MigrationHostedService to avoid conflicts in tests
+            var migrationHostedServiceDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService) &&
+                     d.ImplementationType?.Name == "MigrationHostedService");
+            if (migrationHostedServiceDescriptor != null)
+                services.Remove(migrationHostedServiceDescriptor);
+
             _conn = new SqliteConnection("DataSource=:memory:");
             _conn.Open();
 
@@ -93,7 +100,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var adminSeeder = scope.ServiceProvider.GetRequiredService<AdminIdentitySeeder>();
 
-            db.Database.EnsureCreated();
+            // Apply migrations instead of just ensuring created
+            db.Database.Migrate();
 
             Seeder.SeedMinimal(db);
             adminSeeder.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
