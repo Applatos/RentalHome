@@ -16,11 +16,11 @@ This guide covers deployment to Microsoft IIS, database migrations, and CI/CD wo
 
 ## Environment Overview
 
-| Environment | Purpose | Database | URL |
-|-------------|---------|----------|-----|
-| Development | Local dev | SQLite (in-memory or file) | localhost:5183 (API), localhost:5015 (MVC) |
-| Testing | Automated tests | SQLite in-memory | N/A |
-| Production | Live site | SQLite file | vh_mms.smedt.dk |
+| Environment | Purpose         | Database                   | URL                                        |
+| ----------- | --------------- | -------------------------- | ------------------------------------------ |
+| Development | Local dev       | SQLite (in-memory or file) | localhost:5183 (API), localhost:5015 (MVC) |
+| Testing     | Automated tests | SQLite in-memory           | N/A                                        |
+| Production  | Live site       | SQLite file                | vh_mms.smedt.dk                            |
 
 ### Configuration Files
 
@@ -51,6 +51,7 @@ dotnet ef migrations add <MigrationName> `
 ```
 
 **Example:**
+
 ```powershell
 dotnet ef migrations add AddHouseRating `
   --project Sommerhus.Repository `
@@ -60,6 +61,7 @@ dotnet ef migrations add AddHouseRating `
 #### 2. Review the Migration
 
 Always review the generated migration in `Sommerhus.Repository/Migrations/`:
+
 - Check the `Up()` method for expected changes
 - Check the `Down()` method for proper rollback
 - Verify no data loss will occur
@@ -100,6 +102,7 @@ await db.Database.MigrateAsync();
 #### Option B: Manual Migration Before Deploy (Recommended for Production)
 
 1. **Generate SQL script:**
+
 ```powershell
 dotnet ef migrations script `
   --project Sommerhus.Repository `
@@ -111,6 +114,7 @@ dotnet ef migrations script `
 2. **Review the SQL script** for any destructive operations
 
 3. **Apply to production database:**
+
 ```powershell
 # For SQLite
 sqlite3 C:\Data\Sommerhus\api\db\sommerhus.db < migrations.sql
@@ -133,6 +137,7 @@ dotnet ef migrations bundle `
 ```
 
 Run on production server:
+
 ```powershell
 .\efbundle.exe --connection "Data Source=C:\Data\Sommerhus\api\db\sommerhus.db"
 ```
@@ -148,6 +153,7 @@ Run on production server:
 ### SQLite-Specific Considerations
 
 SQLite has limited ALTER TABLE support. EF Core handles this by:
+
 1. Creating a new table with the new schema
 2. Copying data from the old table
 3. Dropping the old table
@@ -186,12 +192,14 @@ C:\WebServer\
 ### Manual Deployment Steps
 
 1. **Build and publish:**
+
 ```powershell
 dotnet publish Sommerhus.Api -c Release -o C:\_deploy\Sommerhus.Api
 dotnet publish Sommerhus.Mvc -c Release -o C:\_deploy\Sommerhus.Mvc
 ```
 
 2. **Stop the app pools:**
+
 ```powershell
 Import-Module WebAdministration
 Stop-WebAppPool -Name "SommerhusApiPool"
@@ -199,24 +207,28 @@ Stop-WebAppPool -Name "SommerhusMvcPool"
 ```
 
 3. **Put sites offline:**
+
 ```powershell
 New-Item -Path "C:\WebServer\api_...\publish\app_offline.htm" -ItemType File -Force
 New-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm" -ItemType File -Force
 ```
 
 4. **Copy files (excluding persistent directories):**
+
 ```powershell
 robocopy C:\_deploy\Sommerhus.Api C:\WebServer\api_...\publish /MIR /XD wwwroot Data logs
 robocopy C:\_deploy\Sommerhus.Mvc C:\WebServer\mvc_...\publish /MIR /XD wwwroot\uploads Data logs
 ```
 
 5. **Start app pools:**
+
 ```powershell
 Start-WebAppPool -Name "SommerhusApiPool"
 Start-WebAppPool -Name "SommerhusMvcPool"
 ```
 
 6. **Bring sites online:**
+
 ```powershell
 Remove-Item -Path "C:\WebServer\api_...\publish\app_offline.htm"
 Remove-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm"
@@ -226,13 +238,13 @@ Remove-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm"
 
 #### Application Pool Settings
 
-| Setting | Value |
-|---------|-------|
-| .NET CLR Version | No Managed Code |
-| Managed Pipeline Mode | Integrated |
-| Start Mode | AlwaysRunning |
-| Idle Time-out | 0 (disabled) |
-| Identity | ApplicationPoolIdentity or custom service account |
+| Setting               | Value                                             |
+| --------------------- | ------------------------------------------------- |
+| .NET CLR Version      | No Managed Code                                   |
+| Managed Pipeline Mode | Integrated                                        |
+| Start Mode            | AlwaysRunning                                     |
+| Idle Time-out         | 0 (disabled)                                      |
+| Identity              | ApplicationPoolIdentity or custom service account |
 
 #### web.config (auto-generated, but verify)
 
@@ -244,8 +256,8 @@ Remove-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm"
       <handlers>
         <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
       </handlers>
-      <aspNetCore processPath="dotnet" arguments=".\Sommerhus.Api.dll" 
-                  stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" 
+      <aspNetCore processPath="dotnet" arguments=".\Sommerhus.Api.dll"
+                  stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout"
                   hostingModel="InProcess">
         <environmentVariables>
           <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
@@ -262,11 +274,11 @@ Remove-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm"
 
 ### Workflow Overview
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `dotnet.yml` | push, PR | Build and test |
-| `deploy-iis.yml` | push to master | Deploy to IIS |
-| `smokeTest.yml` | manual | Test runner connectivity |
+| Workflow         | Trigger        | Purpose                  |
+| ---------------- | -------------- | ------------------------ |
+| `dotnet.yml`     | push, PR       | Build and test           |
+| `deploy-iis.yml` | push to master | Deploy to IIS            |
+| `smokeTest.yml`  | manual         | Test runner connectivity |
 
 ### Current Issues & Fixes
 
@@ -275,6 +287,7 @@ Remove-Item -Path "C:\WebServer\mvc_...\publish\app_offline.htm"
 **Current state:** Build and test steps are commented out.
 
 **Fixed version:**
+
 ```yaml
 name: .NET Build & Test
 
@@ -287,28 +300,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    
-    - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
 ```
 
 #### 2. `deploy-iis.yml` - Deployment Workflow
 
 **Current issues:**
+
 - Line 122: Uses `robocopy` directly instead of the `$roboArgs` array
 - Missing migration step before deployment
 - No health check after deployment
@@ -327,7 +341,7 @@ jobs:
       --output "$env:PUBLISH_DIR\efbundle.exe" `
       --self-contained `
       --force
-    
+
     # Apply migrations
     & "$env:PUBLISH_DIR\efbundle.exe" --connection "$env:ConnectionStrings__Default"
 
@@ -359,6 +373,7 @@ $null = robocopy $roboArgs
 
 1. **Download the runner** from GitHub repository Settings → Actions → Runners
 2. **Install as Windows service:**
+
 ```powershell
 .\config.cmd --url https://github.com/YOUR_ORG/Sommerhus_project --token YOUR_TOKEN
 .\svc.cmd install
@@ -388,7 +403,8 @@ $null = robocopy $roboArgs
 #### 3. Migrations fail with "table already exists"
 
 **Cause:** Migration history out of sync  
-**Fix:** 
+**Fix:**
+
 ```powershell
 # Check migration history
 dotnet ef migrations list --project Sommerhus.Repository --startup-project Sommerhus.Api
@@ -401,11 +417,13 @@ dotnet ef database update <LastGoodMigration> --project Sommerhus.Repository --s
 
 **Cause:** Multiple connections or long-running transaction  
 **Fix:** Ensure single writer, use WAL mode:
+
 ```csharp
 optionsBuilder.UseSqlite(connectionString, o => o.CommandTimeout(60));
 ```
 
 In connection string:
+
 ```
 Data Source=sommerhus.db;Mode=ReadWriteCreate;Cache=Shared
 ```
@@ -432,13 +450,13 @@ Invoke-RestMethod -Uri "http://localhost:5183/api/public/cities"
 
 Set these on the IIS server (via Environment Variables or web.config):
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `ASPNETCORE_ENVIRONMENT` | Environment name | `Production` |
-| `ConnectionStrings__Default` | Database connection | `Data Source=C:\Data\...` |
-| `Jwt__Key` | JWT signing key (32+ chars) | `YourSecureKeyHere...` |
-| `Jwt__Issuer` | Token issuer | `Sommerhus.Api` |
-| `Jwt__Audience` | Token audience | `Sommerhus.Admin` |
+| Variable                     | Description                 | Example                   |
+| ---------------------------- | --------------------------- | ------------------------- |
+| `ASPNETCORE_ENVIRONMENT`     | Environment name            | `Production`              |
+| `ConnectionStrings__Default` | Database connection         | `Data Source=C:\Data\...` |
+| `Jwt__Key`                   | JWT signing key (32+ chars) | `YourSecureKeyHere...`    |
+| `Jwt__Issuer`                | Token issuer                | `Sommerhus.Api`           |
+| `Jwt__Audience`              | Token audience              | `Sommerhus.Admin`         |
 
 **Security:** Never commit secrets to Git. Use environment variables or Azure Key Vault.
 
@@ -456,8 +474,8 @@ $dst = "C:\Backups\Sommerhus\sommerhus_$date.db"
 
 Copy-Item $src $dst
 # Keep last 30 days
-Get-ChildItem "C:\Backups\Sommerhus\*.db" | 
-  Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | 
+Get-ChildItem "C:\Backups\Sommerhus\*.db" |
+  Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
   Remove-Item
 ```
 
@@ -469,6 +487,738 @@ robocopy "C:\WebServer\api_...\publish\wwwroot\uploads" "C:\Backups\Uploads" /MI
 
 ---
 
+## Development Workflows
+
+### Complete Feature Development Workflow
+
+This section provides step-by-step tutorials for implementing new features from frontend to backend.
+
+#### Workflow 1: Adding a New Field (Frontend → Backend)
+
+**Scenario**: Add a "MaxGuests" field to houses with validation and database persistence.
+
+##### Step 1: Domain Model Changes
+
+```csharp
+// File: Sommerhus.Domain/Models/VacationHouse.cs
+public class VacationHouse
+{
+    // ... existing properties
+
+    [Required, Range(1, 20)]
+    public int MaxGuests { get; set; } = 4;  // NEW PROPERTY
+}
+```
+
+##### Step 2: Create Database Migration
+
+```powershell
+# From solution root
+dotnet ef migrations add AddHouseMaxGuests `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api `
+  --context AppDbContext
+
+# Apply locally
+dotnet ef database update `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api
+```
+
+##### Step 3: Update DTOs
+
+```csharp
+// File: Sommerhus.Contracts/Dtos/Admin/Houses/UpsertHouseDto.cs
+public record UpsertHouseDto(
+    string Title,
+    string Address,
+    string CityId,
+    string Description,
+    string Facilities,
+    string? GroupId,
+    int MaxGuests  // NEW FIELD
+);
+
+// File: Sommerhus.Contracts/Dtos/Public/Houses/HouseDetailsDto.cs
+public record HouseDetailsDto(
+    Guid Id,
+    string Title,
+    string Address,
+    string City,
+    string Description,
+    string Facilities,
+    int MaxGuests,  // NEW FIELD
+    // ... other fields
+);
+```
+
+##### Step 4: Update Service Interfaces
+
+```csharp
+// File: Sommerhus.Application/Admin/Houses/IAdminHouseService.cs
+public interface IAdminHouseService
+{
+    Task<ServiceResult<HouseDetailsDto>> CreateAsync(UpsertHouseDto dto, CancellationToken ct);
+    Task<ServiceResult<HouseDetailsDto>> UpdateAsync(Guid id, UpsertHouseDto dto, CancellationToken ct);
+    // ... existing methods
+}
+```
+
+##### Step 5: Implement Service Logic
+
+```csharp
+// File: Sommerhus.Repository/Admin/Houses/AdminHouseService.cs
+public async Task<ServiceResult<HouseDetailsDto>> CreateAsync(UpsertHouseDto dto, CancellationToken ct)
+{
+    var house = new VacationHouse
+    {
+        Id = Guid.NewGuid(),
+        Title = dto.Title,
+        Address = dto.Address,
+        CityId = Guid.Parse(dto.CityId),
+        Description = dto.Description,
+        Facilities = dto.Facilities,
+        MaxGuests = dto.MaxGuests,  // NEW MAPPING
+        GroupId = string.IsNullOrEmpty(dto.GroupId) ? null : Guid.Parse(dto.GroupId)
+    };
+
+    db.Houses.Add(house);
+    await db.SaveChangesAsync(ct);
+
+    return ServiceResult<HouseDetailsDto>.Success(MapToDetailsDto(house));
+}
+```
+
+##### Step 6: Update API Controllers
+
+```csharp
+// File: Sommerhus.Api/Controllers/Admin/HousesController.cs
+[HttpPost]
+public async Task<ActionResult<HouseDetailsDto>> Create([FromBody] UpsertHouseDto dto, CancellationToken ct)
+{
+    var result = await houseService.CreateAsync(dto, ct);
+    return this.FromResult(result);
+}
+
+[HttpPut("{id:guid}")]
+public async Task<ActionResult<HouseDetailsDto>> Update(Guid id, [FromBody] UpsertHouseDto dto, CancellationToken ct)
+{
+    var result = await houseService.UpdateAsync(id, dto, ct);
+    return this.FromResult(result);
+}
+```
+
+##### Step 7: Update MVC Frontend
+
+```csharp
+// File: Sommerhus.Mvc/Services/SommerhusApi.cs
+public async Task<ApiResponse<HouseDetailsDto>> CreateHouseAsync(UpsertHouseDto dto, CancellationToken ct)
+{
+    return await PostAsync<HouseDetailsDto>("/api/admin/houses", dto, ct);
+}
+
+public async Task<ApiResponse<HouseDetailsDto>> UpdateHouseAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
+{
+    return await PutAsync<HouseDetailsDto>($"/api/admin/houses/{id}", dto, ct);
+}
+```
+
+##### Step 8: Update MVC Views
+
+```html
+<!-- File: Sommerhus.Mvc/Views/Admin/Houses/Create.cshtml -->
+<div class="form-group">
+  <label asp-for="MaxGuests" class="control-label"></label>
+  <input asp-for="MaxGuests" class="form-control" min="1" max="20" />
+  <span asp-validation-for="MaxGuests" class="text-danger"></span>
+</div>
+```
+
+##### Step 9: Update MVC Controller
+
+```csharp
+// File: Sommerhus.Mvc/Controllers/Admin/HousesController.cs
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(UpsertHouseDto dto, CancellationToken ct)
+{
+    if (!ModelState.IsValid)
+    {
+        await LoadViewData(ct);
+        return View(dto);
+    }
+
+    var result = await _api.CreateHouseAsync(dto, ct);
+    if (!result.Ok)
+    {
+        ModelState.AddModelError("", result.Message ?? "Failed to create house");
+        await LoadViewData(ct);
+        return View(dto);
+    }
+
+    TempData["Success"] = "House created successfully";
+    return RedirectToAction(nameof(Index));
+}
+```
+
+##### Step 10: Testing
+
+```powershell
+# Run all tests
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj
+
+# Run specific test
+dotnet test --filter "TestMethodName"
+
+# Test API manually
+curl -X POST http://localhost:5183/api/admin/houses \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"title":"Test House","maxGuests":6,"address":"Test St","cityId":"..."}'
+```
+
+#### Workflow 2: Adding a New Entity with Relationships
+
+**Scenario**: Add "Amenities" (like WiFi, Pool) that can be assigned to multiple houses.
+
+##### Step 1: Domain Models
+
+```csharp
+// File: Sommerhus.Domain/Models/Amenity.cs
+public class Amenity
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; } = "";
+
+    [Required, MaxLength(50)]
+    public string Icon { get; set; } = "";  // Font Awesome icon class
+
+    public List<HouseAmenity> HouseAmenities { get; set; } = new();
+}
+
+// File: Sommerhus.Domain/Models/HouseAmenity.cs (junction table)
+public class HouseAmenity
+{
+    public Guid HouseId { get; set; }
+    public Guid AmenityId { get; set; }
+
+    public VacationHouse House { get; set; } = null!;
+    public Amenity Amenity { get; set; } = null!;
+}
+```
+
+##### Step 2: Update DbContext
+
+```csharp
+// File: Sommerhus.Repository/Data/DbContext.cs
+public DbSet<Amenity> Amenities => Set<Amenity>();
+public DbSet<HouseAmenity> HouseAmenities => Set<HouseAmenity>();
+
+// In OnModelCreating:
+b.Entity<Amenity>(e =>
+{
+    e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+    e.Property(x => x.Icon).IsRequired().HasMaxLength(50);
+});
+
+b.Entity<HouseAmenity>(e =>
+{
+    e.HasKey(x => new { x.HouseId, x.AmenityId });
+    e.HasOne(x => x.House)
+        .WithMany(h => h.HouseAmenities)
+        .HasForeignKey(x => x.HouseId)
+        .OnDelete(DeleteBehavior.Cascade);
+    e.HasOne(x => x.Amenity)
+        .WithMany(a => a.HouseAmenities)
+        .HasForeignKey(x => x.AmenityId)
+        .OnDelete(DeleteBehavior.Cascade);
+});
+```
+
+##### Step 3: Migration and DTOs (follow Workflow 1 steps)
+
+#### Workflow 3: Refactoring - Extracting Common Logic
+
+**Scenario**: Extract duplicate validation logic into a shared service.
+
+##### Step 1: Identify Duplication
+
+Find repeated validation patterns across controllers/services.
+
+##### Step 2: Create Shared Service
+
+```csharp
+// File: Sommerhaus.Application/Common/IValidationService.cs
+public interface IValidationService
+{
+    ServiceResult ValidateHouseData(UpsertHouseDto dto);
+    ServiceResult ValidateBookingDates(DateOnly start, DateOnly end);
+}
+
+// File: Sommerhaus.Repository/Common/ValidationService.cs
+public class ValidationService : IValidationService
+{
+    public ServiceResult ValidateHouseData(UpsertHouseDto dto)
+    {
+        var errors = new List<string>();
+
+        if (dto.MaxGuests < 1 || dto.MaxGuests > 20)
+            errors.Add("MaxGuests must be between 1 and 20");
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            errors.Add("Title is required");
+
+        return errors.Any()
+            ? ServiceResult.Failure(errors)
+            : ServiceResult.Success();
+    }
+}
+```
+
+##### Step 3: Update Controllers to Use Shared Service
+
+```csharp
+// In all controllers that need validation
+public class HousesController(
+    IAdminHouseService houseService,
+    IValidationService validationService) : ControllerBase
+{
+    [HttpPost]
+    public async Task<ActionResult<HouseDetailsDto>> Create(
+        [FromBody] UpsertHouseDto dto, CancellationToken ct)
+    {
+        var validation = validationService.ValidateHouseData(dto);
+        if (!validation.Ok)
+            return BadRequest(validation.Errors);
+
+        var result = await houseService.CreateAsync(dto, ct);
+        return this.FromResult(result);
+    }
+}
+```
+
+---
+
+## Data Synchronization Strategies
+
+### Keeping Code, Database, and Uploads Synchronized
+
+This section provides comprehensive strategies for maintaining consistency across development machines and production environments.
+
+#### SQLite Development Synchronization
+
+##### Strategy 1: Database-First with Git (Recommended for Teams)
+
+**Setup:**
+
+```powershell
+# 1. Create a shared database template
+mkdir -p .database/template
+cp sommerhus.db .database/template/sommerhus-template.db
+
+# 2. Add to .gitignore
+echo ".database/*.db" >> .gitignore
+echo "!/database/template/sommerhus-template.db" >> .gitignore
+
+# 3. Create sync script
+# File: scripts/sync-database.ps1
+param(
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("pull","push")]
+    [string]$Action = "pull"
+)
+
+$TemplateDb = ".database/template/sommerhus-template.db"
+$LocalDb = "sommerhus.db"
+
+if ($Action -eq "pull") {
+    Write-Host "Pulling database template..."
+    if (Test-Path $TemplateDb) {
+        Copy-Item $TemplateDb $LocalDb -Force
+        Write-Host "Database synchronized from template"
+    } else {
+        Write-Host "No template database found"
+    }
+} elseif ($Action -eq "push") {
+    Write-Host "Pushing database to template..."
+    Copy-Item $LocalDb $TemplateDb -Force
+    Write-Host "Database template updated"
+}
+```
+
+**Workflow:**
+
+```powershell
+# When starting work (pull latest template)
+.\scripts\sync-database.ps1 -Action pull
+
+# When making schema changes:
+# 1. Create migration
+dotnet ef migrations add NewFeature `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api
+
+# 2. Apply locally
+dotnet ef database update
+
+# 3. Push updated template
+.\scripts\sync-database.ps1 -Action push
+
+# 4. Commit migration and template
+git add .
+git commit -m "Add NewFeature - updates database template"
+```
+
+##### Strategy 2: Migration-Only Sync (Production-Ready)
+
+**Never commit database files. Use migrations only:**
+
+```powershell
+# .gitignore
+*.db
+*.db-shm
+*.db-wal
+wwwroot/images/**/*.jpg
+wwwroot/images/**/*.png
+wwwroot/images/**/*.gif
+```
+
+**Setup Scripts:**
+
+```powershell
+# File: scripts/init-dev-database.ps1
+Write-Host "Initializing development database..."
+
+# Ensure database directory exists
+mkdir -p .database
+
+# Create fresh database
+dotnet ef database update `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api
+
+# Run minimal seeding
+dotnet run --project Sommerhus.Api --environment Development --no-launch
+
+Write-Host "Development database initialized"
+```
+
+```powershell
+# File: scripts/reset-database.ps1
+param(
+    [Parameter(Mandatory=$false)]
+    [switch]$KeepData
+)
+
+Write-Host "Resetting database..."
+
+if (-not $KeepData) {
+    Remove-Item sommerhus.db -Force -ErrorAction SilentlyContinue
+    Remove-Item .database -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+dotnet ef database drop `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api `
+  --force
+
+dotnet ef database update `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api
+
+Write-Host "Database reset complete"
+```
+
+#### File Upload Synchronization
+
+##### Strategy 1: Shared Storage (Recommended)
+
+**Use cloud storage or network share:**
+
+```csharp
+// File: Sommerhus.Api/Infrastructure/Storage/CloudImageStorage.cs
+public class CloudImageStorage : IImageStorage
+{
+    private readonly string storageConnectionString;
+    private readonly string containerName;
+
+    public CloudImageStorage(IConfiguration config)
+    {
+        storageConnectionString = config["Storage:ConnectionString"];
+        containerName = config["Storage:ContainerName"] ?? "sommerhus-images";
+    }
+
+    public async Task<StoredImage> SaveAsync(ImageCategory category, Guid ownerId, IFormFile file, CancellationToken ct)
+    {
+        var blobClient = new BlobContainerClient(storageConnectionString, containerName)
+            .GetBlobClient($"{category}/{ownerId}/{file.FileName}");
+
+        await blobClient.UploadAsync(file.OpenReadStream(), new BlobHttpHeaders { ContentType = file.ContentType }, ct);
+
+        return new StoredImage(file.FileName, blobClient.Uri.ToString());
+    }
+}
+```
+
+**Configuration:**
+
+```json
+// appsettings.Development.json
+{
+  "Storage": {
+    "Provider": "Local",
+    "LocalPath": "wwwroot/images"
+  }
+}
+
+// appsettings.Production.json
+{
+  "Storage": {
+    "Provider": "AzureBlob",
+    "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=...",
+    "ContainerName": "sommerhus-images"
+  }
+}
+```
+
+##### Strategy 2: Git-Tracked Seed Images
+
+**For development/demo images:**
+
+```powershell
+# Directory structure
+assets/
+├── seed-images/
+│   ├── houses/
+│   │   ├── sample-house-1/
+│   │   │   ├── cover.jpg
+│   │   │   ├── gallery-1.jpg
+│   │   │   └── gallery-2.jpg
+│   │   └── sample-house-2/
+│   └── areas/
+│       └── blavand/
+│           └── hero.jpg
+```
+
+```csharp
+// File: Sommerhus.Repository/Data/ImageSeeder.cs
+public static class ImageSeeder
+{
+    public static async Task SeedImagesAsync(AppDbContext db, IImageStorage storage)
+    {
+        // Only seed if no images exist
+        if (await db.Images.AnyAsync()) return;
+
+        var sampleHouseId = new Guid("5fb7097c-335c-4d07-b4fd-000004e2d28c");
+        var seedPath = Path.Combine("assets", "seed-images", "houses", "sample-house-1");
+
+        if (Directory.Exists(seedPath))
+        {
+            await CopySeedImagesAsync(storage, ImageCategory.House, sampleHouseId, seedPath);
+        }
+    }
+
+    private static async Task CopySeedImagesAsync(IImageStorage storage, ImageCategory category, Guid ownerId, string sourcePath)
+    {
+        foreach (var file in Directory.GetFiles(sourcePath, "*.*"))
+        {
+            var fileName = Path.GetFileName(file);
+            var formFile = new FormFile(new FileStream(file, FileMode.Open), 0, new FileInfo(file).Length, "file", fileName);
+
+            await storage.SaveAsync(category, ownerId, formFile, CancellationToken.None);
+            formFile.Dispose();
+        }
+    }
+}
+```
+
+#### Multi-Developer Workflow
+
+##### Development Environment Setup Script
+
+```powershell
+# File: scripts/setup-dev-environment.ps1
+Write-Host "Setting up Sommerhus development environment..."
+
+# 1. Restore packages
+dotnet restore Sommerhus_project.sln
+
+# 2. Build solution
+dotnet build Sommerhus_project.sln
+
+# 3. Initialize database
+& .\scripts\init-dev-database.ps1
+
+# 4. Create directories for uploads
+mkdir -p wwwroot/images/houses
+mkdir -p wwwroot/images/areas
+mkdir -p wwwroot/images/cities
+
+# 5. Copy seed images (if any)
+if (Test-Path "assets/seed-images") {
+    & .\scripts\sync-seed-images.ps1
+}
+
+# 6. Run tests to verify setup
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=minimal"
+
+Write-Host "Development environment setup complete!"
+Write-Host "Run 'dotnet run --project Sommerhus.Api' to start the API"
+Write-Host "Run 'dotnet run --project Sommerhus.Mvc' to start the MVC app"
+```
+
+##### Pre-Commit Hook (Optional)
+
+```powershell
+# File: .git/hooks/pre-commit (Git Bash)
+#!/bin/sh
+
+# Run tests before commit
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --no-build --verbosity minimal
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Commit aborted."
+    exit 1
+fi
+
+# Check for uncommitted database changes
+if git status --porcelain | grep -q "\.db$"; then
+    echo "Database files detected. Please remove *.db files before committing."
+    exit 1
+fi
+
+echo "Pre-commit checks passed."
+exit 0
+```
+
+#### Production Synchronization
+
+##### Strategy 1: Automated Backup and Sync
+
+```powershell
+# File: scripts/production-sync.ps1
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$ProductionPath,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$DryRun
+)
+
+$LocalDb = "sommerhus.db"
+$ProductionDb = Join-Path $ProductionPath "Data\sommerhus.db"
+$LocalImages = "wwwroot\images"
+$ProductionImages = Join-Path $ProductionPath "wwwroot\images"
+
+Write-Host "Production synchronization:"
+Write-Host "Local: $LocalDb"
+Write-Host "Production: $ProductionDb"
+
+if ($DryRun) {
+    Write-Host "DRY RUN - No changes will be made"
+}
+
+# Sync database (local -> production)
+if (Test-Path $LocalDb) {
+    if (-not $DryRun) {
+        # Backup production database first
+        $backupPath = "$ProductionDb.backup.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Copy-Item $ProductionDb $backupPath -ErrorAction SilentlyContinue
+
+        # Copy local database
+        Copy-Item $LocalDb $ProductionDb -Force
+        Write-Host "Database synchronized"
+    } else {
+        Write-Host "Would copy: $LocalDb -> $ProductionDb"
+    }
+}
+
+# Sync images (local -> production)
+if (-not $DryRun) {
+    robocopy $LocalImages $ProductionImages /MIR /R:1 /W:1
+} else {
+    Write-Host "Would sync images: $LocalImages -> $ProductionImages"
+}
+```
+
+##### Strategy 2: Production-First Workflow
+
+**Never overwrite production. Pull from production instead:**
+
+```powershell
+# File: scripts/pull-production-data.ps1
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$ProductionPath
+)
+
+$ProductionDb = Join-Path $ProductionPath "Data\sommerhus.db"
+$ProductionImages = Join-Path $ProductionPath "wwwroot\images"
+
+# Pull production database
+if (Test-Path $ProductionDb) {
+    Copy-Item $ProductionDb "sommerhus.db" -Force
+    Write-Host "Production database pulled"
+}
+
+# Pull production images
+robocopy $ProductionImages "wwwroot\images" /MIR /R:1 /W:1
+Write-Host "Production images pulled"
+```
+
+#### SQL Server Synchronization
+
+For SQL Server environments, use these additional strategies:
+
+##### Strategy 1: Shared Development Database
+
+```json
+// appsettings.Development.json (shared)
+{
+  "ConnectionStrings": {
+    "Default": "Server=dev-sql-server;Database=Sommerhus_Dev;Integrated Security=true;"
+  }
+}
+```
+
+##### Strategy 2: DACPAC for Schema Sync
+
+```powershell
+# Extract schema from production
+dotnet ef migrations script `
+  --project Sommerhus.Repository `
+  --startup-project Sommerhus.Api `
+  --idempotent `
+  --output production-schema.sql
+
+# Compare and apply to development
+# Use SQL Server Data Tools or manual comparison
+```
+
+##### Strategy 3: Containerized SQL Server
+
+```yaml
+# docker-compose.dev.yml
+version: "3.8"
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: YourStrongPassword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./scripts/init-sql.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  sqlserver_data:
+```
+
+---
+
 ## Next Steps
 
 1. [ ] Add health check endpoint to API (`/health`)
@@ -476,3 +1226,5 @@ robocopy "C:\WebServer\api_...\publish\wwwroot\uploads" "C:\Backups\Uploads" /MI
 3. [ ] Configure SSL certificate auto-renewal
 4. [ ] Add staging environment for testing deployments
 5. [ ] Implement blue-green deployment for zero-downtime updates
+6. [ ] Create automated database backup to cloud storage
+7. [ ] Set up image CDN for production uploads
