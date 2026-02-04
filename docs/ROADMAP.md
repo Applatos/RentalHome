@@ -608,6 +608,29 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ Tests passing
 
 ---
 
+## Phase 2.6: Architecture Simplification - Part 2 ✅ COMPLETED
+
+**Goal**: Complete architecture cleanup with AdminController split and DTO consolidation.
+
+### Tasks
+
+- [x] Split MVC AdminController into domain-specific controllers
+  - Created `AreasController` (252 lines) for area management
+  - Created `FeaturesController` (112 lines) for feature management
+  - `HousesController` reduced from 1067 to 730 lines (focused on houses/pricing)
+- [x] Consolidate duplicate DTOs (one per entity with optional properties)
+  - Moved `AreaListItemDto` to `Sommerhus.Core.Dtos.Shared`
+  - Deleted duplicates from Admin/Public namespaces
+- [x] Delete nearly identical shared DTOs
+- [x] Ensure consistent DTO naming and folder organization
+- [x] Update all references after consolidation
+
+### Deferred
+
+- [ ] Unify `ApiResponse<T>` with `ServiceResult<T>` (requires API contract changes)
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:

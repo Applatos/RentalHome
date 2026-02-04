@@ -156,10 +156,13 @@ Api/
 ```
 Mvc/
 ├── Controllers/
-│   ├── Admin/            # Admin dashboard
-│   │   └── AdminController.cs
+│   ├── Admin/            # Admin dashboard (split by domain)
+│   │   ├── HousesController.cs   # House CRUD + pricing
+│   │   ├── AreasController.cs    # Area management
+│   │   └── FeaturesController.cs # Feature definitions
 │   ├── Public/           # Public pages
-│   │   └── HousesController.cs
+│   │   ├── HousesController.cs
+│   │   └── AreasController.cs
 │   └── AccountController.cs
 ├── ViewModels/
 │   └── Admin/            # Extracted view models

@@ -1,7 +1,7 @@
-using Sommerhus.Core.Dtos.Public.Areas;
+using Sommerhus.Core.Dtos.Admin.Areas;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Public.Cities;
 using Sommerhus.Core.Dtos.Public.Houses;
-using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 
@@ -40,6 +40,6 @@ public sealed class SommerhusApi
         return ApiHttp.GetAsync<IReadOnlyList<AreaListItemDto>?>(http, url, ct);
     }
 
-    public Task<ApiResponse<AreaDetailDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
-        => ApiHttp.GetAsync<AreaDetailDto?>(http, $"api/areas/{id}", ct);
+    public Task<ApiResponse<AreaDetailsDto?>> GetAreaAsync(Guid id, CancellationToken ct = default)
+        => ApiHttp.GetAsync<AreaDetailsDto?>(http, $"api/areas/{id}", ct);
 }

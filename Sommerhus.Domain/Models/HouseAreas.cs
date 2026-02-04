@@ -1,4 +1,4 @@
-﻿namespace Sommerhus.Domain.Models
+namespace Sommerhus.Domain.Models
 {
     public class HouseAreas
     {
