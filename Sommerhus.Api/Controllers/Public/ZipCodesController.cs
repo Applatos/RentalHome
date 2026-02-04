@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Public.ZipCodes;
+using Sommerhus.Core.Services.Public.ZipCodes;
 
 namespace Sommerhus.Api.Controllers.Public;
 

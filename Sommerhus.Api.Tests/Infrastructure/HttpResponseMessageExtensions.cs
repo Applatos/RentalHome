@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Xunit.Abstractions;
 

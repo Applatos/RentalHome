@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Public.Areas;
-using Sommerhus.Contracts.Dtos.Admin.Areas;
+using Sommerhus.Core.Services.Public.Areas;
+using Sommerhus.Core.Dtos.Admin.Areas;
 
 namespace Sommerhus.Api.Controllers.Public;
 

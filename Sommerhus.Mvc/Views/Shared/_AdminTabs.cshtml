@@ -1,4 +1,4 @@
-﻿@{
+@{
     var active = (string?)(ViewData["AdminTab"] ?? "");
     string Active(string key) => string.Equals(active, key, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 }

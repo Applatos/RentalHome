@@ -1,121 +1,20 @@
-using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Contracts.Dtos.Admin.Areas;
-using Sommerhus.Contracts.Dtos.Admin.Features;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Contracts.Dtos.Admin.Pricing;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin.Areas;
+using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Admin.Houses;
+using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using Sommerhus.Mvc.ViewModels.Admin;
 using System.Globalization;
-using System.Linq;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-
-public static class SelectListExtensions
-{
-    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items)
-        => items.ToSelectList((IEnumerable<Guid>?)null);
-
-    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items, Guid? selectedId)
-        => items.ToSelectList(selectedId.HasValue ? new[] { selectedId.Value } : null);
-
-    public static IEnumerable<SelectListItem> ToSelectList(this IEnumerable<LookupItem> items, IEnumerable<Guid>? selectedIds)
-    {
-        var selected = selectedIds is null ? new HashSet<Guid>() : selectedIds.ToHashSet();
-
-            return items.Select(i => new SelectListItem
-            {
-                Value = i.Id.ToString(),
-                Text = i.Label,
-                Selected = selected.Contains(i.Id)
-            });
-    }
-}
-
-public sealed class HouseEditVm
-{
-    public UpsertHouseDto House { get; set; } = new();
-    public IEnumerable<SelectListItem> Cities { get; set; } = Enumerable.Empty<SelectListItem>();
-    public IEnumerable<SelectListItem> Areas { get; set; } = Enumerable.Empty<SelectListItem>();
-}
-
-public sealed class AreaEditVm
-{
-    public Guid? Id { get; init; }
-    public string Name { get; set; } = string.Empty;
-    public List<Guid> CityIds { get; set; } = new List<Guid>();
-    public string? Description { get; set; }
-    public IReadOnlyList<ImageDto> Images { get; init; } = Array.Empty<ImageDto>();
-    public IReadOnlyList<SelectListItem> Cities { get; init; } = Array.Empty<SelectListItem>();
-
-    public bool IsNew => !Id.HasValue || Id == Guid.Empty;
-}
-
-public sealed record AreaGalleryVm(Guid AreaId, IReadOnlyList<ImageDto> Images, string? RedirectTo = null);
-
-public class SeasonPriceRow
-{
-    public Guid? Id { get; set; }
-    public Guid? RatePlanId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    [Range(0.00, double.MaxValue)] public decimal? NightlyPrice { get; set; }
-
-}
-
-public sealed class CreateHouseGroupForm
-{
-    [Required, StringLength(100)]
-    public string Name { get; set; } = string.Empty;
-}
-
-public sealed class CreateSeasonCodeForm
-{
-    [Required, StringLength(10)]
-    public string Code { get; set; } = string.Empty;
-
-    [StringLength(100)]
-    public string? Label { get; set; }
-
-    [StringLength(7)]
-    public string? Color { get; set; }
-
-    [Range(0, 1000)]
-    public int SortOrder { get; set; }
-}
-
-public sealed class PricingAdminVm
-{
-    public IReadOnlyList<LookupItem> Groups { get; init; } = Array.Empty<LookupItem>();
-    public IReadOnlyList<SeasonCodeDto> SeasonCodes { get; init; } = Array.Empty<SeasonCodeDto>();
-    public CreateHouseGroupForm GroupForm { get; init; } = new();
-    public CreateSeasonCodeForm SeasonCodeForm { get; init; } = new();
-    public string? GroupError { get; init; }
-    public string? SeasonError { get; init; }
-}
-
-public class HousePricingForm
-{
-    public Guid? PlanId { get; set; }
-
-    [Required] 
-    public string Name { get; set; } = "";
-    
-    [Required, StringLength(3)] 
-    public string Currency { get; set; } = "DKK";
-
-    public bool IsActive { get; set; }
-
-    public List<SeasonPriceRow> SeasonPrices { get; set; } = new();
-}
-
-
-    [Authorize]
-    public sealed class AdminController : Controller
+[Authorize]
+public sealed class AdminController : Controller
 {
     private readonly AdminApiClient _api;
     public AdminController(AdminApiClient api) => _api = api;

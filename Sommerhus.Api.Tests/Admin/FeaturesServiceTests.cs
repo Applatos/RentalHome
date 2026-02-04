@@ -5,11 +5,11 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
-using Sommerhus.Application.Admin.Features;
-using Sommerhus.Application.Common;
-using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Core.Services.Admin.Features;
+using Sommerhus.Core.Common;
+using Sommerhus.Core.Dtos.Admin.Features;
 using Sommerhus.Domain.Models;
-using Sommerhus.Repository;
+using Sommerhus.Core;
 using Xunit;
 
 namespace Sommerhus.Api.Tests.Admin;

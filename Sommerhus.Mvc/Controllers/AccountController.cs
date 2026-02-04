@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Contracts.Dtos.Admin;
-using Sommerhus.Contracts.Security;
+using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 

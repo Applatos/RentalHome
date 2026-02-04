@@ -3,7 +3,7 @@
 //using FluentAssertions;
 //using Sommerhus.Api.Tests.Infrastructure;
 //using Sommerhus.Contracts.Dtos._api.Areas;
-//using Sommerhus.Contracts.Dtos.Shared;
+//using Sommerhus.Core.Dtos.Shared;
 //using Xunit.Abstractions;
 
 //namespace Sommerhus.Api.Tests.Admin;

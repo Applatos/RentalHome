@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Sommerhus.Api.Infrastructure.Auth;
-using Sommerhus.Contracts.Dtos.Admin;
-using Sommerhus.Contracts.Security;
-using Sommerhus.Repository.Identity;
+using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Api.Controllers.Admin;
 

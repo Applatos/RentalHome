@@ -1,4 +1,4 @@
-using Sommerhus.Contracts.Dtos.Admin;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Mvc.Services;
 

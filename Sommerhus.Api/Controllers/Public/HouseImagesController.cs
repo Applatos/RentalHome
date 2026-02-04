@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Public.Images;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Images;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Public;
 

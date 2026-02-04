@@ -311,8 +311,8 @@ graph LR
 
     subgraph "EF Core DbContext"
         CONTEXT[AppDbContext]
-        INCLUDE[.Include() Relations]
-        TRACKING[AsNoTracking()]
+        INCLUDE[.Include Relations]
+        TRACKING[AsNoTracking]
     end
 
     subgraph "Domain Models"

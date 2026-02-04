@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Application.Admin.Images;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.Images;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
-using Sommerhus.Contracts.Security;
+using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;
 

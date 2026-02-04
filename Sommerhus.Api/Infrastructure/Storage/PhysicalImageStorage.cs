@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Options;
-using Sommerhus.Application.Storage;
+using Sommerhus.Core.Services.Storage;
 
 public sealed class PhysicalImageStorage : IImageStorage
 {

@@ -1,6 +1,6 @@
 //using FluentAssertions;
-//using Sommerhus.Application.Admin.Houses;
-//using Sommerhus.Contracts.Dtos.Admin.Features;
+//using Sommerhus.Core.Services.Admin.Houses;
+//using Sommerhus.Core.Dtos.Admin.Features;
 //using Sommerhus.Domain.Models;
 
 //namespace Sommerhus.Api.Tests.Application;

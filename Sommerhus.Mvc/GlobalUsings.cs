@@ -1,1 +1,1 @@
-﻿global using Sommerhus.Contracts.Dtos.Shared;
+global using Sommerhus.Core.Dtos.Shared;

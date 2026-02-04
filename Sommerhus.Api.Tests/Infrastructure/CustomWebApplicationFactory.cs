@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Sommerhus.Contracts.Dtos.Admin;
-using Sommerhus.Repository;
-using Sommerhus.Repository.Identity;
+using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core;
+using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Api.Tests.Infrastructure;
 

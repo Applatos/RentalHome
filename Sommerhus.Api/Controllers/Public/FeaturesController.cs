@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Public.Features;
-using Sommerhus.Contracts.Dtos.Admin.Features;
+using Sommerhus.Core.Services.Public.Features;
+using Sommerhus.Core.Dtos.Admin.Features;
 
 namespace Sommerhus.Api.Controllers.Public;
 

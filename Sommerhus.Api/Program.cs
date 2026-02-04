@@ -5,8 +5,8 @@ using Microsoft.OpenApi.Models;
 using Sommerhus.Api.Extensions;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Api.Infrastructure.Auth;
-using Sommerhus.Contracts.Security;
-using Sommerhus.Repository;
+using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core;
 
 
 namespace Sommerhus.Api;

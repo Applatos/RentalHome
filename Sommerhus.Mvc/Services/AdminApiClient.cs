@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
-using Sommerhus.Contracts.Dtos.Admin.Areas;
-using Sommerhus.Contracts.Dtos.Admin.Features;
-using Sommerhus.Contracts.Dtos.Admin.Houses;
-using Sommerhus.Contracts.Dtos.Admin.Pricing;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin.Areas;
+using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Admin.Houses;
+using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 

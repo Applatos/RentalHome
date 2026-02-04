@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Application.Admin.Pricing;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.Pricing;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Public;
 

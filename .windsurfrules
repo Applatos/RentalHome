@@ -1,35 +1,43 @@
 # Sommerhus Project - Windsurf Rules
+
 # Pin this file to context for all refactoring and development prompts
 
 ## Project Overview
+
 Sommerhus is a vacation house rental platform with:
+
 - **Sommerhus.Api**: ASP.NET Core 8 REST API with JWT authentication
 - **Sommerhus.Mvc**: Razor MVC frontend consuming the API
 - **Sommerhus.Domain**: Entity models (pure POCO, no dependencies)
-- **Sommerhus.Application**: Business logic interfaces, DTOs, and service contracts
-- **Sommerhus.Repository**: EF Core implementations, data access
-- **Sommerhus.Contracts**: Shared DTOs between API and MVC
+- **Sommerhus.Core**: Business logic, services, DTOs, and EF Core data access (merged layer)
 - **Sommerhus.Api.Tests**: xUnit integration tests
 
 ---
 
 ## Pre-Task Context Loading
+
 Before answering any prompt, read the following files if relevant to the task:
 
 ### For API/Backend work:
+
 - `Sommerhus.Api/Program.cs` - DI registrations and middleware
-- `Sommerhus.Repository/ServiceCollectionExtensions.cs` - Persistence setup
-- `Sommerhus.Repository/Data/DbContext.cs` - EF model configuration
+- `Sommerhus.Core/ServiceCollectionExtensions.cs` - Persistence setup
+- `Sommerhus.Core/Data/DbContext.cs` - EF model configuration
 
 ### For Frontend/MVC work:
+
 - `Sommerhus.Mvc/Program.cs` - MVC setup and HTTP clients
 - `Sommerhus.Mvc/Services/` - API client implementations
+- `Sommerhus.Mvc/ViewModels/` - Extracted view models
+- `Sommerhus.Mvc/Extensions/` - Helper extensions
 
 ### For Domain/Data work:
+
 - `Sommerhus.Domain/Models/` - All entity definitions
-- `Sommerhus.Contracts/Dtos/` - DTO definitions
+- `Sommerhus.Core/Dtos/` - DTO definitions
 
 ### For Testing:
+
 - `Sommerhus.Api.Tests/Infrastructure/CustomWebApplicationFactory.cs` - Test setup
 
 ---
@@ -37,6 +45,7 @@ Before answering any prompt, read the following files if relevant to the task:
 ## Coding Conventions
 
 ### C# Style
+
 - **Framework**: .NET 8, C# 12
 - **Indentation**: 4 spaces (no tabs)
 - **Namespaces**: File-scoped (`namespace Foo;`)
@@ -46,6 +55,7 @@ Before answering any prompt, read the following files if relevant to the task:
 - **Expression bodies**: Use for single-line methods/properties
 
 ### Naming
+
 - **PascalCase**: Public members, types, namespaces
 - **camelCase**: Private fields, local variables, parameters
 - **Interfaces**: Prefix with `I` (e.g., `IHouseService`)
@@ -54,18 +64,20 @@ Before answering any prompt, read the following files if relevant to the task:
 - **Controllers**: Suffix with `Controller`
 
 ### Architecture Patterns
-- **Clean Architecture**: Domain → Application → Repository/Infrastructure
+
+- **Simplified Layers**: Domain → Core (merged business + data) → Api/Mvc
 - **Thin Controllers**: Controllers delegate to services, no business logic
 - **ServiceResult Pattern**: Use `ServiceResult<T>` for operation outcomes
-- **Repository Pattern**: Services in Repository implement interfaces from Application
+- **Colocation**: Interfaces and implementations live together in Core/Services
 
 ### File Organization
+
 ```
 Feature/
-├── I{Feature}Service.cs       (in Application layer)
-├── {Feature}Service.cs        (in Repository layer)
+├── I{Feature}Service.cs       (in Core/Services/{Area})
+├── {Feature}Service.cs        (in Core/Services/{Area})
 ├── {Feature}Controller.cs     (in Api/Controllers)
-└── {Feature}Dto.cs            (in Contracts/Dtos)
+└── {Feature}Dto.cs            (in Core/Dtos/{Area})
 ```
 
 ---
@@ -73,6 +85,7 @@ Feature/
 ## Refactoring Rules
 
 ### DO:
+
 - ✅ Keep changes minimal and focused
 - ✅ Maintain backward compatibility with existing API contracts
 - ✅ Add/update tests for any logic changes
@@ -81,6 +94,7 @@ Feature/
 - ✅ Keep services under 300 lines; split if larger
 
 ### DON'T:
+
 - ❌ Change multiple unrelated things in one commit
 - ❌ Remove existing functionality without explicit request
 - ❌ Add new NuGet packages without justification
@@ -93,6 +107,7 @@ Feature/
 ## Known Issues to Address
 
 ### High Priority
+
 1. **Service Registration Bloat**: `Program.cs` has 20+ manual `AddScoped` calls
    - Solution: Create extension methods per feature area
 2. **Services in Wrong Layer**: Implementations live in Repository but should be organized by feature
@@ -100,11 +115,13 @@ Feature/
    - Solution: Extract specialized services (pricing, features, images)
 
 ### Medium Priority
+
 4. **DTO Consolidation**: Some DTOs duplicate fields across Admin/Public
 5. **Missing Validation**: DTOs lack `[Required]`, `[MaxLength]` attributes
 6. **Empty Project**: `Sommerhus.Pricing/` project is empty, unused
 
 ### Low Priority
+
 7. **Danish in Code**: Some error messages and comments in Danish
 8. **Inconsistent Image Handling**: Different patterns for House/Area/City images
 
@@ -113,18 +130,22 @@ Feature/
 ## Testing Guidelines
 
 ### Running Tests
+
 ```powershell
 dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj
 ```
 
 ### Test Conventions
+
 - Name: `{Method}_{Scenario}_{ExpectedResult}`
 - Use `FluentAssertions` for assertions
 - Use `CustomWebApplicationFactory` for integration tests
 - Isolate with in-memory SQLite database
 
 ### After Each Phase
+
 Run full test suite to verify no regressions:
+
 ```powershell
 dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
 ```
@@ -158,16 +179,19 @@ dotnet format Sommerhus_project.sln
 ## Git Workflow
 
 ### Branch Naming
+
 - `feature/short-description` - New features
 - `refactor/short-description` - Refactoring work
 - `fix/short-description` - Bug fixes
 
 ### Commit Messages
+
 - Imperative mood: "Add feature" not "Added feature"
 - Reference issues: "Fix image upload - closes #42"
 - Keep under 72 characters
 
 ### Before PR
+
 1. Run `dotnet format`
 2. Run `dotnet build` with no warnings
 3. Run `dotnet test` with all passing
@@ -178,11 +202,13 @@ dotnet format Sommerhus_project.sln
 ## Configuration
 
 ### Secrets (never commit)
+
 - `Jwt:Key` - JWT signing key
 - `DefaultAdmin:Password` - Admin password
 - `ConnectionStrings:Default` - Production DB
 
 ### Environment Files
+
 - `appsettings.json` - Base config
 - `appsettings.Development.json` - Local overrides
 - `appsettings.Testing.json` - Test environment
@@ -193,6 +219,7 @@ dotnet format Sommerhus_project.sln
 ## AI Agent Instructions
 
 ### When Asked to Refactor:
+
 1. Read relevant existing code first
 2. Propose changes before implementing
 3. Make minimal changes to achieve goal
@@ -200,12 +227,14 @@ dotnet format Sommerhus_project.sln
 5. Update documentation if API changes
 
 ### When Asked to Add Features:
+
 1. Check for existing similar patterns
 2. Follow established architecture
 3. Add appropriate tests
 4. Update any affected documentation
 
 ### When Debugging:
+
 1. Reproduce the issue first
 2. Check logs and error messages
 3. Trace through code path
@@ -213,6 +242,7 @@ dotnet format Sommerhus_project.sln
 5. Add regression test
 
 ### Response Format:
+
 - Be concise, avoid lengthy explanations
 - Show code changes with file paths
 - Provide test commands to verify

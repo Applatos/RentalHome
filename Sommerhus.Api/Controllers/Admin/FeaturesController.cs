@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Application.Admin.Features;
-using Sommerhus.Application.Common;
-using Sommerhus.Contracts.Dtos.Admin.Features;
-using Sommerhus.Contracts.Security;
+using Sommerhus.Core.Services.Admin.Features;
+using Sommerhus.Core.Common;
+using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;
 

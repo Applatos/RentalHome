@@ -1,0 +1,15 @@
+using Microsoft.AspNetCore.Http;
+using Sommerhus.Core.Common;
+using Sommerhus.Core.Dtos.Admin.Houses;
+using Sommerhus.Core.Dtos.Shared;
+
+namespace Sommerhus.Core.Services.Admin.Houses;
+
+public interface IAdminHouseService
+{
+    Task<PageResult<HouseListItemDto>> SearchAsync(string? query, int page, int pageSize, CancellationToken ct);
+    Task<ServiceResult<HouseDetailsDto>> GetDetailsAsync(Guid id, HttpRequest request, CancellationToken ct);
+    Task<ServiceResult<Guid>> CreateAsync(UpsertHouseDto dto, CancellationToken ct);
+    Task<ServiceResult> UpdateAsync(Guid id, UpsertHouseDto dto, CancellationToken ct);
+    Task<ServiceResult> DeleteAsync(Guid id, CancellationToken ct);
+}

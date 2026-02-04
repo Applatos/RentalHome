@@ -1,7 +1,7 @@
-using Sommerhus.Contracts.Dtos.Public.Areas;
-using Sommerhus.Contracts.Dtos.Public.Cities;
-using Sommerhus.Contracts.Dtos.Public.Houses;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Public.Areas;
+using Sommerhus.Core.Dtos.Public.Cities;
+using Sommerhus.Core.Dtos.Public.Houses;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 

@@ -5,12 +5,12 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
-using Sommerhus.Application.Admin.HouseGroups;
-using Sommerhus.Application.Common;
-using Sommerhus.Contracts.Dtos.Admin.Pricing;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.HouseGroups;
+using Sommerhus.Core.Common;
+using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
-using Sommerhus.Repository;
+using Sommerhus.Core;
 using Xunit;
 
 namespace Sommerhus.Api.Tests.Admin;

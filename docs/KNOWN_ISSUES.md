@@ -276,23 +276,75 @@ public record UpsertHouseDto(
 
 ## Tracking
 
-| Issue                      | Priority | Phase | Status        |
-| -------------------------- | -------- | ----- | ------------- |
-| #1 Service Registration    | High     | 1     | **Completed** |
-| #2 Large Services          | High     | 2     | Pending       |
-| #3 Danish Text             | Medium   | 6     | Pending       |
-| #4 Empty Project           | Low      | 5     | Pending       |
-| #5 DTO Validation          | Medium   | 3     | Pending       |
-| #6 Image Handling          | Medium   | 4     | Pending       |
-| #7 HttpRequest in Services | Medium   | -     | Pending       |
-| #8 Hardcoded CORS          | Low      | -     | Pending       |
-| #9 Commented Code          | Low      | 6     | Pending       |
-| #10 API Docs               | Low      | 7     | Pending       |
-| #11 MVC Exception Handling | Low      | 10    | Pending       |
-| #12 N+1 Queries            | Medium   | 9     | Pending       |
-| #13 JWT Key                | Security | -     | Documented    |
-| #14 Admin Password         | Security | -     | Documented    |
-| #15 Test Coverage          | High     | 8     | Pending       |
+| Issue                           | Priority | Phase | Status          |
+| ------------------------------- | -------- | ----- | --------------- |
+| #1 Service Registration         | High     | 1     | **Completed**   |
+| #2 Large Services               | High     | 2     | Pending         |
+| #3 Danish Text                  | Medium   | 6     | Pending         |
+| #4 Empty Project                | Low      | 5     | Pending         |
+| #5 DTO Validation               | Medium   | 3     | Pending         |
+| #6 Image Handling               | Medium   | 4     | Pending         |
+| #7 HttpRequest in Services      | Medium   | -     | Pending         |
+| #8 Hardcoded CORS               | Low      | -     | Pending         |
+| #9 Commented Code               | Low      | 6     | Pending         |
+| #10 API Docs                    | Low      | 7     | Pending         |
+| #11 MVC Exception Handling      | Low      | 10    | Pending         |
+| #12 N+1 Queries                 | Medium   | 9     | Pending         |
+| #13 JWT Key                     | Security | -     | Documented      |
+| #14 Admin Password              | Security | -     | Documented      |
+| #15 Test Coverage               | High     | 8     | Pending         |
+| #17 Architecture Simplification | High     | 2.5   | **In Progress** |
+
+---
+
+## Phase 2.5: Architecture Simplification (NEW)
+
+This phase consolidates over-engineered layers identified during architecture review.
+
+### Goals
+
+1. **Consolidate DTOs** - Merge `Sommerhus.Contracts` into `Sommerhus.Application`
+2. **Merge Projects** - Combine `Application` + `Repository` → `Sommerhus.Core`
+3. **Keep Interfaces** - Retain service interfaces for testability (even 1:1)
+4. **Fix MVC Controller Bloat** - Split 1100-line `HousesController.cs`
+5. **Extract ViewModels** - Move inline ViewModels to `Mvc/ViewModels/`
+6. **Move Extensions** - Relocate `SelectListExtensions` to `Mvc/Extensions/`
+7. **Unify Response Wrappers** - Single `ServiceResult<T>` pattern API→MVC
+
+### New Project Structure (After)
+
+```
+Sommerhus_project/
+├── Sommerhus.Api/           # REST API (unchanged)
+├── Sommerhus.Mvc/           # MVC frontend (reorganized)
+│   ├── Controllers/Admin/   # Split by domain
+│   ├── ViewModels/          # Extracted from controllers
+│   └── Extensions/          # SelectListExtensions, etc.
+├── Sommerhus.Domain/        # Entity models (unchanged)
+├── Sommerhus.Core/          # NEW: Merged Application + Repository
+│   ├── Dtos/                # Consolidated from Contracts
+│   ├── Services/            # Interfaces + Implementations
+│   ├── Data/                # DbContext, migrations
+│   └── Common/              # ServiceResult, shared utilities
+└── Sommerhus.Api.Tests/     # Tests (updated references)
+```
+
+### Deleted Projects
+
+- `Sommerhus.Contracts` - Merged into Core
+- `Sommerhus.Application` - Merged into Core
+- `Sommerhus.Repository` - Merged into Core
+
+### Migration Steps
+
+1. Create `Sommerhus.Core` project
+2. Move DTOs from Contracts → Core/Dtos
+3. Move interfaces from Application → Core/Services
+4. Move implementations from Repository → Core/Services
+5. Update all project references
+6. Split MVC controllers
+7. Extract ViewModels
+8. Run tests to verify
 
 ---
 

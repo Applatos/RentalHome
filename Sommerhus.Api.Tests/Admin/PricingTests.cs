@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
-using Sommerhus.Repository;
+using Sommerhus.Core;
 using Xunit.Abstractions;
 
 namespace Sommerhus.Api.Tests.Admin;

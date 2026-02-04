@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Admin.Cities;
-using Sommerhus.Contracts.Dtos.Public.Cities;
-using Sommerhus.Contracts.Dtos.Shared;
-using Sommerhus.Contracts.Security;
+using Sommerhus.Core.Services.Admin.Cities;
+using Sommerhus.Core.Dtos.Public.Cities;
+using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;
 

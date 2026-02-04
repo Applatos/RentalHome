@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Contracts.Dtos.Public.Areas;
-using Sommerhus.Contracts.Dtos.Public.Houses;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Public.Areas;
+using Sommerhus.Core.Dtos.Public.Houses;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using System.Net;
 

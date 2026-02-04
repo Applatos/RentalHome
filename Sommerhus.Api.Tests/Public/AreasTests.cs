@@ -1,5 +1,5 @@
-﻿//using FluentAssertions;
-//using Sommerhus.Contracts.Dtos.Public.Areas;
+//using FluentAssertions;
+//using Sommerhus.Core.Dtos.Public.Areas;
 //using Sommerhus.Api.Tests.Infrastructure;
 //using System.Net.Http.Json;
 

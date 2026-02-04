@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Contracts.Dtos.Admin.Pricing;
-using Sommerhus.Contracts.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;

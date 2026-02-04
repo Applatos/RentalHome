@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Application.Public.Cities;
-using Sommerhus.Contracts.Dtos.Public.Cities;
+using Sommerhus.Core.Services.Public.Cities;
+using Sommerhus.Core.Dtos.Public.Cities;
 
 namespace Sommerhus.Api.Controllers.Public;
 

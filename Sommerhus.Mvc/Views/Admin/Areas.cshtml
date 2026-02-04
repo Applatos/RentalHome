@@ -1,4 +1,4 @@
-@using Admareas = Sommerhus.Contracts.Dtos.Admin.Areas
+@using Admareas = Sommerhus.Core.Dtos.Admin.Areas
 @model IReadOnlyList<Admareas.AreaListItemDto>
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
@@ -7,13 +7,13 @@
     @if (TempData["Err"] is string errMsg){ <div class="alert alert-danger">@errMsg</div> }
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Områder</h2>
+        <h2 class="mb-0">Omrï¿½der</h2>
         <a class="btn btn-primary" asp-controller="Admin" asp-action="NewArea">+ Opret area</a>
     </div>
 
     @if (Model is null || Model.Count == 0)
     {
-        <p class="text-muted">Ingen områder fundet endnu.</p>
+        <p class="text-muted">Ingen omrï¿½der fundet endnu.</p>
     }
     else
     {
