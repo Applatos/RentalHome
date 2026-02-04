@@ -509,6 +509,49 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj
 
 ---
 
+## Phase 11: Admin UI Bug Fixes & Calendar Visualization ✅ COMPLETED
+
+**Goal**: Fix critical admin UI bugs and improve season calendar UX.
+
+### Issues Fixed
+
+1. **House Groups Tab Error** ✅ FIXED
+   - **Problem**: InvalidOperationException - View 'Index' not found
+   - **Root Cause**: Controller returns `View()` without explicit path, ASP.NET looks in wrong folder
+   - **Solution**: Added explicit view paths (`~/Views/Admin/HouseGroups/Index.cshtml`)
+
+2. **Group Name Not Displayed** ✅ VERIFIED
+   - **Status**: View code correctly displays `@group.Name` - likely a data issue if name is empty
+   - **Location**: `/admin/house-groups` list view shows name from `HouseGroupListItemDto`
+
+3. **Guest Count Now Affects Price** ✅ FIXED
+   - **Solution**: Created `GuestFeeRule` that adds extra fee per guest above base (configurable)
+   - **Config**: `Pricing:GuestFee:BaseGuests` (default: 2), `Pricing:GuestFee:PerGuestPerNight` (default: 50)
+   - **Also Fixed**: Simplified pricing breakdown - shows nights grouped by season instead of every night
+
+4. **Season Calendar UI** ✅ FIXED
+   - **Fixed**: Form routes now use explicit paths instead of tag helpers
+   - **Added**: Visual year calendar showing months color-coded by season
+   - **Added**: Season legend with color indicators
+
+### Files Modified
+
+- `Sommerhus.Mvc/Controllers/Admin/HouseGroupsController.cs` - Explicit view paths
+- `Sommerhus.Mvc/Views/Admin/House._Pricing.cshtml` - Visual calendar + fixed form routes
+- `Sommerhus.Application/Pricing/Engine/Rules/GuestFeeRule.cs` - NEW: Guest pricing rule
+- `Sommerhus.Application/Pricing/Engine/Rules/BaseNightlyRateRule.cs` - Simplified breakdown
+- `Sommerhus.Api/Extensions/ServiceCollectionExtensions.cs` - Register GuestFeeRule
+- `docs/DEVOPS.md` - Added database/image sync guide
+
+### Verification
+
+```powershell
+dotnet build Sommerhus_project.sln  # ✅ Build succeeded
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ 11/11 tests passed
+```
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:

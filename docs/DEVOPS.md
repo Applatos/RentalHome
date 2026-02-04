@@ -1380,6 +1380,284 @@ volumes:
 
 ---
 
+## Database & Image Synchronization Guide
+
+This section explains how to keep SQLite database and uploaded images synchronized across multiple development machines.
+
+### The Problem
+
+When developing on multiple machines (e.g., desktop at home, laptop at work):
+
+- **SQLite database** (`sommerhus.db`) is stored locally and not committed to Git
+- **Uploaded images** (`wwwroot/images/`) are stored locally and gitignored
+- Changes made on one machine don't appear on another
+
+### Recommended Solutions
+
+#### Option 1: Commit Database to Git (Simplest for Solo/Small Teams)
+
+**Pros**: Simple, automatic sync via Git  
+**Cons**: Binary file, merge conflicts possible, increases repo size
+
+```powershell
+# Remove from .gitignore (edit the file)
+# Then add and commit
+git add Sommerhus.Api/sommerhus.db
+git commit -m "Add development database"
+```
+
+**Important**: Only do this for development databases. Never commit production databases with real user data.
+
+#### Option 2: Database Template + Migration Script (Recommended)
+
+Keep a clean seed database as a template:
+
+```powershell
+# Create template directory
+mkdir -p .dev/db-template
+
+# After seeding a fresh database, copy it as template
+cp Sommerhus.Api/sommerhus.db .dev/db-template/sommerhus-template.db
+
+# Add template to Git
+git add .dev/db-template/sommerhus-template.db
+```
+
+Create a setup script `scripts/setup-dev.ps1`:
+
+```powershell
+# scripts/setup-dev.ps1
+param([switch]$Force)
+
+$templateDb = ".dev/db-template/sommerhus-template.db"
+$targetDb = "Sommerhus.Api/sommerhus.db"
+
+if ((Test-Path $targetDb) -and -not $Force) {
+    Write-Host "Database already exists. Use -Force to overwrite."
+    return
+}
+
+if (Test-Path $templateDb) {
+    Copy-Item $templateDb $targetDb -Force
+    Write-Host "Database initialized from template"
+} else {
+    Write-Host "No template found. Running migrations..."
+    dotnet ef database update --project Sommerhus.Repository --startup-project Sommerhus.Api
+}
+```
+
+#### Option 3: Cloud Database for Development
+
+Use a shared cloud database (not SQLite):
+
+```json
+// appsettings.Development.json
+{
+  "ConnectionStrings": {
+    "Default": "Server=dev-db.example.com;Database=Sommerhus_Dev;User Id=dev;Password=..."
+  }
+}
+```
+
+**Pros**: Always in sync, no local files  
+**Cons**: Requires internet, potential conflicts with concurrent edits
+
+### Image Synchronization
+
+#### Option A: Git LFS for Images (Recommended)
+
+```powershell
+# Install Git LFS
+git lfs install
+
+# Track image files
+git lfs track "*.jpg"
+git lfs track "*.png"
+git lfs track "*.gif"
+git lfs track "*.webp"
+
+# Add .gitattributes
+git add .gitattributes
+git commit -m "Configure Git LFS for images"
+
+# Now images in wwwroot/images will be tracked via LFS
+git add wwwroot/images/
+git commit -m "Add development images"
+```
+
+#### Option B: Seed Images Directory
+
+Keep sample images in a committed `assets/seed-images/` directory:
+
+```powershell
+# Directory structure
+assets/
+└── seed-images/
+    └── houses/
+        └── sample-house-id/
+            ├── cover.jpg
+            └── gallery-1.jpg
+
+# Copy to wwwroot on setup
+Copy-Item -Recurse assets/seed-images/* Sommerhus.Api/wwwroot/images/
+```
+
+#### Option C: Cloud Storage (Production-Ready)
+
+Use Azure Blob Storage or AWS S3:
+
+```csharp
+// Configure in Program.cs based on environment
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<IImageStorage, PhysicalImageStorage>();
+}
+else
+{
+    builder.Services.AddSingleton<IImageStorage, AzureBlobImageStorage>();
+}
+```
+
+### Complete Setup Script
+
+Create `scripts/dev-setup.ps1`:
+
+```powershell
+#!/usr/bin/env pwsh
+# Development environment setup script
+
+param(
+    [switch]$ResetDatabase,
+    [switch]$ResetImages
+)
+
+Write-Host "=== Sommerhus Development Setup ===" -ForegroundColor Cyan
+
+# 1. Restore packages
+Write-Host "`n[1/5] Restoring packages..." -ForegroundColor Yellow
+dotnet restore Sommerhus_project.sln
+
+# 2. Build solution
+Write-Host "`n[2/5] Building solution..." -ForegroundColor Yellow
+dotnet build Sommerhus_project.sln --no-restore
+
+# 3. Setup database
+Write-Host "`n[3/5] Setting up database..." -ForegroundColor Yellow
+$dbPath = "Sommerhus.Api/sommerhus.db"
+$templatePath = ".dev/db-template/sommerhus-template.db"
+
+if ($ResetDatabase -or -not (Test-Path $dbPath)) {
+    if (Test-Path $templatePath) {
+        Copy-Item $templatePath $dbPath -Force
+        Write-Host "  Database initialized from template" -ForegroundColor Green
+    } else {
+        Write-Host "  Running migrations..." -ForegroundColor Yellow
+        dotnet ef database update --project Sommerhus.Repository --startup-project Sommerhus.Api
+    }
+} else {
+    Write-Host "  Database exists (use -ResetDatabase to recreate)" -ForegroundColor Gray
+}
+
+# 4. Setup images
+Write-Host "`n[4/5] Setting up images..." -ForegroundColor Yellow
+$imagesPath = "Sommerhus.Api/wwwroot/images"
+$seedImagesPath = "assets/seed-images"
+
+if (-not (Test-Path $imagesPath)) {
+    New-Item -ItemType Directory -Path $imagesPath -Force | Out-Null
+}
+
+if ($ResetImages -and (Test-Path $seedImagesPath)) {
+    Copy-Item -Recurse -Force "$seedImagesPath/*" $imagesPath
+    Write-Host "  Images copied from seed directory" -ForegroundColor Green
+}
+
+# 5. Run tests
+Write-Host "`n[5/5] Running tests..." -ForegroundColor Yellow
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --no-build
+
+Write-Host "`n=== Setup Complete ===" -ForegroundColor Cyan
+Write-Host "Run 'dotnet run --project Sommerhus.Api' to start the API"
+Write-Host "Run 'dotnet run --project Sommerhus.Mvc' to start the MVC app"
+```
+
+### Workflow for Multiple Developers
+
+1. **Initial Setup** (each developer once):
+
+   ```powershell
+   git clone <repo>
+   cd Sommerhus_project
+   ./scripts/dev-setup.ps1
+   ```
+
+2. **After Pulling Changes**:
+
+   ```powershell
+   git pull
+   dotnet build
+   # Run migrations if schema changed
+   dotnet ef database update --project Sommerhus.Repository --startup-project Sommerhus.Api
+   ```
+
+3. **When Making Database Changes**:
+
+   ```powershell
+   # Create migration
+   dotnet ef migrations add YourMigrationName --project Sommerhus.Repository --startup-project Sommerhus.Api
+
+   # Apply migration
+   dotnet ef database update --project Sommerhus.Repository --startup-project Sommerhus.Api
+
+   # Commit migration files
+   git add Sommerhus.Repository/Migrations/
+   git commit -m "Add YourMigrationName migration"
+   ```
+
+4. **Sharing Seed Data**:
+   ```powershell
+   # After creating good test data, save as template
+   cp Sommerhus.Api/sommerhus.db .dev/db-template/sommerhus-template.db
+   git add .dev/db-template/
+   git commit -m "Update database template with new seed data"
+   ```
+
+### Troubleshooting
+
+#### Database Out of Sync
+
+```powershell
+# Reset to template
+./scripts/dev-setup.ps1 -ResetDatabase
+
+# Or delete and recreate
+Remove-Item Sommerhus.Api/sommerhus.db
+dotnet ef database update --project Sommerhus.Repository --startup-project Sommerhus.Api
+```
+
+#### Images Missing
+
+```powershell
+# If using seed images
+./scripts/dev-setup.ps1 -ResetImages
+
+# If using Git LFS, ensure it's installed
+git lfs install
+git lfs pull
+```
+
+#### Migration Conflicts
+
+```powershell
+# Check migration history
+dotnet ef migrations list --project Sommerhus.Repository --startup-project Sommerhus.Api
+
+# Remove failed migration
+dotnet ef migrations remove --project Sommerhus.Repository --startup-project Sommerhus.Api
+```
+
+---
+
 ## Next Steps
 
 1. [ ] Add health check endpoint to API (`/health`)

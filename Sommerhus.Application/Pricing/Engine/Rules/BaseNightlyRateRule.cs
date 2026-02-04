@@ -49,6 +49,9 @@ public sealed class BaseNightlyRateRule : IPriceRule
             .Where(s => s.StartDate <= to && s.EndDate >= from)
             .ToList();
 
+        // Group nights by season code for cleaner breakdown
+        var nightsBySeason = new Dictionary<string, (int Count, decimal Rate)>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var date in nights)
         {
             var segment = relevantSegments.FirstOrDefault(x => x.StartDate <= date && date <= x.EndDate);
@@ -63,7 +66,22 @@ public sealed class BaseNightlyRateRule : IPriceRule
             }
 
             ctx.NightlyRates[date] = rate.NightlyPrice;
-            ctx.Items.Add(new PriceQuoteLineItemDto("BASE", $"Nat {date} ({segment.Code})", rate.NightlyPrice));
+
+            if (nightsBySeason.TryGetValue(segment.Code, out var existing))
+            {
+                nightsBySeason[segment.Code] = (existing.Count + 1, rate.NightlyPrice);
+            }
+            else
+            {
+                nightsBySeason[segment.Code] = (1, rate.NightlyPrice);
+            }
+        }
+
+        // Add summarized line items instead of per-night breakdown
+        foreach (var (code, (count, rate)) in nightsBySeason.OrderBy(x => x.Key))
+        {
+            var total = count * rate;
+            ctx.Items.Add(new PriceQuoteLineItemDto("BASE", $"{count} nætter ({code})", total));
         }
     }
 }

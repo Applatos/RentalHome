@@ -16,10 +16,10 @@ public class HouseGroupsController(AdminApiClient api) : Controller
         if (!groupsRes.Ok || groupsRes.Data is null)
         {
             TempData["Err"] = groupsRes.Message ?? "Kunne ikke hente husgrupper.";
-            return View(Array.Empty<HouseGroupListItemDto>());
+            return View("~/Views/Admin/HouseGroups/Index.cshtml", Array.Empty<HouseGroupListItemDto>());
         }
 
-        return View(groupsRes.Data);
+        return View("~/Views/Admin/HouseGroups/Index.cshtml", groupsRes.Data);
     }
 
     [HttpGet("/admin/house-groups/{id:guid}")]
@@ -41,14 +41,14 @@ public class HouseGroupsController(AdminApiClient api) : Controller
 
         var vm = new HouseGroupDetailsVm(groupRes.Data, seasonCodes);
 
-        return View(vm);
+        return View("~/Views/Admin/HouseGroups/Details.cshtml", vm);
     }
 
     [HttpGet("/admin/house-groups/new")]
     public IActionResult Create()
     {
         ViewData["AdminTab"] = "house-groups";
-        return View(new UpsertHouseGroupDto());
+        return View("~/Views/Admin/HouseGroups/Create.cshtml", new UpsertHouseGroupDto());
     }
 
     [HttpPost("/admin/house-groups")]
@@ -58,7 +58,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
         if (!ModelState.IsValid)
         {
             ViewData["AdminTab"] = "house-groups";
-            return View(dto);
+            return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
         }
 
         var res = await api.CreateHouseGroupAsync(new HouseGroupDto(dto.Name), ct);
@@ -70,7 +70,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
 
         TempData["Err"] = res.Message ?? "Kunne ikke oprette husgruppe.";
         ViewData["AdminTab"] = "house-groups";
-        return View(dto);
+        return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
     }
 
     [HttpGet("/admin/house-groups/{id:guid}/edit")]
@@ -86,7 +86,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
         }
 
         var dto = new UpsertHouseGroupDto { Name = groupRes.Data.Name };
-        return View(dto);
+        return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
     }
 
     [HttpPost("/admin/house-groups/{id:guid}")]
@@ -96,7 +96,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
         if (!ModelState.IsValid)
         {
             ViewData["AdminTab"] = "house-groups";
-            return View(dto);
+            return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
         }
 
         var res = await api.UpdateHouseGroupAsync(id, dto, ct);
@@ -108,7 +108,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
 
         TempData["Err"] = res.Message ?? "Kunne ikke opdatere husgruppe.";
         ViewData["AdminTab"] = "house-groups";
-        return View(dto);
+        return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
     }
 
     [HttpPost("/admin/house-groups/{id:guid}/delete")]

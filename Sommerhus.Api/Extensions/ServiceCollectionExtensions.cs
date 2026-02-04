@@ -80,6 +80,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IRatePlanStore, EfRatePlanStore>();
         services.AddScoped<IPriceRule, BaseNightlyRateRule>();
+        services.AddScoped<IPriceRule, GuestFeeRule>();
         services.AddScoped<IPriceRule, CleaningFeeRule>();
         services.AddScoped<IPricingPipeline, PricingPipeline>();
 
