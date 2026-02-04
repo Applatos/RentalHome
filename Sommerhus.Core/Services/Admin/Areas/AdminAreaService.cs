@@ -267,7 +267,16 @@ public sealed class AdminAreaService : IAdminAreaService
 
         var cityIds = cityItems.Select(c => c.Id).ToList();
 
-        return new AreaDetailsDto(area.Id, area.Name, cityIds, cityItems, area.Description, images, houses);
+        return new AreaDetailsDto(
+            area.Id,
+            area.Name,
+            area.Description,
+            images,
+            
+            // Admin-specific fields
+            CityIds: cityIds,
+            Cities: cityItems,
+            Houses: houses);
     }
 
     private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)

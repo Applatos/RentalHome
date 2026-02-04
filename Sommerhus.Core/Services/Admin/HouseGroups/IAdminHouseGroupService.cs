@@ -1,16 +1,17 @@
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.HouseGroups;
 
 public interface IAdminHouseGroupService
 {
     Task<IReadOnlyList<LookupItem>> GetAllAsync(CancellationToken ct);
-    Task<ServiceResult<IReadOnlyList<HouseGroupListItemDto>>> ListAsync(CancellationToken ct);
-    Task<ServiceResult<HouseGroupDetailsDto>> GetAsync(Guid id, CancellationToken ct);
+    Task<ServiceResult<IReadOnlyList<HouseGroupDto>>> ListAsync(CancellationToken ct);
+    Task<ServiceResult<HouseGroupDto>> GetAsync(Guid id, CancellationToken ct);
     Task<ServiceResult<LookupItem>> CreateAsync(HouseGroupDto dto, CancellationToken ct);
-    Task<ServiceResult<HouseGroupDetailsDto>> UpdateAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct);
+    Task<ServiceResult<HouseGroupDto>> UpdateAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct);
     Task<ServiceResult> DeleteAsync(Guid id, CancellationToken ct);
 
     Task<ServiceResult<SeasonSpanDto>> AddSeasonSpanAsync(Guid groupId, UpsertSeasonSpanDto dto, CancellationToken ct);

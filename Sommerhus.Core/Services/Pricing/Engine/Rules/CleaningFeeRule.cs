@@ -2,7 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Sommerhus.Core.Services.Pricing.Abstractions;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Pricing.Engine.Rules;
 

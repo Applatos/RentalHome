@@ -62,7 +62,7 @@ public sealed class AdminController : Controller
         }
         else
         {
-            ViewBag.AllFeatures ??= Array.Empty<FeatureDetailsDto>();
+            ViewBag.AllFeatures ??= Array.Empty<FeatureDto>();
         }
 
         if (string.Equals(tab, "pricing") || string.Equals(tab, "calendar"))
@@ -374,7 +374,7 @@ public sealed class AdminController : Controller
         }
         else
         {
-            ViewBag.AllFeatures = Array.Empty<FeatureDetailsDto>();
+            ViewBag.AllFeatures = Array.Empty<FeatureDto>();
             ViewBag.FeaturesError = featuresRes.Message ?? "Kunne ikke hente features.";
         }
     }
@@ -569,7 +569,7 @@ public sealed class AdminController : Controller
             return View("Pricing", invalidVm);
         }
 
-        var res = await _api.CreateHouseGroupAsync(new HouseGroupDto(form.Name), ct);
+        var res = await _api.CreateHouseGroupAsync(new HouseGroupDto(Guid.NewGuid(), form.Name), ct);
 
         if (res.Ok)
         {

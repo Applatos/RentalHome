@@ -64,8 +64,8 @@ public sealed class AdminApiClient
 
 
     // Features
-    public Task<ApiResponse<IReadOnlyList<FeatureDetailsDto>?>> GetFeaturesAsync(CancellationToken ct)
-        => ApiHttp.GetAsync<IReadOnlyList<FeatureDetailsDto>?>(http, "api/admin/features", ct);
+    public Task<ApiResponse<IReadOnlyList<FeatureDto>?>> GetFeaturesAsync(CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<FeatureDto>?>(http, "api/admin/features", ct);
 
     public Task<ApiResponse<Guid>> CreateFeatureAsync(UpsertFeatureDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<UpsertFeatureDto, Guid>(http, "api/admin/features", dto, ct);
@@ -139,17 +139,17 @@ public sealed class AdminApiClient
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetHouseGroupsAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/house-groups", ct);
 
-    public Task<ApiResponse<IReadOnlyList<HouseGroupListItemDto>?>> GetHouseGroupListAsync(CancellationToken ct)
-        => ApiHttp.GetAsync<IReadOnlyList<HouseGroupListItemDto>?>(http, "api/admin/house-groups", ct);
+    public Task<ApiResponse<IReadOnlyList<HouseGroupDto>?>> GetHouseGroupListAsync(CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<HouseGroupDto>?>(http, "api/admin/house-groups", ct);
 
-    public Task<ApiResponse<HouseGroupDetailsDto?>> GetHouseGroupAsync(Guid id, CancellationToken ct)
-        => ApiHttp.GetAsync<HouseGroupDetailsDto?>(http, $"api/admin/house-groups/{id}", ct);
+    public Task<ApiResponse<HouseGroupDto?>> GetHouseGroupAsync(Guid id, CancellationToken ct)
+        => ApiHttp.GetAsync<HouseGroupDto?>(http, $"api/admin/house-groups/{id}", ct);
 
     public Task<ApiResponse<LookupItem?>> CreateHouseGroupAsync(HouseGroupDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<HouseGroupDto, LookupItem?>(http, "api/admin/house-groups", dto, ct);
 
-    public Task<ApiResponse<HouseGroupDetailsDto?>> UpdateHouseGroupAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct)
-        => ApiHttp.PutAsync<UpsertHouseGroupDto, HouseGroupDetailsDto?>(http, $"api/admin/house-groups/{id}", dto, ct);
+    public Task<ApiResponse<HouseGroupDto?>> UpdateHouseGroupAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct)
+        => ApiHttp.PutAsync<UpsertHouseGroupDto, HouseGroupDto?>(http, $"api/admin/house-groups/{id}", dto, ct);
 
     public Task<ApiResponse<object?>> DeleteHouseGroupAsync(Guid id, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/house-groups/{id}", ct);

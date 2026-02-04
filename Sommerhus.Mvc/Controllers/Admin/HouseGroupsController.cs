@@ -16,7 +16,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
         if (!groupsRes.Ok || groupsRes.Data is null)
         {
             TempData["Err"] = groupsRes.Message ?? "Kunne ikke hente husgrupper.";
-            return View("~/Views/Admin/HouseGroups/Index.cshtml", Array.Empty<HouseGroupListItemDto>());
+            return View("~/Views/Admin/HouseGroups/Index.cshtml", Array.Empty<HouseGroupDto>());
         }
 
         return View("~/Views/Admin/HouseGroups/Index.cshtml", groupsRes.Data);
@@ -61,7 +61,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
             return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
         }
 
-        var res = await api.CreateHouseGroupAsync(new HouseGroupDto(dto.Name), ct);
+        var res = await api.CreateHouseGroupAsync(new HouseGroupDto(Guid.NewGuid(), dto.Name), ct);
         if (res.Ok && res.Data is not null)
         {
             TempData["Ok"] = "Husgruppe oprettet.";
@@ -183,6 +183,6 @@ public class HouseGroupsController(AdminApiClient api) : Controller
 }
 
 public record HouseGroupDetailsVm(
-    HouseGroupDetailsDto Group,
+    HouseGroupDto Group,
     IReadOnlyList<SeasonCodeDto> SeasonCodes
 );

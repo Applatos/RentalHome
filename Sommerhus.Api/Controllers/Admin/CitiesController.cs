@@ -13,7 +13,7 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class CitiesController(IAdminCityService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IReadOnlyList<CityListItemDto>> GetAll(CancellationToken ct)
+    public async Task<IReadOnlyList<CityDto>> GetAll(CancellationToken ct)
         => await service.GetAllAsync(ct);
 
     [HttpGet("lookup")]

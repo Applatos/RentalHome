@@ -1,7 +1,7 @@
 @using System.Globalization
 @using System.Linq
-@using Sommerhus.Core.Dtos.Admin.Pricing
-@model Sommerhus.Core.Dtos.Admin.Houses.HouseDetailsDto
+@using Sommerhus.Core.Dtos.Shared
+@model Sommerhus.Core.Dtos.Shared.HouseDetailsDto
 
 @{
     var seasonCodes = ViewBag.SeasonCodes as IReadOnlyList<SeasonCodeDto> ?? Array.Empty<SeasonCodeDto>();

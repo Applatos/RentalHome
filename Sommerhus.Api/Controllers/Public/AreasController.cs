@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Areas;
 
 namespace Sommerhus.Api.Controllers.Public;
 

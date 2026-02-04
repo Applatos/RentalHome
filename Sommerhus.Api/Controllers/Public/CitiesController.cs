@@ -9,6 +9,6 @@ namespace Sommerhus.Api.Controllers.Public;
 public sealed class CitiesController(ICityQueryService cities) : ControllerBase
 {
     [HttpGet]
-    public Task<IEnumerable<CityListItemDto>> Get(CancellationToken ct)
+    public Task<IEnumerable<CityDto>> Get(CancellationToken ct)
         => cities.GetAsync(ct);
 }

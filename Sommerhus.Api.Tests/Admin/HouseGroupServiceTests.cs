@@ -31,7 +31,7 @@ public sealed class HouseGroupServiceTests : IClassFixture<CustomWebApplicationF
         var service = scope.ServiceProvider.GetRequiredService<IAdminHouseGroupService>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var result = await service.CreateAsync(new HouseGroupDto("  Familie "), CancellationToken.None);
+        var result = await service.CreateAsync(new HouseGroupDto(Guid.NewGuid(), "  Familie "), CancellationToken.None);
 
         result.Status.Should().Be(ServiceResultStatus.Success);
         result.Value.Should().NotBeNull();
@@ -55,10 +55,10 @@ public sealed class HouseGroupServiceTests : IClassFixture<CustomWebApplicationF
         });
         await db.SaveChangesAsync();
 
-        var result = await service.CreateAsync(new HouseGroupDto("Nord"), CancellationToken.None);
+        var result = await service.CreateAsync(new HouseGroupDto(Guid.NewGuid(), "Nord"), CancellationToken.None);
 
         result.Status.Should().Be(ServiceResultStatus.Conflict);
-        result.Errors.Should().ContainKey(nameof(HouseGroupDto.name));
-        result.Errors[nameof(HouseGroupDto.name)].Should().Contain("A group with this name already exists.");
+        result.Errors.Should().ContainKey(nameof(HouseGroupDto.Name));
+        result.Errors[nameof(HouseGroupDto.Name)].Should().Contain("A group with this name already exists.");
     }
 }

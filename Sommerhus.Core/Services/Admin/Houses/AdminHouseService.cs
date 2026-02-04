@@ -6,10 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -54,10 +53,19 @@ public sealed class AdminHouseService : IAdminHouseService
             .Select(h => new HouseListItemDto(
                 h.Id,
                 h.Title,
-                h.City != null ? $"{h.City.Zip}  {h.City.Name}" : string.Empty,
-                h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(),
-                null,
-                h.CreatedUtc))
+                h.City != null ? h.City.Name : null,
+                h.City != null ? h.City.Zip : null,
+                h.Address,
+                h.Description,
+                new List<ImageDto>(),
+                new List<FeatureValueDto>(),
+                h.Title,                                    // Name
+                h.City != null ? $"{h.City.Zip}  {h.City.Name}" : null,  // CityLabel
+                h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(), // AreaLabels
+                h.CreatedUtc,                              // CreatedUtc
+                null,                                      // CoverUrl
+                null,                                      // Summary
+                null))                                     // Gallery
             .ToListAsync(ct);
 
         return new PageResult<HouseListItemDto>
@@ -254,18 +262,23 @@ public sealed class AdminHouseService : IAdminHouseService
         return new HouseDetailsDto(
             house.Id,
             house.Title,
-            house.CityId,
-            house.City != null ? $"{house.City.Zip}  {house.City.Name}" : string.Empty,
-            areaIds,
-            areaItems,
+            house.City != null ? house.City.Name : null,
+            house.City != null ? house.City.Zip : null,
             house.Address,
             house.Description,
-            house.CreatedUtc,
-            features,
             images,
-            calendar,
-            planDto,
-            house.GroupId);
+            features,
+            
+            // Admin-specific fields
+            Name: house.Title,
+            CityId: house.CityId,
+            CityLabel: house.City != null ? $"{house.City.Zip}  {house.City.Name}" : null,
+            AreaIds: areaIds,
+            Areas: areaItems,
+            CreatedUtc: house.CreatedUtc,
+            Calendar: calendar,
+            Pricing: planDto,
+            GroupId: house.GroupId);
     }
 
     private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)

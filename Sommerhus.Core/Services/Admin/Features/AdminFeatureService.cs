@@ -25,14 +25,14 @@ public sealed class AdminFeatureService : IAdminFeatureService
         this.imageStorage = imageStorage;
     }
 
-    public async Task<IReadOnlyList<FeatureDetailsDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
+    public async Task<IReadOnlyList<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
     {
         var items = await db.Features.AsNoTracking()
             .OrderBy(f => f.Name)
             .ToListAsync(ct);
 
         return items
-            .Select(f => new FeatureDetailsDto(
+            .Select(f => new FeatureDto(
                 f.Id,
                 f.Name,
                 f.Key,

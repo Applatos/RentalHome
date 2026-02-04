@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Houses;
@@ -92,11 +90,17 @@ public sealed class HouseQueryService : IHouseQueryService
             return new HouseListItemDto(
                 h.Id,
                 h.Title,
-                h.City?.Name ?? string.Empty,
-                h.City?.Zip ?? string.Empty,
-                coverUrl,
-                BuildSummary(h),
-                gallery);
+                h.City?.Name,
+                h.City?.Zip,
+                h.Address,
+                h.Description,
+                gallery,
+                new List<FeatureValueDto>(),
+                
+                // Public-specific fields
+                CoverUrl: coverUrl,
+                Summary: BuildSummary(h),
+                Gallery: gallery);
         }).ToList();
     }
 

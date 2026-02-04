@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -23,7 +23,7 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
             .Select(g => new LookupItem(g.Id, g.Name))
             .ToListAsync(ct);
 
-    public async Task<ServiceResult<IReadOnlyList<HouseGroupListItemDto>>> ListAsync(CancellationToken ct)
+    public async Task<ServiceResult<IReadOnlyList<HouseGroupDto>>> ListAsync(CancellationToken ct)
     {
         var groups = await _db.HouseGroups
             .AsNoTracking()
@@ -37,38 +37,38 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(g => g.GroupId, g => g.Count, ct);
 
-        var result = groups.Select(g => new HouseGroupListItemDto(
+        var result = groups.Select(g => new HouseGroupDto(
             g.Id,
             g.Name,
             houseCounts.TryGetValue(g.Id, out var count) ? count : 0
         )).OrderBy(g => g.Name).ToList();
 
-        return ServiceResult<IReadOnlyList<HouseGroupListItemDto>>.Success(result);
+        return ServiceResult<IReadOnlyList<HouseGroupDto>>.Success(result);
     }
 
-    public async Task<ServiceResult<HouseGroupDetailsDto>> GetAsync(Guid id, CancellationToken ct)
+    public async Task<ServiceResult<HouseGroupDto>> GetAsync(Guid id, CancellationToken ct)
     {
         var group = await _db.HouseGroups
             .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == id, ct);
 
         if (group is null)
-            return ServiceResult<HouseGroupDetailsDto>.NotFound();
+            return ServiceResult<HouseGroupDto>.NotFound();
 
         var calendar = await GetCalendarAsync(id, ct);
-        return ServiceResult<HouseGroupDetailsDto>.Success(new HouseGroupDetailsDto(group.Id, group.Name, calendar));
+        return ServiceResult<HouseGroupDto>.Success(new HouseGroupDto(group.Id, group.Name, Calendar: calendar));
     }
 
     public async Task<ServiceResult<LookupItem>> CreateAsync(HouseGroupDto dto, CancellationToken ct)
     {
-        var nameResult = NormalizeName(dto?.name);
+        var nameResult = NormalizeName(dto?.Name);
         if (!nameResult.IsSuccess)
             return ServiceResult<LookupItem>.Invalid(CloneErrors(nameResult.Errors));
 
         var normalizedName = nameResult.Value!;
         var exists = await _db.HouseGroups.AsNoTracking().AnyAsync(g => g.Name == normalizedName, ct);
         if (exists)
-            return ServiceResult<LookupItem>.Conflict(nameof(HouseGroupDto.name), "A group with this name already exists.");
+            return ServiceResult<LookupItem>.Conflict(nameof(HouseGroupDto.Name), "A group with this name already exists.");
 
         var entity = new HouseGroup
         {
@@ -82,20 +82,20 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
         return ServiceResult<LookupItem>.Success(new LookupItem(entity.Id, entity.Name));
     }
 
-    public async Task<ServiceResult<HouseGroupDetailsDto>> UpdateAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct)
+    public async Task<ServiceResult<HouseGroupDto>> UpdateAsync(Guid id, UpsertHouseGroupDto dto, CancellationToken ct)
     {
         var group = await _db.HouseGroups.FirstOrDefaultAsync(g => g.Id == id, ct);
         if (group is null)
-            return ServiceResult<HouseGroupDetailsDto>.NotFound();
+            return ServiceResult<HouseGroupDto>.NotFound();
 
         if (string.IsNullOrWhiteSpace(dto.Name))
-            return ServiceResult<HouseGroupDetailsDto>.Invalid("name", "Name is required.");
+            return ServiceResult<HouseGroupDto>.Invalid("name", "Name is required.");
 
         group.Name = dto.Name.Trim();
         await _db.SaveChangesAsync(ct);
 
         var calendar = await GetCalendarAsync(id, ct);
-        return ServiceResult<HouseGroupDetailsDto>.Success(new HouseGroupDetailsDto(group.Id, group.Name, calendar));
+        return ServiceResult<HouseGroupDto>.Success(new HouseGroupDto(group.Id, group.Name, Calendar: calendar));
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid id, CancellationToken ct)
@@ -246,7 +246,7 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
         {
             return ServiceResult<string>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                [nameof(HouseGroupDto.name)] = new[] { "Name is required." }
+                [nameof(HouseGroupDto.Name)] = new[] { "Name is required." }
             });
         }
 

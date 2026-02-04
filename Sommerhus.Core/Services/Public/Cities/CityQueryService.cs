@@ -13,9 +13,9 @@ public sealed class CityQueryService : ICityQueryService
         this.db = db;
     }
 
-    public async Task<IEnumerable<CityListItemDto>> GetAsync(CancellationToken ct)
+    public async Task<IEnumerable<CityDto>> GetAsync(CancellationToken ct)
         => await db.Cities.AsNoTracking()
             .OrderBy(c => c.Name)
-            .Select(c => new CityListItemDto(c.Id, c.Name, c.Zip))
+            .Select(c => new CityDto(c.Id, c.Name, c.Zip, null, null, null, null))
             .ToListAsync(ct);
 }

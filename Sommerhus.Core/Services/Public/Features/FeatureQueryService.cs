@@ -17,7 +17,7 @@ public sealed class FeatureQueryService : IFeatureQueryService
         this.storage = storage;
     }
 
-    public async Task<IEnumerable<FeatureDetailsDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
+    public async Task<IEnumerable<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
     {
         var rows = await db.Features.AsNoTracking()
             .OrderBy(f => f.SortOrder)
@@ -26,7 +26,7 @@ public sealed class FeatureQueryService : IFeatureQueryService
         return rows.Select(f =>
         {
             var icon = storage.GetUrl(request, f.IconUrl);
-            return new FeatureDetailsDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon);
+            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon);
         }).ToList();
     }
 }

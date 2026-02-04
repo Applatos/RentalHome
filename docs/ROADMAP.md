@@ -645,6 +645,74 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ Tests passing
 
 ---
 
+## Phase 2.7: DTO Deep Consolidation ✅ COMPLETED
+
+**Goal**: Reduce DTOs from 32 files to ~18-20 files using consistent 2-3 DTOs per entity pattern.
+
+### Pattern
+
+```
+Per Entity:
+├── {Entity}Dto.cs          # Read DTO (details + list via optional fields)
+└── Upsert{Entity}Dto.cs    # Write DTO (create + update combined)
+```
+
+### Results: 32 → 17 files (47% reduction)
+
+**Final Structure:**
+
+```
+Dtos/
+├── Shared/              # All read/query DTOs + write DTOs per entity
+│   ├── AreaDetailsDto.cs
+│   ├── AreaListItemDto.cs
+│   ├── CityDto.cs           # CityDto + UpsertCityDto (was 6 files!)
+│   ├── FeatureDto.cs        # FeatureDto + UpsertFeatureDto
+│   ├── FeatureValueDto.cs
+│   ├── HouseDetailsDto.cs
+│   ├── HouseListItemDto.cs
+│   ├── HouseGroupDto.cs     # HouseGroupDto + UpsertHouseGroupDto
+│   ├── SeasonDto.cs         # All pricing DTOs consolidated
+│   ├── Images.cs
+│   ├── LookupItem.cs
+│   ├── Paging.cs
+│   └── PostFeatureValueDto.cs
+├── Admin/               # Only entity-specific write DTOs
+│   ├── UpsertAreaDto.cs
+│   ├── UpsertHouseDto.cs
+│   └── AuthDtos.cs
+└── Security/
+    └── AdminRoles.cs
+```
+
+### Completed Tasks
+
+✅ **Phase 2.7 - DTO Deep Consolidation** (Feb 4, 2026)
+
+- **Goal**: Reduce mental load by consolidating DTOs from 32 → 17 files (47% reduction)
+- **Pattern**: 1-2 DTOs per entity (unified read + write)
+- **Results**:
+  - City: 6 → 1 file (`CityDto.cs` with `CityDto` + `UpsertCityDto`)
+  - Feature: 4 → 1 file (`FeatureDto.cs` with `FeatureDto` + `UpsertFeatureDto`)
+  - HouseGroup: 4 → 1 file (`HouseGroupDto.cs` with `HouseGroupDto` + `UpsertHouseGroupDto`)
+  - Pricing: 5 → 1 file (`SeasonDto.cs` with all pricing DTOs)
+  - Fixed all service, controller, and view references
+  - Updated tests to use new DTO structure
+  - All tests passing (11/11)
+  - Build successful (0 errors)
+
+**Previous Tasks**:
+
+- [x] Consolidate City DTOs (6 → 2 in CityDto.cs)
+- [x] Consolidate HouseGroup DTOs (4 → 2 in HouseGroupDto.cs)
+- [x] Consolidate Feature DTOs (4 → 2 in FeatureDto.cs)
+- [x] Consolidate Pricing DTOs (5 → 1 in SeasonDto.cs)
+- [x] Clean up orphaned DTOs (GroupDtos.cs, PricingDtos.cs)
+- [x] Update all service and controller references
+- [x] Run tests and verify build (11/11 passing)
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:

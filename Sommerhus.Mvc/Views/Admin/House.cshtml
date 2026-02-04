@@ -1,5 +1,5 @@
-@using Sommerhus.Core.Dtos.Admin.Houses
-@model Sommerhus.Core.Dtos.Admin.Houses.HouseDetailsDto
+@using Sommerhus.Core.Dtos.Shared
+@model Sommerhus.Core.Dtos.Shared.HouseDetailsDto
 @{
     ViewData["Title"] = Model.Name;
     var tab = (string)(ViewBag.Tab ?? "overview");
@@ -12,7 +12,7 @@
 
     <div class="d-flex justify-content-between">
         <h2 class="mb-2">@Model.Name</h2>
-        <small class="text-muted">Oprettet @Model.CreatedUtc.ToLocalTime()</small>
+        <small class="text-muted">Oprettet @(Model.CreatedUtc?.ToLocalTime().ToString() ?? "")</small>
     </div>
 
     <ul class="nav nav-tabs mt-2">

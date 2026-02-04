@@ -1,5 +1,6 @@
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 

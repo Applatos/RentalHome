@@ -5,5 +5,5 @@ namespace Sommerhus.Core.Services.Public.Features;
 
 public interface IFeatureQueryService
 {
-    Task<IEnumerable<FeatureDetailsDto>> GetAllAsync(HttpRequest request, CancellationToken ct);
+    Task<IEnumerable<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct);
 }

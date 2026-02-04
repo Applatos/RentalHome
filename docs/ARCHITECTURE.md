@@ -63,37 +63,27 @@ Models/
 ```
 Core/
 ├── Dtos/
-│   ├── Shared/          # All read/query DTOs (one per entity)
-│   │   ├── AreaDetailsDto.cs
-│   │   ├── AreaListItemDto.cs
-│   │   ├── HouseDetailsDto.cs
-│   │   ├── HouseListItemDto.cs
-│   │   ├── FeatureDetailsDto.cs
-│   │   ├── FeatureListItemDto.cs
-│   │   ├── CityListItemDto.cs
-│   │   ├── Images.cs
-│   │   ├── LookupItem.cs
-│   │   └── Paging.cs
-│   ├── Admin/           # Only create/update DTOs (flat structure)
-│   │   ├── UpsertAreaDto.cs
-│   │   ├── UpsertHouseDto.cs
-│   │   ├── UpsertFeatureDto.cs
-│   │   ├── CityListItemDto.cs
-│   │   ├── CityDetailsDto.cs
-│   │   ├── CreateCityDto.cs
-│   │   ├── UpdateCityDto.cs
-│   │   ├── CityPageDto.cs
-│   │   ├── HouseGroupListItemDto.cs
-│   │   ├── HouseGroupDetailsDto.cs
-│   │   ├── UpsertHouseGroupDto.cs
-│   │   ├── UpsertSeasonSpanDto.cs
-│   │   ├── PricePlanDetailsDto.cs
-│   │   ├── SeasonPriceDto.cs
-│   │   ├── SeasonSpanDto.cs
-│   │   ├── SeasonCodeDto.cs
-│   │   └── AuthDtos.cs
-│   └── Security/        # Auth DTOs
-│       └── AdminRoles.csAdminRoles.cs
+│   ├── Shared/          # Consolidated DTOs (1-2 per entity)
+│   │   ├── AreaDetailsDto.cs      # Area read DTO with admin fields
+│   │   ├── AreaListItemDto.cs     # Area list DTO
+│   │   ├── CityDto.cs             # CityDto + UpsertCityDto (consolidated)
+│   │   ├── FeatureDto.cs          # FeatureDto + UpsertFeatureDto (consolidated)
+│   │   ├── FeatureValueDto.cs     # Feature value for house
+│   │   ├── HouseDetailsDto.cs     # House read DTO with admin fields
+│   │   ├── HouseListItemDto.cs    # House list DTO with admin/public fields
+│   │   ├── HouseGroupDto.cs       # HouseGroupDto + UpsertHouseGroupDto (consolidated)
+│   │   ├── SeasonDto.cs           # All pricing DTOs consolidated
+│   │   ├── PriceQuoteDto.cs       # Pricing request/response DTOs
+│   │   ├── Images.cs              # Image DTOs
+│   │   ├── LookupItem.cs          # Simple lookup DTO
+│   │   ├── Paging.cs              # Pagination DTOs
+│   │   └── PostFeatureValueDto.cs # Feature value creation DTO
+│   ├── Admin/           # Entity-specific write DTOs
+│   │   ├── UpsertAreaDto.cs       # Area create/update DTO
+│   │   ├── UpsertHouseDto.cs      # House create/update DTO
+│   │   └── AuthDtos.cs            # Authentication DTOs
+│   └── Security/
+│       └── AdminRoles.cs          # Role constants
 ├── Services/
 │   ├── Admin/                # Admin service interfaces + implementations
 │   │   ├── Houses/

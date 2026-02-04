@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sommerhus.Mvc.ViewModels.Admin;

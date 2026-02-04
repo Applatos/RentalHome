@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Public.Areas;
 
@@ -66,6 +66,15 @@ public sealed class AreaQueryService : IAreaQueryService
 
         var cityIds = cityItems.Select(c => c.Id).ToList();
 
-        return new AreaDetailsDto(area.Id, area.Name, cityIds, cityItems, area.Description, images, Houses: houses);
+        return new AreaDetailsDto(
+            area.Id,
+            area.Name,
+            area.Description,
+            images,
+            
+            // Admin-specific fields (not used in public)
+            CityIds: cityIds,
+            Cities: cityItems,
+            Houses: houses);
     }
 }

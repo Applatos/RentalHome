@@ -15,7 +15,7 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class HouseGroupsController(IAdminHouseGroupService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<HouseGroupListItemDto>>> List(CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<HouseGroupDto>>> List(CancellationToken ct)
     {
         var result = await service.ListAsync(ct);
         return this.FromResult(result);
@@ -26,7 +26,7 @@ public sealed class HouseGroupsController(IAdminHouseGroupService service) : Con
         => await service.GetAllAsync(ct);
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<HouseGroupDetailsDto>> Get(Guid id, CancellationToken ct)
+    public async Task<ActionResult<HouseGroupDto>> Get(Guid id, CancellationToken ct)
     {
         var result = await service.GetAsync(id, ct);
         return this.FromResult(result);
@@ -44,7 +44,7 @@ public sealed class HouseGroupsController(IAdminHouseGroupService service) : Con
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<HouseGroupDetailsDto>> Update(Guid id, [FromBody] UpsertHouseGroupDto dto, CancellationToken ct)
+    public async Task<ActionResult<HouseGroupDto>> Update(Guid id, [FromBody] UpsertHouseGroupDto dto, CancellationToken ct)
     {
         var result = await service.UpdateAsync(id, dto, ct);
         return this.FromResult(result);

@@ -9,7 +9,7 @@ namespace Sommerhus.Core.Services.Admin.Features;
 
 public interface IAdminFeatureService
 {
-    Task<IReadOnlyList<FeatureDetailsDto>> GetAllAsync(HttpRequest request, CancellationToken ct);
+    Task<IReadOnlyList<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct);
     Task<ServiceResult<Guid>> CreateAsync(UpsertFeatureDto dto, CancellationToken ct);
     Task<ServiceResult> UpdateAsync(Guid id, UpsertFeatureDto dto, CancellationToken ct);
     Task<ServiceResult> DeleteAsync(Guid id, CancellationToken ct);

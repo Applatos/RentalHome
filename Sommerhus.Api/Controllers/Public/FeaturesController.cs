@@ -9,6 +9,6 @@ namespace Sommerhus.Api.Controllers.Public;
 public class FeaturesController(IFeatureQueryService features) : ControllerBase
 {
     [HttpGet]
-    public Task<IEnumerable<FeatureDetailsDto>> GetAll(CancellationToken ct)
+    public Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)
         => features.GetAllAsync(Request, ct);
 }
