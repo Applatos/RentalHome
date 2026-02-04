@@ -98,8 +98,8 @@ For individual house details:
 
 ```mermaid
 graph TD
-    A[GET /houses/{id}] --> B[HouseDetailsDto with CoverImage]
-    A --> C[GET /api/houses/{id}/images] --> D[List<ImageDto>]
+    A[GET /houses/id] --> B[HouseDetailsDto with CoverImage]
+    A --> C[GET /api/houses/id/images] --> D[List<ImageDto>]
     D --> E[All images with URLs]
 ```
 
@@ -119,21 +119,21 @@ The `PhysicalImageStorage` implementation:
 
 ```mermaid
 graph TD
-    A[Program.Main()] --> B[WebApplication.CreateBuilder()]
-    B --> C[AddSommerhusPersistence()]
+    A[Program.Main] --> B[WebApplication.CreateBuilder]
+    B --> C[AddSommerhusPersistence]
     C --> D[DbContext Configuration]
     D --> E[Database Provider Detection]
     E --> F[AddDbContext<AppDbContext>]
     F --> G[AddIdentityCore<ApplicationUser>]
     G --> H[AddHostedService<MigrationHostedService>]
-    H --> I[app.Build()]
-    I --> J[app.RunAsync()]
-    J --> K[MigrationHostedService.StartAsync()]
+    H --> I[app.Build]
+    I --> J[app.RunAsync]
+    J --> K[MigrationHostedService.StartAsync]
 
-    K --> L[db.Database.MigrateAsync()]
-    L --> M[AdminIdentitySeeder.SeedAsync()]
+    K --> L[db.Database.MigrateAsync]
+    L --> M[AdminIdentitySeeder.SeedAsync]
     M --> N{Is Development?}
-    N -->|Yes| O[Seeder.SeedMinimal()]
+    N -->|Yes| O[Seeder.SeedMinimal]
     N -->|No| P[Skip Demo Data]
 
     O --> Q[Check if Features Exist]
@@ -145,7 +145,7 @@ graph TD
     V --> W[Create Season Codes]
     W --> X[Create Season Spans]
     X --> Y[Create Price Plans]
-    Y --> Z[db.SaveChanges()]
+    Y --> Z[db.SaveChanges]
 
     style O fill:#e1f5fe
     style V fill:#fff3e0
@@ -253,6 +253,512 @@ private async Task CleanupOrphanedImagesAsync(AppDbContext db)
 #### Option 3: Dynamic Seeding
 
 Modify `Seeder.SeedMinimal()` to check for existing houses before creating new ones.
+
+---
+
+## Complete Data Flow Architecture: From Database to Frontend
+
+### Overview Diagram
+
+This diagram shows the complete end-to-end data flow for a typical house listing request, from database storage through all transformations until it reaches the user's browser.
+
+```mermaid
+graph TD
+    %% Database Layer
+    DB[(SQLite/SQL Server<br/>Database)] --> |"EF Core<br/>DbContext"| DOMAIN[Domain Models<br/>VacationHouse, City, etc.]
+
+    DOMAIN --> |"Include()<br/>AsNoTracking()"| SERVICE[HouseQueryService<br/>Repository Layer]
+
+    SERVICE --> |"Map to DTOs<br/>BuildSummary()"| DTO[HouseDetailsDto<br/>HouseListItemDto]
+
+    %% API Layer
+    DTO --> |"Return Ok()JSON Serialization"| API[Public/HousesController<br/>REST API Endpoint]
+
+    %% HTTP Transport
+    API --> |"HTTP/JSON Response"| HTTP[HttpClient<br/>in MVC Application]
+
+    %% MVC Layer
+    HTTP --> |"Deserialize JSON"| MVC_SERVICE[SommerhusApi Service<br/>MVC Layer]
+
+    %% Controller Layer
+    MVC_SERVICE --> |"Pass ViewModel"| MVC_CTRL[HousesController<br/>MVC Application]
+
+    %% View Layer
+    MVC_CTRL --> |"Model Binding"| VIEW[Razor View<br/>Houses/Index.cshtml]
+
+    %% Browser
+    VIEW --> |"Rendered HTML"| BROWSER[User's Browser<br/>Display House Listing]
+
+    %% Image Storage Flow
+    IMAGES[Physical Image Storage<br/>wwwroot/images/] --> |"IImageStorage.GetUrl()"| SERVICE
+    IMAGES --> |"Static File Middleware"| BROWSER
+
+```
+
+### Detailed Data Transformations
+
+#### 1. Database to Domain Models
+
+```mermaid
+graph LR
+    subgraph "Database Tables"
+        VACATIONHOUSE[VacationHouse<br/>Id, Title, CityId, etc.]
+        CITY[City<br/>Id, Name, Zip]
+        HOUSEIMAGE[HouseImage<br/>Id, HouseId, FileName, Kind]
+        HOUSEFEATURE[HouseFeatureValue<br/>HouseId, FeatureId, RawValue]
+        FEATURE[Feature<br/>Id, Name, ValueType]
+    end
+
+    subgraph "EF Core DbContext"
+        CONTEXT[AppDbContext]
+        INCLUDE[.Include() Relations]
+        TRACKING[AsNoTracking()]
+    end
+
+    subgraph "Domain Models"
+        HOUSE_DOMAIN[VacationHouse Entity]
+        CITY_DOMAIN[City Entity]
+        IMAGES_DOMAIN[List&lt;HouseImage&gt;]
+        FEATURES_DOMAIN[List&lt;HouseFeatureValue&gt;]
+    end
+
+    VACATIONHOUSE --> CONTEXT
+    CITY --> CONTEXT
+    HOUSEIMAGE --> CONTEXT
+    HOUSEFEATURE --> CONTEXT
+    FEATURE --> CONTEXT
+
+    CONTEXT --> INCLUDE --> TRACKING
+    TRACKING --> HOUSE_DOMAIN
+    TRACKING --> CITY_DOMAIN
+    TRACKING --> IMAGES_DOMAIN
+    TRACKING --> FEATURES_DOMAIN
+```
+
+#### 2. Domain Models to DTOs
+
+```mermaid
+graph TD
+    subgraph "Domain Models (Input)"
+        HOUSE[VacationHouse<br/>Title, Description, etc.]
+        HOUSE_CITY[City<br/>Name, Zip]
+        HOUSE_IMAGES[List&lt;HouseImage&gt;<br/>FileName, Kind, Alt]
+        HOUSE_FEATURES[List&lt;HouseFeatureValue&gt;<br/>RawValue]
+        FEATURES[Feature<br/>Name, ValueType, Unit]
+    end
+
+    subgraph "Service Logic"
+        STORAGE[IImageStorage<br/>GetUrl()]
+        SUMMARY[BuildSummary()<br/>HTML Strip, Truncate]
+        MAP[Mapping Logic]
+    end
+
+    subgraph "DTOs (Output)"
+        HOUSE_DTO[HouseDetailsDto<br/>Id, Title, City, etc.]
+        IMAGE_DTOS[List&lt;ImageDto&gt;<br/>Id, Url, Alt, Kind]
+        FEATURE_DTOS[List&lt;FeatureValueDto&gt;<br/>Id, Name, RawValue]
+    end
+
+    HOUSE --> MAP
+    HOUSE_CITY --> MAP
+    HOUSE_IMAGES --> STORAGE
+    HOUSE_FEATURES --> MAP
+    FEATURES --> MAP
+    HOUSE --> SUMMARY
+
+    STORAGE --> IMAGE_DTOS
+    MAP --> HOUSE_DTO
+    MAP --> FEATURE_DTOS
+    SUMMARY --> HOUSE_DTO
+```
+
+#### 3. API Response Format
+
+```json
+// HouseDetailsDto Response
+{
+  "id": "5fb7097c-335c-4d07-b4fd-000004e2d28c",
+  "title": "Blåvand Strand 4",
+  "city": "Blåvand",
+  "zip": "6857",
+  "address": "Strandvejen 123",
+  "description": "Beautiful beach house...",
+  "images": [
+    {
+      "id": "image-guid-1",
+      "url": "/images/houses/5fb7097c-335c-4d07-b4fd-000004e2d28c/cover.jpg",
+      "alt": "Beach view from terrace",
+      "kind": "Cover"
+    }
+  ],
+  "features": [
+    {
+      "id": "feature-guid-1",
+      "name": "Swimming Pool",
+      "valueType": "Boolean",
+      "unit": null,
+      "iconUrl": "/images/features/pool.svg",
+      "rawValue": "true"
+    }
+  ]
+}
+```
+
+---
+
+## System Architecture Overview
+
+### Clean Architecture Layers
+
+```mermaid
+graph TB
+    subgraph "Presentation Layer"
+        API[Sommerhus.Api<br/>REST Endpoints]
+        MVC[Sommerhus.Mvc<br/>Web UI]
+    end
+
+    subgraph "Application Layer"
+        APP_INTERFACES[Service Interfaces<br/>IHouseQueryService, etc.]
+        APP_COMMON[Common Patterns<br/>ServiceResult&lt;T&gt;]
+        APP_STORAGE[Storage Abstractions<br/>IImageStorage]
+    end
+
+    subgraph "Infrastructure Layer"
+        REPO[Sommerhus.Repository<br/>EF Core Implementations]
+        IDENTITY[ASP.NET Identity<br/>User Management]
+        STORAGE[Physical Storage<br/>File System]
+    end
+
+    subgraph "Domain Layer"
+        ENTITIES[Domain Models<br/>VacationHouse, City, etc.]
+        PRICING[Pricing Models<br/>PricePlan, Season, etc.]
+    end
+
+    subgraph "Contracts Layer"
+        DTOS[Shared DTOs<br/>HouseDetailsDto, etc.]
+        SECURITY[Security Constants<br/>AdminRoles]
+    end
+
+    API --> APP_INTERFACES
+    MVC --> DTOS
+    APP_INTERFACES --> REPO
+    REPO --> ENTITIES
+    REPO --> IDENTITY
+    REPO --> STORAGE
+    APP_STORAGE --> STORAGE
+    DTOS --> ENTITIES
+
+    style ENTITIES fill:#e3f2fd,stroke:#2196f3,stroke-width:3px
+    style API fill:#ffebee,stroke:#f44336
+    style MVC fill:#e8f5e8,stroke:#4caf50
+    style REPO fill:#fff3e0,stroke:#ff9800
+    style DTOS fill:#f3e5f5,stroke:#9c27b0
+```
+
+### Dependency Injection Flow
+
+```mermaid
+graph TD
+    PROGRAM[Program.Main()] --> BUILDER[WebApplication.CreateBuilder()]
+
+    BUILDER --> PERSISTENCE[AddSommerhusPersistence()]
+    BUILDER --> AUTH[AddAuthentication()]
+    BUILDER --> CONTROLLERS[AddControllers()]
+    BUILDER --> SERVICES[Add Services]
+
+    PERSISTENCE --> DB_CONTEXT[AddDbContext&lt;AppDbContext&gt;]
+    PERSISTENCE --> IDENTITY[AddIdentityCore]
+
+    SERVICES --> ADMIN_SERVICES[AddAdminServices()]
+    SERVICES --> PUBLIC_SERVICES[AddPublicServices()]
+    SERVICES --> STORAGE_SERVICES[AddStorageServices()]
+
+    ADMIN_SERVICES --> ADMIN_HOUSES[AdminHouseService]
+    PUBLIC_SERVICES --> HOUSE_QUERY[HouseQueryService]
+    STORAGE_SERVICES --> IMAGE_STORAGE[PhysicalImageStorage]
+
+    DB_CONTEXT --> MIGRATION[MigrationHostedService]
+    MIGRATION --> SEEDING[Database Seeding]
+
+    style PROGRAM fill:#e3f2fd,stroke:#2196f3
+    style DB_CONTEXT fill:#f3e5f5,stroke:#9c27b0
+    style ADMIN_HOUSES fill:#ffebee,stroke:#f44336
+    style HOUSE_QUERY fill:#e8f5e8,stroke:#4caf50
+    style IMAGE_STORAGE fill:#fff3e0,stroke:#ff9800
+```
+
+---
+
+## Authentication & Authorization Flow
+
+### JWT Token Flow
+
+```mermaid
+sequenceDiagram
+    participant MVC as MVC App
+    participant API as API Server
+    participant ID as Identity System
+    participant DB as Database
+
+    Note over MVC,DB: Admin Login Flow
+    MVC->>API: POST /api/admin/auth/login
+    API->>ID: Validate credentials
+    ID->>DB: Check user exists
+    DB-->>ID: User data
+    ID-->>API: Validation success
+    API->>API: Generate JWT Token
+    API-->>MVC: JWT Token + User info
+
+    Note over MVC,DB: API Request with Token
+    MVC->>API: GET /api/admin/houses<br/>Authorization: Bearer <token>
+    API->>API: Validate JWT Token
+    API->>API: Check Admin role claim
+    API->>DB: Query houses
+    DB-->>API: House data
+    API-->>MVC: JSON Response
+```
+
+### Role-Based Access Control
+
+```mermaid
+graph TD
+    subgraph "Authentication Layers"
+        COOKIE[MVC Cookie Auth]
+        JWT[API JWT Auth]
+    end
+
+    subgraph "Authorization Policies"
+        ADMIN_POLICY[Require Admin Role]
+        PUBLIC_POLICY[Open Access]
+    end
+
+    subgraph "Controller Protection"
+        ADMIN_CONTROLLERS[Admin Controllers<br/>/api/admin/*]
+        PUBLIC_CONTROLLERS[Public Controllers<br/>/api/*]
+    end
+
+    subgraph "Service Access"
+        ADMIN_SERVICES[Admin Services<br/>CRUD Operations]
+        QUERY_SERVICES[Query Services<br/>Read-Only]
+    end
+
+    COOKIE --> ADMIN_POLICY
+    JWT --> ADMIN_POLICY
+    JWT --> PUBLIC_POLICY
+
+    ADMIN_POLICY --> ADMIN_CONTROLLERS
+    PUBLIC_POLICY --> PUBLIC_CONTROLLERS
+
+    ADMIN_CONTROLLERS --> ADMIN_SERVICES
+    PUBLIC_CONTROLLERS --> QUERY_SERVICES
+
+    style ADMIN_POLICY fill:#ffebee,stroke:#f44336
+    style PUBLIC_POLICY fill:#e8f5e8,stroke:#4caf50
+    style ADMIN_CONTROLLERS fill:#fff3e0,stroke:#ff9800
+    style PUBLIC_CONTROLLERS fill:#f3e5f5,stroke:#9c27b0
+```
+
+---
+
+## Image Storage Architecture
+
+### Image Upload & Retrieval Flow
+
+```mermaid
+graph TD
+    subgraph "Upload Flow"
+        USER[User Upload]
+        MVC_UPLOAD[MVC Controller]
+        API_UPLOAD[Admin API]
+        STORAGE_SERVICE[IImageStorage.SaveAsync]
+        FILE_SYSTEM[Physical Files]
+        DB_RECORD[Database Record]
+    end
+
+    subgraph "Retrieval Flow"
+        BROWSER[Browser Request]
+        STATIC_FILES[Static File Middleware]
+        URL_GENERATION[IImageStorage.GetUrl]
+        FILE_ACCESS[File System Access]
+    end
+
+    USER --> MVC_UPLOAD
+    MVC_UPLOAD --> API_UPLOAD
+    API_UPLOAD --> STORAGE_SERVICE
+    STORAGE_SERVICE --> FILE_SYSTEM
+    STORAGE_SERVICE --> DB_RECORD
+
+    BROWSER --> STATIC_FILES
+    STATIC_FILES --> FILE_ACCESS
+    URL_GENERATION --> BROWSER
+
+    style FILE_SYSTEM fill:#fff3e0,stroke:#ff9800
+    style DB_RECORD fill:#e3f2fd,stroke:#2196f3
+    style STATIC_FILES fill:#e8f5e8,stroke:#4caf50
+```
+
+### Image Storage Structure
+
+```mermaid
+graph LR
+    subgraph "File System Structure"
+        ROOT[wwwroot/images/]
+        HOUSES[houses/]
+        AREAS[areas/]
+        CITIES[cities/]
+        FEATURES[features/]
+    end
+
+    subgraph "House Images Example"
+        HOUSE_GUID[5fb7097c-335c-4d07-b4fd-000004e2d28c/]
+        COVER[cover.jpg]
+        GALLERY[gallery_1.jpg]
+        FLOORPLAN[floorplan.png]
+    end
+
+    ROOT --> HOUSES
+    ROOT --> AREAS
+    ROOT --> CITIES
+    ROOT --> FEATURES
+
+    HOUSES --> HOUSE_GUID
+    HOUSE_GUID --> COVER
+    HOUSE_GUID --> GALLERY
+    HOUSE_GUID --> FLOORPLAN
+```
+
+---
+
+## Pricing Engine Architecture (Reserved)
+
+### Future Pricing Pipeline
+
+```mermaid
+graph TD
+    subgraph "Pricing Input"
+        HOUSE[House Details]
+        DATES[Booking Dates]
+        SEASONS[Season Definitions]
+        RATES[Base Rates]
+    end
+
+    subgraph "Pricing Pipeline"
+        VALIDATE[Validate Input]
+        SEASON_PRICING[Apply Season Rates]
+        MODIFIERS[Apply Modifiers]
+        CALCULATE[Calculate Total]
+        FORMAT[Format Response]
+    end
+
+    subgraph "Pricing Output"
+        BREAKDOWN[Price Breakdown]
+        TOTAL[Total Price]
+        CURRENCY[Currency Info]
+    end
+
+    HOUSE --> VALIDATE
+    DATES --> VALIDATE
+    SEASONS --> SEASON_PRICING
+    RATES --> SEASON_PRICING
+
+    VALIDATE --> SEASON_PRICING
+    SEASON_PRICING --> MODIFIERS
+    MODIFIERS --> CALCULATE
+    CALCULATE --> FORMAT
+
+    FORMAT --> BREAKDOWN
+    FORMAT --> TOTAL
+    FORMAT --> CURRENCY
+
+    style VALIDATE fill:#e3f2fd,stroke:#2196f3
+    style SEASON_PRICING fill:#fff3e0,stroke:#ff9800
+    style MODIFIERS fill:#f3e5f5,stroke:#9c27b0
+    style CALCULATE fill:#e8f5e8,stroke:#4caf50
+```
+
+---
+
+## Testing Architecture
+
+### Test Structure & Flow
+
+```mermaid
+graph TD
+    subgraph "Test Organization"
+        INTEGRATION[Integration Tests<br/>Sommerhus.Api.Tests]
+        UNIT[Unit Tests<br/>Application Layer]
+        SMOKE[Smoke Tests<br/>API Health]
+    end
+
+    subgraph "Test Infrastructure"
+        FACTORY[CustomWebApplicationFactory]
+        IN_MEMORY[In-Memory SQLite]
+        SEEDING[Test Data Seeding]
+        CLIENT[HttpClient]
+    end
+
+    subgraph "Test Coverage"
+        ADMIN_TESTS[Admin Endpoints]
+        PUBLIC_TESTS[Public Endpoints]
+        SERVICE_TESTS[Service Logic]
+        AUTH_TESTS[Authentication]
+    end
+
+    INTEGRATION --> FACTORY
+    FACTORY --> IN_MEMORY
+    FACTORY --> SEEDING
+    FACTORY --> CLIENT
+
+    CLIENT --> ADMIN_TESTS
+    CLIENT --> PUBLIC_TESTS
+    CLIENT --> AUTH_TESTS
+
+    UNIT --> SERVICE_TESTS
+
+    style FACTORY fill:#e3f2fd,stroke:#2196f3
+    style IN_MEMORY fill:#f3e5f5,stroke:#9c27b0
+    style ADMIN_TESTS fill:#ffebee,stroke:#f44336
+    style PUBLIC_TESTS fill:#e8f5e8,stroke:#4caf50
+```
+
+---
+
+## Deployment Architecture
+
+### Development vs Production
+
+```mermaid
+graph LR
+    subgraph "Development Environment"
+        DEV_DB[SQLite Database]
+        DEV_FILES[Local File Storage]
+        DEV_CONFIG[appsettings.Development]
+        DEV_SEEDING[Demo Data Seeding]
+    end
+
+    subgraph "Production Environment"
+        PROD_DB[SQL Server Database]
+        PROD_FILES[Cloud Storage]
+        PROD_CONFIG[appsettings.Production]
+        PROD_MIGRATIONS[Schema Migrations Only]
+    end
+
+    subgraph "CI/CD Pipeline"
+        BUILD[dotnet build]
+        TEST[dotnet test]
+        DEPLOY[Deploy to IIS/Azure]
+    end
+
+    DEV_DB --> BUILD
+    PROD_DB --> BUILD
+    BUILD --> TEST
+    TEST --> DEPLOY
+
+    style DEV_DB fill:#e8f5e8,stroke:#4caf50
+    style PROD_DB fill:#ffebee,stroke:#f44336
+    style BUILD fill:#fff3e0,stroke:#ff9800
+    style TEST fill:#f3e5f5,stroke:#9c27b0
+```
 
 ---
 
