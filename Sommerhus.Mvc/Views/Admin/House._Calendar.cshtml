@@ -1,0 +1,264 @@
+@using System.Globalization
+@using System.Linq
+@using Sommerhus.Contracts.Dtos.Admin.Pricing
+@model Sommerhus.Contracts.Dtos.Admin.Houses.HouseDetailsDto
+
+@{
+    var seasonCodes = ViewBag.SeasonCodes as IReadOnlyList<SeasonCodeDto> ?? Array.Empty<SeasonCodeDto>();
+    var calendar = Model.Calendar ?? Array.Empty<SeasonSpanDto>();
+    
+    var labelLookup = seasonCodes.ToDictionary(
+        c => c.Code,
+        c => (Label: c.Label, Color: c.Color),
+        StringComparer.OrdinalIgnoreCase);
+}
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Sæsonkalender</h5>
+        @if (Model.GroupId.HasValue)
+        {
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addHouseSeasonSpanModal">
+                <i class="bi bi-plus-lg"></i> Tilføj sæsonperiode
+            </button>
+        }
+        else
+        {
+            <small class="text-muted">Tildel huset til en gruppe for at administrere sæsonkalender</small>
+        }
+    </div>
+
+    @if (calendar.Count == 0)
+    {
+        <p class="text-muted mb-0">
+            @if (Model.GroupId.HasValue)
+            {
+                <text>Ingen sæsonintervaller er defineret for dette hus' gruppe.</text>
+            }
+            else
+            {
+                <text>Dette hus er ikke tildelt en gruppe, så der er ingen fælles sæsonkalender.</text>
+            }
+        </p>
+    }
+    else
+    {
+        // Visual calendar - show year overview with colored months
+        var currentYear = DateTime.Now.Year;
+        var months = new[] { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" };
+        
+        <div class="mb-4">
+            <h6 class="text-muted mb-2">Årsvisning @currentYear</h6>
+            <div class="d-flex flex-wrap gap-1">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var monthStart = new DateOnly(currentYear, m, 1);
+                    var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                    var matchingSpan = calendar.FirstOrDefault(s => s.StartDate <= monthEnd && s.EndDate >= monthStart);
+                    var spanColor = "#e9ecef";
+                    var spanCode = "";
+                    if (matchingSpan != null)
+                    {
+                        labelLookup.TryGetValue(matchingSpan.Code, out var meta);
+                        spanColor = string.IsNullOrWhiteSpace(meta.Color) ? "#6c757d" : meta.Color;
+                        spanCode = matchingSpan.Code;
+                    }
+                    <div class="text-center p-2 rounded" style="background-color: @spanColor; min-width: 60px; color: white; text-shadow: 0 0 2px rgba(0,0,0,0.5);">
+                        <small class="d-block fw-bold">@months[m-1]</small>
+                        @if (!string.IsNullOrEmpty(spanCode))
+                        {
+                            <small>@spanCode</small>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="mt-2 d-flex flex-wrap gap-2">
+                @foreach (var code in seasonCodes.OrderBy(c => c.SortOrder))
+                {
+                    <small class="d-flex align-items-center gap-1">
+                        <span class="rounded" style="width: 12px; height: 12px; display: inline-block; background-color: @(string.IsNullOrWhiteSpace(code.Color) ? "#6c757d" : code.Color);"></span>
+                        @code.Code - @(code.Label ?? code.Code)
+                    </small>
+                }
+            </div>
+        </div>
+
+        <h6 class="text-muted mb-2">Sæsonperioder</h6>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Beskrivelse</th>
+                        <th>Startdato</th>
+                        <th>Slutdato</th>
+                        @if (Model.GroupId.HasValue)
+                        {
+                            <th class="text-end">Handlinger</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var span in calendar.OrderBy(s => s.StartDate))
+                    {
+                        labelLookup.TryGetValue(span.Code, out var meta);
+                        var label = meta.Label ?? span.Code;
+                        var color = meta.Color;
+                        <tr>
+                            <td>
+                                <span class="badge rounded-pill" style="background-color:@(string.IsNullOrWhiteSpace(color) ? "#6c757d" : color)">
+                                    @span.Code
+                                </span>
+                            </td>
+                            <td>@label</td>
+                            <td>@span.StartDate.ToString("d", CultureInfo.CurrentCulture)</td>
+                            <td>@span.EndDate.ToString("d", CultureInfo.CurrentCulture)</td>
+                            @if (Model.GroupId.HasValue)
+                            {
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary" 
+                                                data-bs-toggle="modal" data-bs-target="#editHouseSeasonSpanModal"
+                                                data-span-id="@span.Id"
+                                                data-start-date="@span.StartDate.ToString("yyyy-MM-dd")"
+                                                data-end-date="@span.EndDate.ToString("yyyy-MM-dd")"
+                                                data-code="@span.Code">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <form action="/admin/houses/@Model.Id/calendar/@span.Id/delete" 
+                                              method="post" class="d-inline"
+                                              onsubmit="return confirm('Er du sikker på at du vil slette denne sæsonperiode?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<!-- Add House Season Span Modal -->
+@if (Model.GroupId.HasValue)
+{
+    <div class="modal fade" id="addHouseSeasonSpanModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tilføj sæsonperiode</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="/admin/houses/@Model.Id/calendar">
+                    <div class="modal-body">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label for="HouseCode" class="form-label">Sæsonkode *</label>
+                            <select name="Code" id="HouseCode" class="form-select" required>
+                                <option value="">Vælg sæsonkode</option>
+                                @foreach (var code in seasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
+                                {
+                                    <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="HouseStartDate" class="form-label">Startdato *</label>
+                            <input type="date" name="StartDate" id="HouseStartDate" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="HouseEndDate" class="form-label">Slutdato *</label>
+                            <input type="date" name="EndDate" id="HouseEndDate" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
+                        <button type="submit" class="btn btn-primary">Tilføj periode</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit House Season Span Modal -->
+    <div class="modal fade" id="editHouseSeasonSpanModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rediger sæsonperiode</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" id="editHouseSeasonSpanForm">
+                    <div class="modal-body">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <input type="hidden" id="editHouseSpanId" name="spanId" />
+                        
+                        <div class="mb-3">
+                            <label for="editHouseCode" class="form-label">Sæsonkode *</label>
+                            <select name="Code" id="editHouseCode" class="form-select" required>
+                                <option value="">Vælg sæsonkode</option>
+                                @foreach (var code in seasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
+                                {
+                                    <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editHouseStartDate" class="form-label">Startdato *</label>
+                            <input type="date" name="StartDate" id="editHouseStartDate" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editHouseEndDate" class="form-label">Slutdato *</label>
+                            <input type="date" name="EndDate" id="editHouseEndDate" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
+                        <button type="submit" class="btn btn-primary">Gem ændringer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle edit house season span modal
+            const editHouseSeasonSpanModal = document.getElementById('editHouseSeasonSpanModal');
+            if (editHouseSeasonSpanModal) {
+                editHouseSeasonSpanModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const spanId = button.getAttribute('data-span-id');
+                    const startDate = button.getAttribute('data-start-date');
+                    const endDate = button.getAttribute('data-end-date');
+                    const code = button.getAttribute('data-code');
+
+                    document.getElementById('editHouseSpanId').value = spanId;
+                    document.getElementById('editHouseStartDate').value = startDate;
+                    document.getElementById('editHouseEndDate').value = endDate;
+                    document.getElementById('editHouseCode').value = code;
+
+                    // Update form action
+                    const form = document.getElementById('editHouseSeasonSpanForm');
+                    form.action = `/admin/houses/@Model.Id/calendar/${spanId}`;
+                });
+            }
+        });
+    </script>
+}

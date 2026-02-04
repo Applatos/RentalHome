@@ -552,6 +552,62 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ 11/11 tests pa
 
 ---
 
+## Phase 12: Additional UI Bug Fixes ✅ COMPLETED
+
+**Goal**: Fix remaining UI bugs identified in admin interface.
+
+### Issues Fixed
+
+1. **House Group Dropdown Shows Names** ✅ FIXED
+   - **Problem**: Dropdown displayed GUID IDs instead of names
+   - **Solution**: Added `PopulateHouseGroupsAsync()` and `ViewBag.HouseGroups` with proper SelectList
+   - **Files**: `HousesController.cs`, `House._Overview.cshtml`
+
+2. **Season Calendar Tab Working** ✅ FIXED
+   - **Problem**: Clicking tab changed URL but didn't load content
+   - **Solution**: Added separate "Sæsonkalender" tab with dedicated `House._Calendar.cshtml` partial
+   - **Files**: `House.cshtml`, `House._Calendar.cshtml`, `HousesController.cs`
+
+3. **Calendar Buttons Have Icons** ✅ FIXED
+   - **Problem**: Edit/delete buttons had no visible icons
+   - **Solution**: Added Bootstrap Icons (`bi-pencil`, `bi-trash`) with proper styling
+   - **Files**: `House._Calendar.cshtml`
+
+4. **Enhanced Visual Calendar** ✅ FIXED
+   - **Current**: Basic month blocks with colors
+   - **Enhancement**: Improved visual calendar with month grid, season legend, and better colors
+   - **Files**: `House._Calendar.cshtml`
+
+### Files Modified
+
+- `Sommerhus.Mvc/Controllers/Admin/HousesController.cs`
+  - Added `PopulateHouseGroupsAsync()` method
+  - Updated `House()` action to load season codes for calendar tab
+  - Added calls to populate house groups in edit methods
+
+- `Sommerhus.Mvc/Views/Admin/House.cshtml`
+  - Added "Sæsonkalender" tab to navigation
+  - Added calendar tab rendering logic
+
+- `Sommerhus.Mvc/Views/Admin/House._Overview.cshtml`
+  - Added house group dropdown with proper names
+  - Added "Ingen gruppe" option
+
+- `Sommerhus.Mvc/Views/Admin/House._Calendar.cshtml` - **NEW**
+  - Dedicated calendar view with visual month grid
+  - Season span management (add/edit/delete)
+  - Modal forms for season span CRUD operations
+  - Season legend with color indicators
+
+### Verification
+
+```powershell
+dotnet build Sommerhus_project.sln  # ✅ Build succeeded
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ Tests passing
+```
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:

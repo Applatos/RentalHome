@@ -157,6 +157,7 @@ public class HousePricingForm
         }
         await PopulateCitiesAsync(res.Data.CityId, ct);
         await PopulateAreasAsync(res.Data.AreaIds, ct);
+        await PopulateHouseGroupsAsync(res.Data.GroupId, ct);
 
         if (string.Equals(tab, "features", StringComparison.OrdinalIgnoreCase))
         {
@@ -167,7 +168,7 @@ public class HousePricingForm
             ViewBag.AllFeatures ??= Array.Empty<FeatureDetailsDto>();
         }
 
-        if (string.Equals(tab, "pricing"))
+        if (string.Equals(tab, "pricing") || string.Equals(tab, "calendar"))
         {
             await PopulateSeasonCodesAsync(ct);
         }
@@ -300,6 +301,7 @@ public class HousePricingForm
         // Repopulate cities for the dropdown with the selected value from dto
         await PopulateCitiesAsync(dto.CityId, ct);
         await PopulateAreasAsync(merged.AreaIds, ct);
+        await PopulateHouseGroupsAsync(merged.GroupId, ct);
 
         var selectedAreaLookups = new List<LookupItem>();
         if (ViewBag.Areas is IEnumerable<SelectListItem> areaOptions)
@@ -367,6 +369,23 @@ public class HousePricingForm
             if (!areasRes.Ok && !string.IsNullOrWhiteSpace(areasRes.Message))
             {
                 TempData["Err"] ??= areasRes.Message;
+            }
+        }
+    }
+
+    private async Task PopulateHouseGroupsAsync(Guid? selectedGroupId, CancellationToken ct)
+    {
+        var groupsRes = await _api.GetHouseGroupsAsync(ct);
+        if (groupsRes.Ok && groupsRes.Data is not null)
+        {
+            ViewBag.HouseGroups = groupsRes.Data.ToSelectList(selectedGroupId);
+        }
+        else
+        {
+            ViewBag.HouseGroups = Enumerable.Empty<SelectListItem>();
+            if (!groupsRes.Ok && !string.IsNullOrWhiteSpace(groupsRes.Message))
+            {
+                TempData["Err"] ??= groupsRes.Message;
             }
         }
     }

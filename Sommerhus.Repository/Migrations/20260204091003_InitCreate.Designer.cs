@@ -11,7 +11,7 @@ using Sommerhus.Repository;
 namespace Sommerhus.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260203130435_InitCreate")]
+    [Migration("20260204091003_InitCreate")]
     partial class InitCreate
     {
         /// <inheritdoc />
