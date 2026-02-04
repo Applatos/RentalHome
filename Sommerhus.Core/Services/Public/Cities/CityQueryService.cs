@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Cities;
-using Sommerhus.Core.Dtos.Public.Cities;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Public.Cities;
 

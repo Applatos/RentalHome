@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Core;
 

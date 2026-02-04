@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Admin.Houses;
-using Sommerhus.Core.Dtos.Admin.Pricing;
-using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 

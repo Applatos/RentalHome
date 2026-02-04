@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;

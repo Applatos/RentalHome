@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Security;
 

@@ -1,15 +1,19 @@
 using System.Collections.Generic;
-using Sommerhus.Core.Dtos.Shared;
 
-namespace Sommerhus.Core.Dtos.Admin.Areas;
+namespace Sommerhus.Core.Dtos.Shared;
 
+/// <summary>
+/// Area details with optional admin-specific fields.
+/// </summary>
 public sealed record AreaDetailsDto(
     Guid Id,
     string Name,
-    IReadOnlyList<Guid> CityIds,
-    IReadOnlyList<LookupItem> Cities,
     string? Description,
     IReadOnlyList<ImageDto> Images,
+    
+    // Admin-specific fields
+    IReadOnlyList<Guid>? CityIds = null,
+    IReadOnlyList<LookupItem>? Cities = null,
     IReadOnlyList<AreaHouseDto>? Houses = null);
 
 public sealed record AreaHouseDto(Guid Id, string Title);

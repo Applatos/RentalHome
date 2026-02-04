@@ -4,10 +4,8 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Features;
-using Sommerhus.Core.Dtos.Admin.Houses;
-using Sommerhus.Core.Dtos.Admin.Pricing;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;

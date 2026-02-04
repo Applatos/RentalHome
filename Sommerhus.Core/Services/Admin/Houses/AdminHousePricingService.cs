@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;

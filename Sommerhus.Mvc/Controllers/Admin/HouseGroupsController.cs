@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 

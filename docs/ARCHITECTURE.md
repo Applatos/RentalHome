@@ -63,20 +63,37 @@ Models/
 ```
 Core/
 ├── Dtos/
-│   ├── Admin/                # Admin-specific DTOs
-│   │   ├── Houses/
-│   │   ├── Areas/
-│   │   ├── Features/
-│   │   └── Pricing/
-│   ├── Public/               # Public-facing DTOs
-│   │   ├── Houses/
-│   │   └── Areas/
-│   ├── Shared/               # Common DTOs
-│   │   ├── ImageDto.cs
+│   ├── Shared/          # All read/query DTOs (one per entity)
+│   │   ├── AreaDetailsDto.cs
+│   │   ├── AreaListItemDto.cs
+│   │   ├── HouseDetailsDto.cs
+│   │   ├── HouseListItemDto.cs
+│   │   ├── FeatureDetailsDto.cs
+│   │   ├── FeatureListItemDto.cs
+│   │   ├── CityListItemDto.cs
+│   │   ├── Images.cs
 │   │   ├── LookupItem.cs
-│   │   └── PageResult.cs
-│   └── Security/
-│       └── AdminRoles.cs
+│   │   └── Paging.cs
+│   ├── Admin/           # Only create/update DTOs (flat structure)
+│   │   ├── UpsertAreaDto.cs
+│   │   ├── UpsertHouseDto.cs
+│   │   ├── UpsertFeatureDto.cs
+│   │   ├── CityListItemDto.cs
+│   │   ├── CityDetailsDto.cs
+│   │   ├── CreateCityDto.cs
+│   │   ├── UpdateCityDto.cs
+│   │   ├── CityPageDto.cs
+│   │   ├── HouseGroupListItemDto.cs
+│   │   ├── HouseGroupDetailsDto.cs
+│   │   ├── UpsertHouseGroupDto.cs
+│   │   ├── UpsertSeasonSpanDto.cs
+│   │   ├── PricePlanDetailsDto.cs
+│   │   ├── SeasonPriceDto.cs
+│   │   ├── SeasonSpanDto.cs
+│   │   ├── SeasonCodeDto.cs
+│   │   └── AuthDtos.cs
+│   └── Security/        # Auth DTOs
+│       └── AdminRoles.csAdminRoles.cs
 ├── Services/
 │   ├── Admin/                # Admin service interfaces + implementations
 │   │   ├── Houses/

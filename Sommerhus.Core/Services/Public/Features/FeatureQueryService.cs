@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Features;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Admin.Features;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Public.Features;
 

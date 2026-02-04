@@ -7,7 +7,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
-using Sommerhus.Core.Dtos.Public.Houses;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 

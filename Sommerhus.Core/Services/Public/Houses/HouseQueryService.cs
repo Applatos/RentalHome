@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Storage;
-using Sommerhus.Core.Dtos.Admin.Features;
-using Sommerhus.Core.Dtos.Public.Houses;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared; using Sommerhus.Core.Dtos.Admin; using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Houses;

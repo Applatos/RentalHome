@@ -1,4 +1,4 @@
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using System.ComponentModel.DataAnnotations;
 

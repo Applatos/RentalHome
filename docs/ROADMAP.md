@@ -620,10 +620,24 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj  # ✅ Tests passing
   - `HousesController` reduced from 1067 to 730 lines (focused on houses/pricing)
 - [x] Consolidate duplicate DTOs (one per entity with optional properties)
   - Moved `AreaListItemDto` to `Sommerhus.Core.Dtos.Shared`
-  - Deleted duplicates from Admin/Public namespaces
+  - Consolidated `AreaDetailsDto` (Admin+Public → Shared with optional fields)
+  - Consolidated `HouseDetailsDto` (Admin+Public → Shared with optional fields)
+  - Consolidated `HouseListItemDto` (Admin+Public → Shared with optional fields)
+  - Moved `FeatureDetailsDto` and `FeatureListItemDto` to Shared
+  - Moved `CityListItemDto` from Public to Shared
+  - Achieved consistent organization: Shared (read) + Admin (write)
+  - Deleted all duplicates from Admin/Public namespaces
+  - Updated all references across API, MVC, and Tests projects
 - [x] Delete nearly identical shared DTOs
 - [x] Ensure consistent DTO naming and folder organization
 - [x] Update all references after consolidation
+- [x] Complete DTO reorganization details
+- [x] Flatten Admin DTO structure (remove domain folders)
+- [x] Split multi-DTO files into individual files for consistency
+  - CityDtos.cs → 5 individual DTO files
+  - HouseGroupDtos.cs → 3 individual DTO files
+  - PricePlanDtos.cs → 4 individual DTO files
+- [x] Update all namespaces to flat Admin structure
 
 ### Deferred
 

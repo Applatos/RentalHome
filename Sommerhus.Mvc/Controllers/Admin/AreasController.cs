@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Core.Dtos.Admin.Areas;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;

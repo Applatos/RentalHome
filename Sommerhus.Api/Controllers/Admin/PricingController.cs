@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
 
 namespace Sommerhus.Api.Controllers.Admin;

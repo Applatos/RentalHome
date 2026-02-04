@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Sommerhus.Core.Dtos.Admin.Houses;
+namespace Sommerhus.Core.Dtos.Admin;
 
 public sealed class UpsertHouseDto
 {

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Areas;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Security;
 

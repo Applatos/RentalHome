@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Services.Admin.Cities;
-using Sommerhus.Core.Dtos.Public.Cities;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Security;
 

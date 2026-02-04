@@ -1,6 +1,6 @@
 //using FluentAssertions;
-//using Sommerhus.Core.Dtos.Public.Houses;
-//using Sommerhus.Core.Dtos.Public.Cities;
+//using Sommerhus.Core.Dtos.Shared;
+//using Sommerhus.Core.Dtos.Shared;
 //using Sommerhus.Api.Tests.Infrastructure;
 //using System.Net.Http.Json;
 //using Xunit.Abstractions;

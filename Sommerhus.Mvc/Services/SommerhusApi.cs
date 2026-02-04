@@ -1,7 +1,5 @@
-using Sommerhus.Core.Dtos.Admin.Areas;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Public.Cities;
-using Sommerhus.Core.Dtos.Public.Houses;
+using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 

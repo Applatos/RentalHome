@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Public.Houses;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using System.Net;
 

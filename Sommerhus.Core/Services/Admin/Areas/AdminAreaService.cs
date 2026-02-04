@@ -7,8 +7,8 @@ using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Domain.Models;
-using Sommerhus.Core.Dtos.Admin.Areas;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.Areas;
 

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Sommerhus.Core.Dtos.Admin.Features;
+namespace Sommerhus.Core.Dtos.Admin;
 
 public record UpsertFeatureDto(
     [Required, MaxLength(100)] string Name,

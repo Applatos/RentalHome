@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Core.Dtos.Admin.Houses;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Shared;
 using System.ComponentModel.DataAnnotations;
 

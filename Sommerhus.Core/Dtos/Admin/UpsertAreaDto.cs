@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Sommerhus.Core.Dtos.Admin.Areas;
+namespace Sommerhus.Core.Dtos.Admin;
 
 public record UpsertAreaDto(
     [Required, MaxLength(100)] string Name,

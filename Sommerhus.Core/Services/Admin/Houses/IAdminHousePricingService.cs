@@ -1,5 +1,5 @@
 using Sommerhus.Core.Common;
-using Sommerhus.Core.Dtos.Admin.Pricing;
+using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
