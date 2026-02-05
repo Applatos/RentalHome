@@ -1,0 +1,20 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Sommerhus.Core.Dtos.Shared;
+
+namespace Sommerhus.Mvc.ViewModels.Admin.Houses;
+
+public sealed class HouseDetailsVm
+{
+    public required HouseDetailsDto House { get; init; }
+    public required IReadOnlyList<SelectListItem> Cities { get; init; }
+    public required IReadOnlyList<SelectListItem> Areas { get; init; }
+    public required IReadOnlyList<SelectListItem> HouseGroups { get; init; }
+    public string ActiveTab { get; init; } = "overview";
+
+    // Tab-specific data (populated only when needed)
+    public IReadOnlyList<FeatureDto> AllFeatures { get; init; } = [];
+    public string? FeaturesError { get; init; }
+
+    public IReadOnlyList<SeasonCodeDto> SeasonCodes { get; init; } = [];
+    public string? SeasonCodesError { get; init; }
+}

@@ -1,0 +1,73 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseListVm
+@{
+    ViewData["Title"] = "Admin - Houses";
+    var totalPages = (int)Math.Ceiling((double)Model.Houses.Total / Math.Max(1, Model.Houses.PageSize));
+}
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+    @await Html.PartialAsync("Shared/_FlashMessages")
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Houses</h2>
+        <a class="btn btn-primary" asp-controller="Houses" asp-action="Create">+ Create House</a>
+    </div>
+
+    <form method="get" class="row gy-2 gx-2 mb-3" asp-controller="Houses" asp-action="Index">
+        <div class="col-md-6">
+            <input class="form-control" name="q" value="@Model.SearchQuery" placeholder="Search..." />
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="pageSize">
+                @foreach (var size in new[] { 10, 20, 30, 50 })
+                {
+                    <option value="@size" selected="@(size == Model.Houses.PageSize)">@size per page</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-dark w-100">Search</button>
+        </div>
+    </form>
+
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>City</th>
+                <th>Areas</th>
+                <th>Created</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in Model.Houses.Items)
+            {
+                <tr>
+                    <td>@h.Name</td>
+                    <td>@h.CityLabel</td>
+                    <td>
+                        @if (h.AreaLabels?.Any() == true)
+                        {
+                            <span>@string.Join(", ", h.AreaLabels)</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                    <td>@(h.CreatedUtc?.ToLocalTime().ToString("g") ?? "")</td>
+                    <td class="text-end">
+                        <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">Details</a>
+                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("Delete house \"@h.Name\"?");'>
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @await Html.PartialAsync("Shared/_Pagination", (Model.Houses.Page, totalPages, Model.Houses.PageSize, Model.SearchQuery, "Index", "Houses"))
+</section>

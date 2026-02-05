@@ -1,0 +1,60 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseDetailsVm
+@{
+    ViewData["Title"] = Model.House.Name;
+}
+
+<section class="container my-3">
+    @await Html.PartialAsync("Shared/_FlashMessages")
+
+    <div class="d-flex justify-content-between">
+        <h2 class="mb-2">@Model.House.Name</h2>
+        <small class="text-muted">Created @(Model.House.CreatedUtc?.ToLocalTime().ToString("g") ?? "")</small>
+    </div>
+
+    <ul class="nav nav-tabs mt-2">
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "overview" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="overview">Overview</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "images" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="images">Images</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "features" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="features">Features</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "pricing" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="pricing">Pricing</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "calendar" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">Season Calendar</a>
+        </li>
+    </ul>
+
+    <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (Model.ActiveTab == "overview")
+        {
+            @await Html.PartialAsync("_TabOverview", Model)
+        }
+        else if (Model.ActiveTab == "images")
+        {
+            @await Html.PartialAsync("_TabImages", Model)
+        }
+        else if (Model.ActiveTab == "features")
+        {
+            @await Html.PartialAsync("_TabFeatures", Model)
+        }
+        else if (Model.ActiveTab == "pricing")
+        {
+            @await Html.PartialAsync("_TabPricing", Model)
+        }
+        else if (Model.ActiveTab == "calendar")
+        {
+            @await Html.PartialAsync("_TabCalendar", Model)
+        }
+    </div>
+</section>

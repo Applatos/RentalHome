@@ -1,190 +1,213 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin;
+using Sommerhus.Mvc.ViewModels.Admin.Houses;
 using System.Globalization;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-[Authorize]
-public sealed class AdminController : Controller
+public sealed class HousesController : AdminControllerBase
 {
     private readonly AdminApiClient _api;
-    public AdminController(AdminApiClient api) => _api = api;
-    // ======= HOUSES ======
-
+    public HousesController(AdminApiClient api) => _api = api;
     [HttpGet("/admin")]
-    public IActionResult Index() => RedirectToAction(nameof(Houses));
+    public IActionResult AdminIndex() => RedirectToAction(nameof(Index));
 
-
-    // HOUSES (master + pagination)
     [HttpGet("/admin/houses")]
-    public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public async Task<IActionResult> Index([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
         var res = await _api.GetHousesAsync(q, page, pageSize, ct);
 
         if (!res.Ok)
         {
-            TempData["Err"] = res.Message ?? "could not find house list";
-            return View();
+            SetError(res.Message ?? "Could not load house list.");
+            return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
+            {
+                Houses = new PageResult<HouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q }
+            });
         }
 
-        ViewData["AdminTab"] = "houses";
-        return View(res.Data);
+        SetAdminTab("houses");
+        return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
+        {
+            Houses = res.Data,
+            SearchQuery = q
+        });
     }
 
 
 
-    [HttpGet("api/admin/houses/{id:guid}")]
-    public async Task<IActionResult> House(Guid id, string tab = "overview", CancellationToken ct = default)
+    [HttpGet("/admin/houses/{id:guid}")]
+    public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "houses";
-
+        SetAdminTab("houses");
 
         var res = await _api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
-            TempData["Err"] = res.Message ?? "Hus ikke fundet.";
-            return RedirectToAction(nameof(Houses));
+            SetError(res.Message ?? "House not found.");
+            return RedirectToAction(nameof(Index));
         }
-        await PopulateCitiesAsync(res.Data.CityId, ct);
-        await PopulateAreasAsync(res.Data.AreaIds, ct);
-        await PopulateHouseGroupsAsync(res.Data.GroupId, ct);
 
+        var vm = await BuildHouseDetailsVmAsync(res.Data, tab, ct);
+        return View("~/Views/Admin/Houses/Details.cshtml", vm);
+    }
+
+    private async Task<HouseDetailsVm> BuildHouseDetailsVmAsync(HouseDetailsDto house, string tab, CancellationToken ct)
+    {
+        var cities = await LoadCitiesSelectListAsync(house.CityId, ct);
+        var areas = await LoadAreasSelectListAsync(house.AreaIds, ct);
+        var houseGroups = await LoadHouseGroupsSelectListAsync(house.GroupId, ct);
+
+        var allFeatures = Array.Empty<FeatureDto>() as IReadOnlyList<FeatureDto>;
+        string? featuresError = null;
         if (string.Equals(tab, "features", StringComparison.OrdinalIgnoreCase))
         {
-            await PopulateFeaturesAsync(ct);
-        }
-        else
-        {
-            ViewBag.AllFeatures ??= Array.Empty<FeatureDto>();
-        }
-
-        if (string.Equals(tab, "pricing") || string.Equals(tab, "calendar"))
-        {
-            await PopulateSeasonCodesAsync(ct);
-        }
-        else
-        {
-            ViewBag.SeasonCodes ??= Array.Empty<SeasonCodeDto>();
-            ViewBag.SeasonCodesError ??= null;
+            var featuresRes = await _api.GetFeaturesAsync(ct);
+            if (featuresRes.Ok && featuresRes.Data is not null)
+            {
+                allFeatures = featuresRes.Data;
+            }
+            else
+            {
+                featuresError = featuresRes.Message ?? "Could not load features.";
+            }
         }
 
+        var seasonCodes = Array.Empty<SeasonCodeDto>() as IReadOnlyList<SeasonCodeDto>;
+        string? seasonCodesError = null;
+        if (string.Equals(tab, "pricing", StringComparison.OrdinalIgnoreCase) || 
+            string.Equals(tab, "calendar", StringComparison.OrdinalIgnoreCase))
+        {
+            var codesRes = await _api.GetSeasonCodesAsync(ct);
+            if (codesRes.Ok && codesRes.Data is not null)
+            {
+                seasonCodes = codesRes.Data;
+            }
+            else
+            {
+                seasonCodesError = codesRes.Message ?? "Could not load season codes.";
+            }
+        }
 
-        ViewBag.Tab = tab;
-        return View(res.Data);
+        return new HouseDetailsVm
+        {
+            House = house,
+            Cities = cities,
+            Areas = areas,
+            HouseGroups = houseGroups,
+            ActiveTab = tab,
+            AllFeatures = allFeatures,
+            FeaturesError = featuresError,
+            SeasonCodes = seasonCodes,
+            SeasonCodesError = seasonCodesError
+        };
     }
 
-    private async Task PopulateSeasonCodesAsync(CancellationToken ct)
+    private async Task<IReadOnlyList<SelectListItem>> LoadCitiesSelectListAsync(Guid? selectedCityId, CancellationToken ct)
     {
-        var codesRes = await _api.GetSeasonCodesAsync(ct);
-        if (codesRes.Ok && codesRes.Data is not null)
+        var citiesRes = await _api.GetCitiesAsync(ct);
+        if (citiesRes.Ok && citiesRes.Data is not null)
         {
-            ViewBag.SeasonCodes = codesRes.Data;
-            ViewBag.SeasonCodesError = null;
+            return citiesRes.Data.ToSelectList(selectedCityId).ToList();
         }
-        else
-        {
-            ViewBag.SeasonCodes = Array.Empty<SeasonCodeDto>();
-            ViewBag.SeasonCodesError = codesRes.Message ?? "Kunne ikke hente sæsonkoder.";
-        }
+        return [];
     }
 
-
-    // ========== Opret nyt hus ==========
-    public async Task<IActionResult> NewHouse(CancellationToken ct)
+    private async Task<IReadOnlyList<SelectListItem>> LoadAreasSelectListAsync(IEnumerable<Guid>? selectedAreaIds, CancellationToken ct)
     {
-        var cities = await _api.GetCitiesAsync(ct);
-        var areas = await _api.GetAreasLookupAsync(ct);
+        var areasRes = await _api.GetAreasLookupAsync(ct);
+        if (areasRes.Ok && areasRes.Data is not null)
+        {
+            return areasRes.Data.ToSelectList(selectedAreaIds?.ToList()).ToList();
+        }
+        return [];
+    }
 
-        var vm = new HouseEditVm
+    private async Task<IReadOnlyList<SelectListItem>> LoadHouseGroupsSelectListAsync(Guid? selectedGroupId, CancellationToken ct)
+    {
+        var groupsRes = await _api.GetHouseGroupsAsync(ct);
+        if (groupsRes.Ok && groupsRes.Data is not null)
+        {
+            return groupsRes.Data.ToSelectList(selectedGroupId).ToList();
+        }
+        return [];
+    }
+
+    [HttpGet("/admin/houses/new")]
+    public async Task<IActionResult> Create(CancellationToken ct)
+    {
+        SetAdminTab("houses");
+        var cities = await LoadCitiesSelectListAsync(null, ct);
+        var areas = await LoadAreasSelectListAsync(null, ct);
+
+        var vm = new HouseCreateVm
         {
             House = new UpsertHouseDto(),
-            Cities = cities.Data.ToSelectList().ToList(),
-            Areas = areas.Data.ToSelectList().ToList()
+            Cities = cities,
+            Areas = areas
         };
 
-        if (!cities.Ok)
-        {
-            TempData["Err"] ??= cities.Message ?? "Kunne ikke hente byer.";
-        }
-
-        if (!areas.Ok)
-        {
-            TempData["Err"] ??= areas.Message ?? "Kunne ikke hente områder.";
-        }
-
-        ViewData["AdminTab"] = "houses";
-        return View(vm);
+        return View("~/Views/Admin/Houses/Create.cshtml", vm);
     }
 
-
+    [HttpPost("/admin/houses")]
     [ValidateAntiForgeryToken]
-    [HttpPost]
-    public async Task<IActionResult> Create(HouseEditVm vm, CancellationToken ct = default)
+    public async Task<IActionResult> Create(HouseCreateVm vm, CancellationToken ct = default)
     {
         if (!ModelState.IsValid)
         {
-            var citiesRes = await _api.GetCitiesAsync(ct);
-            vm.Cities = (citiesRes.Data ?? Array.Empty<LookupItem>()).ToSelectList(vm.House.CityId).ToList();
-
-            var areasRes = await _api.GetAreasLookupAsync(ct);
-            vm.Areas = (areasRes.Data ?? Array.Empty<LookupItem>()).ToSelectList(vm.House.AreaIds).ToList();
-
-            TempData["Err"] = "Ugyldige felter.";
-            return View("NewHouse", vm);
+            vm.Cities = await LoadCitiesSelectListAsync(vm.House.CityId, ct);
+            vm.Areas = await LoadAreasSelectListAsync(vm.House.AreaIds, ct);
+            SetError("Invalid fields.");
+            return View("~/Views/Admin/Houses/Create.cshtml", vm);
         }
 
-        var dto = vm.House;
-        var res = await _api.PostHouseAsync(dto, ct);
+        var res = await _api.PostHouseAsync(vm.House, ct);
         if (res.Ok && res.Data is Guid id)
         {
-            TempData["Ok"] = "Hus oprettet.";
-            return RedirectToAction(nameof(House), new { id });
+            SetSuccess("House created.");
+            return RedirectToAction(nameof(Details), new { id });
         }
-        return RedirectToAction(nameof(NewHouse));
+        
+        SetError(res.Message ?? "Could not create house.");
+        return RedirectToAction(nameof(Create));
     }
 
 
+    [HttpPost("/admin/houses/{id:guid}")]
     [ValidateAntiForgeryToken]
-    [HttpPost]
-    public async Task<IActionResult> Edit(Guid id, UpsertHouseDto dto, CancellationToken ct = default)
+    public async Task<IActionResult> Update(Guid id, UpsertHouseDto dto, CancellationToken ct = default)
     {
-        // Binder nu direkte til write-DTO — konsistent med API (PUT /api/admin/houses/{id})
         if (!ModelState.IsValid)
         {
-            // Repopulate cities & show view with user's input merged into the read model
             return await RenderHouseEditAsync(id, dto, ct);
         }
 
         var res = await _api.PutHouseAsync(id, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Hus opdateret.";
-            return RedirectToAction(nameof(House), new { id, tab = "overview" });
+            SetSuccess("House updated.");
+            return RedirectToAction(nameof(Details), new { id, tab = "overview" });
         }
 
-        // API returned failure (could inspect res.Errors/Message)
-        TempData["Err"] = res.Message ?? "Kunne ikke opdatere hus.";
+        SetError(res.Message ?? "Could not update house.");
         return await RenderHouseEditAsync(id, dto, ct);
     }
 
     private async Task<ActionResult> RenderHouseEditAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
     {
-        // Get latest read-model from API (so we keep Images/Features/CreatedUtc etc.)
         var houseRes = await _api.GetHouseAsync(id, ct);
         if (!houseRes.Ok || houseRes.Data is null)
         {
-            TempData["Err"] = houseRes.Message ?? "Hus ikke fundet.";
-            return RedirectToAction(nameof(Houses));
+            SetError(houseRes.Message ?? "House not found.");
+            return RedirectToAction(nameof(Index));
         }
 
-        // Merge incoming write DTO values into the read DTO so view displays the user's input
         var read = houseRes.Data;
         var merged = read with
         {
@@ -192,202 +215,139 @@ public sealed class AdminController : Controller
             CityId = dto.CityId,
             Address = dto.Address,
             Description = dto.Description,
-            AreaIds = dto.AreaIds?.ToList() ?? new List<Guid>()
+            AreaIds = dto.AreaIds?.ToList() ?? []
         };
 
-        // Repopulate cities for the dropdown with the selected value from dto
-        await PopulateCitiesAsync(dto.CityId, ct);
-        await PopulateAreasAsync(merged.AreaIds, ct);
-        await PopulateHouseGroupsAsync(merged.GroupId, ct);
+        var cities = await LoadCitiesSelectListAsync(dto.CityId, ct);
+        var areas = await LoadAreasSelectListAsync(merged.AreaIds, ct);
+        var houseGroups = await LoadHouseGroupsSelectListAsync(merged.GroupId, ct);
 
-        var selectedAreaLookups = new List<LookupItem>();
-        if (ViewBag.Areas is IEnumerable<SelectListItem> areaOptions)
-        {
-            foreach (var option in areaOptions.Where(o => o.Selected))
-            {
-                if (Guid.TryParse(option.Value, out var Areaid))
-                {
-                    selectedAreaLookups.Add(new LookupItem(Areaid, option.Text));
-                }
-            }
-        }
+        var selectedAreaLookups = areas
+            .Where(o => o.Selected && Guid.TryParse(o.Value, out _))
+            .Select(o => new LookupItem(Guid.Parse(o.Value), o.Text))
+            .ToList();
 
         merged = merged with { Areas = selectedAreaLookups };
 
-        ViewBag.Tab = "overview";
-        ViewData["AdminTab"] = "houses";
-        ViewBag.HouseId = id;
-        return View("House", merged);
+        var vm = new HouseDetailsVm
+        {
+            House = merged,
+            Cities = cities,
+            Areas = areas,
+            HouseGroups = houseGroups,
+            ActiveTab = "overview"
+        };
+
+        SetAdminTab("houses");
+        return View("~/Views/Admin/Houses/Details.cshtml", vm);
     }
-    [HttpPost]
+
+    [HttpPost("/admin/houses/{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
         var res = await _api.DeleteHouseAsync(id, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Hus slettet.";
+            SetSuccess("House deleted.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke slette hus.";
+            SetError(res.Message ?? "Could not delete house.");
         }
 
-        return RedirectToAction(nameof(Houses));
+        return RedirectToAction(nameof(Index));
     }
 
-    private async Task PopulateCitiesAsync(Guid? selectedCityId, CancellationToken ct)
-    {
-        var citiesRes = await _api.GetCitiesAsync(ct);
-        if (citiesRes.Ok && citiesRes.Data is not null)
-        {
-            ViewBag.Cities = citiesRes.Data.ToSelectList(selectedCityId);
-        }
-        else
-        {
-            ViewBag.Cities = Enumerable.Empty<SelectListItem>();
-            if (!citiesRes.Ok && !string.IsNullOrWhiteSpace(citiesRes.Message))
-            {
-                TempData["Err"] ??= citiesRes.Message;
-            }
-        }
-    }
-
-    private async Task PopulateAreasAsync(IEnumerable<Guid>? selectedAreaIds, CancellationToken ct)
-    {
-        var areasRes = await _api.GetAreasLookupAsync(ct);
-        if (areasRes.Ok && areasRes.Data is not null)
-        {
-            ViewBag.Areas = areasRes.Data.ToSelectList(selectedAreaIds?.ToList());
-        }
-        else
-        {
-            ViewBag.Areas = Enumerable.Empty<SelectListItem>();
-            if (!areasRes.Ok && !string.IsNullOrWhiteSpace(areasRes.Message))
-            {
-                TempData["Err"] ??= areasRes.Message;
-            }
-        }
-    }
-
-    private async Task PopulateHouseGroupsAsync(Guid? selectedGroupId, CancellationToken ct)
-    {
-        var groupsRes = await _api.GetHouseGroupsAsync(ct);
-        if (groupsRes.Ok && groupsRes.Data is not null)
-        {
-            ViewBag.HouseGroups = groupsRes.Data.ToSelectList(selectedGroupId);
-        }
-        else
-        {
-            ViewBag.HouseGroups = Enumerable.Empty<SelectListItem>();
-            if (!groupsRes.Ok && !string.IsNullOrWhiteSpace(groupsRes.Message))
-            {
-                TempData["Err"] ??= groupsRes.Message;
-            }
-        }
-    }
-
+    [HttpPost("/admin/houses/{id:guid}/images")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadHouseImages(Guid id, IEnumerable<IFormFile> files, CancellationToken ct = default)
     {
         if (files is null || !files.Any())
         {
-            TempData["Err"] = "Vælg mindst ét billede.";
-            return RedirectToAction(nameof(House), new { id, tab = "images" });
+            SetError("Please select at least one image.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
         var res = await _api.UploadHouseImagesAsync(id, files, ct);
-
-
         if (res.Ok)
         {
             var uploadedCount = res.Data?.Count ?? 0;
-            TempData["Ok"] = uploadedCount > 0 ? $"Uploadede {uploadedCount} billede(r)." : "Ingen billeder blev uploadet.";
+            SetSuccess(uploadedCount > 0 ? $"Uploaded {uploadedCount} image(s)." : "No images were uploaded.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Fejl ved upload.";
+            SetError(res.Message ?? "Upload failed.");
         }
 
-        return RedirectToAction(nameof(House), new { id, tab = "images" });
+        return RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
-    public async Task<IActionResult> SetHouseImageKind(Guid id, Guid ImageId, string kind, CancellationToken ct = default)
+    [HttpPost("/admin/houses/{id:guid}/images/{imageId:guid}/set-kind")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetHouseImageKind(Guid id, Guid imageId, string kind, CancellationToken ct = default)
     {
         if (id == Guid.Empty)
         {
-            TempData["Err"] = "Ugyldigt hus-id.";
-            return RedirectToAction(nameof(House), new { id, tab = "images" });
+            SetError("Invalid house ID.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
         if (string.IsNullOrWhiteSpace(kind))
         {
-            TempData["Err"] = "Ugyldig billedetype.";
-            return RedirectToAction(nameof(House), new { id, tab = "images" });
+            SetError("Invalid image type.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
-        var res = await _api.SetHouseImageKindAsync(id, ImageId, kind, ct);
+        var res = await _api.SetHouseImageKindAsync(id, imageId, kind, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = $"Sat til {kind}.";
+            SetSuccess($"Set to {kind}.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke opdatere billede.";
+            SetError(res.Message ?? "Could not update image.");
         }
 
-        return RedirectToAction(nameof(House), new { id, tab = "images" });
+        return RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
+    [HttpPost("/admin/houses/{id:guid}/images/{imageId:guid}/delete")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteHouseImage(Guid id, Guid imageId, CancellationToken ct = default)
     {
         if (id == Guid.Empty)
         {
-            TempData["Err"] = "Ugyldigt hus-id.";
-            return RedirectToAction(nameof(House), new { id, tab = "images" });
+            SetError("Invalid house ID.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
+
         var res = await _api.DeleteHouseImageAsync(id, imageId, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Billede slettet.";
+            SetSuccess("Image deleted.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke slette billede.";
+            SetError(res.Message ?? "Could not delete image.");
         }
-        return RedirectToAction(nameof(House), new { id, tab = "images" });
+
+        return RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
 
 
 
 
-    // ==== Features ====
-
-
-    private async Task PopulateFeaturesAsync(CancellationToken ct)
-    {
-        var featuresRes = await _api.GetFeaturesAsync(ct);
-        if (featuresRes.Ok && featuresRes.Data is not null)
-        {
-            ViewBag.AllFeatures = featuresRes.Data;
-            ViewBag.FeaturesError = null;
-        }
-        else
-        {
-            ViewBag.AllFeatures = Array.Empty<FeatureDto>();
-            ViewBag.FeaturesError = featuresRes.Message ?? "Kunne ikke hente features.";
-        }
-    }
-
-    [HttpPost]
+    [HttpPost("/admin/houses/{id:guid}/features")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveHouseFeatures(Guid id, CancellationToken ct = default)
     {
         var featuresRes = await _api.GetFeaturesAsync(ct);
         if (!featuresRes.Ok || featuresRes.Data is null)
         {
-            TempData["Err"] = featuresRes.Message ?? "Kunne ikke hente features.";
-            return RedirectToAction(nameof(House), new { id, tab = "features" });
+            SetError(featuresRes.Message ?? "Could not load features.");
+            return RedirectToAction(nameof(Details), new { id, tab = "features" });
         }
 
         var form = await Request.ReadFormAsync(ct);
@@ -420,7 +380,7 @@ public sealed class AdminController : Controller
                 case "int":
                     if (!TryParseInt(raw, out var intValue))
                     {
-                        errors.Add($"{feature.Name}: indtast et helt tal.");
+                        errors.Add($"{feature.Name}: enter a whole number.");
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, intValue.ToString(CultureInfo.InvariantCulture)));
@@ -428,7 +388,7 @@ public sealed class AdminController : Controller
                 case "decimal":
                     if (!TryParseDecimal(raw, out var decValue))
                     {
-                        errors.Add($"{feature.Name}: indtast et tal.");
+                        errors.Add($"{feature.Name}: enter a number.");
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, decValue.ToString(CultureInfo.InvariantCulture)));
@@ -436,7 +396,7 @@ public sealed class AdminController : Controller
                 default:
                     if (raw.Length > 200)
                     {
-                        errors.Add($"{feature.Name}: teksten er for lang (maks 200 tegn).");
+                        errors.Add($"{feature.Name}: text too long (max 200 characters).");
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, raw));
@@ -446,21 +406,21 @@ public sealed class AdminController : Controller
 
         if (errors.Count > 0)
         {
-            TempData["Err"] = string.Join(" ", errors);
-            return RedirectToAction(nameof(House), new { id, tab = "features" });
+            SetError(string.Join(" ", errors));
+            return RedirectToAction(nameof(Details), new { id, tab = "features" });
         }
 
         var res = await _api.UpsertHouseFeaturesAsync(id, values, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Features opdateret.";
+            SetSuccess("Features updated.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke gemme features.";
+            SetError(res.Message ?? "Could not save features.");
         }
 
-        return RedirectToAction(nameof(House), new { id, tab = "features" });
+        return RedirectToAction(nameof(Details), new { id, tab = "features" });
     }
 
     private static bool IsTruthy(string value)
@@ -482,16 +442,14 @@ public sealed class AdminController : Controller
         return decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
     }
 
-    // ===== Pricing =====
-    [HttpPost]
+    [HttpPost("/admin/houses/{id:guid}/pricing")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveHousePricing(Guid id, [FromForm] HousePricingForm form, CancellationToken ct = default)
     {
-
         if (!ModelState.IsValid)
         {
-            TempData["Err"] = "Ugyldige felter i prisplan.";
-            return RedirectToAction(nameof(House), new { id, tab = "pricing" });
+            SetError("Invalid fields in price plan.");
+            return RedirectToAction(nameof(Details), new { id, tab = "pricing" });
         }
 
         var trimmedCurrency = (form.Currency ?? "DKK").Trim().ToUpperInvariant();
@@ -516,43 +474,40 @@ public sealed class AdminController : Controller
             DateTime.UtcNow,
             priceRows);
 
-
         var res = await _api.PutHousePricingAsync(id, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Priser opdateret.";
+            SetSuccess("Prices updated.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke gemme priser.";
+            SetError(res.Message ?? "Could not save prices.");
         }
 
-        return RedirectToAction(nameof(House), new { id, tab = "pricing" });
+        return RedirectToAction(nameof(Details), new { id, tab = "pricing" });
     }
 
-
-    [HttpPost]
+    [HttpPost("/admin/houses/{houseId:guid}/pricing/rate-plans/{ratePlanId:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteRatePlan(Guid houseId, Guid ratePlanId, CancellationToken ct = default)
     {
         var res = await _api.DeleteHouseRatePlanAsync(houseId, ratePlanId, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Prisplan slettet.";
+            SetSuccess("Price plan deleted.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke slette prisplan.";
+            SetError(res.Message ?? "Could not delete price plan.");
         }
-        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "pricing" });
     }
 
 
-    // ===== Pricing setup =====
     [HttpGet("/admin/pricing")]
     public async Task<IActionResult> Pricing(CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "pricing";
+        SetAdminTab("pricing");
         var vm = await BuildPricingVmAsync(null, null, ct);
         return View(vm);
     }
@@ -561,7 +516,7 @@ public sealed class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateHouseGroup([FromForm][Bind(Prefix = "GroupForm")] CreateHouseGroupForm form, CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "pricing";
+        SetAdminTab("pricing");
 
         if (!ModelState.IsValid)
         {
@@ -573,7 +528,7 @@ public sealed class AdminController : Controller
 
         if (res.Ok)
         {
-            TempData["Ok"] = "Gruppe oprettet.";
+            SetSuccess("Group created.");
             return RedirectToAction(nameof(Pricing));
         }
 
@@ -590,7 +545,7 @@ public sealed class AdminController : Controller
         }
         else
         {
-            ModelState.AddModelError("GroupForm.Name", res.Message ?? "Kunne ikke oprette gruppe.");
+            ModelState.AddModelError("GroupForm.Name", res.Message ?? "Could not create group.");
         }
 
         var vm = await BuildPricingVmAsync(form, null, ct);
@@ -601,7 +556,7 @@ public sealed class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateSeasonCode([FromForm][Bind(Prefix = "SeasonCodeForm")] CreateSeasonCodeForm form, CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "pricing";
+        SetAdminTab("pricing");
 
         if (!ModelState.IsValid)
         {
@@ -614,7 +569,7 @@ public sealed class AdminController : Controller
 
         if (res.Ok)
         {
-            TempData["Ok"] = "Sæsonkode oprettet.";
+            SetSuccess("Season code created.");
             return RedirectToAction(nameof(Pricing));
         }
 
@@ -631,35 +586,34 @@ public sealed class AdminController : Controller
         }
         else
         {
-            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? "Kunne ikke oprette sæsonkode.");
+            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? "Could not create season code.");
         }
 
         var vm = await BuildPricingVmAsync(null, form, ct);
         return View("Pricing", vm);
     }
 
-    // House season span management
     [HttpPost("/admin/houses/{houseId:guid}/calendar")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddHouseSeasonSpan(Guid houseId, [FromForm] UpsertSeasonSpanDto dto, CancellationToken ct = default)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Err"] = "Ugyldige data for sæsonperiode.";
-            return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+            SetError("Invalid season span data.");
+            return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
         }
 
         var res = await _api.AddHouseSeasonSpanAsync(houseId, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Sæsonperiode tilføjet.";
+            SetSuccess("Season span added.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke tilføje sæsonperiode.";
+            SetError(res.Message ?? "Could not add season span.");
         }
 
-        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
     }
 
     [HttpPost("/admin/houses/{houseId:guid}/calendar/{spanId:guid}")]
@@ -668,21 +622,21 @@ public sealed class AdminController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Err"] = "Ugyldige data for sæsonperiode.";
-            return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+            SetError("Invalid season span data.");
+            return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
         }
 
         var res = await _api.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Sæsonperiode opdateret.";
+            SetSuccess("Season span updated.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke opdatere sæsonperiode.";
+            SetError(res.Message ?? "Could not update season span.");
         }
 
-        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
     }
 
     [HttpPost("/admin/houses/{houseId:guid}/calendar/{spanId:guid}/delete")]
@@ -690,11 +644,16 @@ public sealed class AdminController : Controller
     public async Task<IActionResult> DeleteHouseSeasonSpan(Guid houseId, Guid spanId, CancellationToken ct = default)
     {
         var res = await _api.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
-        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
-            ? "Sæsonperiode slettet."
-            : res.Message ?? "Kunne ikke slette sæsonperiode.";
+        if (res.Ok)
+        {
+            SetSuccess("Season span deleted.");
+        }
+        else
+        {
+            SetError(res.Message ?? "Could not delete season span.");
+        }
 
-        return RedirectToAction(nameof(House), new { id = houseId, tab = "pricing" });
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
     }
 
     private async Task<PricingAdminVm> BuildPricingVmAsync(
@@ -711,8 +670,8 @@ public sealed class AdminController : Controller
             SeasonCodes = seasonCodesRes.Data ?? Array.Empty<SeasonCodeDto>(),
             GroupForm = groupForm ?? new CreateHouseGroupForm(),
             SeasonCodeForm = codeForm ?? new CreateSeasonCodeForm(),
-            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? "Kunne ikke hente grupper.",
-            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? "Kunne ikke hente sæsonkoder."
+            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? "Could not load groups.",
+            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? "Could not load season codes."
         };
 
         if (codeForm is null && vm.SeasonCodes.Count > 0 && vm.SeasonCodeForm.SortOrder == 0)
@@ -722,6 +681,4 @@ public sealed class AdminController : Controller
 
         return vm;
     }
-
-
 }

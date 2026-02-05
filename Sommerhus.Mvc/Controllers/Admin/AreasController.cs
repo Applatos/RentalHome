@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Core.Dtos.Shared;
@@ -9,8 +8,7 @@ using Sommerhus.Mvc.ViewModels.Admin;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-[Authorize]
-public sealed class AreasController : Controller
+public sealed class AreasController : AdminControllerBase
 {
     private readonly AdminApiClient _api;
 
@@ -19,12 +17,12 @@ public sealed class AreasController : Controller
     [HttpGet("/admin/areas")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
+        SetAdminTab("areas");
         var res = await _api.GetAreasAsync(ct);
-        ViewData["AdminTab"] = "areas";
 
         if (!res.Ok || res.Data is null)
         {
-            TempData["Err"] ??= res.Message ?? "Could not load areas.";
+            SetError(res.Message ?? "Could not load areas.");
             return View("~/Views/Admin/Areas.cshtml", Array.Empty<AreaListItemDto>());
         }
 
@@ -34,11 +32,11 @@ public sealed class AreasController : Controller
     [HttpGet("/admin/areas/{id:guid}")]
     public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "areas";
+        SetAdminTab("areas");
         var res = await _api.GetAreaAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
-            TempData["Err"] = res.Message ?? "Area not found.";
+            SetError(res.Message ?? "Area not found.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -53,7 +51,7 @@ public sealed class AreasController : Controller
             galleryImages = res.Data.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>();
             if (!imagesRes.Ok && !string.IsNullOrWhiteSpace(imagesRes.Message))
             {
-                TempData["Err"] ??= imagesRes.Message;
+                SetError(imagesRes.Message);
             }
         }
 
@@ -65,8 +63,8 @@ public sealed class AreasController : Controller
     [HttpGet("/admin/areas/new")]
     public async Task<IActionResult> Create(CancellationToken ct = default)
     {
+        SetAdminTab("areas");
         var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
-        ViewData["AdminTab"] = "areas";
         return View("~/Views/Admin/EditArea.cshtml", vm);
     }
 
@@ -79,13 +77,13 @@ public sealed class AreasController : Controller
 
         if (!res.Ok)
         {
-            TempData["Err"] = res.Message ?? "Could not create area.";
+            SetError(res.Message ?? "Could not create area.");
+            SetAdminTab("areas");
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            ViewData["AdminTab"] = "areas";
             return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
         }
 
-        TempData["Ok"] = "Area created.";
+        SetSuccess("Area created.");
         return RedirectToAction(nameof(Details), new { id = res.Data.Id });
     }
 
@@ -98,43 +96,45 @@ public sealed class AreasController : Controller
 
         if (!res.Ok || res.Data is null)
         {
-            TempData["Err"] = res.Message ?? "Could not update area.";
+            SetError(res.Message ?? "Could not update area.");
+            SetAdminTab("areas");
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            ViewData["AdminTab"] = "areas";
             return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
         }
 
-        TempData["Ok"] = "Area updated.";
+        SetSuccess("Area updated.");
         return RedirectToAction(nameof(Details), new { id });
-
     }
 
     [HttpGet("/admin/areas/{id:guid}/edit")]
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
     {
+        SetAdminTab("areas");
         var res = await _api.GetAreaAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
-            TempData["Err"] = res.Message ?? "Area not found.";
+            SetError(res.Message ?? "Area not found.");
             return RedirectToAction(nameof(Index));
         }
 
         var dto = res.Data;
         var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds, dto.Name, dto.Description, ct);
-        ViewData["AdminTab"] = "areas";
         return View("~/Views/Admin/EditArea.cshtml", vm);
     }
-
-
 
     [HttpPost("/admin/areas/{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
         var res = await _api.DeleteAreaAsync(id, ct);
-        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
-            ? "Area deleted."
-            : res.Message ?? "Could not delete area.";
+        if (res.Ok)
+        {
+            SetSuccess("Area deleted.");
+        }
+        else
+        {
+            SetError(res.Message ?? "Could not delete area.");
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -145,24 +145,24 @@ public sealed class AreasController : Controller
     {
         if (id == Guid.Empty)
         {
-            TempData["Err"] = "Invalid area.";
+            SetError("Invalid area.");
             return RedirectAfterImageChange(id, redirectTo);
         }
 
         if (file is null || file.Length == 0)
         {
-            TempData["Err"] = "Select an image.";
+            SetError("Select an image.");
             return RedirectAfterImageChange(id, redirectTo);
         }
 
         var res = await _api.UploadAreaImageAsync(id, file, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Image uploaded.";
+            SetSuccess("Image uploaded.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Could not upload image.";
+            SetError(res.Message ?? "Could not upload image.");
         }
 
         return RedirectAfterImageChange(id, redirectTo);
@@ -174,18 +174,18 @@ public sealed class AreasController : Controller
     {
         if (id == Guid.Empty)
         {
-            TempData["Err"] = "Invalid area.";
+            SetError("Invalid area.");
             return RedirectAfterImageChange(id, redirectTo);
         }
 
         var res = await _api.DeleteAreaImageAsync(id, imageId, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Image deleted.";
+            SetSuccess("Image deleted.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Could not delete image.";
+            SetError(res.Message ?? "Could not delete image.");
         }
 
         return RedirectAfterImageChange(id, redirectTo);
@@ -214,7 +214,7 @@ public sealed class AreasController : Controller
                 images = area.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>();
                 if (!imagesRes.Ok && !string.IsNullOrWhiteSpace(imagesRes.Message))
                 {
-                    TempData["Err"] ??= imagesRes.Message;
+                    SetError(imagesRes.Message);
                 }
             }
         }
@@ -252,7 +252,7 @@ public sealed class AreasController : Controller
             return citiesRes.Data.ToSelectList(selectedCityIds).ToList();
         }
 
-        TempData["Err"] ??= citiesRes.Message ?? "Could not load cities.";
+        SetError(citiesRes.Message ?? "Could not load cities.");
         return new List<SelectListItem>();
     }
 }

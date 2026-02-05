@@ -1,0 +1,133 @@
+@using System.Globalization
+@using Sommerhus.Core.Dtos.Shared
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseDetailsVm
+
+@{
+    var plan = Model.House.Pricing;
+    var seasonCodes = Model.SeasonCodes;
+    var planPrices = plan?.SeasonPrices ?? Array.Empty<SeasonPriceDto>();
+    var currency = string.IsNullOrWhiteSpace(plan?.Currency) ? "DKK" : plan.Currency.ToUpperInvariant();
+
+    var priceLookup = new Dictionary<string, SeasonPriceDto>(StringComparer.OrdinalIgnoreCase);
+    foreach (var price in planPrices)
+    {
+        if (!priceLookup.ContainsKey(price.Code))
+        {
+            priceLookup[price.Code] = price;
+        }
+    }
+
+    var displayRows = new List<(string Code, string? Label, string? Color, SeasonPriceDto? Price)>();
+    foreach (var code in seasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code, StringComparer.OrdinalIgnoreCase))
+    {
+        priceLookup.TryGetValue(code.Code, out var existingPrice);
+        displayRows.Add((code.Code, code.Label, code.Color, existingPrice));
+    }
+
+    var knownCodes = new HashSet<string>(displayRows.Select(r => r.Code));
+    foreach (var price in planPrices.OrderBy(p => p.Code, StringComparer.OrdinalIgnoreCase))
+    {
+        if (knownCodes.Add(price.Code))
+        {
+            displayRows.Add((price.Code, price.Code, null, price));
+        }
+    }
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.SeasonCodesError))
+{
+    <div class="alert alert-warning">@Model.SeasonCodesError</div>
+}
+
+<form method="post" asp-controller="Houses" asp-action="SaveHousePricing" asp-route-id="@Model.House.Id" class="mt-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="PlanId" value="@(plan?.planId.ToString() ?? string.Empty)" />
+
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Price Plan</label>
+            <input class="form-control" name="Name" value="@(string.IsNullOrWhiteSpace(plan?.Name) ? "Standard" : plan.Name)" placeholder="Standard" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Currency</label>
+            <select class="form-select" name="Currency">
+                <option value="DKK" selected="@(currency == "DKK")">DKK</option>
+                <option value="EUR" selected="@(currency == "EUR")">EUR</option>
+                <option value="SEK" selected="@(currency == "SEK")">SEK</option>
+                <option value="NOK" selected="@(currency == "NOK")">NOK</option>
+                <option value="GBP" selected="@(currency == "GBP")">GBP</option>
+                <option value="USD" selected="@(currency == "USD")">USD</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(plan is null || plan.IsActive ? "checked" : null) id="plan-active" />
+                <label class="form-check-label" for="plan-active">Active</label>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            @if (plan is not null)
+            {
+                <small class="text-muted d-block">Last updated @(plan.UpdatedUtc?.ToLocalTime().ToString("g") ?? plan.CreatedUtc.ToLocalTime().ToString("g"))</small>
+            }
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th class="w-25">Season Code</th>
+                    <th class="w-50">Description</th>
+                    <th class="w-25 text-end">Nightly Price (@currency)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < displayRows.Count; i++)
+                {
+                    var row = displayRows[i];
+                    var price = row.Price?.NightlyPrice;
+                    var idValue = row.Price?.Id.ToString() ?? string.Empty;
+                    var ratePlanId = row.Price?.RatePlanId.ToString() ?? (plan?.planId.ToString() ?? string.Empty);
+                    <tr>
+                        <td>
+                            <input type="hidden" name="SeasonPrices[@i].Code" value="@row.Code" />
+                            <input type="hidden" name="SeasonPrices[@i].Id" value="@idValue" />
+                            <input type="hidden" name="SeasonPrices[@i].RatePlanId" value="@ratePlanId" />
+                            <span class="badge rounded-pill" style="background-color:@(string.IsNullOrWhiteSpace(row.Color) ? "#6c757d" : row.Color)">
+                                @row.Code
+                            </span>
+                        </td>
+                        <td>
+                            @(string.IsNullOrWhiteSpace(row.Label) ? "No description" : row.Label)
+                        </td>
+                        <td class="text-end">
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   class="form-control text-end"
+                                   name="SeasonPrices[@i].NightlyPrice"
+                                   value="@(price.HasValue ? price.Value.ToString("0.##", CultureInfo.InvariantCulture) : string.Empty)"
+                                   placeholder="0.00" />
+                        </td>
+                    </tr>
+                }
+                @if (displayRows.Count == 0)
+                {
+                    <tr>
+                        <td colspan="3" class="text-muted text-center py-3">
+                            No season codes available. Add codes via the pricing setup.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="form-text">Leave field empty to remove price for a code.</p>
+
+    <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-primary">Save Prices</button>
+    </div>
+</form>

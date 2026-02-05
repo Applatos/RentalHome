@@ -1,0 +1,56 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseCreateVm
+@{
+    ViewData["Title"] = "Create House";
+}
+
+<section class="container my-3">
+    @await Html.PartialAsync("_AdminTabs")
+    @await Html.PartialAsync("Shared/_FlashMessages")
+
+    <h2 class="mb-3">Create New House</h2>
+
+    <form method="post" asp-controller="Houses" asp-action="Create" class="row g-3">
+        @Html.AntiForgeryToken()
+
+        <div class="col-md-8">
+            <label class="form-label">Name</label>
+            <input class="form-control" asp-for="House.Name" />
+            <span class="text-danger" asp-validation-for="House.Name"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Address</label>
+            <input class="form-control" asp-for="House.Address" />
+            <span class="text-danger" asp-validation-for="House.Address"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">City</label>
+            <select class="form-select" asp-for="House.CityId" asp-items="Model.Cities"></select>
+            <span class="text-danger" asp-validation-for="House.CityId"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Areas</label>
+            <select class="form-select" asp-for="House.AreaIds" asp-items="Model.Areas" multiple></select>
+            <span class="text-danger" asp-validation-for="House.AreaIds"></span>
+            <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" asp-for="House.Description" rows="4"></textarea>
+            <span class="text-danger" asp-validation-for="House.Description"></span>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary">Create</button>
+            <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

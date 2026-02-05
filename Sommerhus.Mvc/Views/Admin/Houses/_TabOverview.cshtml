@@ -1,0 +1,49 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseDetailsVm
+
+<form method="post" asp-controller="Houses" asp-action="Update" asp-route-id="@Model.House.Id" class="row g-3">
+    @Html.AntiForgeryToken()
+
+    <div class="col-md-8">
+        <label class="form-label">Name</label>
+        <input class="form-control" name="Name" value="@Model.House.Name" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Address</label>
+        <input class="form-control" name="Address" value="@Model.House.Address" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">City</label>
+        <select class="form-select" name="CityId" asp-items="Model.Cities"></select>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Areas</label>
+        <select class="form-select" name="AreaIds" asp-items="Model.Areas" multiple></select>
+        <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">House Group</label>
+        <select class="form-select" name="GroupId" asp-items="Model.HouseGroups">
+            <option value="">No group</option>
+        </select>
+        <div class="form-text">Select a group to share season calendar.</div>
+    </div>
+
+    <div class="col-md-12">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" name="Description" rows="4">@Model.House.Description</textarea>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">Save</button>
+        <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

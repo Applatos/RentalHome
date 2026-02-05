@@ -5,17 +5,17 @@ using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public class HouseGroupsController(AdminApiClient api) : Controller
+public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
 {
     [HttpGet("/admin/house-groups")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "house-groups";
+        SetAdminTab("house-groups");
         
         var groupsRes = await api.GetHouseGroupListAsync(ct);
         if (!groupsRes.Ok || groupsRes.Data is null)
         {
-            TempData["Err"] = groupsRes.Message ?? "Kunne ikke hente husgrupper.";
+            SetError(groupsRes.Message ?? "Could not load house groups.");
             return View("~/Views/Admin/HouseGroups/Index.cshtml", Array.Empty<HouseGroupDto>());
         }
 
@@ -25,12 +25,12 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     [HttpGet("/admin/house-groups/{id:guid}")]
     public async Task<IActionResult> Details(Guid id, CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "house-groups";
+        SetAdminTab("house-groups");
         
         var groupRes = await api.GetHouseGroupAsync(id, ct);
         if (!groupRes.Ok || groupRes.Data is null)
         {
-            TempData["Err"] = groupRes.Message ?? "Husgruppe ikke fundet.";
+            SetError(groupRes.Message ?? "House group not found.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -47,7 +47,7 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     [HttpGet("/admin/house-groups/new")]
     public IActionResult Create()
     {
-        ViewData["AdminTab"] = "house-groups";
+        SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Create.cshtml", new UpsertHouseGroupDto());
     }
 
@@ -57,31 +57,31 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewData["AdminTab"] = "house-groups";
+            SetAdminTab("house-groups");
             return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
         }
 
         var res = await api.CreateHouseGroupAsync(new HouseGroupDto(Guid.NewGuid(), dto.Name), ct);
         if (res.Ok && res.Data is not null)
         {
-            TempData["Ok"] = "Husgruppe oprettet.";
+            SetSuccess("House group created.");
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["Err"] = res.Message ?? "Kunne ikke oprette husgruppe.";
-        ViewData["AdminTab"] = "house-groups";
+        SetError(res.Message ?? "Could not create house group.");
+        SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
     }
 
     [HttpGet("/admin/house-groups/{id:guid}/edit")]
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
     {
-        ViewData["AdminTab"] = "house-groups";
+        SetAdminTab("house-groups");
         
         var groupRes = await api.GetHouseGroupAsync(id, ct);
         if (!groupRes.Ok || groupRes.Data is null)
         {
-            TempData["Err"] = groupRes.Message ?? "Husgruppe ikke fundet.";
+            SetError(groupRes.Message ?? "House group not found.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -95,19 +95,19 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewData["AdminTab"] = "house-groups";
+            SetAdminTab("house-groups");
             return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
         }
 
         var res = await api.UpdateHouseGroupAsync(id, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Husgruppe opdateret.";
+            SetSuccess("House group updated.");
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        TempData["Err"] = res.Message ?? "Kunne ikke opdatere husgruppe.";
-        ViewData["AdminTab"] = "house-groups";
+        SetError(res.Message ?? "Could not update house group.");
+        SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
     }
 
@@ -116,9 +116,14 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
         var res = await api.DeleteHouseGroupAsync(id, ct);
-        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
-            ? "Husgruppe slettet."
-            : res.Message ?? "Kunne ikke slette husgruppe.";
+        if (res.Ok)
+        {
+            SetSuccess("House group deleted.");
+        }
+        else
+        {
+            SetError(res.Message ?? "Could not delete house group.");
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -129,18 +134,18 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Err"] = "Ugyldige data for sæsonperiode.";
+            SetError("Invalid season span data.");
             return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
         var res = await api.AddSeasonSpanAsync(groupId, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Sæsonperiode tilføjet.";
+            SetSuccess("Season span added.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke tilføje sæsonperiode.";
+            SetError(res.Message ?? "Could not add season span.");
         }
 
         return RedirectToAction(nameof(Details), new { id = groupId });
@@ -152,18 +157,18 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Err"] = "Ugyldige data for sæsonperiode.";
+            SetError("Invalid season span data.");
             return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
         var res = await api.UpdateSeasonSpanAsync(groupId, spanId, dto, ct);
         if (res.Ok)
         {
-            TempData["Ok"] = "Sæsonperiode opdateret.";
+            SetSuccess("Season span updated.");
         }
         else
         {
-            TempData["Err"] = res.Message ?? "Kunne ikke opdatere sæsonperiode.";
+            SetError(res.Message ?? "Could not update season span.");
         }
 
         return RedirectToAction(nameof(Details), new { id = groupId });
@@ -174,9 +179,14 @@ public class HouseGroupsController(AdminApiClient api) : Controller
     public async Task<IActionResult> DeleteSeasonSpan(Guid groupId, Guid spanId, CancellationToken ct = default)
     {
         var res = await api.DeleteSeasonSpanAsync(groupId, spanId, ct);
-        TempData[res.Ok ? "Ok" : "Err"] = res.Ok
-            ? "Sæsonperiode slettet."
-            : res.Message ?? "Kunne ikke slette sæsonperiode.";
+        if (res.Ok)
+        {
+            SetSuccess("Season span deleted.");
+        }
+        else
+        {
+            SetError(res.Message ?? "Could not delete season span.");
+        }
 
         return RedirectToAction(nameof(Details), new { id = groupId });
     }

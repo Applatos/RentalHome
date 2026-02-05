@@ -163,31 +163,62 @@ Api/
 ```
 Mvc/
 ├── Controllers/
-│   ├── Admin/            # Admin dashboard (split by domain)
-│   │   ├── HousesController.cs   # House CRUD + pricing
-│   │   ├── AreasController.cs    # Area management
-│   │   └── FeaturesController.cs # Feature definitions
-│   ├── Public/           # Public pages
+│   ├── Admin/                    # Admin dashboard
+│   │   ├── AdminControllerBase.cs    # Shared helpers (SetSuccess, SetError, etc.)
+│   │   ├── HousesController.cs       # House CRUD (Index, Details, Create, Edit, Delete)
+│   │   ├── HousePricingController.cs # House pricing + calendar
+│   │   ├── AreasController.cs        # Area CRUD
+│   │   ├── FeaturesController.cs     # Feature CRUD
+│   │   ├── HouseGroupsController.cs  # House group CRUD
+│   │   └── PricingController.cs      # Season codes management
+│   ├── Public/                   # Public pages
 │   │   ├── HousesController.cs
 │   │   └── AreasController.cs
 │   └── AccountController.cs
 ├── ViewModels/
-│   └── Admin/            # Extracted view models
-│       ├── HouseViewModels.cs
-│       ├── AreaViewModels.cs
+│   └── Admin/                    # Typed ViewModels (never raw DTOs in views)
+│       ├── Houses/
+│       │   ├── HouseListVm.cs
+│       │   ├── HouseDetailsVm.cs
+│       │   └── HouseCreateVm.cs
+│       ├── Areas/
+│       │   └── AreaViewModels.cs
 │       └── PricingViewModels.cs
 ├── Extensions/
 │   └── SelectListExtensions.cs
 ├── Views/
-│   ├── Admin/            # Admin views
-│   ├── Houses/           # House listing/details
-│   └── Shared/           # Layouts, partials
+│   ├── Admin/
+│   │   ├── Houses/               # House views (folder per entity)
+│   │   │   ├── Index.cshtml
+│   │   │   ├── Details.cshtml
+│   │   │   └── _Tab*.cshtml
+│   │   ├── Areas/
+│   │   ├── Features/
+│   │   ├── HouseGroups/
+│   │   └── Shared/
+│   │       ├── _FlashMessages.cshtml
+│   │       └── _Pagination.cshtml
+│   ├── Houses/                   # Public house views
+│   └── Shared/                   # Layouts
 ├── Services/
-│   ├── AdminApiClient.cs     # Typed HTTP client for admin API
-│   ├── SommerhusApi.cs       # Public API client
+│   ├── AdminApiClient.cs         # Typed HTTP client for admin API
+│   ├── SommerhusApi.cs           # Public API client
 │   └── AdminApiAuthHandler.cs
 └── Program.cs
 ```
+
+**MVC Admin Conventions**:
+
+| Convention        | Pattern                                        |
+| ----------------- | ---------------------------------------------- |
+| Controller naming | `{Entity}Controller`                           |
+| Action names      | `Index`, `Details`, `Create`, `Edit`, `Delete` |
+| Route pattern     | `/admin/{entity}`, `/admin/{entity}/{id}`      |
+| ViewModels        | Always typed, never raw DTOs                   |
+| ViewBag           | Never used (all data in ViewModel)             |
+| Flash messages    | `SetSuccess()`, `SetError()` helpers           |
+| View folders      | `Views/Admin/{Entity}/`                        |
+| Partials          | `_Tab{Name}.cshtml`, `_FlashMessages.cshtml`   |
 
 **Authentication**:
 

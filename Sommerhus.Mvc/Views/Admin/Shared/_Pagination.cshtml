@@ -1,0 +1,24 @@
+@model (int Page, int TotalPages, int PageSize, string? Query, string ActionName, string ControllerName)
+@{
+    var prevDisabled = Model.Page <= 1 ? "disabled" : null;
+    var nextDisabled = Model.Page >= Model.TotalPages ? "disabled" : null;
+}
+<nav class="d-flex justify-content-between align-items-center mt-3">
+    <a class="btn btn-outline-secondary @prevDisabled"
+       asp-action="@Model.ActionName"
+       asp-controller="@Model.ControllerName"
+       asp-route-q="@Model.Query"
+       asp-route-page="@(Model.Page - 1)"
+       asp-route-pageSize="@Model.PageSize">
+        ◂ Previous
+    </a>
+    <span class="text-muted">Page @Model.Page of @Math.Max(1, Model.TotalPages)</span>
+    <a class="btn btn-outline-secondary @nextDisabled"
+       asp-action="@Model.ActionName"
+       asp-controller="@Model.ControllerName"
+       asp-route-q="@Model.Query"
+       asp-route-page="@(Model.Page + 1)"
+       asp-route-pageSize="@Model.PageSize">
+        Next ▸
+    </a>
+</nav>

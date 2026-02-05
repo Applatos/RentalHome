@@ -294,6 +294,106 @@ public record UpsertHouseDto(
 | #14 Admin Password              | Security | -     | Documented      |
 | #15 Test Coverage               | High     | 8     | Pending         |
 | #17 Architecture Simplification | High     | 2.5   | **In Progress** |
+| #18 MVC Frontend Inconsistency  | High     | 2.6   | **In Progress** |
+
+---
+
+## Phase 2.6: MVC Admin Frontend Standardization (NEW)
+
+This phase addresses inconsistent patterns across the admin frontend discovered during architecture review.
+
+### Problems Identified
+
+1. **Controller File/Class Mismatch**: `HousesController.cs` contains class `AdminController`
+2. **God Controller**: `AdminController` is 728 lines handling houses, pricing, features, calendar, season codes
+3. **Inconsistent Action Names**: Mix of `Houses()`/`Index()`, `House()`/`Details()`
+4. **Excessive ViewBag Usage**: 7+ ViewBag properties instead of typed ViewModels
+5. **Inconsistent View Paths**: Some hardcoded (`~/Views/Admin/Areas.cshtml`), some implicit
+6. **Mixed Languages**: Danish/English error messages
+7. **Inconsistent View Naming**: `House._images.cshtml` vs `House._Overview.cshtml`
+8. **No Shared Partials**: Flash messages duplicated across all views
+
+### Solution: Unified Admin MVC Pattern
+
+#### Controller Convention
+
+- One controller per entity: `{Entity}Controller`
+- Standard actions: `Index`, `Details`, `Create`, `Edit`, `Delete`
+- Sub-resources get separate controllers: `HouseImagesController`, `HousePricingController`
+
+#### ViewModel Convention
+
+- Every view gets a typed ViewModel (never raw DTOs)
+- ViewModels include all dropdown data, tab state, flash messages
+- Zero ViewBag usage
+
+#### View Convention
+
+- Folder per entity: `Views/Admin/Houses/`, `Views/Admin/Areas/`
+- Consistent partial naming: `_Tab{Name}.cshtml`
+- Shared partials: `_FlashMessages.cshtml`, `_Pagination.cshtml`
+
+### Implementation Steps
+
+1. ✅ Document changes in KNOWN_ISSUES.md
+2. Create `AdminControllerBase` with shared helpers
+3. Rename `AdminController` → `HousesController` (fix class/file mismatch)
+4. Extract pricing/calendar into `HousePricingController`
+5. Create typed ViewModels for all admin views
+6. Standardize action names across all controllers
+7. Create shared partials
+8. Reorganize view folder structure
+9. Standardize all messages to English
+10. Update ARCHITECTURE.md
+
+### New MVC Structure (After)
+
+```
+Controllers/Admin/
+├── AdminControllerBase.cs       # Shared helpers
+├── HousesController.cs          # House CRUD (Index, Details, Create, Edit, Delete)
+├── HousePricingController.cs    # House pricing + calendar
+├── AreasController.cs           # Area CRUD (standardized actions)
+├── FeaturesController.cs        # Feature CRUD
+├── HouseGroupsController.cs     # House group CRUD
+└── PricingController.cs         # Season codes management
+
+ViewModels/Admin/
+├── Houses/
+│   ├── HouseListVm.cs
+│   ├── HouseDetailsVm.cs
+│   └── HouseCreateVm.cs
+├── Areas/
+│   ├── AreaListVm.cs
+│   └── AreaDetailsVm.cs
+├── Features/
+│   └── FeatureListVm.cs
+└── HouseGroups/
+    └── HouseGroupListVm.cs
+
+Views/Admin/
+├── Houses/
+│   ├── Index.cshtml
+│   ├── Details.cshtml
+│   ├── Create.cshtml
+│   ├── _TabOverview.cshtml
+│   ├── _TabImages.cshtml
+│   ├── _TabFeatures.cshtml
+│   ├── _TabPricing.cshtml
+│   └── _TabCalendar.cshtml
+├── Areas/
+│   ├── Index.cshtml
+│   ├── Details.cshtml
+│   ├── Create.cshtml
+│   └── Edit.cshtml
+├── Features/
+│   └── Index.cshtml
+├── HouseGroups/
+│   └── (existing structure OK)
+└── Shared/
+    ├── _FlashMessages.cshtml
+    └── _Pagination.cshtml
+```
 
 ---
 
