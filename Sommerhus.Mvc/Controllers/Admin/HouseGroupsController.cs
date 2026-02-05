@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Admin.HouseGroups;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -23,7 +24,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
     }
 
     [HttpGet("/admin/house-groups/{id:guid}")]
-    public async Task<IActionResult> Details(Guid id, CancellationToken ct = default)
+    public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         SetAdminTab("house-groups");
         
@@ -39,7 +40,12 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
             ? seasonCodesRes.Data 
             : Array.Empty<SeasonCodeDto>();
 
-        var vm = new HouseGroupDetailsVm(groupRes.Data, seasonCodes);
+        var vm = new HouseGroupDetailsVm
+        {
+            Group = groupRes.Data,
+            SeasonCodes = seasonCodes,
+            Tab = tab
+        };
 
         return View("~/Views/Admin/HouseGroups/Details.cshtml", vm);
     }
@@ -151,7 +157,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
         if (!ModelState.IsValid)
         {
             SetError("Invalid season span data.");
-            return RedirectToAction(nameof(Details), new { id = groupId });
+            return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
         }
 
         var res = await api.AddSeasonSpanAsync(groupId, dto, ct);
@@ -164,7 +170,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
             SetError(res.Message ?? "Could not add season span.");
         }
 
-        return RedirectToAction(nameof(Details), new { id = groupId });
+        return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
     }
 
     [HttpPost("/admin/house-groups/{groupId:guid}/calendar/{spanId:guid}")]
@@ -174,7 +180,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
         if (!ModelState.IsValid)
         {
             SetError("Invalid season span data.");
-            return RedirectToAction(nameof(Details), new { id = groupId });
+            return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
         }
 
         var res = await api.UpdateSeasonSpanAsync(groupId, spanId, dto, ct);
@@ -187,7 +193,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
             SetError(res.Message ?? "Could not update season span.");
         }
 
-        return RedirectToAction(nameof(Details), new { id = groupId });
+        return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
     }
 
     [HttpPost("/admin/house-groups/{groupId:guid}/calendar/{spanId:guid}/delete")]
@@ -204,11 +210,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
             SetError(res.Message ?? "Could not delete season span.");
         }
 
-        return RedirectToAction(nameof(Details), new { id = groupId });
+        return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
     }
 }
 
-public record HouseGroupDetailsVm(
-    HouseGroupDto Group,
-    IReadOnlyList<SeasonCodeDto> SeasonCodes
-);

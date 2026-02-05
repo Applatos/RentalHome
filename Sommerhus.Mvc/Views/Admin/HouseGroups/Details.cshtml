@@ -1,9 +1,9 @@
 @using Sommerhus.Core.Dtos.Shared
 @using Sommerhus.Mvc.Controllers.Admin
+@using Sommerhus.Mvc.ViewModels.Admin.HouseGroups
 @model HouseGroupDetailsVm
 @{
     ViewData["Title"] = $"Admin - {Model.Group.Name}";
-    var tab = (string)(ViewBag.Tab ?? "overview");
 }
 
 <section class="container my-3">
@@ -25,17 +25,17 @@
 
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link @(tab == "overview" ? "active" : "")"
+            <a class="nav-link @(Model.Tab == "overview" ? "active" : "")"
                href="@Url.Action("Details", new { id = Model.Group.Id, tab = "overview" })">Oversigt</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(tab == "calendar" ? "active" : "")"
+            <a class="nav-link @(Model.Tab == "calendar" ? "active" : "")"
                href="@Url.Action("Details", new { id = Model.Group.Id, tab = "calendar" })">Sæsonkalender</a>
         </li> 
     </ul>
 
     <div class="border-start border-end border-bottom p-3 rounded-bottom">
-        @if (tab == "calendar")
+        @if (Model.Tab == "calendar")
         {
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5>Sæsonkalender</h5>
