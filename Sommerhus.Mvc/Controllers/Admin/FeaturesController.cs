@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Admin.Features;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -18,9 +19,9 @@ public sealed class FeaturesController : AdminControllerBase
         if (!res.Ok)
         {
             SetError(res.Message ?? "Could not load features.");
-            return View("~/Views/Admin/Features.cshtml", Array.Empty<FeatureDto>());
+            return View("~/Views/Admin/Features/Index.cshtml", new FeatureListVm { Features = [] });
         }
-        return View("~/Views/Admin/Features.cshtml", res.Data);
+        return View("~/Views/Admin/Features/Index.cshtml", new FeatureListVm { Features = res.Data ?? [] });
     }
 
     [HttpPost("/admin/features")]

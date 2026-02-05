@@ -1,0 +1,43 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Areas
+@model AreaDetailsVm
+
+<section class="container my-3">
+    @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
+
+    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">← Back</a>
+    <partial name="~/Views/Admin/Shared/_FlashMessages.cshtml" />
+
+    <h3 class="mb-3">@Model.Area.Name</h3>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link @(Model.Tab == "overview" ? "active" : string.Empty)" 
+                asp-controller="Areas"
+                asp-action="Details" 
+                asp-route-id="@Model.Area.Id"
+                asp-route-tab="overview">
+                Overview
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.Tab == "images" ? "active" : string.Empty)"
+                asp-controller="Areas"
+                asp-action="Details"
+                asp-route-id="@Model.Area.Id"
+                asp-route-tab="images">
+                Images
+            </a>
+        </li>
+    </ul>
+
+    <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (Model.Tab == "images")
+        {
+            <partial name="~/Views/Admin/Areas/_TabImages.cshtml" model="Model" />
+        }
+        else
+        {
+            <partial name="~/Views/Admin/Areas/_TabOverview.cshtml" model="Model" />
+        }
+    </div>
+</section>

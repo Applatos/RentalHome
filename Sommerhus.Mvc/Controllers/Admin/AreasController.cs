@@ -4,7 +4,7 @@ using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
-using Sommerhus.Mvc.ViewModels.Admin;
+using Sommerhus.Mvc.ViewModels.Admin.Areas;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -23,10 +23,10 @@ public sealed class AreasController : AdminControllerBase
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Could not load areas.");
-            return View("~/Views/Admin/Areas.cshtml", Array.Empty<AreaListItemDto>());
+            return View("~/Views/Admin/Areas/Index.cshtml", new AreaListVm { Areas = [] });
         }
 
-        return View("~/Views/Admin/Areas.cshtml", res.Data);
+        return View("~/Views/Admin/Areas/Index.cshtml", new AreaListVm { Areas = res.Data });
     }
 
     [HttpGet("/admin/areas/{id:guid}")]
@@ -55,9 +55,12 @@ public sealed class AreasController : AdminControllerBase
             }
         }
 
-        ViewBag.AreaImages = galleryImages;
-        ViewBag.Tab = tab;
-        return View("~/Views/Admin/Area.cshtml", res.Data);
+        return View("~/Views/Admin/Areas/Details.cshtml", new AreaDetailsVm
+        {
+            Area = res.Data,
+            GalleryImages = galleryImages,
+            Tab = tab
+        });
     }
 
     [HttpGet("/admin/areas/new")]
@@ -65,7 +68,7 @@ public sealed class AreasController : AdminControllerBase
     {
         SetAdminTab("areas");
         var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
-        return View("~/Views/Admin/EditArea.cshtml", vm);
+        return View("~/Views/Admin/Areas/Edit.cshtml", vm);
     }
 
     [HttpPost("/admin/areas")]
@@ -80,7 +83,7 @@ public sealed class AreasController : AdminControllerBase
             SetError(res.Message ?? "Could not create area.");
             SetAdminTab("areas");
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
+            return View("~/Views/Admin/Areas/Edit.cshtml", rebuiltVm);
         }
 
         SetSuccess("Area created.");
@@ -99,7 +102,7 @@ public sealed class AreasController : AdminControllerBase
             SetError(res.Message ?? "Could not update area.");
             SetAdminTab("areas");
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
+            return View("~/Views/Admin/Areas/Edit.cshtml", rebuiltVm);
         }
 
         SetSuccess("Area updated.");
@@ -119,7 +122,7 @@ public sealed class AreasController : AdminControllerBase
 
         var dto = res.Data;
         var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds, dto.Name, dto.Description, ct);
-        return View("~/Views/Admin/EditArea.cshtml", vm);
+        return View("~/Views/Admin/Areas/Edit.cshtml", vm);
     }
 
     [HttpPost("/admin/areas/{id:guid}/delete")]

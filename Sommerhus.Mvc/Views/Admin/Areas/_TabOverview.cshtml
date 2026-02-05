@@ -1,0 +1,36 @@
+@using Sommerhus.Mvc.ViewModels.Admin.Areas
+@model AreaDetailsVm
+
+<dl class="row small">
+    <dt class="col-sm-2">Cities</dt>
+    <dd class="col-sm-10">
+        @if (Model.Area.Cities?.Any() == true)
+        {
+            <span>@string.Join(", ", Model.Area.Cities.Select(c => c.Label))</span>
+        }
+        else
+        {
+            <span class="text-muted">—</span>
+        }
+    </dd>
+</dl>
+
+@if (!string.IsNullOrWhiteSpace(Model.Area.Description))
+{
+    <div class="mb-3">@Html.Raw(Model.Area.Description)</div>
+}
+
+@if (Model.Area.Houses?.Any() == true)
+{
+    <h5>Houses in this area</h5>
+    <ul>
+        @foreach (var house in Model.Area.Houses)
+        {
+            <li>@house.Title</li>
+        }
+    </ul>
+}
+
+<div class="mt-3">
+    <a class="btn btn-outline-primary" asp-controller="Areas" asp-action="Edit" asp-route-id="@Model.Area.Id">Edit Area</a>
+</div>

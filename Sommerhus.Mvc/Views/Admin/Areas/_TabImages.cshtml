@@ -1,48 +1,44 @@
-@using Sommerhus.Mvc.Controllers.Admin
-@using Sommerhus.Mvc.Services
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
-@model AreaGalleryVm
+@model AreaDetailsVm
 
 <div class="mb-3">
     <form asp-controller="Areas"
           asp-action="UploadImage"
-          asp-route-id="@Model.AreaId"
-          asp-route-redirectTo="@Model.RedirectTo"
+          asp-route-id="@Model.Area.Id"
+          asp-route-redirectTo=""
           method="post"
           enctype="multipart/form-data">     
         @Html.AntiForgeryToken()
-            
-
 
         <div class="input-group">
             <input type="file" name="file" class="form-control" accept="image/*" />
             <button type="submit" class="btn btn-outline-primary">Upload</button>
         </div>
-        <small class="text-muted d-block mt-1">Upload ét billede ad gangen til områdets galleri.</small>
+        <small class="text-muted d-block mt-1">Upload one image at a time to the area gallery.</small>
     </form>
 </div>
 
-@if (Model.Images is null || Model.Images.Count == 0)
+@if (Model.GalleryImages.Count == 0)
 {
-    <div class="alert alert-info">Ingen billeder endnu.</div>
+    <div class="alert alert-info">No images yet.</div>
 }
 else
 {
     <div class="d-flex flex-wrap gap-3">
-        @foreach (var img in Model.Images)
+        @foreach (var img in Model.GalleryImages)
         {
             <div class="border rounded p-2" style="width: 210px">
                 <img src="@img.Url" alt="" class="img-fluid" />
                 <div class="mt-2 d-flex flex-wrap gap-2">
                     <form asp-controller="Areas"
                           asp-action="DeleteImage"
-                          asp-route-id="@Model.AreaId"
+                          asp-route-id="@Model.Area.Id"
                           asp-route-imageId="@img.Id"
-                          asp-route-redirectTo="@Model.RedirectTo"
+                          asp-route-redirectTo=""
                           method="post"
-                          onsubmit="return confirm('Slet billede?');">
+                          onsubmit="return confirm('Delete image?');">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
                 </div>
             </div>
