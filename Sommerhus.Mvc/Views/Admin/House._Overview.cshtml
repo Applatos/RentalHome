@@ -8,7 +8,7 @@
     var houseGroups = ViewBag.HouseGroups as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
 
-<form method="post" asp-controller="Admin" asp-action="Edit" asp-route-id="@Model.Id" class="row g-3">
+<form method="post" asp-controller="Houses" asp-action="Edit" asp-route-id="@Model.Id" class="row g-3">
 
     @Html.AntiForgeryToken()
     <div class="col-md-8">
@@ -53,7 +53,7 @@
 
     <div class="col-12 d-flex gap-2">
         <button class="btn btn-primary">Gem</button>
-        <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Houses">Til liste</a>
+        <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Houses">Til liste</a>
     </div>
 </form>
 

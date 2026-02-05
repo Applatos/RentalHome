@@ -13,7 +13,7 @@
 @if (!string.IsNullOrWhiteSpace(featuresError)) { <div class="alert alert-warning">@featuresError</div> }
 
 
-<form method="post" asp-controller="Admin" asp-action="SaveHouseFeatures"  asp-route-id="@Model.Id" class="mt-2">
+<form method="post" asp-controller="Houses" asp-action="SaveHouseFeatures"  asp-route-id="@Model.Id" class="mt-2">
     @Html.AntiForgeryToken() 
 
     <div class="row">

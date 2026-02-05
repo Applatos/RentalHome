@@ -51,7 +51,7 @@
                 </button>
             </div>
 
-            @if (Model.Group.Calendar.Count == 0)
+            @if ((Model.Group.Calendar?.Count ?? 0) == 0)
             {
                 <div class="text-center py-5">
                     <h6 class="text-muted">Ingen sæsonperioder defineret</h6>
@@ -133,7 +133,7 @@
                         <dt class="col-sm-4">ID:</dt>
                         <dd class="col-sm-8"><code>@Model.Group.Id</code></dd>
                         <dt class="col-sm-4">Sæsonperioder:</dt>
-                        <dd class="col-sm-8">@Model.Group.Calendar.Count</dd>
+                        <dd class="col-sm-8">@(Model.Group.Calendar?.Count ?? 0)</dd>
                     </dl>
                 </div>
                 <div class="col-md-6">

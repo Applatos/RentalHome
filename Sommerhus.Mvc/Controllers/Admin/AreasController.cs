@@ -10,14 +10,13 @@ using Sommerhus.Mvc.ViewModels.Admin;
 namespace Sommerhus.Mvc.Controllers.Admin;
 
 [Authorize]
-[Route("admin/areas")]
 public sealed class AreasController : Controller
 {
     private readonly AdminApiClient _api;
 
     public AreasController(AdminApiClient api) => _api = api;
 
-    [HttpGet("")]
+    [HttpGet("/admin/areas")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
         var res = await _api.GetAreasAsync(ct);
@@ -32,7 +31,7 @@ public sealed class AreasController : Controller
         return View("~/Views/Admin/Areas.cshtml", res.Data);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("/admin/areas/{id:guid}")]
     public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         ViewData["AdminTab"] = "areas";
@@ -63,7 +62,7 @@ public sealed class AreasController : Controller
         return View("~/Views/Admin/Area.cshtml", res.Data);
     }
 
-    [HttpGet("new")]
+    [HttpGet("/admin/areas/new")]
     public async Task<IActionResult> Create(CancellationToken ct = default)
     {
         var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
@@ -71,14 +70,14 @@ public sealed class AreasController : Controller
         return View("~/Views/Admin/EditArea.cshtml", vm);
     }
 
-    [HttpPost("")]
+    [HttpPost("/admin/areas")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
         var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
         var res = await _api.CreateAreaAsync(dto, ct);
 
-        if (!res.Ok && res.Data is not null)
+        if (!res.Ok)
         {
             TempData["Err"] = res.Message ?? "Could not create area.";
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
@@ -90,7 +89,7 @@ public sealed class AreasController : Controller
         return RedirectToAction(nameof(Details), new { id = res.Data.Id });
     }
 
-    [HttpPost("{id:guid}")]
+    [HttpPost("/admin/areas/{id:guid}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
@@ -110,7 +109,7 @@ public sealed class AreasController : Controller
 
     }
 
-    [HttpGet("{id:guid}/edit")]
+    [HttpGet("/admin/areas/{id:guid}/edit")]
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
     {
         var res = await _api.GetAreaAsync(id, ct);
@@ -128,7 +127,7 @@ public sealed class AreasController : Controller
 
 
 
-    [HttpPost("{id:guid}/delete")]
+    [HttpPost("/admin/areas/{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
@@ -140,7 +139,7 @@ public sealed class AreasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost("{id:guid}/images")]
+    [HttpPost("/admin/areas/{id:guid}/images")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadImage(Guid id, IFormFile? file, string? redirectTo, CancellationToken ct = default)
     {
@@ -169,7 +168,7 @@ public sealed class AreasController : Controller
         return RedirectAfterImageChange(id, redirectTo);
     }
 
-    [HttpPost("{id:guid}/images/delete")]
+    [HttpPost("/admin/areas/{id:guid}/images/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteImage(Guid id, Guid imageId, string? redirectTo, CancellationToken ct = default)
     {

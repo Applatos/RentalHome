@@ -30,7 +30,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Grupper bruges til at dele sæsonkalendere mellem flere huse.</p>
-                    <form method="post" asp-action="CreateHouseGroup" asp-controller="Admin">
+                    <form method="post" asp-action="CreateHouseGroup" asp-controller="Houses">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="mb-3">
@@ -76,7 +76,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Sæsonkoder definerer farve og navn på de perioder der bruges i prisplaner.</p>
-                    <form method="post" asp-action="CreateSeasonCode" asp-controller="Admin">
+                    <form method="post" asp-action="CreateSeasonCode" asp-controller="Houses">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
