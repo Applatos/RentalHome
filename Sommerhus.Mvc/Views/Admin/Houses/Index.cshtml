@@ -5,8 +5,8 @@
     var totalPages = (int)Math.Ceiling((double)Model.Houses.Total / Math.Max(1, Model.Houses.PageSize));
 }
 <section class="container my-3">
-    @await Html.PartialAsync("_AdminTabs")
-    @await Html.PartialAsync("Shared/_FlashMessages")
+    @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
+    @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
 
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="mb-0">Houses</h2>
@@ -69,5 +69,5 @@
         </tbody>
     </table>
 
-    @await Html.PartialAsync("Shared/_Pagination", (Model.Houses.Page, totalPages, Model.Houses.PageSize, Model.SearchQuery, "Index", "Houses"))
+    @await Html.PartialAsync("~/Views/Admin/Shared/_Pagination.cshtml", (Model.Houses.Page, totalPages, Model.Houses.PageSize, Model.SearchQuery, "Index", "Houses"))
 </section>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -56,12 +57,62 @@ internal static class ApiHttp
             }
         }
 
+
+        // Handle validation/problem payloads robustly (ValidationProblemDetails, ProblemDetails, or raw dictionary)
         if (response.StatusCode == HttpStatusCode.BadRequest || (int)response.StatusCode == 422)
         {
-            var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>(cancellationToken: ct);
-            return ApiResponse<T?>.Validation(errors, response.StatusCode);
-        }
+            // Try ValidationProblemDetails first (has .Errors)
+            try
+            {
+                var validation = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken: ct);
+                if (validation is not null && validation.Errors is not null && validation.Errors.Count > 0)
+                {
+                    // copy to IReadOnlyDictionary<string,string[]>
+                    return ApiResponse<T?>.Validation((IReadOnlyDictionary<string, string[]>?)validation.Errors, response.StatusCode);
+                }
 
+                // If there are no 'errors' property, fall through to try other shapes
+            }
+            catch
+            {
+                // ignore and try other formats
+            }
+
+            // Try plain dictionary format { field: ["msg"] }
+            try
+            {
+                var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>(cancellationToken: ct);
+                if (errors is not null)
+                {
+                    return ApiResponse<T?>.Validation(errors, response.StatusCode);
+                }
+            }
+            catch
+            {
+                // ignore and try ProblemDetails
+            }
+
+            // Try ProblemDetails (has title/detail)
+            try
+            {
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: ct);
+                if (problem is not null)
+                {
+                    var msg = !string.IsNullOrWhiteSpace(problem.Title) ? problem.Title
+                            : !string.IsNullOrWhiteSpace(problem.Detail) ? problem.Detail
+                            : response.ReasonPhrase ?? "Bad request";
+                    return ApiResponse<T?>.Failure(msg, response.StatusCode);
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            // Fallback: raw text
+            var text = await response.Content.ReadAsStringAsync(ct);
+            return ApiResponse<T?>.Failure(string.IsNullOrWhiteSpace(text) ? response.ReasonPhrase ?? "Bad request" : text, response.StatusCode);
+        }
         var message = await response.Content.ReadAsStringAsync(ct);
         return ApiResponse<T?>.Failure(string.IsNullOrWhiteSpace(message) ? response.ReasonPhrase ?? "Request failed" : message, response.StatusCode);
     }

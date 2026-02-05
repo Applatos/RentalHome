@@ -4,7 +4,7 @@
 <section class="container my-3">
     @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
 
-    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">← Back</a>
+    <a class="btn btn-link" asp-controller="Areas" asp-action="Index"> Back</a>
     <partial name="~/Views/Admin/Shared/_FlashMessages.cshtml" />
 
     <h3 class="mb-3">@(Model.IsNew ? "Create Area" : $"Edit: {Model.Name}")</h3>

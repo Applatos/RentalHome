@@ -1,24 +1,16 @@
-@using System.Linq
+﻿@using System.Linq
 @using Sommerhus.Core.Dtos.Shared
 @using Sommerhus.Mvc.Controllers.Admin
-
-
 @model PricingAdminVm
+
 @{
     ViewData["Title"] = "Admin - Priser";
 }
 
 <section class="container my-3">
-    @await Html.PartialAsync("_AdminTabs")
 
-    @if (TempData["Ok"] is string ok)
-    {
-        <div class="alert alert-success">@ok</div>
-    }
-    @if (TempData["Err"] is string err)
-    {
-        <div class="alert alert-danger">@err</div>
-    }
+    @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
+    @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
 
     <h2 class="mb-4">Prisopsætning</h2>
 
@@ -26,57 +18,11 @@
         <div class="col-lg-6">
             <div class="card h-100">
                 <div class="card-header bg-body-secondary">
-                    <strong>Husgrupper</strong>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">Grupper bruges til at dele sæsonkalendere mellem flere huse.</p>
-                    <form method="post" asp-action="CreateHouseGroup" asp-controller="Houses">
-                        @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="mb-3">
-                            <label asp-for="GroupForm.Name" class="form-label">Gruppenavn</label>
-                            <input asp-for="GroupForm.Name" class="form-control" placeholder="fx. Vestkysten" />
-                            <span asp-validation-for="GroupForm.Name" class="text-danger"></span>
-                        </div>
-                        <button class="btn btn-primary">Opret gruppe</button>
-                    </form>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.GroupError))
-                    {
-                        <div class="alert alert-warning mt-3">@Model.GroupError</div>
-                    }
-
-                    <hr />
-
-                    <h6 class="text-uppercase text-muted">Eksisterende grupper</h6>
-                    @if (Model.Groups.Count == 0)
-                    {
-                        <p class="text-muted">Ingen grupper oprettet endnu.</p>
-                    }
-                    else
-                    {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var group in Model.Groups)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>@group.Label</span>
-                                    <code class="text-muted small">@group.Id</code>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header bg-body-secondary">
                     <strong>Sæsonkoder</strong>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Sæsonkoder definerer farve og navn på de perioder der bruges i prisplaner.</p>
-                    <form method="post" asp-action="CreateSeasonCode" asp-controller="Houses">
+                    <form method="post" asp-action="CreateSeasonCode" asp-controller="Prices">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">

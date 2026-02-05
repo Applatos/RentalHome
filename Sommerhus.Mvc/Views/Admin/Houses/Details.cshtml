@@ -5,7 +5,7 @@
 }
 
 <section class="container my-3">
-    @await Html.PartialAsync("Shared/_FlashMessages")
+    @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
 
     <div class="d-flex justify-content-between">
         <h2 class="mb-2">@Model.House.Name</h2>
@@ -38,23 +38,23 @@
     <div class="border-start border-end border-bottom p-3 rounded-bottom">
         @if (Model.ActiveTab == "overview")
         {
-            @await Html.PartialAsync("_TabOverview", Model)
+            @await Html.PartialAsync("_TabOverview.cshtml", Model)
         }
         else if (Model.ActiveTab == "images")
         {
-            @await Html.PartialAsync("_TabImages", Model)
+            @await Html.PartialAsync("_TabImages.cshtml", Model)
         }
         else if (Model.ActiveTab == "features")
         {
-            @await Html.PartialAsync("_TabFeatures", Model)
+            @await Html.PartialAsync("_TabFeatures.cshtml", Model)
         }
         else if (Model.ActiveTab == "pricing")
         {
-            @await Html.PartialAsync("_TabPricing", Model)
+            @await Html.PartialAsync("_TabPricing.cshtml", Model)
         }
         else if (Model.ActiveTab == "calendar")
         {
-            @await Html.PartialAsync("_TabCalendar", Model)
+            @await Html.PartialAsync("_TabCalendar.cshtml", Model)
         }
     </div>
 </section>

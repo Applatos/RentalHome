@@ -45,7 +45,7 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
     }
 
     [HttpGet("/admin/house-groups/new")]
-    public IActionResult Create()
+    public IActionResult New()
     {
         SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Create.cshtml", new UpsertHouseGroupDto());
@@ -111,6 +111,9 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
         return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
     }
 
+
+
+
     [HttpPost("/admin/house-groups/{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
@@ -127,6 +130,19 @@ public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
 
         return RedirectToAction(nameof(Index));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     [HttpPost("/admin/house-groups/{groupId:guid}/calendar")]
     [ValidateAntiForgeryToken]

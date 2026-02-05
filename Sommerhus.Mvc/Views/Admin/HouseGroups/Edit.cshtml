@@ -5,7 +5,7 @@
 }
 
 <section class="container my-3">
-    @await Html.PartialAsync("_AdminTabs")
+    @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Rediger husgruppe</h2>
@@ -18,11 +18,14 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <form method="post">
+                    <form 
+                        asp-action="Update"
+                        asp-route-id="@(ViewContext.RouteData.Values["id"])"
+                        method="post">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                        <div class="mb-3">
+                        <div  class="mb-3">
                             <label asp-for="Name" class="form-label">Gruppenavn *</label>
                             <input asp-for="Name" class="form-control" placeholder="fx. Vestkysten, Sommerland, etc." />
                             <span asp-validation-for="Name" class="text-danger"></span>

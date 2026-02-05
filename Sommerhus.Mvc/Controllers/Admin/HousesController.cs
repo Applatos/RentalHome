@@ -503,96 +503,6 @@ public sealed class HousesController : AdminControllerBase
         return RedirectToAction(nameof(Details), new { id = houseId, tab = "pricing" });
     }
 
-
-    [HttpGet("/admin/pricing")]
-    public async Task<IActionResult> Pricing(CancellationToken ct = default)
-    {
-        SetAdminTab("pricing");
-        var vm = await BuildPricingVmAsync(null, null, ct);
-        return View(vm);
-    }
-
-    [HttpPost("/admin/pricing/groups")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateHouseGroup([FromForm][Bind(Prefix = "GroupForm")] CreateHouseGroupForm form, CancellationToken ct = default)
-    {
-        SetAdminTab("pricing");
-
-        if (!ModelState.IsValid)
-        {
-            var invalidVm = await BuildPricingVmAsync(form, null, ct);
-            return View("Pricing", invalidVm);
-        }
-
-        var res = await _api.CreateHouseGroupAsync(new HouseGroupDto(Guid.NewGuid(), form.Name), ct);
-
-        if (res.Ok)
-        {
-            SetSuccess("Group created.");
-            return RedirectToAction(nameof(Pricing));
-        }
-
-        if (res.Errors is { Count: > 0 })
-        {
-            foreach (var (key, errors) in res.Errors)
-            {
-                var targetKey = string.IsNullOrWhiteSpace(key) ? "GroupForm.Name" : $"GroupForm.{key}";
-                foreach (var error in errors)
-                {
-                    ModelState.AddModelError(targetKey, error);
-                }
-            }
-        }
-        else
-        {
-            ModelState.AddModelError("GroupForm.Name", res.Message ?? "Could not create group.");
-        }
-
-        var vm = await BuildPricingVmAsync(form, null, ct);
-        return View("Pricing", vm);
-    }
-
-    [HttpPost("/admin/pricing/season-codes")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateSeasonCode([FromForm][Bind(Prefix = "SeasonCodeForm")] CreateSeasonCodeForm form, CancellationToken ct = default)
-    {
-        SetAdminTab("pricing");
-
-        if (!ModelState.IsValid)
-        {
-            var invalidVm = await BuildPricingVmAsync(null, form, ct);
-            return View("Pricing", invalidVm);
-        }
-
-        var dto = new SeasonCodeDto(form.Code, form.Label, form.Color, form.SortOrder);
-        var res = await _api.CreateSeasonCodeAsync(dto, ct);
-
-        if (res.Ok)
-        {
-            SetSuccess("Season code created.");
-            return RedirectToAction(nameof(Pricing));
-        }
-
-        if (res.Errors is { Count: > 0 })
-        {
-            foreach (var (key, errors) in res.Errors)
-            {
-                var targetKey = string.IsNullOrWhiteSpace(key) ? "SeasonCodeForm.Code" : $"SeasonCodeForm.{key}";
-                foreach (var error in errors)
-                {
-                    ModelState.AddModelError(targetKey, error);
-                }
-            }
-        }
-        else
-        {
-            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? "Could not create season code.");
-        }
-
-        var vm = await BuildPricingVmAsync(null, form, ct);
-        return View("Pricing", vm);
-    }
-
     [HttpPost("/admin/houses/{houseId:guid}/calendar")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddHouseSeasonSpan(Guid houseId, [FromForm] UpsertSeasonSpanDto dto, CancellationToken ct = default)
@@ -654,31 +564,5 @@ public sealed class HousesController : AdminControllerBase
         }
 
         return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
-    }
-
-    private async Task<PricingAdminVm> BuildPricingVmAsync(
-        CreateHouseGroupForm? groupForm,
-        CreateSeasonCodeForm? codeForm,
-        CancellationToken ct)
-    {
-        var groupsRes = await _api.GetHouseGroupsAsync(ct);
-        var seasonCodesRes = await _api.GetSeasonCodesAsync(ct);
-
-        var vm = new PricingAdminVm
-        {
-            Groups = groupsRes.Data ?? Array.Empty<LookupItem>(),
-            SeasonCodes = seasonCodesRes.Data ?? Array.Empty<SeasonCodeDto>(),
-            GroupForm = groupForm ?? new CreateHouseGroupForm(),
-            SeasonCodeForm = codeForm ?? new CreateSeasonCodeForm(),
-            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? "Could not load groups.",
-            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? "Could not load season codes."
-        };
-
-        if (codeForm is null && vm.SeasonCodes.Count > 0 && vm.SeasonCodeForm.SortOrder == 0)
-        {
-            vm.SeasonCodeForm.SortOrder = vm.SeasonCodes.Max(c => c.SortOrder) + 1;
-        }
-
-        return vm;
     }
 }
