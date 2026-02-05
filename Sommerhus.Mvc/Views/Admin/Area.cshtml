@@ -13,27 +13,31 @@
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
 
-    <a class="btn btn-link" asp-controller="Admin" asp-action="Areas">◂ Tilbage</a>
-    @if (TempData["Ok"] is string okMsg)
-    {
-        <div class="alert alert-success">@okMsg</div>
-    }
-
-    @if (TempData["Err"] is string errMsg)
-    {
-        <div class="alert alert-danger">@errMsg</div>
-    }
+    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">◂ Tilbage</a>
+    @if (TempData["Ok"] is string okMsg) { <div class="alert alert-success">@okMsg</div> }
+    @if (TempData["Err"] is string errMsg) { <div class="alert alert-danger">@errMsg</div> }
 
     <h3 class="mb-3">@Model.Name</h3>
 
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link @(tab == "overview" ? "active" : string.Empty)"
-               href="@Url.Action("Area", "Admin", new { id = Model.Id, tab = "overview" })">Oversigt</a>
+            <a class="nav-link @(tab == "overview" ? "active" : string.Empty)" 
+                asp-controller="Areas"
+                asp-action="Details" 
+                asp-route-id="@Model.Id"
+                asp-route-tab="overview">
+                overview
+            </a>
+
         </li>
         <li class="nav-item">
             <a class="nav-link @(tab == "images" ? "active" : string.Empty)"
-               href="@Url.Action("Area", "Admin", new { id = Model.Id, tab = "images" })">Billeder</a>
+                asp-controller="Areas"
+                asp-action="Images"
+                asp-route-id="@Model.Id"
+                asp-route-tab="images">
+                Billeder
+            </a>
         </li>
     </ul>
 

@@ -6,7 +6,7 @@
 <section class="container my-3">
     @await Html.PartialAsync("_AdminTabs")
 
-    <a class="btn btn-link" asp-controller="Admin" asp-action="Areas">◂ Tilbage</a>
+    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">◂ Tilbage</a>
 
 
     @if (TempData["Err"] is string errMsg){<div class="alert alert-danger">@errMsg</div>}
@@ -15,8 +15,8 @@
     <h3 class="mb-3">@(Model.IsNew ? "Opret area" : $"Rediger: {Model.Name}")</h3>
 
     <form method="post"
-          asp-controller="Admin"
-          asp-action="@(Model.IsNew ? "CreateArea" : "UpdateArea")"
+          asp-controller="Areas"
+          asp-action="@(Model.IsNew ? "Create" : "Update")"
           asp-route-id="@(Model.IsNew ? null : Model.Id)">
         @Html.AntiForgeryToken()
 
@@ -41,12 +41,12 @@
         {
             <hr class="my-4" />
             <h4>Billedgalleri</h4>
-            @await Html.PartialAsync("Area._Images", new AreaGalleryVm(areaId, Model.Images, "edit"))
+            @await Html.PartialAsync("~/Views/Admin/Area._Images.cshtml", new AreaGalleryVm(areaId, Model.Images, "edit"))
         }
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Opret" : "Gem ændringer")</button>
-            <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Areas">Annullér</a>
+            <a class="btn btn-outline-secondary" asp-controller="Areas" asp-action="Index">Annullér</a>
         </div>
     </form>
 </section>

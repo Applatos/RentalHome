@@ -14,7 +14,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Opret ny feature</h5>
-            <form method="post" asp-action="CreateFeature" asp-controller="Admin" class="row g-2">
+            <form method="post" asp-action="Create" asp-controller="Features" class="row g-2">
                 @Html.AntiForgeryToken()
                 <div class="col-md-3">
                     <label class="form-label">Navn *</label>
@@ -80,7 +80,7 @@
                         </div>
 
                         <!-- Drag&Drop / File picker -->
-                        <form method="post" asp-action="UploadFeatureIcon" asp-controller="Admin"
+                        <form method="post" asp-action="UploadIcon" asp-controller="Features"
                               asp-route-id="@f.Id" enctype="multipart/form-data" class="feature-upload-form">
                             @Html.AntiForgeryToken()
                             <input id="@inputId" type="file" name="file" class="d-none feature-file-input" accept="image/*" />
@@ -91,7 +91,7 @@
                     </div>
                 </td>
                 <td class="text-end">
-                    <form method="post" asp-action="DeleteFeature" asp-controller="Admin" asp-route-id="@f.Id">
+                        <form method="post" asp-action="Delete" asp-controller="Features" asp-route-id="@f.Id">
                         @Html.AntiForgeryToken()
                         <button class="btn btn-sm btn-outline-danger">Slet</button>
                     </form>

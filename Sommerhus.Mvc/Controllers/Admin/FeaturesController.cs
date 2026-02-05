@@ -22,7 +22,7 @@ public sealed class FeaturesController : Controller
             return View();
         }
         ViewData["AdminTab"] = "features";
-        return View(res.Data);
+        return View("~/Views/Admin/Features.cshtml",res.Data);
     }
 
     [HttpPost]

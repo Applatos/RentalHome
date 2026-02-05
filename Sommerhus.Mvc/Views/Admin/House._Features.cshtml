@@ -1,6 +1,4 @@
 @using Sommerhus.Core.Dtos.Shared
-@using Sommerhus.Core.Dtos.Shared
-
 @model Sommerhus.Core.Dtos.Shared.HouseDetailsDto
 
 @{
@@ -11,9 +9,7 @@
 
 
 @if (TempData["Ok"] is string okMsg) { <div class="alert alert-success">@okMsg</div> }
-
 @if (TempData["Err"] is string errMsg) { <div class="alert alert-danger">@errMsg</div> }
-
 @if (!string.IsNullOrWhiteSpace(featuresError)) { <div class="alert alert-warning">@featuresError</div> }
 
 

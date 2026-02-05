@@ -10,13 +10,14 @@ using Sommerhus.Mvc.ViewModels.Admin;
 namespace Sommerhus.Mvc.Controllers.Admin;
 
 [Authorize]
+[Route("admin/areas")]
 public sealed class AreasController : Controller
 {
     private readonly AdminApiClient _api;
 
     public AreasController(AdminApiClient api) => _api = api;
 
-    [HttpGet("/admin/areas")]
+    [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
         var res = await _api.GetAreasAsync(ct);
@@ -25,13 +26,13 @@ public sealed class AreasController : Controller
         if (!res.Ok || res.Data is null)
         {
             TempData["Err"] ??= res.Message ?? "Could not load areas.";
-            return View(Array.Empty<AreaListItemDto>());
+            return View("~/Views/Admin/Areas.cshtml", Array.Empty<AreaListItemDto>());
         }
 
-        return View(res.Data);
+        return View("~/Views/Admin/Areas.cshtml", res.Data);
     }
 
-    [HttpGet("/admin/areas/{id:guid}")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         ViewData["AdminTab"] = "areas";
@@ -59,35 +60,57 @@ public sealed class AreasController : Controller
 
         ViewBag.AreaImages = galleryImages;
         ViewBag.Tab = tab;
-        return View(res.Data);
+        return View("~/Views/Admin/Area.cshtml", res.Data);
     }
 
-    [HttpGet("/admin/areas/new")]
+    [HttpGet("new")]
     public async Task<IActionResult> Create(CancellationToken ct = default)
     {
         var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
         ViewData["AdminTab"] = "areas";
-        return View("Edit", vm);
+        return View("~/Views/Admin/EditArea.cshtml", vm);
     }
 
-    [HttpPost("/admin/areas")]
+    [HttpPost("")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
         var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
         var res = await _api.CreateAreaAsync(dto, ct);
-        if (res.Ok && res.Data is not null)
+
+        if (!res.Ok && res.Data is not null)
         {
-            TempData["Ok"] = "Area created.";
-            return RedirectToAction(nameof(Details), new { id = res.Data.Id });
+            TempData["Err"] = res.Message ?? "Could not create area.";
+            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
+            ViewData["AdminTab"] = "areas";
+            return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
         }
-        TempData["Err"] = res.Message ?? "Could not create area.";
-        var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-        ViewData["AdminTab"] = "areas";
-        return View("Edit", rebuiltVm);
+
+        TempData["Ok"] = "Area created.";
+        return RedirectToAction(nameof(Details), new { id = res.Data.Id });
     }
 
-    [HttpGet("/admin/areas/{id:guid}/edit")]
+    [HttpPost("{id:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
+    {
+        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
+        var res = await _api.UpdateAreaAsync(id, dto, ct);
+
+        if (!res.Ok || res.Data is null)
+        {
+            TempData["Err"] = res.Message ?? "Could not update area.";
+            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
+            ViewData["AdminTab"] = "areas";
+            return View("~/Views/Admin/EditArea.cshtml", rebuiltVm);
+        }
+
+        TempData["Ok"] = "Area updated.";
+        return RedirectToAction(nameof(Details), new { id });
+
+    }
+
+    [HttpGet("{id:guid}/edit")]
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
     {
         var res = await _api.GetAreaAsync(id, ct);
@@ -100,27 +123,12 @@ public sealed class AreasController : Controller
         var dto = res.Data;
         var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds, dto.Name, dto.Description, ct);
         ViewData["AdminTab"] = "areas";
-        return View("Edit", vm);
+        return View("~/Views/Admin/EditArea.cshtml", vm);
     }
 
-    [HttpPost("/admin/areas/{id:guid}")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
-    {
-        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
-        var res = await _api.UpdateAreaAsync(id, dto, ct);
-        if (res.Ok)
-        {
-            TempData["Ok"] = "Area updated.";
-            return RedirectToAction(nameof(Details), new { id });
-        }
-        TempData["Err"] = res.Message ?? "Could not update area.";
-        var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-        ViewData["AdminTab"] = "areas";
-        return View("Edit", rebuiltVm);
-    }
 
-    [HttpPost("/admin/areas/{id:guid}/delete")]
+
+    [HttpPost("{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
@@ -132,7 +140,7 @@ public sealed class AreasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
+    [HttpPost("{id:guid}/images")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadImage(Guid id, IFormFile? file, string? redirectTo, CancellationToken ct = default)
     {
@@ -161,7 +169,7 @@ public sealed class AreasController : Controller
         return RedirectAfterImageChange(id, redirectTo);
     }
 
-    [HttpPost]
+    [HttpPost("{id:guid}/images/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteImage(Guid id, Guid imageId, string? redirectTo, CancellationToken ct = default)
     {

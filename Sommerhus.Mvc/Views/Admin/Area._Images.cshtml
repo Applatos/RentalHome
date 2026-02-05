@@ -3,10 +3,16 @@
 @model AreaGalleryVm
 
 <div class="mb-3">
-    <form method="post"
-          enctype="multipart/form-data"
-          action="@Url.Action("UploadAreaImage", "Admin", new { id = Model.AreaId, redirectTo = Model.RedirectTo })">
+    <form asp-controller="Areas"
+          asp-action="UploadImage"
+          asp-route-id="@Model.AreaId"
+          asp-route-redirectTo="@Model.RedirectTo"
+          method="post"
+          enctype="multipart/form-data">     
         @Html.AntiForgeryToken()
+            
+
+
         <div class="input-group">
             <input type="file" name="file" class="form-control" accept="image/*" />
             <button type="submit" class="btn btn-outline-primary">Upload</button>
@@ -27,8 +33,12 @@ else
             <div class="border rounded p-2" style="width: 210px">
                 <img src="@img.Url" alt="" class="img-fluid" />
                 <div class="mt-2 d-flex flex-wrap gap-2">
-                    <form method="post"
-                          action="@Url.Action("DeleteAreaImage", "Admin", new { id = Model.AreaId, imageId = img.Id, redirectTo = Model.RedirectTo })"
+                    <form asp-controller="Areas"
+                          asp-action="DeleteImage"
+                          asp-route-id="@Model.AreaId"
+                          asp-route-imageId="@img.Id"
+                          asp-route-redirectTo="@Model.RedirectTo"
+                          method="post"
                           onsubmit="return confirm('Slet billede?');">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
