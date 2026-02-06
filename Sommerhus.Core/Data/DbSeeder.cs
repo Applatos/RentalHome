@@ -38,7 +38,6 @@ public static class Seeder
             City = city,
             Address = "Strandvej 4",
             Description = "Super dejligt poolhus ...",
-            Facilities = "Trådløst internet, Brændeovn ...",
             Areas = new List<Area> { area },
             Group = groupA
         };
@@ -70,7 +69,7 @@ public static class Seeder
         {
             var winterEndDay = DateTime.IsLeapYear(year) ? 29 : 28;
             
-            // Winter (Jan-Feb) - Season A (Højsæson)
+            // Winter (Jan-Feb) - Season A (High season)
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
@@ -90,7 +89,7 @@ public static class Seeder
                 EndDate = new DateOnly(year, 5, 31)
             });
             
-            // Summer (Jun-Aug) - Season A (Højsæson)
+            // Summer (Jun-Aug) - Season A (High season)
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
@@ -161,7 +160,7 @@ public static class Seeder
         {
             using var client = new HttpClient
             {
-                Timeout = TimeSpan.FromSeconds(20)
+                Timeout = TimeSpan.FromSeconds(10)
             };
 
             using var response = client.GetAsync("https://api.dataforsyningen.dk/postnumre").GetAwaiter().GetResult();
@@ -171,12 +170,13 @@ public static class Seeder
             var postNumbers = JsonSerializer.Deserialize<List<PostNumberDto>>(responseStream);
             if (postNumbers is null)
             {
+                Console.WriteLine("[DbSeeder] City API returned null payload.");
                 return new List<City>();
             }
 
             var deduplicated = new Dictionary<string, City>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var postNumber in postNumbers) //Cleanup and deduplicate
+            foreach (var postNumber in postNumbers)
             {
                 if (string.IsNullOrWhiteSpace(postNumber?.Nr) || string.IsNullOrWhiteSpace(postNumber.Navn))
                 {
@@ -197,13 +197,15 @@ public static class Seeder
                 };
             }
 
+            Console.WriteLine($"[DbSeeder] Fetched {deduplicated.Count} cities from API.");
             return deduplicated.Values
                 .OrderBy(city => city.Zip, StringComparer.Ordinal)
                 .ThenBy(city => city.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[DbSeeder] Failed to fetch cities: {ex.Message}");
             return new List<City>();
         }
     }

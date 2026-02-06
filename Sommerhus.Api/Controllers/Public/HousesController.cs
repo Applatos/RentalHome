@@ -7,7 +7,7 @@ namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public class HousesController(IHouseQueryService houses) : ControllerBase
+public sealed class HousesController(IHouseQueryService houses) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<PublicHouseListItemDto>> Search(

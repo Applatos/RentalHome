@@ -41,7 +41,7 @@ public sealed class GuestFeeRule : IPriceRule
         var totalGuestFee = extraGuests * _perGuestPerNight * nights;
         ctx.Items.Add(new PriceQuoteLineItemDto(
             "GUEST",
-            $"Ekstra gæster ({extraGuests} x {nights} nætter)",
+            $"Extra guests ({extraGuests} x {nights} nights)",
             totalGuestFee));
 
         return Task.CompletedTask;

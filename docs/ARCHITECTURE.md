@@ -69,8 +69,8 @@ Core/
 │   │   ├── CityDto.cs             # CityDto + UpsertCityDto (consolidated)
 │   │   ├── FeatureDto.cs          # FeatureDto + UpsertFeatureDto (consolidated)
 │   │   ├── FeatureValueDto.cs     # Feature value for house
-│   │   ├── HouseDetailsDto.cs     # House read DTO with admin fields
-│   │   ├── HouseListItemDto.cs    # House list DTO with admin/public fields
+│   │   ├── HouseDetailsDto.cs     # Admin + Public house detail DTOs
+│   │   ├── HouseListItemDto.cs    # Admin + Public house list DTOs
 │   │   ├── HouseGroupDto.cs       # HouseGroupDto + UpsertHouseGroupDto (consolidated)
 │   │   ├── SeasonDto.cs           # All pricing DTOs consolidated
 │   │   ├── PriceQuoteDto.cs       # Pricing request/response DTOs
@@ -267,7 +267,7 @@ Controllers only orchestrate; business logic lives in services:
 ```csharp
 [HttpGet("{id:guid}")]
 public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)
-    => this.FromResult(await service.GetDetailsAsync(id, Request, ct));
+    => this.FromResult(await service.GetDetailsAsync(id, Request.BaseUrl(), ct));
 ```
 
 ### 3. Image Storage Abstraction
@@ -279,7 +279,7 @@ public interface IImageStorage
 {
     Task<StoredImage> SaveAsync(ImageCategory category, Guid ownerId, IFormFile file, CancellationToken ct);
     Task DeleteAsync(ImageCategory category, Guid ownerId, string fileName, CancellationToken ct);
-    string GetUrl(HttpRequest request, ImageCategory category, Guid ownerId, string fileName);
+    string? GetUrl(string baseUrl, ImageCategory category, Guid ownerId, string fileName);
 }
 ```
 

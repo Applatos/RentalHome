@@ -9,7 +9,7 @@ public class CityImage
     [Required]
     public Guid CityId { get; set; }
 
-    [Required, MaxLength(260)]
+    [Required, MaxLength(300)]
     public string FileName { get; set; } = string.Empty;
 
     [MaxLength(140)]

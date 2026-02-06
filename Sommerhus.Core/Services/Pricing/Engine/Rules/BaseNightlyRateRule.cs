@@ -82,7 +82,7 @@ public sealed class BaseNightlyRateRule : IPriceRule
         foreach (var (code, (count, rate)) in nightsBySeason.OrderBy(x => x.Key))
         {
             var total = count * rate;
-            ctx.Items.Add(new PriceQuoteLineItemDto("BASE", $"{count} nætter ({code})", total));
+            ctx.Items.Add(new PriceQuoteLineItemDto("BASE", $"{count} nights ({code})", total));
         }
     }
 }

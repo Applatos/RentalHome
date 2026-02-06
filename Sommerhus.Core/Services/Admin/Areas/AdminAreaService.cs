@@ -169,7 +169,7 @@ public sealed class AdminAreaService : IAdminAreaService
         {
             return ServiceResult<string>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                [nameof(UpsertAreaDto.Name)] = new[] { "Navn er påkrævet" }
+                [nameof(UpsertAreaDto.Name)] = new[] { "Name is required" }
             });
         }
 
@@ -211,7 +211,7 @@ public sealed class AdminAreaService : IAdminAreaService
     private static ServiceResult<IReadOnlyList<City>> InvalidCityIds()
         => ServiceResult<IReadOnlyList<City>>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
-            [nameof(UpsertAreaDto.CityIds)] = new[] { "Ukendt by" }
+            [nameof(UpsertAreaDto.CityIds)] = new[] { "Unknown city" }
         });
 
     private static string? NormalizeDescription(string? description)

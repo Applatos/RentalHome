@@ -9,7 +9,7 @@ public class AreaImage
     [Required]
     public Guid AreaId { get; set; }
 
-    [Required, MaxLength(200)]
+    [Required, MaxLength(300)]
     public string FileName { get; set; } = "";
 
     public int SortOrder { get; set; }

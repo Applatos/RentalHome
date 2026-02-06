@@ -158,9 +158,7 @@ public sealed class HouseQueryService : IHouseQueryService
 
     private static string? BuildSummary(VacationHouse house)
     {
-        var source = string.IsNullOrWhiteSpace(house.Description)
-            ? house.Facilities
-            : house.Description;
+        var source = house.Description;
 
         if (string.IsNullOrWhiteSpace(source))
         {

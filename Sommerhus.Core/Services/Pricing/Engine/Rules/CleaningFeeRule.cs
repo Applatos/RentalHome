@@ -20,7 +20,7 @@ public sealed class CleaningFeeRule : IPriceRule
     {
         if (_fee > 0)
         {
-            ctx.Items.Add(new PriceQuoteLineItemDto("CLEAN", "Rengøring", _fee));
+            ctx.Items.Add(new PriceQuoteLineItemDto("CLEAN", "Cleaning", _fee));
         }
 
         return Task.CompletedTask;

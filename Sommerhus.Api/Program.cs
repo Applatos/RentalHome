@@ -81,7 +81,7 @@ public class Program
             opt.AddPolicy("mvc", p => p
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .WithOrigins("https://localhost:5001", "https://localhost:7202") // eller dit domæne
+                .WithOrigins("https://localhost:5001", "https://localhost:7202") // or your domain
                 .AllowCredentials());
         });
         var app = builder.Build();

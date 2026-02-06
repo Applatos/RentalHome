@@ -4,7 +4,7 @@ namespace Sommerhus.Domain.Models.Pricing;
 
 public class SeasonSpan
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid GroupId { get; set; }
 
     public DateOnly StartDate { get; set; }

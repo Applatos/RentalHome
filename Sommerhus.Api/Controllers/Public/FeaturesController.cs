@@ -7,7 +7,7 @@ namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FeaturesController(IFeatureQueryService features) : ControllerBase
+public sealed class FeaturesController(IFeatureQueryService features) : ControllerBase
 {
     [HttpGet]
     public Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)

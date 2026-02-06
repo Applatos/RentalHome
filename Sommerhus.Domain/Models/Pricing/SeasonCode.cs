@@ -6,7 +6,7 @@ public class SeasonCode
 {
     [Key]
     public string Code { get; set; } = "A";
-    public string Name { get; set; } = "Højsæson";
-    public string Color { get; set; }
+    public string Name { get; set; } = "";
+    public string Color { get; set; } = "#6C757D";
     public int SortOrder { get; set; }
 }

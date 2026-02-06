@@ -276,26 +276,26 @@ public record UpsertHouseDto(
 
 ## Tracking
 
-| Issue                           | Priority | Phase | Status         |
-| ------------------------------- | -------- | ----- | -------------- |
-| #1 Service Registration         | High     | 1     | **Completed**  |
-| #2 Large Services               | High     | 2     | **Completed**  |
-| #3 Danish Text                  | High     | 13    | Pending        |
-| #4 Empty Project                | Low      | 5     | **Completed**  |
-| #5 DTO Validation               | Medium   | 3     | **Completed**  |
-| #6 Image Handling               | Medium   | 4     | **Completed**  |
-| #7 HttpRequest in Services      | High     | 13c   | **Completed**  |
-| #8 Hardcoded CORS               | Low      | 13    | Pending        |
-| #9 Commented Code               | Low      | 6     | Pending        |
-| #10 API Docs                    | Low      | 7     | Pending        |
-| #11 MVC Exception Handling      | Low      | 10    | Pending        |
-| #12 N+1 Queries                 | Medium   | 9     | Pending        |
-| #13 JWT Key                     | Security | -     | Documented     |
-| #14 Admin Password              | Security | -     | Documented     |
-| #15 Test Coverage               | High     | 8     | Pending        |
-| #17 Architecture Simplification | High     | 2.5   | **Completed**  |
-| #18 MVC Frontend Inconsistency  | High     | 2.6   | **Completed**  |
-| #19 Backend Architecture Review | High     | 13    | **13a-c Done** |
+| Issue                           | Priority | Phase | Status        |
+| ------------------------------- | -------- | ----- | ------------- |
+| #1 Service Registration         | High     | 1     | **Completed** |
+| #2 Large Services               | High     | 2     | **Completed** |
+| #3 Danish Text                  | High     | 13d   | **Completed** |
+| #4 Empty Project                | Low      | 5     | **Completed** |
+| #5 DTO Validation               | Medium   | 3     | **Completed** |
+| #6 Image Handling               | Medium   | 4     | **Completed** |
+| #7 HttpRequest in Services      | High     | 13c   | **Completed** |
+| #8 Hardcoded CORS               | Low      | 13    | Pending       |
+| #9 Commented Code               | Low      | 6     | Pending       |
+| #10 API Docs                    | Low      | 7     | Pending       |
+| #11 MVC Exception Handling      | Low      | 10    | Pending       |
+| #12 N+1 Queries                 | Medium   | 9     | Pending       |
+| #13 JWT Key                     | Security | -     | Documented    |
+| #14 Admin Password              | Security | -     | Documented    |
+| #15 Test Coverage               | High     | 8     | Pending       |
+| #17 Architecture Simplification | High     | 2.5   | **Completed** |
+| #18 MVC Frontend Inconsistency  | High     | 2.6   | **Completed** |
+| #19 Backend Architecture Review | High     | 13    | **Completed** |
 
 ---
 

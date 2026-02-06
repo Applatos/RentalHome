@@ -61,7 +61,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult<Guid>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                [nameof(UpsertFeatureDto.Key)] = new[] { "Key er allerede i brug." }
+                [nameof(UpsertFeatureDto.Key)] = new[] { "Key is already in use." }
             });
         }
 
@@ -104,7 +104,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                [nameof(UpsertFeatureDto.Key)] = new[] { "Key er allerede i brug." }
+                [nameof(UpsertFeatureDto.Key)] = new[] { "Key is already in use." }
             });
         }
 
@@ -128,7 +128,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         var inUse = await db.HouseFeatures.AsNoTracking().AnyAsync(v => v.FeatureId == id, ct);
         if (inUse)
         {
-            return ServiceResult.Conflict(nameof(id), "Feature er knyttet til et eller flere huse og kan ikke slettes.");
+            return ServiceResult.Conflict(nameof(id), "Feature is linked to one or more houses and cannot be deleted.");
         }
 
         db.Features.Remove(feature);
@@ -138,7 +138,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         }
         catch (DbUpdateException)
         {
-            return ServiceResult.Conflict(nameof(id), "Feature er knyttet til et eller flere huse og kan ikke slettes.");
+            return ServiceResult.Conflict(nameof(id), "Feature is linked to one or more houses and cannot be deleted.");
         }
 
         return ServiceResult.Success();
@@ -203,7 +203,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult<string>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                [nameof(UpsertFeatureDto.Key)] = new[] { "Key skal være [a-zA-Z0-9_-], maks 60 tegn." }
+                [nameof(UpsertFeatureDto.Key)] = new[] { "Key must match [a-zA-Z0-9_-], max 60 characters." }
             });
         }
 

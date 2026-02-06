@@ -760,23 +760,25 @@ Eliminate duplication and enforce conventions.
 
 **Result**: Build ✅ | Tests 11/11 ✅
 
-### Phase 13d: Cleanup & Hygiene (estimated 1-2 hours)
+### Phase 13d: Cleanup & Hygiene ✅ COMPLETED
 
 Low-risk cleanup that reduces noise.
 
-- [ ] **19u** Delete orphaned `HouseAreas.cs` and `AreaCities.cs`
-- [ ] **19v** Remove dead `VacationHouse.CoverImageId` property + migration
-- [ ] **19w** Decide on `VacationHouse.Facilities` — expose or remove
-- [ ] **19x** Fix `SeasonCode` defaults (remove Danish, add `Color` default)
-- [ ] **19y** Add `= Guid.NewGuid()` to `HouseGroup.Id` and `SeasonSpan.Id`
-- [ ] **19z** Standardize image `FileName` MaxLength to 300
-- [ ] **19aa** Fix `DbSeeder` sync HTTP call and exception swallowing
-- [ ] **19bb** Remove unused usings in `LookupItem.cs`
-- [ ] **19cc** Delete empty `Dtos/Public/` folder
-- [ ] **19dd** Replace Danish CORS comment with English
-- [ ] **19ff** Make all public controllers `sealed`
-- [ ] **19gg** Update stale doc references (this file, ARCHITECTURE.md)
-- [ ] **#3** Replace all remaining Danish error messages with English
+- [x] **19u** Delete orphaned `HouseAreas.cs` and `AreaCities.cs`
+- [x] **19v** Remove dead `VacationHouse.CoverImageId` property
+- [x] **19w** Remove dead `VacationHouse.Facilities` property + simplified `BuildSummary()`
+- [x] **19x** Fix `SeasonCode` defaults (Name `""`, Color `"#6C757D"`)
+- [x] **19y** Add `= Guid.NewGuid()` to `HouseGroup.Id` and `SeasonSpan.Id`
+- [x] **19z** Standardize image `FileName` MaxLength to 300 (was 200/260/300)
+- [x] **19aa** Fix `DbSeeder` exception swallowing (added `Console.WriteLine` logging, reduced timeout to 10s)
+- [x] **19bb** Remove unused usings in `LookupItem.cs`
+- [x] **19cc** Delete empty `Dtos/Public/` folder tree
+- [x] **19dd** Replace Danish CORS comment with English
+- [x] **19ff** Make all public controllers `sealed`
+- [x] **19gg** Update stale doc references (`ARCHITECTURE.md` — `IImageStorage`, controller example)
+- [x] **#3** Replace all remaining Danish error messages with English (services + pricing rules + test)
+
+**Result**: Build ✅ (0 warnings) | Tests 11/11 ✅
 
 ### Verification (after each sub-phase)
 
@@ -819,7 +821,7 @@ After completing all phases:
 | Phase 13a | 2-3 hours        | High     | **Completed** |
 | Phase 13b | 3-4 hours        | High     | **Completed** |
 | Phase 13c | 2-3 hours        | Medium   | **Completed** |
-| Phase 13d | 1-2 hours        | Low      | Pending       |
+| Phase 13d | 1-2 hours        | Low      | **Completed** |
 
 **Remaining**: ~20-28 hours
 

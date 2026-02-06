@@ -7,7 +7,7 @@ namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/houses/{houseId:guid}/images")]
-public class HouseImagesController(IHouseImageQueryService images) : ControllerBase
+public sealed class HouseImagesController(IHouseImageQueryService images) : ControllerBase
 {
     [HttpGet]
     public Task<IEnumerable<ImageDto>> List(Guid houseId, CancellationToken ct)

@@ -215,7 +215,7 @@ public sealed class AdminHouseService : IAdminHouseService
     private static ServiceResult<IReadOnlyList<Area>> InvalidAreaIds()
         => ServiceResult<IReadOnlyList<Area>>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
-            [nameof(UpsertHouseDto.AreaIds)] = new[] { "Ukendt område" }
+            [nameof(UpsertHouseDto.AreaIds)] = new[] { "Unknown area" }
         });
 
     private AdminHouseDetailsDto MapDetails(VacationHouse house, string baseUrl, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)

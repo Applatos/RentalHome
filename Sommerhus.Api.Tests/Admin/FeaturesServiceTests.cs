@@ -66,6 +66,6 @@ public sealed class FeaturesServiceTests : IClassFixture<CustomWebApplicationFac
 
         result.Status.Should().Be(ServiceResultStatus.Invalid);
         result.Errors.Should().ContainKey(nameof(UpsertFeatureDto.Key));
-        result.Errors[nameof(UpsertFeatureDto.Key)].Should().Contain("Key er allerede i brug.");
+        result.Errors[nameof(UpsertFeatureDto.Key)].Should().Contain("Key is already in use.");
     }
 }
