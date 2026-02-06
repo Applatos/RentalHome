@@ -9,7 +9,7 @@ public sealed class SommerhusApi
 
     public SommerhusApi(HttpClient http) => this.http = http;
 
-    public Task<ApiResponse<IReadOnlyList<HouseListItemDto>?>> GetHousesAsync(string? q = null, Guid? areaId = null, int page = 1, int pageSize = 20, CancellationToken ct = default)
+    public Task<ApiResponse<PageResult<PublicHouseListItemDto>?>> GetHousesAsync(string? q = null, Guid? areaId = null, int page = 1, int pageSize = 20, CancellationToken ct = default)
     {
         var filters = new List<string>();
         if (!string.IsNullOrWhiteSpace(q)) filters.Add($"q={Uri.EscapeDataString(q.Trim())}");
@@ -18,11 +18,11 @@ public sealed class SommerhusApi
         if (pageSize != 20) filters.Add($"pageSize={Math.Min(pageSize, 100)}");
 
         var url = filters.Count > 0 ? $"api/houses?{string.Join("&", filters)}" : "api/houses";
-        return ApiHttp.GetAsync<IReadOnlyList<HouseListItemDto>?>(http, url, ct);
+        return ApiHttp.GetAsync<PageResult<PublicHouseListItemDto>?>(http, url, ct);
     }
 
-    public Task<ApiResponse<HouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct = default)
-        => ApiHttp.GetAsync<HouseDetailsDto?>(http, $"api/houses/{id}", ct);
+    public Task<ApiResponse<PublicHouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct = default)
+        => ApiHttp.GetAsync<PublicHouseDetailsDto?>(http, $"api/houses/{id}", ct);
 
     public Task<ApiResponse<PriceQuoteResponseDto?>> GetPriceQuoteAsync(PriceQuoteRequestDto request, CancellationToken ct = default)
         => ApiHttp.PostAsync<PriceQuoteRequestDto, PriceQuoteResponseDto?>(http, "api/pricing/quote", request, ct);

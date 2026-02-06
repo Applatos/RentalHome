@@ -5,7 +5,7 @@ namespace Sommerhus.Mvc.ViewModels.Admin.Houses;
 
 public sealed class HouseDetailsVm
 {
-    public required HouseDetailsDto House { get; init; }
+    public required AdminHouseDetailsDto House { get; init; }
     public required IReadOnlyList<SelectListItem> Cities { get; init; }
     public required IReadOnlyList<SelectListItem> Areas { get; init; }
     public required IReadOnlyList<SelectListItem> HouseGroups { get; init; }

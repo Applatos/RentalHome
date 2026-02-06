@@ -19,11 +19,11 @@ public sealed class AdminApiClient
 
 
     // Houses
-    public Task<ApiResponse<PageResult<HouseListItemDto>>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
-        => ApiHttp.GetAsync<PageResult<HouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
+    public Task<ApiResponse<PageResult<AdminHouseListItemDto>>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
+        => ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
 
-    public Task<ApiResponse<HouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct)
-        => ApiHttp.GetAsync<HouseDetailsDto?>(http, $"api/admin/houses/{id}", ct);
+    public Task<ApiResponse<AdminHouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct)
+        => ApiHttp.GetAsync<AdminHouseDetailsDto?>(http, $"api/admin/houses/{id}", ct);
 
     public Task<ApiResponse<Guid>> PostHouseAsync(UpsertHouseDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<UpsertHouseDto, Guid>(http, "api/admin/houses", dto, ct);

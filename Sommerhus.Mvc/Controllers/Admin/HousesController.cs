@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Domain.Models;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin;
@@ -27,7 +28,7 @@ public sealed class HousesController : AdminControllerBase
             SetError(res.Message ?? "Could not load house list.");
             return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
             {
-                Houses = new PageResult<HouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q }
+                Houses = new PageResult<AdminHouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q }
             });
         }
 
@@ -57,7 +58,7 @@ public sealed class HousesController : AdminControllerBase
         return View("~/Views/Admin/Houses/Details.cshtml", vm);
     }
 
-    private async Task<HouseDetailsVm> BuildHouseDetailsVmAsync(HouseDetailsDto house, string tab, CancellationToken ct)
+    private async Task<HouseDetailsVm> BuildHouseDetailsVmAsync(AdminHouseDetailsDto house, string tab, CancellationToken ct)
     {
         var cities = await LoadCitiesSelectListAsync(house.CityId, ct);
         var areas = await LoadAreasSelectListAsync(house.AreaIds, ct);
@@ -211,7 +212,7 @@ public sealed class HousesController : AdminControllerBase
         var read = houseRes.Data;
         var merged = read with
         {
-            Name = dto.Name,
+            Title = dto.Title,
             CityId = dto.CityId,
             Address = dto.Address,
             Description = dto.Description,
@@ -368,16 +369,15 @@ public sealed class HousesController : AdminControllerBase
                 continue;
             }
 
-            var type = feature.ValueType?.Trim() ?? string.Empty;
-            switch (type.ToLowerInvariant())
+            switch (feature.ValueType)
             {
-                case "bool":
+                case FeatureValueType.Bool:
                     if (IsTruthy(raw))
                     {
                         values.Add(new PostFeatureValueDto(feature.Id, "true"));
                     }
                     break;
-                case "int":
+                case FeatureValueType.Int:
                     if (!TryParseInt(raw, out var intValue))
                     {
                         errors.Add($"{feature.Name}: enter a whole number.");
@@ -385,7 +385,7 @@ public sealed class HousesController : AdminControllerBase
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, intValue.ToString(CultureInfo.InvariantCulture)));
                     break;
-                case "decimal":
+                case FeatureValueType.Decimal:
                     if (!TryParseDecimal(raw, out var decValue))
                     {
                         errors.Add($"{feature.Name}: enter a number.");

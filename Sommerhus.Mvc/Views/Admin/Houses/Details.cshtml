@@ -1,15 +1,15 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @model HouseDetailsVm
 @{
-    ViewData["Title"] = Model.House.Name;
+    ViewData["Title"] = Model.House.Title;
 }
 
 <section class="container my-3">
     @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
 
     <div class="d-flex justify-content-between">
-        <h2 class="mb-2">@Model.House.Name</h2>
-        <small class="text-muted">Created @(Model.House.CreatedUtc?.ToLocalTime().ToString("g") ?? "")</small>
+        <h2 class="mb-2">@Model.House.Title</h2>
+        <small class="text-muted">Created @Model.House.CreatedUtc.ToLocalTime().ToString("g")</small>
     </div>
 
     <ul class="nav nav-tabs mt-2">

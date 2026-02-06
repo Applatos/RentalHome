@@ -1,3 +1,5 @@
+using Sommerhus.Domain.Models;
+
 namespace Sommerhus.Core.Dtos.Shared;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Sommerhus.Core.Dtos.Shared;
 public sealed record FeatureValueDto(
     Guid Id,
     string Name,
-    string ValueType,
+    FeatureValueType ValueType,
     string? Unit,
     string? IconUrl,
     string RawValue

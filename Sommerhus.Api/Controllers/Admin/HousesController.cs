@@ -20,11 +20,11 @@ public sealed class HousesController(
     IAdminHouseGroupService houseGroupService) : ControllerBase
 {
     [HttpGet]
-    public Task<PageResult<HouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public Task<PageResult<AdminHouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
         => houseService.SearchAsync(query, page, pageSize, ct);
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)
+    public async Task<ActionResult<AdminHouseDetailsDto>> Get(Guid id, CancellationToken ct)
         => this.FromResult(await houseService.GetDetailsAsync(id, Request, ct));
 
     [HttpPost]
@@ -81,17 +81,8 @@ public sealed class HousesController(
             return BadRequest("Feature values are required.");
         }
 
-        var outcome = await featureService.UpsertFeaturesAsync(houseId, values, ct);
-        if (!outcome.HouseFound)
-        {
-            return NotFound();
-        }
-        if (outcome.HasMissingFeatures)
-        {
-            return BadRequest("One or more feature IDs are invalid.");  
-        }
-
-        return NoContent();
+        var result = await featureService.UpsertFeaturesAsync(houseId, values, ct);
+        return this.FromResult(result);
     }
 
     [HttpPut("{houseId:guid}/pricing")]

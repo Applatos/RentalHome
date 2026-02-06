@@ -22,7 +22,7 @@ public sealed class HouseQueryService : IHouseQueryService
         this.storage = storage;
     }
 
-    public async Task<IEnumerable<HouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, HttpRequest request, CancellationToken ct)
+    public async Task<PageResult<PublicHouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, HttpRequest request, CancellationToken ct)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -64,9 +64,11 @@ public sealed class HouseQueryService : IHouseQueryService
                 (h.City != null && h.City.Zip != null && EF.Functions.Like(h.City.Zip, $"%{term}%")));
         }
 
+        var total = await houseQuery.CountAsync(ct);
+
         var houses = await houseQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
 
-        return houses.Select(h =>
+        var items = houses.Select(h =>
         {
             var cover = h.Images.FirstOrDefault(i => i.Kind == ImageKind.Cover)
                 ?? h.Images.FirstOrDefault(i => i.Kind == ImageKind.Gallery);
@@ -87,7 +89,7 @@ public sealed class HouseQueryService : IHouseQueryService
                     i.Kind.ToString()))
                 .ToArray();
 
-            return new HouseListItemDto(
+            return new PublicHouseListItemDto(
                 h.Id,
                 h.Title,
                 h.City?.Name,
@@ -96,15 +98,22 @@ public sealed class HouseQueryService : IHouseQueryService
                 h.Description,
                 gallery,
                 new List<FeatureValueDto>(),
-                
-                // Public-specific fields
-                CoverUrl: coverUrl,
-                Summary: BuildSummary(h),
-                Gallery: gallery);
+                coverUrl,
+                BuildSummary(h),
+                gallery);
         }).ToList();
+
+        return new PageResult<PublicHouseListItemDto>
+        {
+            Query = query ?? string.Empty,
+            Page = page,
+            PageSize = pageSize,
+            Total = total,
+            Items = items
+        };
     }
 
-    public async Task<HouseDetailsDto?> GetAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<PublicHouseDetailsDto?> GetAsync(Guid id, HttpRequest request, CancellationToken ct)
     {
         var house = await db.Houses
             .Include(x => x.Images)
@@ -129,7 +138,7 @@ public sealed class HouseQueryService : IHouseQueryService
                 return new FeatureValueDto(
                     Id: hf.FeatureId,
                     Name: f?.Name ?? string.Empty,
-                    ValueType: f?.ValueType.ToString() ?? string.Empty,
+                    ValueType: f?.ValueType ?? FeatureValueType.Text,
                     Unit: f?.Unit,
                     IconUrl: icon,
                     RawValue: hf.RawValue
@@ -137,7 +146,7 @@ public sealed class HouseQueryService : IHouseQueryService
             })
             .ToList();
 
-        return new HouseDetailsDto(
+        return new PublicHouseDetailsDto(
             house.Id,
             house.Title,
             house.City?.Name,

@@ -36,7 +36,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
                 f.Id,
                 f.Name,
                 f.Key,
-                f.ValueType.ToString(),
+                f.ValueType,
                 f.Unit,
                 imageStorage.GetUrl(request, f.IconUrl)))
             .ToList();

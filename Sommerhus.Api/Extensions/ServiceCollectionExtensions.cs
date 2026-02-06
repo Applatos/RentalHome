@@ -10,6 +10,7 @@ using Sommerhus.Core.Services.Public.Cities;
 using Sommerhus.Core.Services.Public.Features;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Public.Images;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Core.Services.Public.ZipCodes;
 using Sommerhus.Core.Services.Pricing.Abstractions;
 using Sommerhus.Core.Services.Pricing.Engine;
@@ -60,6 +61,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICityQueryService, CityQueryService>();
         services.AddScoped<IZipCodeQueryService, ZipCodeQueryService>();
         services.AddScoped<IHouseImageQueryService, HouseImageQueryService>();
+        services.AddScoped<IPricingQuoteService, AdminPricingService>();
 
         return services;
     }

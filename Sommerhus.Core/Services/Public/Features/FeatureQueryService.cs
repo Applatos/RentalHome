@@ -26,7 +26,7 @@ public sealed class FeatureQueryService : IFeatureQueryService
         return rows.Select(f =>
         {
             var icon = storage.GetUrl(request, f.IconUrl);
-            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType.ToString(), f.Unit, icon);
+            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType, f.Unit, icon);
         }).ToList();
     }
 }

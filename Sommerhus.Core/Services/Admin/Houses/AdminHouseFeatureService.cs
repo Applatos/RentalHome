@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
+using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
@@ -14,12 +14,12 @@ public sealed class AdminHouseFeatureService : IAdminHouseFeatureService
         this.db = db;
     }
 
-    public async Task<FeatureUpsertOutcome> UpsertFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
+    public async Task<ServiceResult> UpsertFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
     {
         var houseExists = await db.Houses.AsNoTracking().AnyAsync(h => h.Id == houseId, ct);
         if (!houseExists)
         {
-            return FeatureUpsertOutcome.NotFound;
+            return ServiceResult.NotFound();
         }
 
         var normalized = FeatureValueNormalizer.Normalize(houseId, values);
@@ -36,7 +36,7 @@ public sealed class AdminHouseFeatureService : IAdminHouseFeatureService
             var missing = featureIds.Except(existingFeatureIds).ToList();
             if (missing.Count > 0)
             {
-                return new FeatureUpsertOutcome(true, missing);
+                return ServiceResult.Invalid("FeatureIds", $"Unknown feature IDs: {string.Join(", ", missing)}");
             }
         }
 
@@ -50,6 +50,6 @@ public sealed class AdminHouseFeatureService : IAdminHouseFeatureService
         }
 
         await tx.CommitAsync(ct);
-        return FeatureUpsertOutcome.Success;
+        return ServiceResult.Success();
     }
 }

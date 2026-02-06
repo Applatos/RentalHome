@@ -100,10 +100,10 @@ public class HouseImagesTests : IDisposable
 
     private async Task<Guid> GetExistingHouseIdAsync()
     {
-        var houses = await client.GetFromJsonAsync<List<HouseListItemDto>>("/api/houses?take=1");
-        houses.Should().NotBeNull();
-        houses!.Should().NotBeEmpty();
-        return houses.First().Id;
+        var page = await client.GetFromJsonAsync<PageResult<PublicHouseListItemDto>>("/api/houses?pageSize=1");
+        page.Should().NotBeNull();
+        page!.Items.Should().NotBeEmpty();
+        return page.Items.First().Id;
     }
 
     private async Task<List<ImageDto>> UploadAsync(Guid houseId, params (string FileName, string ContentType)[] files)

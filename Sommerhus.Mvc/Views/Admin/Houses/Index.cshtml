@@ -44,10 +44,10 @@
             @foreach (var h in Model.Houses.Items)
             {
                 <tr>
-                    <td>@h.Name</td>
+                    <td>@h.Title</td>
                     <td>@h.CityLabel</td>
                     <td>
-                        @if (h.AreaLabels?.Any() == true)
+                        @if (h.AreaLabels.Any())
                         {
                             <span>@string.Join(", ", h.AreaLabels)</span>
                         }
@@ -56,10 +56,10 @@
                             <span class="text-muted">—</span>
                         }
                     </td>
-                    <td>@(h.CreatedUtc?.ToLocalTime().ToString("g") ?? "")</td>
+                    <td>@h.CreatedUtc.ToLocalTime().ToString("g")</td>
                     <td class="text-end">
                         <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">Details</a>
-                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("Delete house \"@h.Name\"?");'>
+                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("Delete house \"@h.Title\"?");'>
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
                         </form>

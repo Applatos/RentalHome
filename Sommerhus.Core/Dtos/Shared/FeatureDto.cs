@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Dtos.Shared;
 
@@ -9,7 +10,7 @@ public sealed record FeatureDto(
     Guid Id,
     string Name,
     string Key,
-    string ValueType,
+    FeatureValueType ValueType,
     string? Unit = null,
     string? IconUrl = null,
     string? Description = null);

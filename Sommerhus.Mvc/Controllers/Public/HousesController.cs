@@ -31,12 +31,12 @@ public sealed class HousesController(SommerhusApi _api) : Controller
         ViewBag.Area = area?.ToString() ?? "";
         ViewBag.Areas = areasRes.Ok && areasRes.Data is not null ? areasRes.Data : Array.Empty<AreaListItemDto>();
 
-        if (!housesRes.Ok)
+        if (!housesRes.Ok || housesRes.Data is null)
         {
             TempData["Err"] = housesRes.Message ?? "Could not load houses";
-            return View(Array.Empty<HouseListItemDto>());
+            return View(Array.Empty<PublicHouseListItemDto>() as IReadOnlyList<PublicHouseListItemDto>);
         }
-        return View(housesRes.Data);
+        return View(housesRes.Data.Items as IReadOnlyList<PublicHouseListItemDto>);
     }
 
 

@@ -25,7 +25,7 @@ public sealed class AdminHouseService : IAdminHouseService
         this.imageStorage = imageStorage;
     }
 
-    public async Task<PageResult<HouseListItemDto>> SearchAsync(string? query, int page, int pageSize, CancellationToken ct)
+    public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, int page, int pageSize, CancellationToken ct)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -50,25 +50,19 @@ public sealed class AdminHouseService : IAdminHouseService
             .OrderByDescending(h => h.CreatedUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(h => new HouseListItemDto(
+            .Select(h => new AdminHouseListItemDto(
                 h.Id,
                 h.Title,
                 h.City != null ? h.City.Name : null,
                 h.City != null ? h.City.Zip : null,
                 h.Address,
                 h.Description,
-                new List<ImageDto>(),
-                new List<FeatureValueDto>(),
-                h.Title,                                    // Name
-                h.City != null ? $"{h.City.Zip}  {h.City.Name}" : null,  // CityLabel
-                h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(), // AreaLabels
-                h.CreatedUtc,                              // CreatedUtc
-                null,                                      // CoverUrl
-                null,                                      // Summary
-                null))                                     // Gallery
+                h.City != null ? $"{h.City.Zip}  {h.City.Name}" : null,
+                h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(),
+                h.CreatedUtc))
             .ToListAsync(ct);
 
-        return new PageResult<HouseListItemDto>
+        return new PageResult<AdminHouseListItemDto>
         {
             Query = query ?? string.Empty,
             Page = page,
@@ -78,7 +72,7 @@ public sealed class AdminHouseService : IAdminHouseService
         };
     }
 
-    public async Task<ServiceResult<HouseDetailsDto>> GetDetailsAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<AdminHouseDetailsDto>> GetDetailsAsync(Guid id, HttpRequest request, CancellationToken ct)
     {
         var house = await db.Houses
             .Include(x => x.Images)
@@ -90,7 +84,7 @@ public sealed class AdminHouseService : IAdminHouseService
 
         if (house is null)
         {
-            return ServiceResult<HouseDetailsDto>.NotFound();
+            return ServiceResult<AdminHouseDetailsDto>.NotFound();
         }
 
         var plan = await db.PricePlans
@@ -110,7 +104,7 @@ public sealed class AdminHouseService : IAdminHouseService
             .ToListAsync(ct);
 
         var details = MapDetails(house, request, plan, calendarSegments);
-        return ServiceResult<HouseDetailsDto>.Success(details);
+        return ServiceResult<AdminHouseDetailsDto>.Success(details);
     }
 
     public async Task<ServiceResult<Guid>> CreateAsync(UpsertHouseDto dto, CancellationToken ct)
@@ -124,7 +118,7 @@ public sealed class AdminHouseService : IAdminHouseService
         var house = new VacationHouse
         {
             Id = Guid.NewGuid(),
-            Title = dto.Name,
+            Title = dto.Title,
             Address = dto.Address,
             CityId = dto.CityId,
             Description = dto.Description,
@@ -159,7 +153,7 @@ public sealed class AdminHouseService : IAdminHouseService
             return ServiceResult.Invalid(CloneErrors(areasResult.Errors));
         }
 
-        house.Title = dto.Name;
+        house.Title = dto.Title;
         house.Address = dto.Address;
         house.CityId = dto.CityId;
         house.Description = dto.Description;
@@ -225,7 +219,7 @@ public sealed class AdminHouseService : IAdminHouseService
             [nameof(UpsertHouseDto.AreaIds)] = new[] { "Ukendt område" }
         });
 
-    private HouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
+    private AdminHouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
     {
         var images = house.Images
             .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
@@ -243,7 +237,7 @@ public sealed class AdminHouseService : IAdminHouseService
                 return new FeatureValueDto(
                     hf.FeatureId,
                     f?.Name ?? string.Empty,
-                    f?.ValueType.ToString() ?? string.Empty,
+                    f?.ValueType ?? FeatureValueType.Text,
                     f?.Unit,
                     imageStorage.GetUrl(request, f?.IconUrl),
                     hf.RawValue);
@@ -259,7 +253,7 @@ public sealed class AdminHouseService : IAdminHouseService
 
         var planDto = plan is null ? null : MapPlan(plan);
 
-        return new HouseDetailsDto(
+        return new AdminHouseDetailsDto(
             house.Id,
             house.Title,
             house.City != null ? house.City.Name : null,
@@ -268,17 +262,14 @@ public sealed class AdminHouseService : IAdminHouseService
             house.Description,
             images,
             features,
-            
-            // Admin-specific fields
-            Name: house.Title,
-            CityId: house.CityId,
-            CityLabel: house.City != null ? $"{house.City.Zip}  {house.City.Name}" : null,
-            AreaIds: areaIds,
-            Areas: areaItems,
-            CreatedUtc: house.CreatedUtc,
-            Calendar: calendar,
-            Pricing: planDto,
-            GroupId: house.GroupId);
+            house.CityId,
+            house.City != null ? $"{house.City.Zip}  {house.City.Name}" : null,
+            areaIds,
+            areaItems,
+            house.CreatedUtc,
+            calendar,
+            planDto,
+            house.GroupId);
     }
 
     private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)

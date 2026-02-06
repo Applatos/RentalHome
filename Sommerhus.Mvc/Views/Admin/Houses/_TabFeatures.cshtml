@@ -1,4 +1,5 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
+@using Sommerhus.Domain.Models
 @model HouseDetailsVm
 
 @if (!string.IsNullOrWhiteSpace(Model.FeaturesError))
@@ -35,19 +36,19 @@
                         }
                     </label>
 
-                    @switch (feature.ValueType?.ToLowerInvariant())
+                    @switch (feature.ValueType)
                     {
-                        case "bool":
+                        case FeatureValueType.Bool:
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" name="@inputName" value="true" 
                                        checked="@(currentValue.Equals("true", StringComparison.OrdinalIgnoreCase))" />
                                 <label class="form-check-label">Yes</label>
                             </div>
                             break;
-                        case "int":
-                        case "decimal":
+                        case FeatureValueType.Int:
+                        case FeatureValueType.Decimal:
                             <input type="number" class="form-control" name="@inputName" value="@currentValue" 
-                                   step="@(feature.ValueType?.ToLowerInvariant() == "decimal" ? "0.01" : "1")" />
+                                   step="@(feature.ValueType == FeatureValueType.Decimal ? "0.01" : "1")" />
                             break;
                         default:
                             <input type="text" class="form-control" name="@inputName" value="@currentValue" maxlength="200" />

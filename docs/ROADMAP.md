@@ -734,13 +734,15 @@ These must be fixed first — they affect runtime correctness or security.
 
 Make DTOs predictable for colleagues — the biggest readability win.
 
-- [ ] **19a** Split `HouseDetailsDto` into `AdminHouseDetailsDto` + `PublicHouseDetailsDto`
-- [ ] **19a** Split `HouseListItemDto` into `AdminHouseListItemDto` + `PublicHouseListItemDto`
-- [ ] **19c** Rename `UpsertHouseDto.Name` → `Title` to match entity
-- [ ] **19e** Replace `FeatureUpsertOutcome` with `ServiceResult` pattern
-- [ ] **19f** Extract `IPricingQuoteService` from `IAdminPricingService` for public use
-- [ ] **19o** Change `IHouseQueryService.SearchAsync` to return `PageResult<T>`
-- [ ] **19t** Use `FeatureValueType` enum in DTOs instead of string
+- [x] **19a** Split `HouseDetailsDto` into `AdminHouseDetailsDto` + `PublicHouseDetailsDto`
+- [x] **19a** Split `HouseListItemDto` into `AdminHouseListItemDto` + `PublicHouseListItemDto`
+- [x] **19c** Rename `UpsertHouseDto.Name` → `Title` to match entity
+- [x] **19e** Replace `FeatureUpsertOutcome` with `ServiceResult` pattern
+- [x] **19f** Extract `IPricingQuoteService` from `IAdminPricingService` for public use
+- [x] **19o** Change `IHouseQueryService.SearchAsync` to return `PageResult<T>`
+- [x] **19t** Use `FeatureValueType` enum in DTOs instead of string
+
+**Result**: Build ✅ | Tests 11/11 ✅
 
 ### Phase 13c: Consistency & DRY (estimated 2-3 hours)
 
@@ -813,7 +815,7 @@ After completing all phases:
 | Phase 9   | 2-3 hours        | Medium   | Pending       |
 | Phase 10  | 2-3 hours        | Medium   | Pending       |
 | Phase 13a | 2-3 hours        | High     | **Completed** |
-| Phase 13b | 3-4 hours        | High     | Pending       |
+| Phase 13b | 3-4 hours        | High     | **Completed** |
 | Phase 13c | 2-3 hours        | Medium   | Pending       |
 | Phase 13d | 1-2 hours        | Low      | Pending       |
 

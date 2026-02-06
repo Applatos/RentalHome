@@ -9,7 +9,7 @@ namespace Sommerhus.Api.Controllers.Public;
 public class HousesController(IHouseQueryService houses) : ControllerBase
 {
     [HttpGet]
-    public Task<IEnumerable<HouseListItemDto>> Search(
+    public Task<PageResult<PublicHouseListItemDto>> Search(
         [FromQuery] string? city,
         [FromQuery] string? zip,
         [FromQuery(Name = "q")] string? query,
@@ -20,7 +20,7 @@ public class HousesController(IHouseQueryService houses) : ControllerBase
         => houses.SearchAsync(city, zip, query, area, page, pageSize, Request, ct);
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<HouseDetailsDto>> Get(Guid id, CancellationToken ct)
+    public async Task<ActionResult<PublicHouseDetailsDto>> Get(Guid id, CancellationToken ct)
     {
         var house = await houses.GetAsync(id, Request, ct);
         if (house is null)

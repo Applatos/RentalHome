@@ -1,9 +1,23 @@
 namespace Sommerhus.Core.Dtos.Shared;
 
 /// <summary>
-/// House list item with optional admin/public-specific fields.
+/// House list item for admin context.
 /// </summary>
-public sealed record HouseListItemDto(
+public sealed record AdminHouseListItemDto(
+    Guid Id,
+    string Title,
+    string? City,
+    string? Zip,
+    string? Address,
+    string? Description,
+    string? CityLabel,
+    IReadOnlyList<string> AreaLabels,
+    DateTime CreatedUtc);
+
+/// <summary>
+/// House list item for public context.
+/// </summary>
+public sealed record PublicHouseListItemDto(
     Guid Id,
     string Title,
     string? City,
@@ -12,13 +26,6 @@ public sealed record HouseListItemDto(
     string? Description,
     IReadOnlyList<ImageDto> Images,
     IReadOnlyList<FeatureValueDto> Features,
-    
-    // Admin-specific fields
-    string? Name = null,                    // Admin uses Name, Public uses Title
-    string? CityLabel = null,               // Admin uses CityLabel, Public uses City/Zip
-    IReadOnlyList<string>? AreaLabels = null, // Admin only
-    DateTime? CreatedUtc = null,              // Admin only
-    string? CoverUrl = null,                 // Public list item field
-    string? Summary = null,                 // Public list item field
-    IReadOnlyList<ImageDto>? Gallery = null  // Public list item field
-);
+    string? CoverUrl,
+    string? Summary,
+    IReadOnlyList<ImageDto> Gallery);
