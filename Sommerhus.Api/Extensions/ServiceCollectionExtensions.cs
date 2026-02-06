@@ -17,20 +17,7 @@ using Sommerhus.Core.Services.Pricing.Engine;
 using Sommerhus.Core.Services.Pricing.Engine.Rules;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Api.Infrastructure.Storage;
-using Sommerhus.Core.Services.Admin.Areas;
-using Sommerhus.Core.Services.Admin.Cities;
-using Sommerhus.Core.Services.Admin.Features;
-using Sommerhus.Core.Services.Admin.Houses;
-using Sommerhus.Core.Services.Admin.Images;
-using Sommerhus.Core.Services.Admin.HouseGroups;
-using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Services.Pricing;
-using Sommerhus.Core.Services.Public.Areas;
-using Sommerhus.Core.Services.Public.Cities;
-using Sommerhus.Core.Services.Public.Features;
-using Sommerhus.Core.Services.Public.Houses;
-using Sommerhus.Core.Services.Public.Images;
-using Sommerhus.Core.Services.Public.ZipCodes;
 
 namespace Sommerhus.Api.Extensions;
 

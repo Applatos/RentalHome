@@ -60,14 +60,14 @@ public abstract class AdminImageServiceBase
     /// <summary>
     /// Builds a URL for the image.
     /// </summary>
-    protected string BuildUrl(HttpRequest request, ImageCategory category, Guid ownerId, string fileName)
-        => Storage.GetUrl(request, category, ownerId, fileName);
+    protected string BuildUrl(string baseUrl, ImageCategory category, Guid ownerId, string fileName)
+        => Storage.GetUrl(baseUrl, category, ownerId, fileName);
 
     /// <summary>
     /// Creates an ImageDto from image properties.
     /// </summary>
-    protected ImageDto ToDto(Guid id, HttpRequest request, ImageCategory category, Guid ownerId, string fileName, string? alt, string kind)
-        => new(id, BuildUrl(request, category, ownerId, fileName), alt, kind);
+    protected ImageDto ToDto(Guid id, string baseUrl, ImageCategory category, Guid ownerId, string fileName, string? alt, string kind)
+        => new(id, BuildUrl(baseUrl, category, ownerId, fileName), alt, kind);
 
     /// <summary>
     /// Normalizes alt text by trimming whitespace.

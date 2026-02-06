@@ -28,13 +28,13 @@ public sealed class AreasController(IAdminAreaService service) : ControllerBase
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
-        => this.FromResult(await service.GetDetailsAsync(id, Request, ct));
+        => this.FromResult(await service.GetDetailsAsync(id, Request.BaseUrl(), ct));
 
 
     [HttpPost]
     public async Task<ActionResult<AreaDetailsDto>> Create([FromBody] UpsertAreaDto dto, CancellationToken ct)
     {
-        var result = await service.CreateAsync(dto, Request, ct);
+        var result = await service.CreateAsync(dto, Request.BaseUrl(), ct);
         return result.Status switch
         {
             ServiceResultStatus.Success => CreatedAtAction(nameof(Get), new { id = result.Value!.Id }, result.Value),

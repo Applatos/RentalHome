@@ -15,7 +15,7 @@ public sealed class HouseImagesController(IAdminHouseImageService service) : Con
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ImageDto>>> Get(Guid houseId, CancellationToken ct)
-        => this.FromResult(await service.ListAsync(houseId, Request, ct));
+        => this.FromResult(await service.ListAsync(houseId, Request.BaseUrl(), ct));
 
     [HttpDelete("{imageId:guid}")]
     public async Task<IActionResult> Delete(Guid houseId, Guid imageId, CancellationToken ct)
@@ -24,7 +24,7 @@ public sealed class HouseImagesController(IAdminHouseImageService service) : Con
     [HttpPost]
     [RequestSizeLimit(25_000_000)]
     public async Task<ActionResult<IReadOnlyList<ImageDto>>> Upload(Guid houseId, [FromForm] IFormFileCollection files, CancellationToken ct)
-        => this.FromResult(await service.UploadAsync(houseId, files, Request, ct));
+        => this.FromResult(await service.UploadAsync(houseId, files, Request.BaseUrl(), ct));
 
     [HttpPost("{imageId:guid}/set-kind")]
     public async Task<IActionResult> SetKind(Guid houseId, Guid imageId, [FromQuery] ImageKind kind, CancellationToken ct)

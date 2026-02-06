@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Features;
 using Sommerhus.Core.Services.Storage;
@@ -17,7 +16,7 @@ public sealed class FeatureQueryService : IFeatureQueryService
         this.storage = storage;
     }
 
-    public async Task<IEnumerable<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
+    public async Task<IEnumerable<FeatureDto>> GetAllAsync(string baseUrl, CancellationToken ct)
     {
         var rows = await db.Features.AsNoTracking()
             .OrderBy(f => f.SortOrder)
@@ -25,7 +24,7 @@ public sealed class FeatureQueryService : IFeatureQueryService
 
         return rows.Select(f =>
         {
-            var icon = storage.GetUrl(request, f.IconUrl);
+            var icon = storage.GetUrl(baseUrl, f.IconUrl);
             return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType, f.Unit, icon);
         }).ToList();
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Public.Images;
 using Sommerhus.Core.Dtos.Shared;
 
@@ -10,5 +11,5 @@ public class HouseImagesController(IHouseImageQueryService images) : ControllerB
 {
     [HttpGet]
     public Task<IEnumerable<ImageDto>> List(Guid houseId, CancellationToken ct)
-        => images.GetAsync(houseId, Request, ct);
+        => images.GetAsync(houseId, Request.BaseUrl(), ct);
 }

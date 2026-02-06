@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Storage;
@@ -22,7 +21,7 @@ public sealed class HouseQueryService : IHouseQueryService
         this.storage = storage;
     }
 
-    public async Task<PageResult<PublicHouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, HttpRequest request, CancellationToken ct)
+    public async Task<PageResult<PublicHouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, string baseUrl, CancellationToken ct)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -75,7 +74,7 @@ public sealed class HouseQueryService : IHouseQueryService
 
             string? coverUrl = cover is null
                 ? null
-                : storage.GetUrl(request, ImageCategory.House, cover.HouseId, cover.FileName);
+                : storage.GetUrl(baseUrl, ImageCategory.House, cover.HouseId, cover.FileName);
 
             var gallery = h.Images
                 .Where(i => cover is null || i.Id != cover.Id)
@@ -84,7 +83,7 @@ public sealed class HouseQueryService : IHouseQueryService
                 .Take(5)
                 .Select(i => new ImageDto(
                     i.Id,
-                    storage.GetUrl(request, ImageCategory.House, i.HouseId, i.FileName),
+                    storage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName),
                     i.Alt,
                     i.Kind.ToString()))
                 .ToArray();
@@ -113,7 +112,7 @@ public sealed class HouseQueryService : IHouseQueryService
         };
     }
 
-    public async Task<PublicHouseDetailsDto?> GetAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<PublicHouseDetailsDto?> GetAsync(Guid id, string baseUrl, CancellationToken ct)
     {
         var house = await db.Houses
             .Include(x => x.Images)
@@ -127,14 +126,14 @@ public sealed class HouseQueryService : IHouseQueryService
         }
 
         var gallery = house.Images
-            .Select(i => new ImageDto(i.Id, storage.GetUrl(request, ImageCategory.House, i.HouseId, i.FileName), i.Alt, i.Kind.ToString()))
+            .Select(i => new ImageDto(i.Id, storage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName), i.Alt, i.Kind.ToString()))
             .ToArray();
 
         var features = house.HouseFeatures
             .Select(hf =>
             {
                 var f = hf.Feature;
-                var icon = storage.GetUrl(request, f?.IconUrl);
+                var icon = storage.GetUrl(baseUrl, f?.IconUrl);
                 return new FeatureValueDto(
                     Id: hf.FeatureId,
                     Name: f?.Name ?? string.Empty,

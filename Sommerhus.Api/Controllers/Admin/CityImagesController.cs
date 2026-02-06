@@ -15,13 +15,13 @@ public sealed class CityImagesController(IAdminCityImageService service) : Contr
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ImageDto>>> List(Guid cityId, CancellationToken ct)
-        => this.FromResult(await service.ListAsync(cityId, Request, ct));
+        => this.FromResult(await service.ListAsync(cityId, Request.BaseUrl(), ct));
 
     [HttpPost]
     [RequestSizeLimit(1024L * 1024L * 100L)]
     public async Task<ActionResult<ImageDto>> Upload(Guid cityId, IFormFile file, [FromForm] string? alt, CancellationToken ct)
     {
-        var result = await service.UploadAsync(cityId, file, alt, Request, ct);
+        var result = await service.UploadAsync(cityId, file, alt, Request.BaseUrl(), ct);
         if (result.Status == ServiceResultStatus.Success)
         {
             return CreatedAtAction(nameof(List), new { cityId }, result.Value);

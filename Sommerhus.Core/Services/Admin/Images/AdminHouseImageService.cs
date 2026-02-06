@@ -7,7 +7,6 @@ using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Images;
@@ -22,7 +21,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
     {
     }
 
-    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid houseId, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid houseId, string baseUrl, CancellationToken ct)
     {
         var images = await Db.Images.AsNoTracking()
             .Where(i => i.HouseId == houseId)
@@ -41,13 +40,13 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
         }
 
         var dtos = images
-            .Select(i => ToDto(i.Id, request, ImageCategory.House, houseId, i.FileName, i.Alt, i.Kind.ToString()))
+            .Select(i => ToDto(i.Id, baseUrl, ImageCategory.House, houseId, i.FileName, i.Alt, i.Kind.ToString()))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
     }
 
-    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid houseId, IFormFileCollection files, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid houseId, IFormFileCollection files, string baseUrl, CancellationToken ct)
     {
         var validationError = ValidateFileCollection(files);
         if (validationError is not null)
@@ -90,7 +89,7 @@ public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseI
         await Db.SaveChangesAsync(ct);
 
         var dtos = added
-            .Select(img => ToDto(img.Id, request, ImageCategory.House, houseId, img.FileName, img.Alt, img.Kind.ToString()))
+            .Select(img => ToDto(img.Id, baseUrl, ImageCategory.House, houseId, img.FileName, img.Alt, img.Kind.ToString()))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);

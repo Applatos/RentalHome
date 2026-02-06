@@ -25,7 +25,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         this.imageStorage = imageStorage;
     }
 
-    public async Task<IReadOnlyList<FeatureDto>> GetAllAsync(HttpRequest request, CancellationToken ct)
+    public async Task<IReadOnlyList<FeatureDto>> GetAllAsync(string baseUrl, CancellationToken ct)
     {
         var items = await db.Features.AsNoTracking()
             .OrderBy(f => f.Name)
@@ -38,7 +38,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
                 f.Key,
                 f.ValueType,
                 f.Unit,
-                imageStorage.GetUrl(request, f.IconUrl)))
+                imageStorage.GetUrl(baseUrl, f.IconUrl)))
             .ToList();
     }
 
@@ -47,13 +47,13 @@ public sealed class AdminFeatureService : IAdminFeatureService
         var valueTypeResult = NormalizeValueType(dto.ValueType);
         if (!valueTypeResult.IsSuccess)
         {
-            return ServiceResult<Guid>.Invalid(CloneErrors(valueTypeResult.Errors));
+            return ServiceResult<Guid>.Invalid(valueTypeResult.Errors);
         }
 
         var keyResult = NormalizeKey(dto.Key);
         if (!keyResult.IsSuccess)
         {
-            return ServiceResult<Guid>.Invalid(CloneErrors(keyResult.Errors));
+            return ServiceResult<Guid>.Invalid(keyResult.Errors);
         }
 
         var exists = await db.Features.AnyAsync(f => f.Key == keyResult.Value, ct);
@@ -90,13 +90,13 @@ public sealed class AdminFeatureService : IAdminFeatureService
         var valueTypeResult = NormalizeValueType(dto.ValueType);
         if (!valueTypeResult.IsSuccess)
         {
-            return ServiceResult.Invalid(CloneErrors(valueTypeResult.Errors));
+            return ServiceResult.Invalid(valueTypeResult.Errors);
         }
 
         var keyResult = NormalizeKey(dto.Key);
         if (!keyResult.IsSuccess)
         {
-            return ServiceResult.Invalid(CloneErrors(keyResult.Errors));
+            return ServiceResult.Invalid(keyResult.Errors);
         }
 
         var keyTaken = await db.Features.AnyAsync(f => f.Key == keyResult.Value && f.Id != id, ct);
@@ -144,7 +144,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult<string>> UploadIconAsync(Guid id, IFormFile file, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<string>> UploadIconAsync(Guid id, IFormFile file, string baseUrl, CancellationToken ct)
     {
         var feature = await db.Features.FirstOrDefaultAsync(f => f.Id == id, ct);
         if (feature is null)
@@ -155,7 +155,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         var fileResult = ValidateIcon(file);
         if (!fileResult.IsSuccess)
         {
-            return ServiceResult<string>.Invalid(CloneErrors(fileResult.Errors));
+            return ServiceResult<string>.Invalid(fileResult.Errors);
         }
 
         await imageStorage.DeleteAsync(feature.IconUrl, ct);
@@ -164,7 +164,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         feature.IconUrl = stored.RelativePath;
         await db.SaveChangesAsync(ct);
 
-        var absolute = imageStorage.GetUrl(request, feature.IconUrl);
+        var absolute = imageStorage.GetUrl(baseUrl, feature.IconUrl);
         return ServiceResult<string>.Success(absolute!);
     }
 
@@ -249,14 +249,4 @@ public sealed class AdminFeatureService : IAdminFeatureService
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
-    private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)
-    {
-        var copy = new Dictionary<string, string[]>(errors.Count, StringComparer.Ordinal);
-        foreach (var pair in errors)
-        {
-            copy[pair.Key] = pair.Value.ToArray();
-        }
-
-        return copy;
-    }
 }

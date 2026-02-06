@@ -7,7 +7,6 @@ using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Images;
@@ -22,7 +21,7 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
     {
     }
 
-    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid areaId, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid areaId, string baseUrl, CancellationToken ct)
     {
         var exists = await Db.Areas.AsNoTracking().AnyAsync(a => a.Id == areaId, ct);
         if (!exists)
@@ -38,13 +37,13 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
             .ToListAsync(ct);
 
         var dtos = images
-            .Select(i => ToDto(i.Id, request, ImageCategory.Area, areaId, i.FileName, null, "Gallery"))
+            .Select(i => ToDto(i.Id, baseUrl, ImageCategory.Area, areaId, i.FileName, null, "Gallery"))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
     }
 
-    public async Task<ServiceResult<ImageDto>> UploadAsync(Guid areaId, IFormFile file, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<ImageDto>> UploadAsync(Guid areaId, IFormFile file, string baseUrl, CancellationToken ct)
     {
         var validationError = ValidateSingleFile<ImageDto>(file);
         if (validationError is not null)
@@ -62,7 +61,7 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
         Db.AreaImages.Add(image);
         await Db.SaveChangesAsync(ct);
 
-        return ServiceResult<ImageDto>.Success(ToDto(image.Id, request, ImageCategory.Area, areaId, image.FileName, null, "Gallery"));
+        return ServiceResult<ImageDto>.Success(ToDto(image.Id, baseUrl, ImageCategory.Area, areaId, image.FileName, null, "Gallery"));
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid areaId, Guid imageId, CancellationToken ct)

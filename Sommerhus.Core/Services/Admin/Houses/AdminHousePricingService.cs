@@ -3,6 +3,7 @@ using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
@@ -74,28 +75,6 @@ public sealed class AdminHousePricingService : IAdminHousePricingService
             .Include(p => p.SeasonPrices)
             .FirstAsync(p => p.Id == plan.Id, ct);
 
-        return ServiceResult<PricePlanDetailsDto>.Success(MapPlan(refreshed));
-    }
-
-    private static PricePlanDetailsDto MapPlan(PricePlan plan)
-    {
-        var rates = plan.SeasonPrices
-             .OrderBy(s => s.Code, StringComparer.OrdinalIgnoreCase)
-             .Select(s => new SeasonPriceDto(
-                s.Id,
-                s.PricePlanId,
-                s.Code,
-                s.NightlyPrice))
-            .ToList();
-
-        return new PricePlanDetailsDto(
-            plan.Id,
-            plan.HouseId,
-            plan.Name,
-            plan.Currency,
-            plan.IsActive,
-            plan.CreatedUtc,
-            plan.UpdatedUtc,
-            rates);
+        return ServiceResult<PricePlanDetailsDto>.Success(PricePlanMapper.ToDto(refreshed));
     }
 }

@@ -9,5 +9,5 @@ public sealed class AdminAuthClient
     public AdminAuthClient(HttpClient http) => this.http = http;
 
     public Task<ApiResponse<AdminTokenResponse?>> LoginAsync(AdminLoginRequest request, CancellationToken ct)
-        => ApiHttp.PostAsync<AdminLoginRequest, AdminTokenResponse?>(http, "admin/auth/login", request, ct);
+        => ApiHttp.PostAsync<AdminLoginRequest, AdminTokenResponse?>(http, "api/admin/auth/login", request, ct);
 }

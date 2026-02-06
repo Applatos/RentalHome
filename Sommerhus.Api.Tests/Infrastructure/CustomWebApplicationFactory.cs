@@ -112,7 +112,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         var client = CreateClient();
         
-        var response = client.PostAsJsonAsync("admin/auth/login", new AdminLoginRequest
+        var response = client.PostAsJsonAsync("api/admin/auth/login", new AdminLoginRequest
         {
             Username = AdminUsername,
             Password = AdminPassword

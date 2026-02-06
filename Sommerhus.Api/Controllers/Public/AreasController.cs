@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Public.Areas;
 
@@ -15,7 +16,7 @@ public sealed class AreasController(IAreaQueryService areas) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)
     {
-        var details = await areas.GetAsync(id, Request, ct);
+        var details = await areas.GetAsync(id, Request.BaseUrl(), ct);
         if (details is null)
         {
             return NotFound();

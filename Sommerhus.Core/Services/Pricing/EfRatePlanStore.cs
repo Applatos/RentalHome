@@ -12,16 +12,16 @@ namespace Sommerhus.Core.Services.Pricing;
 
 public sealed class EfRatePlanStore : IRatePlanStore
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext db;
 
     public EfRatePlanStore(AppDbContext db)
     {
-        _db = db;
+        this.db = db;
     }
 
     public async Task<PricePlan?> GetActivePlanAsync(Guid houseId, CancellationToken ct)
     {
-        return await _db.PricePlans
+        return await db.PricePlans
             .AsNoTracking()
             .Include(p => p.SeasonPrices)
             .Where(p => p.HouseId == houseId && p.IsActive)
@@ -31,7 +31,7 @@ public sealed class EfRatePlanStore : IRatePlanStore
 
     public async Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid houseId, CancellationToken ct)
     {
-        var houseGroup = await _db.Houses
+        var houseGroup = await db.Houses
             .AsNoTracking()
             .Where(h => h.Id == houseId)
             .Select(h => new { h.Id, h.GroupId })
@@ -42,7 +42,7 @@ public sealed class EfRatePlanStore : IRatePlanStore
             return Array.Empty<SeasonSpan>();
         }
 
-        return await _db.SeasonSpans
+        return await db.SeasonSpans
             .AsNoTracking()
             .Where(s => s.GroupId == groupId)
             .OrderBy(s => s.StartDate)

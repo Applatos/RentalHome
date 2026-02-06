@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Images;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Images;
@@ -19,7 +17,7 @@ public sealed class HouseImageQueryService : IHouseImageQueryService
         this.storage = storage;
     }
 
-    public async Task<IEnumerable<ImageDto>> GetAsync(Guid houseId, HttpRequest request, CancellationToken ct)
+    public async Task<IEnumerable<ImageDto>> GetAsync(Guid houseId, string baseUrl, CancellationToken ct)
     {
         var images = await db.Images.AsNoTracking()
             .Where(i => i.HouseId == houseId)
@@ -30,7 +28,7 @@ public sealed class HouseImageQueryService : IHouseImageQueryService
         return images.Select(i =>
             new ImageDto(
                 i.Id,
-                storage.GetUrl(request, ImageCategory.House, houseId, i.FileName),
+                storage.GetUrl(baseUrl, ImageCategory.House, houseId, i.FileName),
                 i.Alt,
                 i.Kind.ToString()))
             .ToList();

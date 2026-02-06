@@ -151,7 +151,7 @@ public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteSer
             .Include(p => p.SeasonPrices)
             .ToListAsync(ct);
 
-        return plans.Select(MapPlan).ToList();
+        return plans.Select(PricePlanMapper.ToDto).ToList();
     }
 
     public async Task<ServiceResult> ActivateRatePlanAsync(Guid planId, CancellationToken ct)
@@ -269,7 +269,4 @@ public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteSer
     private static SeasonSpanDto MapSpan(SeasonSpan span)
         => new(span.Id, span.StartDate, span.EndDate, span.Code);
 
-    private static PricePlanDetailsDto MapPlan(PricePlan plan)
-        => new(plan.Id, plan.HouseId, plan.Name, plan.Currency, plan.IsActive, plan.CreatedUtc, plan.UpdatedUtc,
-            plan.SeasonPrices.Select(sp => new SeasonPriceDto(sp.Id, sp.PricePlanId, sp.Code, sp.NightlyPrice)).ToList());
 }

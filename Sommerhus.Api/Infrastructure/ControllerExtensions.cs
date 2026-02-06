@@ -6,6 +6,15 @@ using Sommerhus.Core.Common;
 
 namespace Sommerhus.Api.Infrastructure;
 
+public static class HttpRequestExtensions
+{
+    public static string BaseUrl(this HttpRequest request)
+    {
+        var basePath = string.IsNullOrEmpty(request.PathBase) ? string.Empty : request.PathBase.Value!.TrimEnd('/');
+        return $"{request.Scheme}://{request.Host}{basePath}";
+    }
+}
+
 public static class ControllerExtensions
 {
     public static ActionResult<T> FromResult<T>(this ControllerBase controller, ServiceResult<T> result)

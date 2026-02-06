@@ -744,19 +744,21 @@ Make DTOs predictable for colleagues — the biggest readability win.
 
 **Result**: Build ✅ | Tests 11/11 ✅
 
-### Phase 13c: Consistency & DRY (estimated 2-3 hours)
+### Phase 13c: Consistency & DRY ✅ COMPLETED
 
 Eliminate duplication and enforce conventions.
 
-- [ ] **19k** Replace `HttpRequest` parameters with `string baseUrl` in all service interfaces
-- [ ] **19l** Extract `CloneErrors` into shared `ServiceResult` helper
-- [ ] **19n** Extract duplicated `MapPlan` into shared `PricePlanMapper`
-- [ ] **19m** Standardize private field naming (remove underscore prefix from `_db`)
-- [ ] **19p** Remove all duplicate `using` statements
-- [ ] **19q** Standardize API route patterns (`api/admin/auth` for AuthController)
-- [ ] **19r** Convert `AdminLoginRequest`/`AdminTokenResponse` to `sealed record`
-- [ ] **19s** Convert `PageResult<T>` to record with `IReadOnlyList<T>`
-- [ ] **19ee** Use `this.FromResult()` consistently in `HousesController`
+- [x] **19k** Replace `HttpRequest` parameters with `string baseUrl` in all service interfaces
+- [x] **19l** Extract `CloneErrors` into shared `ServiceResult` helper (added `IReadOnlyDictionary` overload)
+- [x] **19n** Extract duplicated `MapPlan` into shared `PricePlanMapper.ToDto()`
+- [x] **19m** Standardize private field naming (remove underscore prefix from `_db`)
+- [x] **19p** Remove all duplicate `using` statements (25 → 7 warnings)
+- [x] **19q** Standardize API route patterns (`api/admin/auth` for AuthController)
+- [x] **19r** Convert `AdminLoginRequest`/`AdminTokenResponse` to `sealed record`
+- [x] **19s** Convert `PageResult<T>` to `sealed record` with `IReadOnlyList<T>`
+- [~] **19ee** Use `this.FromResult()` in `HousesController` — skipped (Create/Update/Delete need custom responses)
+
+**Result**: Build ✅ | Tests 11/11 ✅
 
 ### Phase 13d: Cleanup & Hygiene (estimated 1-2 hours)
 
@@ -816,7 +818,7 @@ After completing all phases:
 | Phase 10  | 2-3 hours        | Medium   | Pending       |
 | Phase 13a | 2-3 hours        | High     | **Completed** |
 | Phase 13b | 3-4 hours        | High     | **Completed** |
-| Phase 13c | 2-3 hours        | Medium   | Pending       |
+| Phase 13c | 2-3 hours        | Medium   | **Completed** |
 | Phase 13d | 1-2 hours        | Low      | Pending       |
 
 **Remaining**: ~20-28 hours

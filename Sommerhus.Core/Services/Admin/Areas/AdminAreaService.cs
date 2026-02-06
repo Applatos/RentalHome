@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Common;
@@ -35,7 +34,7 @@ public sealed class AdminAreaService : IAdminAreaService
             .Select(a => new LookupItem(a.Id, a.Name))
             .ToListAsync(ct);
 
-    public async Task<ServiceResult<AreaDetailsDto>> GetDetailsAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<AreaDetailsDto>> GetDetailsAsync(Guid id, string baseUrl, CancellationToken ct)
     {
         var area = await LoadAreaAsync(id, ct);
         if (area is null)
@@ -43,21 +42,21 @@ public sealed class AdminAreaService : IAdminAreaService
             return ServiceResult<AreaDetailsDto>.NotFound();
         }
 
-        return ServiceResult<AreaDetailsDto>.Success(MapDetails(area, request));
+        return ServiceResult<AreaDetailsDto>.Success(MapDetails(area, baseUrl));
     }
 
-    public async Task<ServiceResult<AreaDetailsDto>> CreateAsync(UpsertAreaDto dto, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<AreaDetailsDto>> CreateAsync(UpsertAreaDto dto, string baseUrl, CancellationToken ct)
     {
         var nameResult = NormalizeName(dto.Name);
         if (!nameResult.IsSuccess)
         {
-            return ServiceResult<AreaDetailsDto>.Invalid(CloneErrors(nameResult.Errors));
+            return ServiceResult<AreaDetailsDto>.Invalid(nameResult.Errors);
         }
 
         var citiesResult = await ResolveCitiesAsync(dto.CityIds, ct);
         if (!citiesResult.IsSuccess)
         {
-            return ServiceResult<AreaDetailsDto>.Invalid(CloneErrors(citiesResult.Errors));
+            return ServiceResult<AreaDetailsDto>.Invalid(citiesResult.Errors);
         }
 
         var area = new Area
@@ -86,7 +85,7 @@ public sealed class AdminAreaService : IAdminAreaService
         await db.SaveChangesAsync(ct);
 
         var created = await LoadAreaAsync(area.Id, ct);
-        return ServiceResult<AreaDetailsDto>.Success(MapDetails(created!, request));
+        return ServiceResult<AreaDetailsDto>.Success(MapDetails(created!, baseUrl));
     }
 
     public async Task<ServiceResult> UpdateAsync(Guid id, UpsertAreaDto dto, CancellationToken ct)
@@ -105,13 +104,13 @@ public sealed class AdminAreaService : IAdminAreaService
         var nameResult = NormalizeName(dto.Name);
         if (!nameResult.IsSuccess)
         {
-            return ServiceResult.Invalid(CloneErrors(nameResult.Errors));
+            return ServiceResult.Invalid(nameResult.Errors);
         }
 
         var citiesResult = await ResolveCitiesAsync(dto.CityIds, ct);
         if (!citiesResult.IsSuccess)
         {
-            return ServiceResult.Invalid(CloneErrors(citiesResult.Errors));
+            return ServiceResult.Invalid(citiesResult.Errors);
         }
 
         area.Name = nameResult.Value!;
@@ -241,7 +240,7 @@ public sealed class AdminAreaService : IAdminAreaService
         }
     }
 
-    private AreaDetailsDto MapDetails(Area area, HttpRequest request)
+    private AreaDetailsDto MapDetails(Area area, string baseUrl)
     {
         var houses = area.Houses
             .OrderBy(h => h.Title)
@@ -254,7 +253,7 @@ public sealed class AdminAreaService : IAdminAreaService
             .ThenBy(i => i.Id)
             .Select(i => new ImageDto(
                 i.Id,
-                imageStorage.GetUrl(request, ImageCategory.Area, area.Id, i.FileName),
+                imageStorage.GetUrl(baseUrl, ImageCategory.Area, area.Id, i.FileName),
                 null,
                 "Gallery"))
             .ToList();
@@ -279,14 +278,4 @@ public sealed class AdminAreaService : IAdminAreaService
             Houses: houses);
     }
 
-    private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)
-    {
-        var dict = new Dictionary<string, string[]>(StringComparer.Ordinal);
-        foreach (var pair in errors)
-        {
-            dict[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
-        }
-
-        return dict;
-    }
 }

@@ -17,7 +17,7 @@ public sealed class FeaturesController(IAdminFeatureService service) : Controlle
 {
     [HttpGet]
     public async Task<IReadOnlyList<FeatureDto>> GetAll(CancellationToken ct)
-        => await service.GetAllAsync(Request, ct);
+        => await service.GetAllAsync(Request.BaseUrl(), ct);
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertFeatureDto dto, CancellationToken ct)
@@ -34,7 +34,7 @@ public sealed class FeaturesController(IAdminFeatureService service) : Controlle
     [HttpPost("{id:guid}/icon")]
     public async Task<IActionResult> UploadIcon(Guid id, IFormFile file, CancellationToken ct)
     {
-        var result = await service.UploadIconAsync(id, file, Request, ct);
+        var result = await service.UploadIconAsync(id, file, Request.BaseUrl(), ct);
         if (result.Status == ServiceResultStatus.Success)
             return Ok(new { iconUrl = result.Value });
 

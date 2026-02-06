@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Dtos.Shared;
 
@@ -17,12 +18,12 @@ public class HousesController(IHouseQueryService houses) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
-        => houses.SearchAsync(city, zip, query, area, page, pageSize, Request, ct);
+        => houses.SearchAsync(city, zip, query, area, page, pageSize, Request.BaseUrl(), ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<PublicHouseDetailsDto>> Get(Guid id, CancellationToken ct)
     {
-        var house = await houses.GetAsync(id, Request, ct);
+        var house = await houses.GetAsync(id, Request.BaseUrl(), ct);
         if (house is null)
         {
             return NotFound();

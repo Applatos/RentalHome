@@ -14,7 +14,7 @@ using Sommerhus.Core.Identity;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Route("admin/auth")]
+[Route("api/admin/auth")]
 public sealed class AuthController(
     SignInManager<ApplicationUser> signInManager,
     UserManager<ApplicationUser> userManager,

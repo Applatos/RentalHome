@@ -284,7 +284,7 @@ public record UpsertHouseDto(
 | #4 Empty Project                | Low      | 5     | **Completed**  |
 | #5 DTO Validation               | Medium   | 3     | **Completed**  |
 | #6 Image Handling               | Medium   | 4     | **Completed**  |
-| #7 HttpRequest in Services      | High     | 13    | Pending        |
+| #7 HttpRequest in Services      | High     | 13c   | **Completed**  |
 | #8 Hardcoded CORS               | Low      | 13    | Pending        |
 | #9 Commented Code               | Low      | 6     | Pending        |
 | #10 API Docs                    | Low      | 7     | Pending        |
@@ -295,7 +295,7 @@ public record UpsertHouseDto(
 | #15 Test Coverage               | High     | 8     | Pending        |
 | #17 Architecture Simplification | High     | 2.5   | **Completed**  |
 | #18 MVC Frontend Inconsistency  | High     | 2.6   | **Completed**  |
-| #19 Backend Architecture Review | High     | 13    | **13a+b Done** |
+| #19 Backend Architecture Review | High     | 13    | **13a-c Done** |
 
 ---
 

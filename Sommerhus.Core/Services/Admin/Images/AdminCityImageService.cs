@@ -7,7 +7,6 @@ using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Images;
@@ -22,7 +21,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
     {
     }
 
-    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid cityId, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid cityId, string baseUrl, CancellationToken ct)
     {
         var city = await Db.Cities
             .Include(c => c.Images)
@@ -37,13 +36,13 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
         var dtos = city.Images
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.Id)
-            .Select(i => ToDto(i.Id, request, ImageCategory.City, city.Id, i.FileName, i.Alt, "city"))
+            .Select(i => ToDto(i.Id, baseUrl, ImageCategory.City, city.Id, i.FileName, i.Alt, "city"))
             .ToList();
 
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
     }
 
-    public async Task<ServiceResult<ImageDto>> UploadAsync(Guid cityId, IFormFile file, string? alt, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<ImageDto>> UploadAsync(Guid cityId, IFormFile file, string? alt, string baseUrl, CancellationToken ct)
     {
         var validationError = ValidateSingleFile<ImageDto>(file);
         if (validationError is not null)
@@ -69,7 +68,7 @@ public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityIma
         Db.CityImages.Add(image);
         await Db.SaveChangesAsync(ct);
 
-        return ServiceResult<ImageDto>.Success(ToDto(image.Id, request, ImageCategory.City, cityId, image.FileName, image.Alt, "city"));
+        return ServiceResult<ImageDto>.Success(ToDto(image.Id, baseUrl, ImageCategory.City, cityId, image.FileName, image.Alt, "city"));
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid cityId, Guid imageId, CancellationToken ct)

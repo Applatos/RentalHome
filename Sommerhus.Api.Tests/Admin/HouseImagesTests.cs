@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Api.Tests.Admin;

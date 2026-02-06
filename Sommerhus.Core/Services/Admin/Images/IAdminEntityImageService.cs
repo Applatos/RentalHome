@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.Images;
 
@@ -15,7 +14,7 @@ public interface IAdminEntityImageService<TEntity>
     /// <summary>
     /// Lists all images for the specified entity.
     /// </summary>
-    Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid entityId, HttpRequest request, CancellationToken ct);
+    Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid entityId, string baseUrl, CancellationToken ct);
 
     /// <summary>
     /// Deletes an image from the specified entity.
@@ -31,7 +30,7 @@ public interface IAdminSingleImageUploadService<TEntity> : IAdminEntityImageServ
     /// <summary>
     /// Uploads a single image to the specified entity.
     /// </summary>
-    Task<ServiceResult<ImageDto>> UploadAsync(Guid entityId, IFormFile file, HttpRequest request, CancellationToken ct);
+    Task<ServiceResult<ImageDto>> UploadAsync(Guid entityId, IFormFile file, string baseUrl, CancellationToken ct);
 }
 
 /// <summary>
@@ -42,5 +41,5 @@ public interface IAdminBatchImageUploadService<TEntity> : IAdminEntityImageServi
     /// <summary>
     /// Uploads multiple images to the specified entity.
     /// </summary>
-    Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid entityId, IFormFileCollection files, HttpRequest request, CancellationToken ct);
+    Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid entityId, IFormFileCollection files, string baseUrl, CancellationToken ct);
 }

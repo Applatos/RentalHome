@@ -58,13 +58,13 @@ public sealed class PhysicalImageStorage : IImageStorage
         return Task.CompletedTask;
     }
 
-    public string GetUrl(HttpRequest request, ImageCategory category, Guid ownerId, string fileName)
+    public string GetUrl(string baseUrl, ImageCategory category, Guid ownerId, string fileName)
     {
         var (_, relativePath) = BuildPaths(category, ownerId, fileName);
-        return ToAbsolute(request, relativePath);
+        return ToAbsolute(baseUrl, relativePath);
     }
 
-    public string? GetUrl(HttpRequest request, string? relativePath)
+    public string? GetUrl(string baseUrl, string? relativePath)
     {
         if (string.IsNullOrWhiteSpace(relativePath))
         {
@@ -72,7 +72,7 @@ public sealed class PhysicalImageStorage : IImageStorage
         }
 
         var normalized = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
-        return ToAbsolute(request, normalized);
+        return ToAbsolute(baseUrl, normalized);
     }
 
     public string GetRelativePath(ImageCategory category, Guid ownerId, string fileName)
@@ -125,9 +125,6 @@ public sealed class PhysicalImageStorage : IImageStorage
         }
     }
 
-    private static string ToAbsolute(HttpRequest request, string relativePath)
-    {
-        var basePath = string.IsNullOrEmpty(request.PathBase) ? string.Empty : request.PathBase.Value!.TrimEnd('/');
-        return $"{request.Scheme}://{request.Host}{basePath}{relativePath}";
-    }
+    private static string ToAbsolute(string baseUrl, string relativePath)
+        => $"{baseUrl.TrimEnd('/')}{relativePath}";
 }

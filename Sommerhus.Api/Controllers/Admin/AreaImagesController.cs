@@ -15,13 +15,13 @@ public sealed class AreaImagesController(IAdminAreaImageService service) : Contr
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ImageDto>>> List(Guid areaId, CancellationToken ct)
-        => this.FromResult(await service.ListAsync(areaId, Request, ct));
+        => this.FromResult(await service.ListAsync(areaId, Request.BaseUrl(), ct));
 
     [HttpPost]
     [RequestSizeLimit(50_000_000)]
     public async Task<ActionResult<ImageDto>> Upload(Guid areaId, IFormFile file, CancellationToken ct)
     {
-        var result = await service.UploadAsync(areaId, file, Request, ct);
+        var result = await service.UploadAsync(areaId, file, Request.BaseUrl(), ct);
         if (result.Status == ServiceResultStatus.Success)
         {
             return CreatedAtAction(nameof(List), new { areaId }, result.Value);

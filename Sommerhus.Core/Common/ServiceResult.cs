@@ -38,12 +38,12 @@ public class ServiceResult
             [field] = new[] { message }
         });
 
-    public static ServiceResult Invalid(IDictionary<string, string[]> errors)
+    public static ServiceResult Invalid(IReadOnlyDictionary<string, string[]> errors)
     {
-        var copy = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        var copy = new Dictionary<string, string[]>(errors.Count, StringComparer.Ordinal);
         foreach (var pair in errors)
         {
-            copy[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
+            copy[pair.Key] = pair.Value.ToArray();
         }
 
         return new(ServiceResultStatus.Invalid, new ReadOnlyDictionary<string, string[]>(copy));
@@ -84,12 +84,12 @@ public sealed class ServiceResult<T> : ServiceResult
             [field] = new[] { message }
         });
 
-    public new static ServiceResult<T> Invalid(IDictionary<string, string[]> errors)
+    public new static ServiceResult<T> Invalid(IReadOnlyDictionary<string, string[]> errors)
     {
-        var copy = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        var copy = new Dictionary<string, string[]>(errors.Count, StringComparer.Ordinal);
         foreach (var pair in errors)
         {
-            copy[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
+            copy[pair.Key] = pair.Value.ToArray();
         }
 
         return new(ServiceResultStatus.Invalid, default, new ReadOnlyDictionary<string, string[]>(copy));

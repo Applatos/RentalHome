@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -72,7 +71,7 @@ public sealed class AdminHouseService : IAdminHouseService
         };
     }
 
-    public async Task<ServiceResult<AdminHouseDetailsDto>> GetDetailsAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<ServiceResult<AdminHouseDetailsDto>> GetDetailsAsync(Guid id, string baseUrl, CancellationToken ct)
     {
         var house = await db.Houses
             .Include(x => x.Images)
@@ -103,7 +102,7 @@ public sealed class AdminHouseService : IAdminHouseService
             .Select(s => new SeasonSpanDto(s.Id, s.StartDate, s.EndDate, s.Code, null, null))
             .ToListAsync(ct);
 
-        var details = MapDetails(house, request, plan, calendarSegments);
+        var details = MapDetails(house, baseUrl, plan, calendarSegments);
         return ServiceResult<AdminHouseDetailsDto>.Success(details);
     }
 
@@ -112,7 +111,7 @@ public sealed class AdminHouseService : IAdminHouseService
         var areasResult = await ResolveAreasAsync(dto.AreaIds, ct);
         if (!areasResult.IsSuccess)
         {
-            return ServiceResult<Guid>.Invalid(CloneErrors(areasResult.Errors));
+            return ServiceResult<Guid>.Invalid(areasResult.Errors);
         }
 
         var house = new VacationHouse
@@ -150,7 +149,7 @@ public sealed class AdminHouseService : IAdminHouseService
         var areasResult = await ResolveAreasAsync(dto.AreaIds, ct);
         if (!areasResult.IsSuccess)
         {
-            return ServiceResult.Invalid(CloneErrors(areasResult.Errors));
+            return ServiceResult.Invalid(areasResult.Errors);
         }
 
         house.Title = dto.Title;
@@ -219,13 +218,13 @@ public sealed class AdminHouseService : IAdminHouseService
             [nameof(UpsertHouseDto.AreaIds)] = new[] { "Ukendt område" }
         });
 
-    private AdminHouseDetailsDto MapDetails(VacationHouse house, HttpRequest request, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
+    private AdminHouseDetailsDto MapDetails(VacationHouse house, string baseUrl, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
     {
         var images = house.Images
             .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
             .Select(i => new ImageDto(
                 i.Id,
-                imageStorage.GetUrl(request, ImageCategory.House, i.HouseId, i.FileName),
+                imageStorage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName),
                 i.Alt,
                 i.Kind.ToString()))
             .ToList();
@@ -239,7 +238,7 @@ public sealed class AdminHouseService : IAdminHouseService
                     f?.Name ?? string.Empty,
                     f?.ValueType ?? FeatureValueType.Text,
                     f?.Unit,
-                    imageStorage.GetUrl(request, f?.IconUrl),
+                    imageStorage.GetUrl(baseUrl, f?.IconUrl),
                     hf.RawValue);
             })
             .ToList();
@@ -251,7 +250,7 @@ public sealed class AdminHouseService : IAdminHouseService
 
         var areaIds = areaItems.Select(a => a.Id).ToList();
 
-        var planDto = plan is null ? null : MapPlan(plan);
+        var planDto = plan is null ? null : PricePlanMapper.ToDto(plan);
 
         return new AdminHouseDetailsDto(
             house.Id,
@@ -272,36 +271,4 @@ public sealed class AdminHouseService : IAdminHouseService
             house.GroupId);
     }
 
-    private static Dictionary<string, string[]> CloneErrors(IReadOnlyDictionary<string, string[]> errors)
-    {
-        var dict = new Dictionary<string, string[]>(StringComparer.Ordinal);
-        foreach (var pair in errors)
-        {
-            dict[pair.Key] = pair.Value?.ToArray() ?? Array.Empty<string>();
-        }
-
-        return dict;
-    }
-
-    private static PricePlanDetailsDto MapPlan(PricePlan plan)
-    {
-        var rates = plan.SeasonPrices
-             .OrderBy(s => s.Code, StringComparer.OrdinalIgnoreCase)
-             .Select(s => new SeasonPriceDto(
-                s.Id,
-                s.PricePlanId,
-                s.Code,
-                s.NightlyPrice))
-            .ToList();
-
-        return new PricePlanDetailsDto(
-            plan.Id,
-            plan.HouseId,
-            plan.Name,
-            plan.Currency,
-            plan.IsActive,
-            plan.CreatedUtc,
-            plan.UpdatedUtc,
-            rates);
-    }
 }

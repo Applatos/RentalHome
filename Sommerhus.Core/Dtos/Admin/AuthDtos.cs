@@ -1,13 +1,13 @@
 namespace Sommerhus.Core.Dtos.Admin;
 
-public sealed class AdminLoginRequest
+public sealed record AdminLoginRequest
 {
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string Username { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }
 
-public sealed class AdminTokenResponse
+public sealed record AdminTokenResponse
 {
-    public string Token { get; set; } = string.Empty;
-    public DateTimeOffset ExpiresAt { get; set; }
+    public string Token { get; init; } = string.Empty;
+    public DateTimeOffset ExpiresAt { get; init; }
 }

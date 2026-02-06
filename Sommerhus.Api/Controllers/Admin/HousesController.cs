@@ -25,7 +25,7 @@ public sealed class HousesController(
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AdminHouseDetailsDto>> Get(Guid id, CancellationToken ct)
-        => this.FromResult(await houseService.GetDetailsAsync(id, Request, ct));
+        => this.FromResult(await houseService.GetDetailsAsync(id, Request.BaseUrl(), ct));
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertHouseDto dto, CancellationToken ct)

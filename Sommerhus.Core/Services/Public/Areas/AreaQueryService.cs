@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Public.Areas;
 
@@ -34,7 +32,7 @@ public sealed class AreaQueryService : IAreaQueryService
             .ToListAsync(ct);
     }
 
-    public async Task<AreaDetailsDto?> GetAsync(Guid id, HttpRequest request, CancellationToken ct)
+    public async Task<AreaDetailsDto?> GetAsync(Guid id, string baseUrl, CancellationToken ct)
     {
         var area = await db.Areas
             .Include(a => a.AreaImages)
@@ -55,7 +53,7 @@ public sealed class AreaQueryService : IAreaQueryService
 
         var images = area.AreaImages
             .OrderBy(i => i.SortOrder).ThenBy(i => i.Id)
-            .Select(i => new ImageDto(i.Id, storage.GetUrl(request, ImageCategory.Area, area.Id, i.FileName), null, "Gallery"))
+            .Select(i => new ImageDto(i.Id, storage.GetUrl(baseUrl, ImageCategory.Area, area.Id, i.FileName), null, "Gallery"))
             .ToList();
 
         var cityItems = area.Cities
