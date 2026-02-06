@@ -83,7 +83,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
         b.Entity<HouseImage>(e =>
         {
-            e.Property(x => x.FileName).IsRequired().HasMaxLength(255);
+            e.Property(x => x.FileName).IsRequired().HasMaxLength(300);
         });
 
         b.Entity<HouseFeatureValue>(e =>
@@ -159,10 +159,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.Property(x => x.Code).IsRequired().HasMaxLength(10);
             e.HasIndex(x => new { x.PricePlanId, x.Code }).IsUnique();
-            e.HasOne<PricePlan>()
-                .WithMany(p => p.SeasonPrices)
-                .HasForeignKey(x => x.PricePlanId)
-                .OnDelete(DeleteBehavior.Cascade);
             e.HasOne<SeasonCode>()
                 .WithMany()
                 .HasForeignKey(x => x.Code)
@@ -187,7 +183,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<PriceModifier>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Value).HasColumnType("TEXT");
             e.HasIndex(x => x.RatePlanId);
         });
     }

@@ -8,11 +8,13 @@ public class ProblemDetailsMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ProblemDetailsMiddleware> _logger;
+    private readonly bool _isDevelopment;
 
-    public ProblemDetailsMiddleware(RequestDelegate next, ILogger<ProblemDetailsMiddleware> logger)
+    public ProblemDetailsMiddleware(RequestDelegate next, ILogger<ProblemDetailsMiddleware> logger, IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
+        _isDevelopment = environment.IsDevelopment();
     }
 
     public async Task Invoke(HttpContext context)
@@ -30,7 +32,7 @@ public class ProblemDetailsMiddleware
                 Type = "https://httpstatuses.com/500",
                 Title = "An unexpected error occurred.",
                 Status = (int)HttpStatusCode.InternalServerError,
-                Detail = ex.Message,
+                Detail = _isDevelopment ? ex.Message : null,
                 Instance = context.Request.Path
             };
 

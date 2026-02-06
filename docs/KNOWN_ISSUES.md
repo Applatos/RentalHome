@@ -276,175 +276,369 @@ public record UpsertHouseDto(
 
 ## Tracking
 
-| Issue                           | Priority | Phase | Status          |
-| ------------------------------- | -------- | ----- | --------------- |
-| #1 Service Registration         | High     | 1     | **Completed**   |
-| #2 Large Services               | High     | 2     | Pending         |
-| #3 Danish Text                  | Medium   | 6     | Pending         |
-| #4 Empty Project                | Low      | 5     | Pending         |
-| #5 DTO Validation               | Medium   | 3     | Pending         |
-| #6 Image Handling               | Medium   | 4     | Pending         |
-| #7 HttpRequest in Services      | Medium   | -     | Pending         |
-| #8 Hardcoded CORS               | Low      | -     | Pending         |
-| #9 Commented Code               | Low      | 6     | Pending         |
-| #10 API Docs                    | Low      | 7     | Pending         |
-| #11 MVC Exception Handling      | Low      | 10    | Pending         |
-| #12 N+1 Queries                 | Medium   | 9     | Pending         |
-| #13 JWT Key                     | Security | -     | Documented      |
-| #14 Admin Password              | Security | -     | Documented      |
-| #15 Test Coverage               | High     | 8     | Pending         |
-| #17 Architecture Simplification | High     | 2.5   | **In Progress** |
-| #18 MVC Frontend Inconsistency  | High     | 2.6   | **In Progress** |
+| Issue                           | Priority | Phase | Status        |
+| ------------------------------- | -------- | ----- | ------------- |
+| #1 Service Registration         | High     | 1     | **Completed** |
+| #2 Large Services               | High     | 2     | **Completed** |
+| #3 Danish Text                  | High     | 13    | Pending       |
+| #4 Empty Project                | Low      | 5     | **Completed** |
+| #5 DTO Validation               | Medium   | 3     | **Completed** |
+| #6 Image Handling               | Medium   | 4     | **Completed** |
+| #7 HttpRequest in Services      | High     | 13    | Pending       |
+| #8 Hardcoded CORS               | Low      | 13    | Pending       |
+| #9 Commented Code               | Low      | 6     | Pending       |
+| #10 API Docs                    | Low      | 7     | Pending       |
+| #11 MVC Exception Handling      | Low      | 10    | Pending       |
+| #12 N+1 Queries                 | Medium   | 9     | Pending       |
+| #13 JWT Key                     | Security | -     | Documented    |
+| #14 Admin Password              | Security | -     | Documented    |
+| #15 Test Coverage               | High     | 8     | Pending       |
+| #17 Architecture Simplification | High     | 2.5   | **Completed** |
+| #18 MVC Frontend Inconsistency  | High     | 2.6   | **Completed** |
+| #19 Backend Architecture Review | High     | 13    | **13a Done**  |
 
 ---
 
-## Phase 2.6: MVC Admin Frontend Standardization (NEW)
+## Phase 13: Backend Architecture Review (Feb 6, 2026)
 
-This phase addresses inconsistent patterns across the admin frontend discovered during architecture review.
+Comprehensive review of Domain, Core, and API layers. All findings below are organized by severity and layer.
 
-### Problems Identified
+### HIGH PRIORITY — Correctness & Predictability
 
-1. **Controller File/Class Mismatch**: `HousesController.cs` contains class `AdminController`
-2. **God Controller**: `AdminController` is 728 lines handling houses, pricing, features, calendar, season codes
-3. **Inconsistent Action Names**: Mix of `Houses()`/`Index()`, `House()`/`Details()`
-4. **Excessive ViewBag Usage**: 7+ ViewBag properties instead of typed ViewModels
-5. **Inconsistent View Paths**: Some hardcoded (`~/Views/Admin/Areas.cshtml`), some implicit
-6. **Mixed Languages**: Danish/English error messages
-7. **Inconsistent View Naming**: `House._images.cshtml` vs `House._Overview.cshtml`
-8. **No Shared Partials**: Flash messages duplicated across all views
+#### 19a. God DTO: `HouseDetailsDto` (21 params, 11 optional)
 
-### Solution: Unified Admin MVC Pattern
+**Location**: `Sommerhus.Core/Dtos/Shared/HouseDetailsDto.cs`
 
-#### Controller Convention
+**Problem**: A single record serves both Admin and Public contexts through optional parameters. Consumers must know which fields are populated in which context — this is unpredictable and error-prone. A colleague reading `HouseDetailsDto` has no way to know which fields will be `null` without reading both `AdminHouseService.MapDetails` and `HouseQueryService.GetAsync`.
 
-- One controller per entity: `{Entity}Controller`
-- Standard actions: `Index`, `Details`, `Create`, `Edit`, `Delete`
-- Sub-resources get separate controllers: `HouseImagesController`, `HousePricingController`
+**`HouseListItemDto` has the same problem** (14 params, many optional). `Images` is always an empty list in admin, while `Gallery` holds the actual images in public. Confusing overlap.
 
-#### ViewModel Convention
-
-- Every view gets a typed ViewModel (never raw DTOs)
-- ViewModels include all dropdown data, tab state, flash messages
-- Zero ViewBag usage
-
-#### View Convention
-
-- Folder per entity: `Views/Admin/Houses/`, `Views/Admin/Areas/`
-- Consistent partial naming: `_Tab{Name}.cshtml`
-- Shared partials: `_FlashMessages.cshtml`, `_Pagination.cshtml`
-
-### Implementation Steps
-
-1. ✅ Document changes in KNOWN_ISSUES.md
-2. Create `AdminControllerBase` with shared helpers
-3. Rename `AdminController` → `HousesController` (fix class/file mismatch)
-4. Extract pricing/calendar into `HousePricingController`
-5. Create typed ViewModels for all admin views
-6. Standardize action names across all controllers
-7. Create shared partials
-8. Reorganize view folder structure
-9. Standardize all messages to English
-10. Update ARCHITECTURE.md
-
-### New MVC Structure (After)
-
-```
-Controllers/Admin/
-├── AdminControllerBase.cs       # Shared helpers
-├── HousesController.cs          # House CRUD (Index, Details, Create, Edit, Delete)
-├── HousePricingController.cs    # House pricing + calendar
-├── AreasController.cs           # Area CRUD (standardized actions)
-├── FeaturesController.cs        # Feature CRUD
-├── HouseGroupsController.cs     # House group CRUD
-└── PricingController.cs         # Season codes management
-
-ViewModels/Admin/
-├── Houses/
-│   ├── HouseListVm.cs
-│   ├── HouseDetailsVm.cs
-│   └── HouseCreateVm.cs
-├── Areas/
-│   ├── AreaListVm.cs
-│   └── AreaDetailsVm.cs
-├── Features/
-│   └── FeatureListVm.cs
-└── HouseGroups/
-    └── HouseGroupListVm.cs
-
-Views/Admin/
-├── Houses/
-│   ├── Index.cshtml
-│   ├── Details.cshtml
-│   ├── Create.cshtml
-│   ├── _TabOverview.cshtml
-│   ├── _TabImages.cshtml
-│   ├── _TabFeatures.cshtml
-│   ├── _TabPricing.cshtml
-│   └── _TabCalendar.cshtml
-├── Areas/
-│   ├── Index.cshtml
-│   ├── Details.cshtml
-│   ├── Create.cshtml
-│   └── Edit.cshtml
-├── Features/
-│   └── Index.cshtml
-├── HouseGroups/
-│   └── (existing structure OK)
-└── Shared/
-    ├── _FlashMessages.cshtml
-    └── _Pagination.cshtml
-```
+**Solution**: Split into `AdminHouseDetailsDto` and `PublicHouseDetailsDto`. Shared base fields can be a common interface or a nested record.
 
 ---
 
-## Phase 2.5: Architecture Simplification (NEW)
+#### 19b. `PricePlanDetailsDto.planId` uses camelCase
 
-This phase consolidates over-engineered layers identified during architecture review.
+**Location**: `Sommerhus.Core/Dtos/Shared/SeasonDto.cs:53`
 
-### Goals
+**Problem**: Every other record parameter uses PascalCase. This one silently serializes as `planId` in JSON, breaking the naming convention and potentially confusing API consumers.
 
-1. **Consolidate DTOs** - Merge `Sommerhus.Contracts` into `Sommerhus.Application`
-2. **Merge Projects** - Combine `Application` + `Repository` → `Sommerhus.Core`
-3. **Keep Interfaces** - Retain service interfaces for testability (even 1:1)
-4. **Fix MVC Controller Bloat** - Split 1100-line `HousesController.cs`
-5. **Extract ViewModels** - Move inline ViewModels to `Mvc/ViewModels/`
-6. **Move Extensions** - Relocate `SelectListExtensions` to `Mvc/Extensions/`
-7. **Unify Response Wrappers** - Single `ServiceResult<T>` pattern API→MVC
+**Solution**: Rename to `PlanId`.
 
-### New Project Structure (After)
+---
 
-```
-Sommerhus_project/
-├── Sommerhus.Api/           # REST API (unchanged)
-├── Sommerhus.Mvc/           # MVC frontend (reorganized)
-│   ├── Controllers/Admin/   # Split by domain
-│   ├── ViewModels/          # Extracted from controllers
-│   └── Extensions/          # SelectListExtensions, etc.
-├── Sommerhus.Domain/        # Entity models (unchanged)
-├── Sommerhus.Core/          # NEW: Merged Application + Repository
-│   ├── Dtos/                # Consolidated from Contracts
-│   ├── Services/            # Interfaces + Implementations
-│   ├── Data/                # DbContext, migrations
-│   └── Common/              # ServiceResult, shared utilities
-└── Sommerhus.Api.Tests/     # Tests (updated references)
-```
+#### 19c. `UpsertHouseDto.Name` vs Entity `VacationHouse.Title`
 
-### Deleted Projects
+**Location**: `Sommerhus.Core/Dtos/Admin/UpsertHouseDto.cs:10`
 
-- `Sommerhus.Contracts` - Merged into Core
-- `Sommerhus.Application` - Merged into Core
-- `Sommerhus.Repository` - Merged into Core
+**Problem**: The DTO property is `Name`, the entity property is `Title`. Service maps `dto.Name → house.Title`. A developer looking at the DTO has no idea what "Name" refers to — it's the house title. Confusing and a source of bugs.
 
-### Migration Steps
+**Solution**: Rename DTO property to `Title` to match the entity.
 
-1. Create `Sommerhus.Core` project
-2. Move DTOs from Contracts → Core/Dtos
-3. Move interfaces from Application → Core/Services
-4. Move implementations from Repository → Core/Services
-5. Update all project references
-6. Split MVC controllers
-7. Extract ViewModels
-8. Run tests to verify
+---
+
+#### 19d. `FeaturesController.UploadIcon` — Incomplete switch expression
+
+**Location**: `Sommerhus.Api/Controllers/Admin/FeaturesController.cs:40-43`
+
+**Problem**: The switch only handles `Success`. Any other status (NotFound, Invalid, etc.) will throw a `SwitchExpressionException` at runtime. This is a **bug**.
+
+**Solution**: Use `this.FromResult(result)` like all other actions, or add missing cases.
+
+---
+
+#### 19e. `FeatureUpsertOutcome` breaks the `ServiceResult` pattern
+
+**Location**: `Sommerhus.Core/Services/Admin/Houses/FeatureUpsertOutcome.cs`
+
+**Problem**: Every other service returns `ServiceResult<T>`. This one uses a custom result type that doesn't integrate with `ControllerExtensions.FromResult()`. Forces manual mapping in the controller. A colleague encountering this will be confused about why this service is different.
+
+**Solution**: Replace with `ServiceResult` or `ServiceResult<T>` to follow established pattern.
+
+---
+
+#### 19f. `Public.PricingController` depends on `IAdminPricingService`
+
+**Location**: `Sommerhus.Api/Controllers/Public/PricingController.cs:10`
+
+**Problem**: A public controller directly depends on an admin service interface. This breaks the admin/public separation that's used everywhere else in the codebase.
+
+**Solution**: Extract `IPricingQuoteService` into `Core/Services/Public/Pricing/` with only the `QuoteAsync` method.
+
+---
+
+#### 19g. `DbContext.OnModelCreating` MaxLength conflicts with domain attributes
+
+**Locations**:
+
+- `VacationHouse.Title`: `[MaxLength(140)]` in domain vs `HasMaxLength(200)` in fluent config
+- `HouseImage.FileName`: `[MaxLength(300)]` in domain vs `HasMaxLength(255)` in fluent config
+
+**Problem**: Fluent API wins at runtime, so domain annotations are misleading. A developer reading the model class sees 140 chars max, but the DB allows 200. This creates subtle validation mismatches.
+
+**Solution**: Pick one source of truth. Recommendation: use fluent API as authoritative and remove conflicting domain attributes, or match them exactly.
+
+---
+
+#### 19h. `SeasonPrice` double FK configuration
+
+**Location**: `Sommerhus.Core/Data/DbContext.cs:151-154` and `162-165`
+
+**Problem**: The FK from `SeasonPrice` to `PricePlan` is configured in both the `PricePlan` entity block and the `SeasonPrice` entity block. Only one should be authoritative; having both is confusing and could lead to unexpected cascade behavior changes.
+
+**Solution**: Remove the duplicate; keep it in one place.
+
+---
+
+#### 19i. `ProblemDetailsMiddleware` leaks exception details in production
+
+**Location**: `Sommerhus.Api/ProblemDetailsMiddleware.cs:33`
+
+**Problem**: `Detail = ex.Message` is always set regardless of environment. In production, this could expose internal implementation details to attackers.
+
+**Solution**: Only include `ex.Message` when `IHostEnvironment.IsDevelopment()` is true.
+
+---
+
+#### 19j. `PriceModifier.Value` uses SQLite-specific column type
+
+**Location**: `Sommerhus.Core/Data/DbContext.cs:190`
+
+**Problem**: `.HasColumnType("TEXT")` is SQLite-specific. On SQL Server, `decimal` should map to `decimal(18,2)`. This will cause issues when deploying to production with SQL Server.
+
+**Solution**: Use conditional column type based on provider, or remove the explicit mapping and let EF choose the appropriate type per provider.
+
+---
+
+### MEDIUM PRIORITY — Consistency & Maintainability
+
+#### 19k. `HttpRequest` passed to 8+ service interfaces
+
+**Locations**: `IAdminHouseService`, `IAdminAreaService`, `IAdminFeatureService`, `IHouseQueryService`, all image services
+
+**Problem**: Core layer depends on `Microsoft.AspNetCore.Http.HttpRequest`. This couples the business layer to ASP.NET Core, reducing testability and violating layer separation. Already documented as #7 but scope is larger than initially noted.
+
+**Solution**: Pass a `string baseUrl` parameter instead, or inject an `IUrlBuilder` abstraction.
+
+---
+
+#### 19l. `CloneErrors` duplicated in 4 services
+
+**Locations**: `AdminHouseService:284`, `AdminAreaService:282`, `AdminFeatureService:252`, `AdminHouseGroupService:256`
+
+**Problem**: Identical ~7-line method copy-pasted across four services.
+
+**Solution**: Move to `ServiceResult` as a static helper: `ServiceResult.CloneErrors(...)`, or an extension method in `Common/`.
+
+---
+
+#### 19m. Inconsistent private field naming convention
+
+**Problem**: `AdminHouseGroupService` uses `_db` (underscore prefix) while `AdminHouseService`, `AdminAreaService`, `AdminFeatureService` use `db` (no prefix).
+
+**Solution**: Pick one convention and apply it everywhere. The `.windsurfrules` says camelCase for private fields (no underscore).
+
+---
+
+#### 19n. `MapPlan` duplicated across two services
+
+**Locations**: `AdminHouseService:295` and `AdminHousePricingService:80`
+
+**Problem**: Identical mapping logic in two files. Changes to one must be mirrored in the other.
+
+**Solution**: Extract to a shared static mapper class, e.g. `PricePlanMapper.ToDto(PricePlan)`.
+
+---
+
+#### 19o. `HouseQueryService.SearchAsync` returns `IEnumerable<T>` — no pagination metadata
+
+**Location**: `Sommerhus.Core/Services/Public/Houses/IHouseQueryService.cs:9`
+
+**Problem**: Admin search returns `PageResult<HouseListItemDto>` with total count, page info, etc. Public search returns raw `IEnumerable<HouseListItemDto>`. API consumer cannot implement pagination without knowing total count.
+
+**Solution**: Return `PageResult<HouseListItemDto>` for consistency.
+
+---
+
+#### 19p. Duplicate `using` statements
+
+**Locations**:
+
+- `AdminHouseService.cs:10-11` — `Sommerhus.Core.Dtos.Admin` imported twice
+- `IAdminHouseGroupService.cs:2,4` — `Sommerhus.Core.Dtos.Admin` imported twice
+- `IAdminPricingService.cs:2,4` — same
+- `Api/Extensions/ServiceCollectionExtensions.cs:1-17 vs 19-32` — entire block duplicated
+- `CitiesController.cs:4-5` — `Sommerhus.Core.Dtos.Shared` imported twice
+
+**Solution**: Remove all duplicate usings. Run `dotnet format`.
+
+---
+
+#### 19q. Inconsistent API route patterns
+
+**Problem**:
+
+- Admin controllers: `api/admin/{entity}` (explicit)
+- `AuthController`: `admin/auth` (missing `api/` prefix)
+- Public controllers: `api/[controller]` (convention-based) vs `api/pricing` (explicit)
+
+**Solution**: Standardize all routes. Admin: `api/admin/{entity}`. Public: `api/{entity}`.
+
+---
+
+#### 19r. `AdminLoginRequest` / `AdminTokenResponse` are classes, not records
+
+**Location**: `Sommerhus.Core/Dtos/Admin/AuthDtos.cs`
+
+**Problem**: Convention says "prefer `record` for DTOs". These two are `sealed class`.
+
+**Solution**: Convert to `sealed record`.
+
+---
+
+#### 19s. `PageResult<T>` is a class, not a record
+
+**Location**: `Sommerhus.Core/Dtos/Shared/Paging.cs`
+
+**Problem**: Same convention violation. Uses mutable `List<T>` property.
+
+**Solution**: Convert to record with `IReadOnlyList<T>`.
+
+---
+
+#### 19t. `FeatureDto.ValueType` is stringly-typed
+
+**Location**: `Sommerhus.Core/Dtos/Shared/FeatureDto.cs:12` and `UpsertFeatureDto:23`
+
+**Problem**: Domain model has `FeatureValueType` enum but DTOs pass it as `string`. Service must parse it back. No compile-time safety.
+
+**Solution**: Use the `FeatureValueType` enum directly in DTOs. JSON serialization handles enum↔string automatically.
+
+---
+
+### LOW PRIORITY — Cleanup & Hygiene
+
+#### 19u. Orphaned domain models: `HouseAreas.cs` and `AreaCities.cs`
+
+**Locations**: `Sommerhus.Domain/Models/HouseAreas.cs`, `AreaCities.cs`
+
+**Problem**: Both M:N join tables are configured via `Dictionary<string, object>` in `OnModelCreating`. The explicit classes are never referenced by any service or DTO. `HouseAreas` also has `isPrimary` in camelCase (violating PascalCase convention) and uses block-scoped namespace.
+
+**Solution**: Delete both files. They serve no purpose.
+
+---
+
+#### 19v. `VacationHouse.CoverImageId` — Dead property
+
+**Location**: `Sommerhus.Domain/Models/VacationHouse.cs:18`
+
+**Problem**: Nullable Guid that is never read or written by any service, DTO, or controller.
+
+**Solution**: Remove the property and add a migration.
+
+---
+
+#### 19w. `VacationHouse.Facilities` — Nearly dead property
+
+**Location**: `Sommerhus.Domain/Models/VacationHouse.cs:16`
+
+**Problem**: Only used as a fallback in `HouseQueryService.BuildSummary()`. Not editable through any admin DTO or endpoint.
+
+**Solution**: Either expose in `UpsertHouseDto` and admin UI, or remove it.
+
+---
+
+#### 19x. `SeasonCode.Name` defaults to Danish, `Color` has no default
+
+**Location**: `Sommerhus.Domain/Models/Pricing/SeasonCode.cs:9-10`
+
+**Problem**: `Name = "Højsæson"` is a Danish default in a domain model. `Color` is non-nullable string with no default — will cause NullReferenceException if not set.
+
+**Solution**: Set `Name = ""` and `Color = "#6C757D"` as neutral defaults.
+
+---
+
+#### 19y. Inconsistent `Id` initialization across entities
+
+**Problem**: Most entities have `Id = Guid.NewGuid()` but `HouseGroup.Id`, `SeasonSpan.Id` do not.
+
+**Solution**: Add `= Guid.NewGuid()` to all entity `Id` properties for consistency.
+
+---
+
+#### 19z. Inconsistent image `FileName` MaxLength across entities
+
+**Problem**: `HouseImage: 300`, `AreaImage: 200`, `CityImage: 260`. No reason for them to differ.
+
+**Solution**: Standardize to 300 across all image entities.
+
+---
+
+#### 19aa. `DbSeeder` makes synchronous HTTP call and swallows all exceptions
+
+**Location**: `Sommerhus.Core/Data/DbSeeder.cs:162-208`
+
+**Problem**: `TryFetchDanishCities()` uses `.GetAwaiter().GetResult()` blocking the thread during startup, and catches ALL exceptions silently. If the external API is slow, startup blocks for 20 seconds.
+
+**Solution**: Make the method async or move the HTTP fetch to a background task. Log exceptions instead of swallowing.
+
+---
+
+#### 19bb. `LookupItem.cs` has unnecessary using statements
+
+**Location**: `Sommerhus.Core/Dtos/Shared/LookupItem.cs:1-5`
+
+**Problem**: Four unused `using` directives.
+
+**Solution**: Remove them. Run `dotnet format`.
+
+---
+
+#### 19cc. `Dtos/Public/` folder is empty
+
+**Location**: `Sommerhus.Core/Dtos/Public/`
+
+**Problem**: Empty directory adds noise to the project structure.
+
+**Solution**: Delete the folder.
+
+---
+
+#### 19dd. Danish comment in CORS config
+
+**Location**: `Sommerhus.Api/Program.cs:84`
+
+**Problem**: `// eller dit domæne` — Danish comment in code.
+
+**Solution**: Replace with English or remove.
+
+---
+
+#### 19ee. `HousesController.Create` inconsistent error handling
+
+**Location**: `Sommerhus.Api/Controllers/Admin/HousesController.cs:31-41`
+
+**Problem**: Manually maps `ServiceResult` via switch instead of using `this.FromResult()` like other actions. Also `UpsertPricing` (line 111) swallows actual error details with a generic message.
+
+**Solution**: Use `this.FromResult()` consistently. Forward `result.Errors` in `UpsertPricing`.
+
+---
+
+#### 19ff. Public `HousesController` not `sealed`
+
+**Location**: `Sommerhus.Api/Controllers/Public/HousesController.cs:9`
+
+**Problem**: All admin controllers are `sealed class` but public ones are `class`. Inconsistent.
+
+**Solution**: Make all controllers `sealed`.
+
+---
+
+#### 19gg. Stale documentation references
+
+**Problem**: `ARCHITECTURE.md` dependency graph (line 350-374) still references `Sommerhus.Application`, `Sommerhus.Repository`, `Sommerhus.Contracts` — all deleted in Phase 2.5. `KNOWN_ISSUES.md` Phase 2.5/2.6 sections reference stale project names.
+
+**Solution**: Update documentation to reflect current project structure.
 
 ---
 

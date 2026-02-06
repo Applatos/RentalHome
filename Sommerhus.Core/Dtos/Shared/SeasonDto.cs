@@ -50,7 +50,7 @@ public sealed record SeasonPriceDto(
 /// Price plan details DTO.
 /// </summary>
 public sealed record PricePlanDetailsDto(
-    Guid planId, 
+    Guid PlanId, 
     Guid HouseId, 
     string Name, 
     string Currency, 

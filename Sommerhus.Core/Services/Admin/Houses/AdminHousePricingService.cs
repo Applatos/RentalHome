@@ -25,11 +25,11 @@ public sealed class AdminHousePricingService : IAdminHousePricingService
         }
 
         PricePlan? plan = null;
-        if (dto.planId != Guid.Empty)
+        if (dto.PlanId != Guid.Empty)
         {
             plan = await db.PricePlans
                 .Include(p => p.SeasonPrices)
-                .FirstOrDefaultAsync(p => p.HouseId == houseId && p.Id == dto.planId, ct);
+                .FirstOrDefaultAsync(p => p.HouseId == houseId && p.Id == dto.PlanId, ct);
         }
 
         plan ??= new PricePlan

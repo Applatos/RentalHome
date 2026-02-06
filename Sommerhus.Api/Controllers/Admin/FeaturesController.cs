@@ -31,16 +31,14 @@ public sealed class FeaturesController(IAdminFeatureService service) : Controlle
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         => this.FromResult(await service.DeleteAsync(id, ct));
 
-    // ===== Ikon upload/slet =====
-
     [HttpPost("{id:guid}/icon")]
     public async Task<IActionResult> UploadIcon(Guid id, IFormFile file, CancellationToken ct)
     {
         var result = await service.UploadIconAsync(id, file, Request, ct);
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => Ok(new { iconUrl = result.Value }),
-        };
+        if (result.Status == ServiceResultStatus.Success)
+            return Ok(new { iconUrl = result.Value });
+
+        return this.FromResult((ServiceResult)result);
     }
 
     [HttpDelete("{id:guid}/icon")]

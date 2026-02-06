@@ -713,6 +713,77 @@ Dtos/
 
 ---
 
+## Phase 13: Backend Architecture Review Fixes (NEXT)
+
+**Goal**: Address findings from the comprehensive backend architecture review (Feb 6, 2026). See `KNOWN_ISSUES.md` Phase 13 for full details on each issue.
+
+### Phase 13a: Critical Bug Fixes & Correctness ✅ COMPLETED
+
+These must be fixed first — they affect runtime correctness or security.
+
+- [x] **19d** Fix `FeaturesController.UploadIcon` incomplete switch (runtime crash)
+- [x] **19i** Fix `ProblemDetailsMiddleware` leaking `ex.Message` in production
+- [x] **19g** Resolve `MaxLength` conflicts between domain attributes and fluent config
+- [x] **19h** Remove duplicate `SeasonPrice → PricePlan` FK configuration in DbContext
+- [x] **19j** Fix `PriceModifier.Value` SQLite-specific `HasColumnType("TEXT")`
+- [x] **19b** Rename `PricePlanDetailsDto.planId` → `PlanId` (PascalCase)
+
+**Result**: Build ✅ | Tests 11/11 ✅
+
+### Phase 13b: DTO Predictability (estimated 3-4 hours)
+
+Make DTOs predictable for colleagues — the biggest readability win.
+
+- [ ] **19a** Split `HouseDetailsDto` into `AdminHouseDetailsDto` + `PublicHouseDetailsDto`
+- [ ] **19a** Split `HouseListItemDto` into `AdminHouseListItemDto` + `PublicHouseListItemDto`
+- [ ] **19c** Rename `UpsertHouseDto.Name` → `Title` to match entity
+- [ ] **19e** Replace `FeatureUpsertOutcome` with `ServiceResult` pattern
+- [ ] **19f** Extract `IPricingQuoteService` from `IAdminPricingService` for public use
+- [ ] **19o** Change `IHouseQueryService.SearchAsync` to return `PageResult<T>`
+- [ ] **19t** Use `FeatureValueType` enum in DTOs instead of string
+
+### Phase 13c: Consistency & DRY (estimated 2-3 hours)
+
+Eliminate duplication and enforce conventions.
+
+- [ ] **19k** Replace `HttpRequest` parameters with `string baseUrl` in all service interfaces
+- [ ] **19l** Extract `CloneErrors` into shared `ServiceResult` helper
+- [ ] **19n** Extract duplicated `MapPlan` into shared `PricePlanMapper`
+- [ ] **19m** Standardize private field naming (remove underscore prefix from `_db`)
+- [ ] **19p** Remove all duplicate `using` statements
+- [ ] **19q** Standardize API route patterns (`api/admin/auth` for AuthController)
+- [ ] **19r** Convert `AdminLoginRequest`/`AdminTokenResponse` to `sealed record`
+- [ ] **19s** Convert `PageResult<T>` to record with `IReadOnlyList<T>`
+- [ ] **19ee** Use `this.FromResult()` consistently in `HousesController`
+
+### Phase 13d: Cleanup & Hygiene (estimated 1-2 hours)
+
+Low-risk cleanup that reduces noise.
+
+- [ ] **19u** Delete orphaned `HouseAreas.cs` and `AreaCities.cs`
+- [ ] **19v** Remove dead `VacationHouse.CoverImageId` property + migration
+- [ ] **19w** Decide on `VacationHouse.Facilities` — expose or remove
+- [ ] **19x** Fix `SeasonCode` defaults (remove Danish, add `Color` default)
+- [ ] **19y** Add `= Guid.NewGuid()` to `HouseGroup.Id` and `SeasonSpan.Id`
+- [ ] **19z** Standardize image `FileName` MaxLength to 300
+- [ ] **19aa** Fix `DbSeeder` sync HTTP call and exception swallowing
+- [ ] **19bb** Remove unused usings in `LookupItem.cs`
+- [ ] **19cc** Delete empty `Dtos/Public/` folder
+- [ ] **19dd** Replace Danish CORS comment with English
+- [ ] **19ff** Make all public controllers `sealed`
+- [ ] **19gg** Update stale doc references (this file, ARCHITECTURE.md)
+- [ ] **#3** Replace all remaining Danish error messages with English
+
+### Verification (after each sub-phase)
+
+```powershell
+dotnet format Sommerhus_project.sln
+dotnet build Sommerhus_project.sln --warnaserror
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
+```
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:
@@ -729,20 +800,24 @@ After completing all phases:
 
 ## Timeline Estimate
 
-| Phase    | Estimated Effort | Priority |
-| -------- | ---------------- | -------- |
-| Phase 1  | 1-2 hours        | High     |
-| Phase 2  | 2-3 hours        | High     |
-| Phase 3  | 2-3 hours        | Medium   |
-| Phase 4  | 2-3 hours        | Medium   |
-| Phase 5  | 30 min           | Low      |
-| Phase 6  | 1-2 hours        | Medium   |
-| Phase 7  | 2-3 hours        | Low      |
-| Phase 8  | 3-4 hours        | High     |
-| Phase 9  | 2-3 hours        | Medium   |
-| Phase 10 | 2-3 hours        | Medium   |
+| Phase     | Estimated Effort | Priority | Status        |
+| --------- | ---------------- | -------- | ------------- |
+| Phase 1   | 1-2 hours        | High     | **Completed** |
+| Phase 2   | 2-3 hours        | High     | **Completed** |
+| Phase 3   | 2-3 hours        | Medium   | **Completed** |
+| Phase 4   | 2-3 hours        | Medium   | **Completed** |
+| Phase 5   | 30 min           | Low      | **Completed** |
+| Phase 6   | 1-2 hours        | Medium   | Pending       |
+| Phase 7   | 2-3 hours        | Low      | Pending       |
+| Phase 8   | 3-4 hours        | High     | Pending       |
+| Phase 9   | 2-3 hours        | Medium   | Pending       |
+| Phase 10  | 2-3 hours        | Medium   | Pending       |
+| Phase 13a | 2-3 hours        | High     | **Completed** |
+| Phase 13b | 3-4 hours        | High     | Pending       |
+| Phase 13c | 2-3 hours        | Medium   | Pending       |
+| Phase 13d | 1-2 hours        | Low      | Pending       |
 
-**Total**: ~18-26 hours
+**Remaining**: ~20-28 hours
 
 ---
 

@@ -6,7 +6,7 @@ public class VacationHouse
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required, MaxLength(140)] public string Title { get; set; } = "";
+    [Required, MaxLength(200)] public string Title { get; set; } = "";
     [MaxLength(200)] public string? Address { get; set; }
 
     [Required] public Guid CityId { get; set; }

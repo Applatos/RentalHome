@@ -349,28 +349,21 @@ PricePlan
 
 ```
 Sommerhus.Api
-    ├── Sommerhus.Application
-    ├── Sommerhus.Repository
-    ├── Sommerhus.Domain
-    └── Sommerhus.Contracts
+    ├── Sommerhus.Core
+    └── Sommerhus.Domain (transitive via Core)
 
 Sommerhus.Mvc
-    ├── Sommerhus.Domain
-    └── Sommerhus.Contracts
+    ├── Sommerhus.Core (for DTOs and service interfaces)
+    └── Sommerhus.Domain (transitive via Core)
 
-Sommerhus.Repository
-    ├── Sommerhus.Application
+Sommerhus.Core
     └── Sommerhus.Domain
-
-Sommerhus.Application
-    ├── Sommerhus.Domain
-    └── Sommerhus.Contracts
-
-Sommerhus.Contracts
-    └── (none)
 
 Sommerhus.Domain
     └── (none)
+
+Sommerhus.Api.Tests
+    └── Sommerhus.Api (via WebApplicationFactory)
 ```
 
 ---

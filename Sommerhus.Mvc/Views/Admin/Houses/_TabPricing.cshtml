@@ -42,7 +42,7 @@
 
 <form method="post" asp-controller="Houses" asp-action="SaveHousePricing" asp-route-id="@Model.House.Id" class="mt-3">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="PlanId" value="@(plan?.planId.ToString() ?? string.Empty)" />
+    <input type="hidden" name="PlanId" value="@(plan?.PlanId.ToString() ?? string.Empty)" />
 
     <div class="row g-3 align-items-end">
         <div class="col-md-4">
@@ -89,7 +89,7 @@
                     var row = displayRows[i];
                     var price = row.Price?.NightlyPrice;
                     var idValue = row.Price?.Id.ToString() ?? string.Empty;
-                    var ratePlanId = row.Price?.RatePlanId.ToString() ?? (plan?.planId.ToString() ?? string.Empty);
+                    var ratePlanId = row.Price?.RatePlanId.ToString() ?? (plan?.PlanId.ToString() ?? string.Empty);
                     <tr>
                         <td>
                             <input type="hidden" name="SeasonPrices[@i].Code" value="@row.Code" />
