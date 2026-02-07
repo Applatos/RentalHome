@@ -1,0 +1,19 @@
+@{
+    var statusCode = (int)(ViewData["StatusCode"] ?? 500);
+    ViewData["Title"] = statusCode == 404 ? "Side ikke fundet" : "Noget gik galt";
+}
+
+<section class="py-5 text-center">
+    <h1 class="display-4 text-muted">@statusCode</h1>
+
+    @if (statusCode == 404)
+    {
+        <p class="lead">Den side, du leder efter, findes ikke.</p>
+    }
+    else
+    {
+        <p class="lead">Der opstod en uventet fejl. Prøv igen senere.</p>
+    }
+
+    <a class="btn btn-dark mt-3" href="/">Tilbage til forsiden</a>
+</section>

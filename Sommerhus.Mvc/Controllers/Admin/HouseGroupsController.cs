@@ -6,7 +6,7 @@ using Sommerhus.Mvc.ViewModels.Admin.HouseGroups;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public class HouseGroupsController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerBase
 {
     [HttpGet("/admin/house-groups")]
     public async Task<IActionResult> Index(CancellationToken ct = default)

@@ -8,17 +8,14 @@ using Sommerhus.Mvc.ViewModels.Admin.Areas;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class AreasController : AdminControllerBase
+public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 {
-    private readonly AdminApiClient _api;
-
-    public AreasController(AdminApiClient api) => _api = api;
 
     [HttpGet("/admin/areas")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
         SetAdminTab("areas");
-        var res = await _api.GetAreasAsync(ct);
+        var res = await api.GetAreasAsync(ct);
 
         if (!res.Ok || res.Data is null)
         {
@@ -33,14 +30,14 @@ public sealed class AreasController : AdminControllerBase
     public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         SetAdminTab("areas");
-        var res = await _api.GetAreaAsync(id, ct);
+        var res = await api.GetAreaAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Area not found.");
             return RedirectToAction(nameof(Index));
         }
 
-        var imagesRes = await _api.GetAreaImagesAsync(id, ct);
+        var imagesRes = await api.GetAreaImagesAsync(id, ct);
         IReadOnlyList<ImageDto> galleryImages;
         if (imagesRes.Ok && imagesRes.Data is not null)
         {
@@ -76,7 +73,7 @@ public sealed class AreasController : AdminControllerBase
     public async Task<IActionResult> Create([FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
         var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
-        var res = await _api.CreateAreaAsync(dto, ct);
+        var res = await api.CreateAreaAsync(dto, ct);
 
         if (!res.Ok)
         {
@@ -95,7 +92,7 @@ public sealed class AreasController : AdminControllerBase
     public async Task<IActionResult> Update(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
     {
         var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
-        var res = await _api.UpdateAreaAsync(id, dto, ct);
+        var res = await api.UpdateAreaAsync(id, dto, ct);
 
         if (!res.Ok || res.Data is null)
         {
@@ -113,7 +110,7 @@ public sealed class AreasController : AdminControllerBase
     public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
     {
         SetAdminTab("areas");
-        var res = await _api.GetAreaAsync(id, ct);
+        var res = await api.GetAreaAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Area not found.");
@@ -129,7 +126,7 @@ public sealed class AreasController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        var res = await _api.DeleteAreaAsync(id, ct);
+        var res = await api.DeleteAreaAsync(id, ct);
         if (res.Ok)
         {
             SetSuccess("Area deleted.");
@@ -158,7 +155,7 @@ public sealed class AreasController : AdminControllerBase
             return RedirectAfterImageChange(id, redirectTo);
         }
 
-        var res = await _api.UploadAreaImageAsync(id, file, ct);
+        var res = await api.UploadAreaImageAsync(id, file, ct);
         if (res.Ok)
         {
             SetSuccess("Image uploaded.");
@@ -181,7 +178,7 @@ public sealed class AreasController : AdminControllerBase
             return RedirectAfterImageChange(id, redirectTo);
         }
 
-        var res = await _api.DeleteAreaImageAsync(id, imageId, ct);
+        var res = await api.DeleteAreaImageAsync(id, imageId, ct);
         if (res.Ok)
         {
             SetSuccess("Image deleted.");
@@ -207,7 +204,7 @@ public sealed class AreasController : AdminControllerBase
         var images = new List<ImageDto>();
         if (area?.Id is { } areaId && areaId != Guid.Empty)
         {
-            var imagesRes = await _api.GetAreaImagesAsync(areaId, ct);
+            var imagesRes = await api.GetAreaImagesAsync(areaId, ct);
             if (imagesRes.Ok && imagesRes.Data is not null)
             {
                 images = imagesRes.Data.ToList();
@@ -249,7 +246,7 @@ public sealed class AreasController : AdminControllerBase
 
     private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(IReadOnlyCollection<Guid>? selectedCityIds, CancellationToken ct)
     {
-        var citiesRes = await _api.GetCitiesAsync(ct);
+        var citiesRes = await api.GetCitiesAsync(ct);
         if (citiesRes.Ok && citiesRes.Data is not null)
         {
             return citiesRes.Data.ToSelectList(selectedCityIds).ToList();

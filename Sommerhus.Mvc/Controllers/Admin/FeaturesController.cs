@@ -5,17 +5,14 @@ using Sommerhus.Mvc.ViewModels.Admin.Features;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class FeaturesController : AdminControllerBase
+public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
 {
-    private readonly AdminApiClient _api;
-
-    public FeaturesController(AdminApiClient api) => _api = api;
 
     [HttpGet("/admin/features")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
     {
         SetAdminTab("features");
-        var res = await _api.GetFeaturesAsync(ct);
+        var res = await api.GetFeaturesAsync(ct);
         if (!res.Ok)
         {
             SetError(res.Message ?? "Could not load features.");
@@ -33,7 +30,7 @@ public sealed class FeaturesController : AdminControllerBase
             SetError("Name, Key and Type are required.");
             return RedirectToAction(nameof(Index));
         }
-        var res = await _api.CreateFeatureAsync(dto, ct);
+        var res = await api.CreateFeatureAsync(dto, ct);
         if (res.Ok && res.Data is Guid id)
         {
             SetSuccess($"Feature created (#{id}).");
@@ -54,7 +51,7 @@ public sealed class FeaturesController : AdminControllerBase
             SetError("Name, Key and Type are required.");
             return RedirectToAction(nameof(Index));
         }
-        var res = await _api.UpdateFeatureAsync(id, dto, ct);
+        var res = await api.UpdateFeatureAsync(id, dto, ct);
         if (res.Ok)
         {
             SetSuccess("Feature updated.");
@@ -70,7 +67,7 @@ public sealed class FeaturesController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        var res = await _api.DeleteFeatureAsync(id, ct);
+        var res = await api.DeleteFeatureAsync(id, ct);
         if (res.Ok)
         {
             SetSuccess("Feature deleted.");
@@ -93,7 +90,7 @@ public sealed class FeaturesController : AdminControllerBase
         }
 
         using var stream = file.OpenReadStream();
-        var res = await _api.UploadFeatureIconAsync(id, stream, file.FileName, file.ContentType, ct);
+        var res = await api.UploadFeatureIconAsync(id, stream, file.FileName, file.ContentType, ct);
         if (res.Ok)
         {
             SetSuccess("Icon uploaded.");

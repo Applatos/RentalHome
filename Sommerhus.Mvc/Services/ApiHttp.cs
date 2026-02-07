@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Sommerhus.Mvc.Services;
 
@@ -57,63 +58,66 @@ internal static class ApiHttp
             }
         }
 
+        // Read the body once, then attempt to deserialize from the string
+        var body = await response.Content.ReadAsStringAsync(ct);
 
-        // Handle validation/problem payloads robustly (ValidationProblemDetails, ProblemDetails, or raw dictionary)
         if (response.StatusCode == HttpStatusCode.BadRequest || (int)response.StatusCode == 422)
         {
-            // Try ValidationProblemDetails first (has .Errors)
-            try
-            {
-                var validation = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken: ct);
-                if (validation is not null && validation.Errors is not null && validation.Errors.Count > 0)
-                {
-                    // copy to IReadOnlyDictionary<string,string[]>
-                    return ApiResponse<T?>.Validation((IReadOnlyDictionary<string, string[]>?)validation.Errors, response.StatusCode);
-                }
-
-                // If there are no 'errors' property, fall through to try other shapes
-            }
-            catch
-            {
-                // ignore and try other formats
-            }
-
-            // Try plain dictionary format { field: ["msg"] }
-            try
-            {
-                var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>(cancellationToken: ct);
-                if (errors is not null)
-                {
-                    return ApiResponse<T?>.Validation(errors, response.StatusCode);
-                }
-            }
-            catch
-            {
-                // ignore and try ProblemDetails
-            }
-
-            // Try ProblemDetails (has title/detail)
-            try
-            {
-                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: ct);
-                if (problem is not null)
-                {
-                    var msg = !string.IsNullOrWhiteSpace(problem.Title) ? problem.Title
-                            : !string.IsNullOrWhiteSpace(problem.Detail) ? problem.Detail
-                            : response.ReasonPhrase ?? "Bad request";
-                    return ApiResponse<T?>.Failure(msg, response.StatusCode);
-                }
-            }
-            catch
-            {
-                // ignore
-            }
-
-            // Fallback: raw text
-            var text = await response.Content.ReadAsStringAsync(ct);
-            return ApiResponse<T?>.Failure(string.IsNullOrWhiteSpace(text) ? response.ReasonPhrase ?? "Bad request" : text, response.StatusCode);
+            return ParseValidationBody<T>(body, response.StatusCode, response.ReasonPhrase);
         }
-        var message = await response.Content.ReadAsStringAsync(ct);
-        return ApiResponse<T?>.Failure(string.IsNullOrWhiteSpace(message) ? response.ReasonPhrase ?? "Request failed" : message, response.StatusCode);
+
+        return ApiResponse<T?>.Failure(
+            string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase ?? "Request failed" : body,
+            response.StatusCode);
     }
+
+    private static ApiResponse<T?> ParseValidationBody<T>(string body, HttpStatusCode status, string? reasonPhrase)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return ApiResponse<T?>.Failure(reasonPhrase ?? "Bad request", status);
+        }
+
+        // Try ValidationProblemDetails first (has .Errors dictionary)
+        try
+        {
+            var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(body, JsonOpts);
+            if (validation?.Errors is { Count: > 0 })
+            {
+                var dict = new Dictionary<string, string[]>(validation.Errors, StringComparer.OrdinalIgnoreCase);
+                return ApiResponse<T?>.Validation(dict, status);
+            }
+        }
+        catch { /* not this shape, try next */ }
+
+        // Try plain dictionary format { "field": ["msg"] }
+        try
+        {
+            var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(body, JsonOpts);
+            if (errors is { Count: > 0 })
+            {
+                return ApiResponse<T?>.Validation(errors, status);
+            }
+        }
+        catch { /* not this shape, try next */ }
+
+        // Try ProblemDetails (has title/detail)
+        try
+        {
+            var problem = JsonSerializer.Deserialize<ProblemDetails>(body, JsonOpts);
+            if (problem is not null)
+            {
+                var msg = !string.IsNullOrWhiteSpace(problem.Title) ? problem.Title
+                        : !string.IsNullOrWhiteSpace(problem.Detail) ? problem.Detail
+                        : reasonPhrase ?? "Bad request";
+                return ApiResponse<T?>.Failure(msg, status);
+            }
+        }
+        catch { /* not this shape */ }
+
+        // Fallback: raw text
+        return ApiResponse<T?>.Failure(body, status);
+    }
+
+    private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
 }

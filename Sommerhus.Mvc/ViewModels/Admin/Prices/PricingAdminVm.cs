@@ -2,7 +2,7 @@ using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using System.ComponentModel.DataAnnotations;
 
-namespace Sommerhus.Mvc.ViewModels.Admin;
+namespace Sommerhus.Mvc.ViewModels.Admin.Prices;
 
 public sealed class PricingAdminVm
 {

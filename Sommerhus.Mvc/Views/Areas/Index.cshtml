@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Områder";
     var query = (ViewData["Query"] as string) ?? string.Empty;
-    var error = TempData["Err"] as string;
 }
 
 <section class="py-3">
@@ -12,10 +11,7 @@
         <p class="text-muted mb-0">Find inspiration og læs mere om de danske områder, hvor vi udlejer sommerhuse.</p>
     </header>
 
-    @if (!string.IsNullOrWhiteSpace(error))
-    {
-        <div class="alert alert-warning" role="alert">@error</div>
-    }
+    @await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
 
     <form method="get" class="row g-2 justify-content-center mb-4">
         <div class="col-md-5">

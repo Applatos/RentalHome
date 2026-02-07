@@ -1,10 +1,7 @@
-@using Sommerhus.Core.Dtos.Shared
-@model IReadOnlyList<PublicHouseListItemDto>
+@using Sommerhus.Mvc.ViewModels.Public.Houses
+@model HouseListVm
 @{
     ViewData["Title"] = "Luksus Sommerhuse i Danmark";
-    var q = (string)(ViewBag.Query ?? "");
-    var area = (string)(ViewBag.Area ?? "");
-    var areas = (IReadOnlyList<AreaListItemDto>)(ViewBag.Areas ?? new List<AreaListItemDto>());
 }
 <section class="container">
     <header class="my-4 text-center">
@@ -12,16 +9,18 @@
         <p>Find det helt rigtige sommerhus. Filtrér på område/by og søg i titler/beskrivelser.</p>
     </header>
 
+    @await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
+
     <form method="get" class="row g-2 mb-4">
         <div class="col-md-4">
-            <input name="q" value="@q" class="form-control" placeholder="Søg..." />
+            <input name="q" value="@Model.Query" class="form-control" placeholder="Søg..." />
         </div>
         <div class="col-md-4">
             <select name="area" class="form-select">
                 <option value="">Alle områder</option>
-                @foreach (var a in areas.OrderBy(a => a.Name))
+                @foreach (var a in Model.Areas.OrderBy(a => a.Name))
                 {
-                    <option value="@a.Id" selected="@(a.Id.ToString() == area)">@a.Name</option>
+                    <option value="@a.Id" selected="@(a.Id.ToString() == Model.SelectedArea)">@a.Name</option>
                 }
             </select>
         </div>
@@ -30,9 +29,9 @@
     </form>
 
     <div class="row row-cols-1 row-cols-md-2 g-4">
-        @if (Model != null) // Sikrer, at listen er tjekket, før den bruges
+        @if (Model.Houses.Count > 0)
         {
-            @foreach (var house in Model)
+            @foreach (var house in Model.Houses)
             {
                 <div class="col">
                     @await Html.PartialAsync("~/Views/Houses/_HouseCard.cshtml", house)

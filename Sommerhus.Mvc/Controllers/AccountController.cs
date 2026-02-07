@@ -9,6 +9,7 @@ using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Account;
 
 namespace Sommerhus.Mvc.Controllers;
 
@@ -67,7 +68,7 @@ public sealed class AccountController(AdminAuthClient authClient) : Controller
             return RedirectToLocal(model.ReturnUrl);
         }
 
-        ModelState.AddModelError(string.Empty, "Forkert brugernavn eller adgangskode.");
+        ModelState.AddModelError(string.Empty, "Invalid username or password.");
         model.Password = string.Empty;
         return View(model);
     }
@@ -90,16 +91,4 @@ public sealed class AccountController(AdminAuthClient authClient) : Controller
 
         return RedirectToAction("Index", "Admin");
     }
-}
-
-public sealed class LoginViewModel
-{
-    [Required]
-    public string Username { get; set; } = string.Empty;
-
-    [Required]
-    [DataType(DataType.Password)]
-    public string Password { get; set; } = string.Empty;
-
-    public string? ReturnUrl { get; set; }
 }

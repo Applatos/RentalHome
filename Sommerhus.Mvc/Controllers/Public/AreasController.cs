@@ -5,7 +5,7 @@ using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
-public sealed class AreasController(SommerhusApi api) : Controller
+public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
 {
     [HttpGet("/areas")]
     public async Task<IActionResult> Index([FromQuery] string? q, CancellationToken ct)
@@ -13,7 +13,7 @@ public sealed class AreasController(SommerhusApi api) : Controller
         var result = await api.GetAreasAsync(q, ct);
         if (!result.Ok || result.Data is null)
         {
-            TempData["Err"] = result.Message ?? "Kunne ikke hente områderne.";
+            SetError(result.Message ?? "Could not load areas.");
             return View(Array.Empty<AreaListItemDto>());
         }
 
@@ -32,7 +32,7 @@ public sealed class AreasController(SommerhusApi api) : Controller
                 return NotFound();
             }
 
-            TempData["Err"] = result.Message ?? "Kunne ikke hente området.";
+            SetError(result.Message ?? "Could not load area.");
             return RedirectToAction(nameof(Index));
         }
 

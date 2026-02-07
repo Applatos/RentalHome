@@ -790,6 +790,67 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;ver
 
 ---
 
+## Phase 14: MVC Frontend Architecture Review Fixes (NEXT)
+
+**Goal**: Address findings from the comprehensive MVC/presentation layer review (Feb 6, 2026). See `KNOWN_ISSUES.md` Phase 14 for full details on each issue.
+
+### Phase 14a: Critical Fixes & Security — **Completed** (Feb 6, 2026)
+
+Fixed security issues, bugs, and consistency problems.
+
+- [x] **20c** Remove plaintext `AdminAuth` credentials from `appsettings.Production.json`
+- [x] **20d** Fix malformed `appsettings.Production.json` (double `/api/api` URL + broken JSON indentation)
+- [x] **20v** Remove unused `AdminAuth` config from `appsettings.Development.json`
+- [x] **20b** Replace Danish error messages in MVC controllers with English
+- [x] **20g** Remove duplicate `using` statements (3 files)
+- [x] **20a** Move `LoginViewModel` from `AccountController.cs` to `ViewModels/Account/LoginViewModel.cs`
+- [x] **20e** Add `sealed` to `HouseGroupsController` and `PricesController`
+- [x] **20f** Standardize all controllers on primary constructors with `camelCase` parameter names (no `_` prefix)
+- [x] **20s** Delete commented-out code in public `HousesController`
+
+### Phase 14b: Consistency & Predictability — **Completed** (Feb 6, 2026)
+
+Made the codebase predictable for colleagues.
+
+- [x] **20t** Remove `@using Sommerhus.Mvc.Controllers` from `_ViewImports.cshtml` (and two views)
+- [x] **20k** Extract shared `SetError`/`SetSuccess` into `SommerhusControllerBase`; public + admin controllers now share the same base
+- [x] **20i** Reorganize ViewModels: deleted dead `AreaViewModels.cs`, moved `HousePricingForm`/`SeasonPriceRow` → `Houses/`, moved `PricingAdminVm`/forms → `Prices/`
+- [x] **20j** Deleted unused `HouseEditVm` (dead code, replaced by `HouseDetailsVm`)
+- [x] Fixed public `HousesController` underscore parameter `_api` → `api` (missed in 14a)
+
+### Phase 14c: Service Layer Cleanup + Public View Audit — **Completed** (Feb 6, 2026)
+
+Improved the HTTP client layer, removed dead code, and audited all public views/controllers.
+
+- [x] **20q** Fixed `ApiHttp.HandleResponseAsync` to read response body once as string, then deserialize from that string
+- [x] **20r** Removed duplicate `GetHouseGroupsAsync` (LookupItem version); callers now map from `HouseGroupDto`
+- [x] **20m** Removed dead `SommerhusApi.GetCitiesAsync` (called admin endpoint, was unused by any controller)
+- [x] **20h** Cleaned up `AdminApiClient`: primary constructor, removed excessive blank lines between sections
+- [x] **20n** Removed excessive blank lines in `AdminApiClient` (moved from 14d)
+- [x] **20y** Replaced `ViewBag` usage in public `HousesController`/views with typed `HouseListVm`
+- [x] **20z** Created shared `_FlashMessages.cshtml` partial; all public views now use it
+- [x] **20aa** Fixed mojibake encoding in `Areas/Details.cshtml`
+- [x] **20ab** Removed redundant `@using` directives in `_HouseCard.cshtml`
+
+### Phase 14d: Cleanup & Hygiene — **Completed** (Feb 7, 2026)
+
+Low-risk cleanup that reduces noise.
+
+- [x] **20o** Removed Danish `.csproj` comments (historical notes, no longer needed)
+- [x] **20u** Removed ~45 lines of inline CSS from `_Layout.cshtml` (already present in `site-additions.css`)
+- [x] **20x** Added SRI hash (`integrity` + `crossorigin`) to htmx CDN fallback; local file confirmed present
+- [x] **20w** Added `app.UseExceptionHandler("/error")` + `UseStatusCodePagesWithReExecute`; created `ErrorController` and friendly error view
+
+### Verification (after each sub-phase)
+
+```powershell
+dotnet format Sommerhus_project.sln
+dotnet build Sommerhus_project.sln --warnaserror
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
+```
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:
@@ -822,8 +883,12 @@ After completing all phases:
 | Phase 13b | 3-4 hours        | High     | **Completed** |
 | Phase 13c | 2-3 hours        | Medium   | **Completed** |
 | Phase 13d | 1-2 hours        | Low      | **Completed** |
+| Phase 14a | 1-2 hours        | High     | **Completed** |
+| Phase 14b | 2-3 hours        | High     | **Completed** |
+| Phase 14c | 2-3 hours        | Medium   | **Completed** |
+| Phase 14d | 1 hour           | Low      | **Completed** |
 
-**Remaining**: ~20-28 hours
+**Remaining**: ~26-36 hours
 
 ---
 

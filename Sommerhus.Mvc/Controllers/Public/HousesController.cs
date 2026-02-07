@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Public.Houses;
 using System.Net;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
-public sealed class HousesController(SommerhusApi _api) : Controller
+public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
 {
 
     [HttpGet("/")]
@@ -19,24 +19,28 @@ public sealed class HousesController(SommerhusApi _api) : Controller
     [HttpGet("/houses")]
     public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] Guid? area, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
-        var areasTask = _api.GetAreasAsync(null, ct);
-        var housesTask = _api.GetHousesAsync(q, area, page, pageSize, ct);
+        var areasTask = api.GetAreasAsync(null, ct);
+        var housesTask = api.GetHousesAsync(q, area, page, pageSize, ct);
 
         await Task.WhenAll(areasTask, housesTask);
 
         var areasRes = areasTask.Result;
         var housesRes = housesTask.Result;
 
-        ViewBag.Query = q ?? "";
-        ViewBag.Area = area?.ToString() ?? "";
-        ViewBag.Areas = areasRes.Ok && areasRes.Data is not null ? areasRes.Data : Array.Empty<AreaListItemDto>();
-
         if (!housesRes.Ok || housesRes.Data is null)
         {
-            TempData["Err"] = housesRes.Message ?? "Could not load houses";
-            return View(Array.Empty<PublicHouseListItemDto>() as IReadOnlyList<PublicHouseListItemDto>);
+            SetError(housesRes.Message ?? "Could not load houses");
         }
-        return View(housesRes.Data.Items as IReadOnlyList<PublicHouseListItemDto>);
+
+        var vm = new HouseListVm
+        {
+            Houses = housesRes.Data?.Items ?? [],
+            Areas = areasRes.Ok ? areasRes.Data ?? [] : [],
+            Query = q ?? string.Empty,
+            SelectedArea = area?.ToString() ?? string.Empty
+        };
+
+        return View(vm);
     }
 
 
@@ -44,10 +48,10 @@ public sealed class HousesController(SommerhusApi _api) : Controller
     [HttpGet("/houses/{id:guid}")]
     public async Task<IActionResult> Details(Guid id, CancellationToken ct)
     {
-        var res = await _api.GetHouseAsync(id, ct);
+        var res = await api.GetHouseAsync(id, ct);
         if (!res.Ok)
         {
-            TempData["Err"] = res.Message ?? "could not find house list";
+            SetError(res.Message ?? "Could not find house.");
             return View();
         }
         return View(res.Data);
@@ -57,7 +61,7 @@ public sealed class HousesController(SommerhusApi _api) : Controller
     public async Task<IActionResult> Quote(Guid id, [FromBody] PriceQuoteRequestDto payload, CancellationToken ct)
     {
         var request = payload with { HouseId = id };
-        var res = await _api.GetPriceQuoteAsync(request, ct);
+        var res = await api.GetPriceQuoteAsync(request, ct);
 
         if (res.Ok)
         {
@@ -75,14 +79,7 @@ public sealed class HousesController(SommerhusApi _api) : Controller
         }
 
         var status = (int)(res.StatusCode ?? HttpStatusCode.BadGateway);
-        return StatusCode(status, new { message = res.Message ?? "Kunne ikke hente pris" });
+        return StatusCode(status, new { message = res.Message ?? "Could not get price quote" });
     }
 
-    //[HttpPost("/admin/houses/{id:guid}/images/{imgId:guid}/delete")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> DeleteImage(Guid id, Guid imgId, CancellationToken ct)
-    //{
-    //    await _api.DeleteHouseImageAsync(id, imgId, ct);
-    //    return RedirectToAction("House", "Admin", new { id });
-    //}
 }

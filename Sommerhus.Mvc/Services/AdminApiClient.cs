@@ -1,23 +1,12 @@
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Mvc.Services;
 
-public sealed class AdminApiClient
+public sealed class AdminApiClient(HttpClient http)
 {
-    private readonly HttpClient http;
-
-    public AdminApiClient(HttpClient http) => this.http = http;
-
-
-
-
-
-
-
     // Houses
     public Task<ApiResponse<PageResult<AdminHouseListItemDto>>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
         => ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
@@ -57,12 +46,6 @@ public sealed class AdminApiClient
     public Task<ApiResponse<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
         => ApiHttp.PostAsync<IEnumerable<PostFeatureValueDto>, object?>(http, $"api/admin/houses/{houseId}/features", values?.ToList() ?? new List<PostFeatureValueDto>(), ct);
 
-
-
-
-
-
-
     // Features
     public Task<ApiResponse<IReadOnlyList<FeatureDto>?>> GetFeaturesAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<FeatureDto>?>(http, "api/admin/features", ct);
@@ -82,11 +65,6 @@ public sealed class AdminApiClient
         AddFile(form, "file", stream, fileName, contentType);
         return await ApiHttp.SendAsync<object?>(http, (client, token) => client.PostAsync($"api/admin/features/{featureId}/icon", form, token), ct);
     }
-
-
-
-
-
 
     // Areas
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(CancellationToken ct)
@@ -120,10 +98,6 @@ public sealed class AdminApiClient
     public Task<ApiResponse<object?>> DeleteAreaImageAsync(Guid areaId, Guid imageId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/areas/{areaId}/images/{imageId}", ct);
 
-
-
-
-
     // Pricing (price plans)
     public Task<ApiResponse<PricePlanDetailsDto?>> PutHousePricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
         => ApiHttp.PutAsync<PricePlanDetailsDto, PricePlanDetailsDto?>(http, $"api/admin/houses/{houseId}/pricing", dto, ct);
@@ -131,14 +105,7 @@ public sealed class AdminApiClient
     public Task<ApiResponse<object?>> DeleteHouseRatePlanAsync(Guid houseId, Guid ratePlanId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/pricing/rate-plans/{ratePlanId}", ct);
 
-
-
-
-
     // House groups
-    public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetHouseGroupsAsync(CancellationToken ct)
-        => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/house-groups", ct);
-
     public Task<ApiResponse<IReadOnlyList<HouseGroupDto>?>> GetHouseGroupListAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<HouseGroupDto>?>(http, "api/admin/house-groups", ct);
 
@@ -173,11 +140,6 @@ public sealed class AdminApiClient
 
     public Task<ApiResponse<object?>> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/calendar/{spanId}", ct);
-
-
-
-
-
 
     // Season Codes
     public Task<ApiResponse<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct)

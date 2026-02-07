@@ -39,6 +39,12 @@ builder.Services.AddHttpClient<AdminApiClient>(client =>
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error");
+}
+
+app.UseStatusCodePagesWithReExecute("/error/{0}");
 app.UseStaticFiles();
 app.UseRouting();
 

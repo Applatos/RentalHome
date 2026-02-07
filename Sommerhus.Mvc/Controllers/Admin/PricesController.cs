@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
-using Sommerhus.Mvc.ViewModels.Admin;
+using Sommerhus.Mvc.ViewModels.Admin.Prices;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public class PricesController : AdminControllerBase
+public sealed class PricesController(AdminApiClient api) : AdminControllerBase
 {
-    private readonly AdminApiClient _api;
-    public PricesController(AdminApiClient api) => _api = api;
-
 
     [HttpGet("/admin/prices")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
@@ -32,7 +30,7 @@ public class PricesController : AdminControllerBase
         }
 
         var dto = new SeasonCodeDto(form.Code, form.Label, form.Color, form.SortOrder);
-        var res = await _api.CreateSeasonCodeAsync(dto, ct);
+        var res = await api.CreateSeasonCodeAsync(dto, ct);
 
         if (res.Ok)
         {
@@ -66,12 +64,13 @@ public class PricesController : AdminControllerBase
         CreateSeasonCodeForm? codeForm,
         CancellationToken ct)
     {
-        var groupsRes = await _api.GetHouseGroupsAsync(ct);
-        var seasonCodesRes = await _api.GetSeasonCodesAsync(ct);
+        var groupsRes = await api.GetHouseGroupListAsync(ct);
+        var seasonCodesRes = await api.GetSeasonCodesAsync(ct);
 
         var vm = new PricingAdminVm
         {
-            Groups = groupsRes.Data ?? Array.Empty<LookupItem>(),
+            Groups = groupsRes.Data?.Select(g => new LookupItem(g.Id, g.Name)).ToList()
+                     ?? (IReadOnlyList<LookupItem>)Array.Empty<LookupItem>(),
             SeasonCodes = seasonCodesRes.Data ?? Array.Empty<SeasonCodeDto>(),
             GroupForm = groupForm ?? new CreateHouseGroupForm(),
             SeasonCodeForm = codeForm ?? new CreateSeasonCodeForm(),

@@ -2,22 +2,18 @@
 @model AreaDetailsDto
 @{
     ViewData["Title"] = Model.Name;
-    var error = TempData["Err"] as string;
 }
 
 <section class="py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h2 mb-1">@Model.Name</h1>
-            <p class="text-muted mb-0">Et kig p� omr�det og de tilknyttede sommerhuse.</p>
+            <p class="text-muted mb-0">Et kig på området og de tilknyttede sommerhuse.</p>
         </div>
         <a class="btn btn-outline-secondary" asp-action="Index">Tilbage til oversigten</a>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(error))
-    {
-        <div class="alert alert-warning" role="alert">@error</div>
-    }
+    @await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
 
     @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
@@ -25,7 +21,7 @@
     }
     else
     {
-        <p class="text-muted">Der er endnu ingen beskrivelse af dette omr�de.</p>
+        <p class="text-muted">Der er endnu ingen beskrivelse af dette område.</p>
     }
 
     @if (Model.Images?.Count > 0)
@@ -61,8 +57,7 @@
         }
         else
         {
-            <p class="text-muted">Der er endnu ingen sommerhuse tilknyttet dette omr�de.</p>
+            <p class="text-muted">Der er endnu ingen sommerhuse tilknyttet dette område.</p>
         }
     </section>
 </section>
- 

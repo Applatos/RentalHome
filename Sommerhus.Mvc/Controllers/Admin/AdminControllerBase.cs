@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Sommerhus.Mvc.Controllers.Admin;
 
 [Authorize]
-public abstract class AdminControllerBase : Controller
+public abstract class AdminControllerBase : SommerhusControllerBase
 {
-    protected void SetSuccess(string message) => TempData["Ok"] = message;
-    protected void SetError(string message) => TempData["Err"] = message;
-
     protected void SetAdminTab(string tab) => ViewData["AdminTab"] = tab;
 
     protected IActionResult RedirectToIndex()

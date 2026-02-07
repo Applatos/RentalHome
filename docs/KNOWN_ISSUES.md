@@ -642,6 +642,361 @@ Comprehensive review of Domain, Core, and API layers. All findings below are org
 
 ---
 
+## Phase 14: MVC Frontend Architecture Review (Feb 6, 2026)
+
+Comprehensive review of the MVC presentation layer — Controllers, Services, ViewModels, Views, Extensions, and configuration. All findings organized by severity.
+
+### HIGH PRIORITY — Predictability & Correctness
+
+#### 20a. ✅ `LoginViewModel` defined inside `AccountController.cs`
+
+**Location**: `Sommerhus.Mvc/Controllers/AccountController.cs:95-105`
+
+**Problem**: A ViewModel class is defined in the same file as a Controller. This violates the separation of concerns and makes the ViewModel hard to discover. A colleague looking in `ViewModels/` will never find it. The Login view references it via `Sommerhus.Mvc.Controllers.LoginViewModel` — an unusual namespace for a ViewModel.
+
+**Solution**: Move `LoginViewModel` to `Sommerhus.Mvc/ViewModels/Account/LoginViewModel.cs`.
+
+---
+
+#### 20b. ✅ Danish error messages in public controllers
+
+**Locations**:
+
+- `Sommerhus.Mvc/Controllers/Public/AreasController.cs:16` — `"Kunne ikke hente områderne."`
+- `Sommerhus.Mvc/Controllers/Public/AreasController.cs:35` — `"Kunne ikke hente området."`
+- `Sommerhus.Mvc/Controllers/Public/HousesController.cs:78` — `"Kunne ikke hente pris"`
+- `Sommerhus.Mvc/Controllers/AccountController.cs:70` — `"Forkert brugernavn eller adgangskode."`
+
+**Problem**: The `.windsurfrules` says "no Danish comments" and Phase 13d replaced all backend Danish. The MVC layer still has Danish error messages. Inconsistent language across the codebase.
+
+**Solution**: Replace all Danish error messages with English equivalents.
+
+---
+
+#### 20c. ✅ Production `appsettings.Production.json` contains plaintext admin credentials
+
+**Location**: `Sommerhus.Mvc/appsettings.Production.json:10-12`
+
+**Problem**: `"Username": "admin", "Password": "sommerhus123"` is committed to source control in the production config. This is a **security issue**. The `AdminAuth` section appears unused by any code (no reference found), making it dead config that still leaks a credential.
+
+**Solution**: Remove the `AdminAuth` section from production config. If needed, use environment variables.
+
+---
+
+#### 20d. ✅ `appsettings.Production.json` has malformed JSON structure
+
+**Location**: `Sommerhus.Mvc/appsettings.Production.json:3`
+
+**Problem**: The `Api.BaseUrl` value `"https://mikkel.smedt.dk/api/api"` has a double `/api/api` path which looks like a bug. Also, the JSON indentation is broken — the closing brace for `Api` is on the same line as `BaseUrl`, and subsequent keys are indented inside `Api` when they should be at root level.
+
+**Solution**: Fix the URL and reformat the JSON properly.
+
+---
+
+#### 20e. ✅ `HouseGroupsController` and `PricesController` not `sealed`
+
+**Locations**:
+
+- `Sommerhus.Mvc/Controllers/Admin/HouseGroupsController.cs:9` — `public class`
+- `Sommerhus.Mvc/Controllers/Admin/PricesController.cs:7` — `public class`
+
+**Problem**: All other admin controllers (`HousesController`, `AreasController`, `FeaturesController`) are `sealed class`. These two are not. Inconsistent.
+
+**Solution**: Add `sealed` keyword to both.
+
+---
+
+#### 20f. ✅ Inconsistent constructor patterns across controllers
+
+**Locations**:
+
+- `HousesController` — Traditional constructor with explicit field: `private readonly AdminApiClient _api;`
+- `HouseGroupsController` — Primary constructor: `(AdminApiClient api)` accessing `api` directly
+- `AreasController` — Traditional constructor with explicit field: `private readonly AdminApiClient _api;`
+- `FeaturesController` — Traditional constructor with explicit field: `private readonly AdminApiClient _api;`
+- `PricesController` — Traditional constructor with explicit field: `private readonly AdminApiClient _api;`
+- Public `HousesController` — Primary constructor: `(SommerhusApi _api)` with underscore in parameter
+- Public `AreasController` — Primary constructor: `(SommerhusApi api)` without underscore
+
+**Problem**: Three different constructor patterns in the same project. A colleague cannot predict which pattern a new controller should use. The `.windsurfrules` says camelCase for private fields (no underscore prefix), but `_api` is used in 4 controllers.
+
+**Solution**: Standardize on primary constructors (C# 12 feature, already available) with no underscore prefix. Example: `public sealed class HousesController(AdminApiClient api) : AdminControllerBase`.
+
+---
+
+#### 20g. ✅ Duplicate `using` statements
+
+**Locations**:
+
+- `Sommerhus.Mvc/Services/SommerhusApi.cs:1-2` — `using Sommerhus.Core.Dtos.Shared;` duplicated
+- `Sommerhus.Mvc/Services/AdminApiClient.cs:3-4` — `using Sommerhus.Core.Dtos.Shared;` duplicated
+- `Sommerhus.Mvc/Controllers/Public/HousesController.cs:2-3` — `using Sommerhus.Core.Dtos.Shared;` duplicated
+
+**Solution**: Remove duplicate usings. Run `dotnet format`.
+
+---
+
+### MEDIUM PRIORITY — Consistency & Maintainability
+
+#### 20h. ✅ `AdminApiClient` is a 200-line God class
+
+**Location**: `Sommerhus.Mvc/Services/AdminApiClient.cs`
+
+**Problem**: Single class handles API calls for Houses, Features, Areas, Pricing, House Groups, Season Spans, and Season Codes. This is the MVC equivalent of the backend's original `AdminHouseService` bloat. A colleague looking for "how do we call the areas API" must scan 200 lines.
+
+**Solution**: Split into domain-specific clients: `AdminHouseApiClient`, `AdminAreaApiClient`, `AdminFeatureApiClient`, `AdminPricingApiClient`, `AdminHouseGroupApiClient`. Or at minimum, use `#region` blocks and XML doc comments to make sections discoverable.
+
+---
+
+#### 20i. ✅ Inconsistent ViewModel organization — mixed flat files and subfolders
+
+**Location**: `Sommerhus.Mvc/ViewModels/Admin/`
+
+**Problem**: Some ViewModels live in subfolders (`Houses/HouseListVm.cs`, `Areas/AreaListVm.cs`, `Features/FeatureListVm.cs`, `HouseGroups/HouseGroupDetailsVm.cs`), while others live as flat files in the parent (`HouseViewModels.cs`, `PricingViewModels.cs`). The `AreaViewModels.cs` file is a dead stub saying "Moved to Areas namespace". `HouseViewModels.cs` contains `HouseEditVm`, `HousePricingForm`, and `SeasonPriceRow` — three unrelated types in one file.
+
+**Solution**:
+
+1. Delete dead `AreaViewModels.cs`
+2. Move `HouseEditVm` → `Houses/HouseEditVm.cs` (or delete if unused — `HouseCreateVm` and `HouseDetailsVm` exist)
+3. Move `HousePricingForm` + `SeasonPriceRow` → `Houses/HousePricingForm.cs`
+4. Move `PricingViewModels.cs` types → `Prices/PricingAdminVm.cs`
+5. One ViewModel per file, matching the subfolder pattern
+
+---
+
+#### 20j. ✅ `HouseEditVm` appears unused
+
+**Location**: `Sommerhus.Mvc/ViewModels/Admin/HouseViewModels.cs:8-13`
+
+**Problem**: `HouseEditVm` has `Cities` and `Areas` as `IEnumerable<SelectListItem>`, but the actual edit flow uses `HouseDetailsVm` (which has `IReadOnlyList<SelectListItem>`). No controller or view references `HouseEditVm`. Dead code.
+
+**Solution**: Verify it's unused and delete it.
+
+---
+
+#### 20k. ✅ Public controllers use `TempData["Err"]` directly; admin controllers use `SetError()`
+
+**Locations**:
+
+- `Sommerhus.Mvc/Controllers/Public/HousesController.cs:36` — `TempData["Err"] = ...`
+- `Sommerhus.Mvc/Controllers/Public/AreasController.cs:16` — `TempData["Err"] = ...`
+- `Sommerhus.Mvc/Controllers/Admin/*` — `SetError(...)` via `AdminControllerBase`
+
+**Problem**: Two different patterns for the same thing. If someone changes the TempData key in `AdminControllerBase`, the public controllers break silently. Public controllers don't inherit from `AdminControllerBase` (correct — they shouldn't), but they should still use a consistent mechanism.
+
+**Solution**: Extract `SetError`/`SetSuccess` into a shared base class (e.g., `SommerhusControllerBase`) or a static helper, so both admin and public controllers use the same TempData keys.
+
+---
+
+#### 20l. `ApiResponse<T>` is a class, not a record
+
+**Location**: `Sommerhus.Mvc/Services/ApiResponse.cs`
+
+**Problem**: Convention says "prefer `record` for DTOs and immutable data". `ApiResponse<T>` is effectively immutable (private constructor, `init` properties, static factory methods). Should be a record for consistency with the rest of the codebase.
+
+**Solution**: Convert to `sealed record` or leave as-is with a comment explaining why (the static factory pattern is slightly awkward with records).
+
+---
+
+#### 20m. ✅ `SommerhusApi.GetCitiesAsync` calls admin endpoint from public client
+
+**Location**: `Sommerhus.Mvc/Services/SommerhusApi.cs:31`
+
+**Problem**: The public API client `SommerhusApi` calls `api/admin/cities/lookup` — an admin-only endpoint. This works because the public client doesn't attach auth tokens, and the endpoint may not require auth. But it's semantically wrong and will break if admin endpoints are locked down.
+
+**Solution**: Either add a public cities endpoint (`api/cities/lookup`) or document why this is intentional.
+
+---
+
+#### 20n. ✅ Excessive blank lines throughout service and controller files
+
+**Locations**: Multiple files have 3-8 consecutive blank lines (e.g., `AdminApiClient.cs:14-20`, `AdminApiClient.cs:60-65`, `HouseGroupsController.cs:140-152`)
+
+**Problem**: Noise that makes files appear longer than they are. Inconsistent with the rest of the codebase.
+
+**Solution**: Reduce to max 1 blank line between logical sections. Run `dotnet format`.
+
+---
+
+#### 20o. ✅ `.csproj` comments in Danish
+
+**Location**: `Sommerhus.Mvc/Sommerhus.Mvc.csproj:4,7,12`
+
+**Problem**: `"Opgradér til LTS"`, `"C# 12 følger med .NET 8"`, `"Ret stavefejl: Mcv -> Mvc"` — all Danish comments in the project file.
+
+**Solution**: Replace with English or remove (they're historical notes, not needed).
+
+---
+
+#### 20p. Layout and views contain extensive Danish UI text with no localization
+
+**Locations**:
+
+- `Views/Shared/_Layout.cshtml` — Danish comments in CSS, Danish nav labels ("Forside", "Områder", "Log ud", "Log ind")
+- `Views/Houses/Details.cshtml` — "Beskrivelse", "Beregn pris", "Ankomst", "Afrejse", "Gæster", "Nætter", "Moms", etc.
+- `Views/Admin/HouseGroups/Details.cshtml` — "Rediger gruppe", "Tilbage til oversigt", "Sæsonkalender", "Tilføj sæsonperiode", etc.
+
+**Problem**: This is a Danish-language product, so Danish UI text is expected. However, the codebase mixes Danish UI with English code comments, English error messages (admin), and Danish error messages (public). There's no localization framework — all strings are hardcoded.
+
+**Solution**: This is a design decision, not a bug. If the product is Danish-only, document that convention. If multi-language support is planned, introduce `IStringLocalizer<T>` or resource files. At minimum, ensure error messages are consistently one language.
+
+---
+
+#### 20q. ✅ `ApiHttp.HandleResponseAsync` reads response body multiple times on error
+
+**Location**: `Sommerhus.Mvc/Services/ApiHttp.cs:62-117`
+
+**Problem**: On 400/422 responses, the code tries to deserialize the body as `ValidationProblemDetails`, then `Dictionary<string, string[]>`, then `ProblemDetails`, then raw text — each in a separate try/catch. After the first `ReadFromJsonAsync`, the stream is consumed. Subsequent reads may fail or return empty data depending on buffering. The empty `catch` blocks swallow all exceptions silently.
+
+**Solution**: Read the response body once as a string, then attempt to deserialize from that string. Log or at least comment the catch blocks.
+
+---
+
+#### 20r. ✅ `AdminApiClient.GetHouseGroupsAsync` returns `IReadOnlyList<LookupItem>` but `GetHouseGroupListAsync` returns `IReadOnlyList<HouseGroupDto>` — same endpoint
+
+**Location**: `Sommerhus.Mvc/Services/AdminApiClient.cs:139-143`
+
+**Problem**: Both methods call the exact same URL (`api/admin/house-groups`) but deserialize into different types. This is confusing — a colleague doesn't know which to use. The `LookupItem` version loses data.
+
+**Solution**: Remove `GetHouseGroupsAsync` (the `LookupItem` version) and have callers map `HouseGroupDto → LookupItem` if needed. Or rename to make the distinction clear.
+
+---
+
+### LOW PRIORITY — Cleanup & Hygiene
+
+#### 20s. ✅ Commented-out code in public `HousesController`
+
+**Location**: `Sommerhus.Mvc/Controllers/Public/HousesController.cs:81-87`
+
+**Problem**: Dead commented-out `DeleteImage` action. Clutters the file.
+
+**Solution**: Delete it.
+
+---
+
+#### 20t. ✅ `_ViewImports.cshtml` imports `Sommerhus.Mvc.Controllers` globally
+
+**Location**: `Sommerhus.Mvc/Views/_ViewImports.cshtml:2`
+
+**Problem**: This import exists solely so `Login.cshtml` can reference `LoginViewModel` from the Controllers namespace. Once `LoginViewModel` is moved to ViewModels (20a), this import becomes unnecessary and pollutes all views with controller types.
+
+**Solution**: Remove after fixing 20a.
+
+---
+
+#### 20u. ✅ Inline CSS in `_Layout.cshtml` instead of external stylesheet
+
+**Location**: `Sommerhus.Mvc/Views/Shared/_Layout.cshtml:17-63`
+
+**Problem**: ~45 lines of CSS embedded in the layout. Changes require editing the layout file. Not cacheable separately. Mixes concerns.
+
+**Solution**: Move to `wwwroot/css/site-additions.css` (which is already referenced on line 13 but apparently doesn't contain these styles).
+
+---
+
+#### 20v. `AdminAuth` config section appears unused
+
+**Locations**: `appsettings.Development.json:8-11`, `appsettings.Production.json:10-12`
+
+**Problem**: `AdminAuth.Username` and `AdminAuth.Password` are defined but never read by any code. The MVC app authenticates via the API's login endpoint, not via local config. Dead configuration that leaks credentials.
+
+**Solution**: Remove from all appsettings files.
+
+---
+
+#### 20w. ✅ No global exception handling middleware in MVC
+
+**Location**: `Sommerhus.Mvc/Program.cs`
+
+**Problem**: No `app.UseExceptionHandler()` or custom middleware. Unhandled exceptions will show the default developer exception page in development and a blank 500 in production. Already documented as #11 but worth re-emphasizing.
+
+**Solution**: Add `app.UseExceptionHandler("/error")` with a friendly error page.
+
+---
+
+#### 20x. ✅ `_Layout.cshtml` has htmx CDN fallback but no local htmx file check
+
+**Location**: `Sommerhus.Mvc/Views/Shared/_Layout.cshtml:97-104`
+
+**Problem**: References `~/lib/htmx/htmx.min.js` locally, then falls back to unpkg CDN. If the local file doesn't exist, every page load makes an external request. No SRI hash on the CDN fallback.
+
+**Solution**: Ensure local htmx file exists in `wwwroot/lib/htmx/`, or add SRI hash to CDN fallback.
+
+#### 20y. ✅ Public `Houses` view uses `ViewBag` instead of a typed ViewModel
+
+**Location**: `Sommerhus.Mvc/Controllers/Public/HousesController.cs:29-31`, `Views/Houses/Houses.cshtml:5-7`, `Views/Home/Index.cshtml:5-7`
+
+**Problem**: The `Houses` action stuffs `Query`, `Area`, and `Areas` into `ViewBag`, which is untyped and fragile. Views cast from `ViewBag` with `(string)(ViewBag.Query ?? "")` — any rename silently breaks at runtime.
+
+**Solution**: Create `ViewModels/Public/Houses/HouseListVm` with typed properties and pass it as the model.
+
+---
+
+#### 20z. ✅ Public views read `TempData["Err"]` directly instead of shared partial
+
+**Location**: `Views/Areas/Index.cshtml:6`, `Views/Areas/Details.cshtml:5`
+
+**Problem**: Public views manually read `TempData["Err"]` and render their own alert markup. Admin views use `_FlashMessages.cshtml`. Two patterns for the same thing.
+
+**Solution**: Create `Views/Shared/_FlashMessages.cshtml` (reads both `TempData["Err"]` and `TempData["Ok"]`) and use it in all public views.
+
+---
+
+#### 20aa. ✅ Mojibake encoding in `Areas/Details.cshtml`
+
+**Location**: `Sommerhus.Mvc/Views/Areas/Details.cshtml:12,28,64`
+
+**Problem**: Danish characters rendered as `p� omr�det`, `omr�de`, `omr�de` — file was saved with wrong encoding.
+
+**Solution**: Re-save with UTF-8 encoding and correct characters.
+
+---
+
+#### 20ab. ✅ Unnecessary `@using` directives in `_HouseCard.cshtml`
+
+**Location**: `Sommerhus.Mvc/Views/Houses/_HouseCard.cshtml:1-3`
+
+**Problem**: `@using System`, `@using System.Collections.Generic`, `@using System.Linq` are redundant — these are globally available via `GlobalUsings.cs`.
+
+**Solution**: Remove the unnecessary usings.
+
+---
+
+### Tracking Update
+
+| Issue                               | Priority | Phase | Status  |
+| ----------------------------------- | -------- | ----- | ------- |
+| #20a LoginViewModel in controller   | High     | 14a   | ✅ Done |
+| #20b Danish error messages in MVC   | High     | 14a   | ✅ Done |
+| #20c Plaintext credentials in prod  | High     | 14a   | ✅ Done |
+| #20d Malformed production JSON      | High     | 14a   | ✅ Done |
+| #20e Controllers not sealed         | Medium   | 14a   | ✅ Done |
+| #20f Inconsistent constructor style | High     | 14a   | ✅ Done |
+| #20g Duplicate usings               | Low      | 14a   | ✅ Done |
+| #20h AdminApiClient God class       | Medium   | 14c   | ✅ Done |
+| #20i Mixed ViewModel organization   | Medium   | 14b   | ✅ Done |
+| #20j Dead HouseEditVm               | Low      | 14b   | ✅ Done |
+| #20k Inconsistent TempData pattern  | Medium   | 14b   | ✅ Done |
+| #20l ApiResponse not a record       | Low      | 14    | Pending |
+| #20m Public client calls admin API  | Medium   | 14c   | ✅ Done |
+| #20n Excessive blank lines          | Low      | 14c   | ✅ Done |
+| #20o Danish csproj comments         | Low      | 14d   | ✅ Done |
+| #20p Mixed language in UI           | Low      | 14    | Pending |
+| #20q Response body read multiple x  | Medium   | 14c   | ✅ Done |
+| #20r Duplicate API client methods   | Medium   | 14c   | ✅ Done |
+| #20s Commented-out code             | Low      | 14a   | ✅ Done |
+| #20t Unnecessary ViewImport         | Low      | 14b   | ✅ Done |
+| #20u Inline CSS in layout           | Low      | 14d   | ✅ Done |
+| #20v Unused AdminAuth config        | Medium   | 14a   | ✅ Done |
+| #20w No exception handling          | Medium   | 14d   | ✅ Done |
+| #20x htmx CDN without SRI           | Low      | 14d   | ✅ Done |
+| #20y ViewBag in public Houses view  | High     | 14c   | ✅ Done |
+| #20z Direct TempData in pub views   | Medium   | 14c   | ✅ Done |
+| #20aa Mojibake in Areas/Details     | Medium   | 14c   | ✅ Done |
+| #20ab Redundant usings in HouseCard | Low      | 14c   | ✅ Done |
+
+---
+
 ## How to Add New Issues
 
 When discovering new issues during development:

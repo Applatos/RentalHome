@@ -1,5 +1,4 @@
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
 
@@ -26,9 +25,6 @@ public sealed class SommerhusApi
 
     public Task<ApiResponse<PriceQuoteResponseDto?>> GetPriceQuoteAsync(PriceQuoteRequestDto request, CancellationToken ct = default)
         => ApiHttp.PostAsync<PriceQuoteRequestDto, PriceQuoteResponseDto?>(http, "api/pricing/quote", request, ct);
-
-    public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct = default)
-        => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/cities/lookup", ct);
 
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
     {

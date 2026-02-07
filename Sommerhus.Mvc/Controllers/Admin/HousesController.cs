@@ -11,17 +11,15 @@ using System.Globalization;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HousesController : AdminControllerBase
+public sealed class HousesController(AdminApiClient api) : AdminControllerBase
 {
-    private readonly AdminApiClient _api;
-    public HousesController(AdminApiClient api) => _api = api;
     [HttpGet("/admin")]
     public IActionResult AdminIndex() => RedirectToAction(nameof(Index));
 
     [HttpGet("/admin/houses")]
     public async Task<IActionResult> Index([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
-        var res = await _api.GetHousesAsync(q, page, pageSize, ct);
+        var res = await api.GetHousesAsync(q, page, pageSize, ct);
 
         if (!res.Ok)
         {
@@ -47,7 +45,7 @@ public sealed class HousesController : AdminControllerBase
     {
         SetAdminTab("houses");
 
-        var res = await _api.GetHouseAsync(id, ct);
+        var res = await api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "House not found.");
@@ -68,7 +66,7 @@ public sealed class HousesController : AdminControllerBase
         string? featuresError = null;
         if (string.Equals(tab, "features", StringComparison.OrdinalIgnoreCase))
         {
-            var featuresRes = await _api.GetFeaturesAsync(ct);
+            var featuresRes = await api.GetFeaturesAsync(ct);
             if (featuresRes.Ok && featuresRes.Data is not null)
             {
                 allFeatures = featuresRes.Data;
@@ -84,7 +82,7 @@ public sealed class HousesController : AdminControllerBase
         if (string.Equals(tab, "pricing", StringComparison.OrdinalIgnoreCase) || 
             string.Equals(tab, "calendar", StringComparison.OrdinalIgnoreCase))
         {
-            var codesRes = await _api.GetSeasonCodesAsync(ct);
+            var codesRes = await api.GetSeasonCodesAsync(ct);
             if (codesRes.Ok && codesRes.Data is not null)
             {
                 seasonCodes = codesRes.Data;
@@ -111,7 +109,7 @@ public sealed class HousesController : AdminControllerBase
 
     private async Task<IReadOnlyList<SelectListItem>> LoadCitiesSelectListAsync(Guid? selectedCityId, CancellationToken ct)
     {
-        var citiesRes = await _api.GetCitiesAsync(ct);
+        var citiesRes = await api.GetCitiesAsync(ct);
         if (citiesRes.Ok && citiesRes.Data is not null)
         {
             return citiesRes.Data.ToSelectList(selectedCityId).ToList();
@@ -121,7 +119,7 @@ public sealed class HousesController : AdminControllerBase
 
     private async Task<IReadOnlyList<SelectListItem>> LoadAreasSelectListAsync(IEnumerable<Guid>? selectedAreaIds, CancellationToken ct)
     {
-        var areasRes = await _api.GetAreasLookupAsync(ct);
+        var areasRes = await api.GetAreasLookupAsync(ct);
         if (areasRes.Ok && areasRes.Data is not null)
         {
             return areasRes.Data.ToSelectList(selectedAreaIds?.ToList()).ToList();
@@ -131,10 +129,11 @@ public sealed class HousesController : AdminControllerBase
 
     private async Task<IReadOnlyList<SelectListItem>> LoadHouseGroupsSelectListAsync(Guid? selectedGroupId, CancellationToken ct)
     {
-        var groupsRes = await _api.GetHouseGroupsAsync(ct);
+        var groupsRes = await api.GetHouseGroupListAsync(ct);
         if (groupsRes.Ok && groupsRes.Data is not null)
         {
-            return groupsRes.Data.ToSelectList(selectedGroupId).ToList();
+            var lookups = groupsRes.Data.Select(g => new LookupItem(g.Id, g.Name));
+            return lookups.ToSelectList(selectedGroupId).ToList();
         }
         return [];
     }
@@ -168,7 +167,7 @@ public sealed class HousesController : AdminControllerBase
             return View("~/Views/Admin/Houses/Create.cshtml", vm);
         }
 
-        var res = await _api.PostHouseAsync(vm.House, ct);
+        var res = await api.PostHouseAsync(vm.House, ct);
         if (res.Ok && res.Data is Guid id)
         {
             SetSuccess("House created.");
@@ -189,7 +188,7 @@ public sealed class HousesController : AdminControllerBase
             return await RenderHouseEditAsync(id, dto, ct);
         }
 
-        var res = await _api.PutHouseAsync(id, dto, ct);
+        var res = await api.PutHouseAsync(id, dto, ct);
         if (res.Ok)
         {
             SetSuccess("House updated.");
@@ -202,7 +201,7 @@ public sealed class HousesController : AdminControllerBase
 
     private async Task<ActionResult> RenderHouseEditAsync(Guid id, UpsertHouseDto dto, CancellationToken ct)
     {
-        var houseRes = await _api.GetHouseAsync(id, ct);
+        var houseRes = await api.GetHouseAsync(id, ct);
         if (!houseRes.Ok || houseRes.Data is null)
         {
             SetError(houseRes.Message ?? "House not found.");
@@ -247,7 +246,7 @@ public sealed class HousesController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        var res = await _api.DeleteHouseAsync(id, ct);
+        var res = await api.DeleteHouseAsync(id, ct);
         if (res.Ok)
         {
             SetSuccess("House deleted.");
@@ -270,7 +269,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
-        var res = await _api.UploadHouseImagesAsync(id, files, ct);
+        var res = await api.UploadHouseImagesAsync(id, files, ct);
         if (res.Ok)
         {
             var uploadedCount = res.Data?.Count ?? 0;
@@ -300,7 +299,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
-        var res = await _api.SetHouseImageKindAsync(id, imageId, kind, ct);
+        var res = await api.SetHouseImageKindAsync(id, imageId, kind, ct);
         if (res.Ok)
         {
             SetSuccess($"Set to {kind}.");
@@ -323,7 +322,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
-        var res = await _api.DeleteHouseImageAsync(id, imageId, ct);
+        var res = await api.DeleteHouseImageAsync(id, imageId, ct);
         if (res.Ok)
         {
             SetSuccess("Image deleted.");
@@ -344,7 +343,7 @@ public sealed class HousesController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveHouseFeatures(Guid id, CancellationToken ct = default)
     {
-        var featuresRes = await _api.GetFeaturesAsync(ct);
+        var featuresRes = await api.GetFeaturesAsync(ct);
         if (!featuresRes.Ok || featuresRes.Data is null)
         {
             SetError(featuresRes.Message ?? "Could not load features.");
@@ -410,7 +409,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id, tab = "features" });
         }
 
-        var res = await _api.UpsertHouseFeaturesAsync(id, values, ct);
+        var res = await api.UpsertHouseFeaturesAsync(id, values, ct);
         if (res.Ok)
         {
             SetSuccess("Features updated.");
@@ -474,7 +473,7 @@ public sealed class HousesController : AdminControllerBase
             DateTime.UtcNow,
             priceRows);
 
-        var res = await _api.PutHousePricingAsync(id, dto, ct);
+        var res = await api.PutHousePricingAsync(id, dto, ct);
         if (res.Ok)
         {
             SetSuccess("Prices updated.");
@@ -491,7 +490,7 @@ public sealed class HousesController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteRatePlan(Guid houseId, Guid ratePlanId, CancellationToken ct = default)
     {
-        var res = await _api.DeleteHouseRatePlanAsync(houseId, ratePlanId, ct);
+        var res = await api.DeleteHouseRatePlanAsync(houseId, ratePlanId, ct);
         if (res.Ok)
         {
             SetSuccess("Price plan deleted.");
@@ -513,7 +512,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
         }
 
-        var res = await _api.AddHouseSeasonSpanAsync(houseId, dto, ct);
+        var res = await api.AddHouseSeasonSpanAsync(houseId, dto, ct);
         if (res.Ok)
         {
             SetSuccess("Season span added.");
@@ -536,7 +535,7 @@ public sealed class HousesController : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
         }
 
-        var res = await _api.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
+        var res = await api.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
         if (res.Ok)
         {
             SetSuccess("Season span updated.");
@@ -553,7 +552,7 @@ public sealed class HousesController : AdminControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteHouseSeasonSpan(Guid houseId, Guid spanId, CancellationToken ct = default)
     {
-        var res = await _api.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
+        var res = await api.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
         if (res.Ok)
         {
             SetSuccess("Season span deleted.");
