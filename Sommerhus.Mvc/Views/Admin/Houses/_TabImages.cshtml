@@ -26,14 +26,20 @@
                     <div class="card-body p-2">
                         <small class="text-muted">@(img.Kind ?? "gallery")</small>
                         <div class="btn-group w-100 mt-2">
-                            <form method="post" asp-controller="Houses" asp-action="SetHouseImageKind" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="kind" value="hero" />
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Set as hero">Hero</button>
-                            </form>
+                            @foreach (var kind in new[] { "Cover", "Gallery", "Floorplan" })
+                            {
+                                var isActive = string.Equals(img.Kind, kind, StringComparison.OrdinalIgnoreCase);
+                                <form method="post" asp-controller="Houses" asp-action="SetHouseImageKind" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="kind" value="@kind" />
+                                    <button type="submit" class="btn btn-sm @(isActive ? "btn-secondary" : "btn-outline-secondary")" title="Set as @kind">@kind</button>
+                                </form>
+                            }
+                        </div>
+                        <div class="mt-1">
                             <form method="post" asp-controller="Houses" asp-action="DeleteHouseImage" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('Delete this image?');">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete">Delete</button>
                             </form>
                         </div>
                     </div>

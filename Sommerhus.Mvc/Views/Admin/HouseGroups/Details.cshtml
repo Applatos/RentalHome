@@ -66,7 +66,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var span in Model.Group.Calendar.OrderBy(s => s.StartDate))
+                            @foreach (var span in (Model.Group.Calendar ?? []).OrderBy(s => s.StartDate))
                             {
                                 <tr>
                                     <td>

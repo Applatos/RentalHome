@@ -8,8 +8,8 @@ public sealed class StorageOptions
 
     [Required]
     public string UploadsPath { get; set; } = "uploads";
-    public string? LogsPath { get; init; }              // valgfrit
-    public string? DbPath { get; init; }                // hvis SQLite/LocalDB fil
+    public string? LogsPath { get; init; }              // optional
+    public string? DbPath { get; init; }                // if SQLite/LocalDB file
 }
 
 //

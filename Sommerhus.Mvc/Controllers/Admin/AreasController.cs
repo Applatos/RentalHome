@@ -4,9 +4,7 @@ using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
-using Sommerhus.Mvc.ViewModels.Admin.Area;
 using Sommerhus.Mvc.ViewModels.Admin.Areas;
-using Sommerhus.Mvc.ViewModels.Admin.Houses;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -39,24 +37,12 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             return RedirectToAction(nameof(Index));
         }
 
-        var imagesRes = await api.GetAreaImagesAsync(id, ct);
-        IReadOnlyList<ImageDto> galleryImages;
-        if (imagesRes.Ok && imagesRes.Data is not null)
-        {
-            galleryImages = imagesRes.Data;
-        }
-        else
-        {
-            galleryImages = res.Data.Images?.Select(i => new ImageDto(i.Id, i.Url, null, "gallery")).ToList() ?? new List<ImageDto>();
-            if (!imagesRes.Ok && !string.IsNullOrWhiteSpace(imagesRes.Message))
-            {
-                SetError(imagesRes.Message);
-            }
-        }
+        var cities = await LoadCityOptionsAsync(res.Data.CityIds, ct);
 
         return View("~/Views/Admin/Areas/Details.cshtml", new AreaDetailsVm
         {
             Area = res.Data,
+            Cities = cities,
             ActiveTab = tab
         });
     }
@@ -72,7 +58,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             Cities = await LoadCityOptionsAsync(null, ct)
         };
 
-        return View("~/Views/Admin/Areas/Details.cshtml", vm);
+        return View("~/Views/Admin/Areas/Create.cshtml", vm);
     }
 
     [HttpPost("/admin/areas")]
@@ -83,7 +69,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         {
             vm.Cities = await LoadCityOptionsAsync(vm.Area.CityIds, ct);
             SetError("Invalid fields.");
-            return View("~/Views/Admin/Houses/Create.cshtml", vm);
+            return View("~/Views/Admin/Areas/Create.cshtml", vm);
         }
 
         var res = await api.CreateAreaAsync(vm.Area, ct);
@@ -91,12 +77,12 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         if (!res.Ok)
         {
             SetError(res.Message ?? "Could not create area.");
-            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.Area.CityIds, vm.Area.Name, vm.Area.Description, ct);
-            return View("~/Views/Admin/Areas/Details.cshtml", rebuiltVm);
+            vm.Cities = await LoadCityOptionsAsync(vm.Area.CityIds, ct);
+            return View("~/Views/Admin/Areas/Create.cshtml", vm);
         }
 
         SetSuccess("Area created.");
-        return RedirectToAction(nameof(Details), new { id = res.Data.Id });
+        return RedirectToAction(nameof(Details), new { id = res.Data!.Id });
     }
 
 
@@ -106,13 +92,13 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
     {
         var dto = new UpsertAreaDto {
             Name = vm.Area.Name, 
-            CityIds = (List<Guid>)vm.Area.CityIds, 
+            CityIds = vm.Area.CityIds?.ToList() ?? new List<Guid>(), 
             Description = vm.Area.Description
         };
 
         var res = await api.UpdateAreaAsync(id, dto, ct);
 
-        if (!res.Ok || res.Data is null)
+        if (!res.Ok)
         {
             SetError(res.Message ?? "Could not update area.");
             SetAdminTab("areas");
@@ -142,41 +128,36 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
     [HttpPost("/admin/areas/{id:guid}/images")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UploadImage(Guid id, IFormFile? file, string? redirectTo, CancellationToken ct = default)
+    public async Task<IActionResult> UploadAreaImages(Guid id, IEnumerable<IFormFile> files, CancellationToken ct = default)
     {
-        if (id == Guid.Empty)
+        if (files is null || !files.Any())
         {
-            SetError("Invalid area.");
-            return RedirectAfterImageChange(id, redirectTo);
+            SetError("Please select at least one image.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
-        if (file is null || file.Length == 0)
-        {
-            SetError("Select an image.");
-            return RedirectAfterImageChange(id, redirectTo);
-        }
-
-        var res = await api.UploadAreaImageAsync(id, file, ct);
+        var res = await api.UploadAreaImagesAsync(id, files, ct);
         if (res.Ok)
         {
-            SetSuccess("Image uploaded.");
+            var uploadedCount = res.Data?.Count ?? 0;
+            SetSuccess(uploadedCount > 0 ? $"Uploaded {uploadedCount} image(s)." : "No images were uploaded.");
         }
         else
         {
-            SetError(res.Message ?? "Could not upload image.");
+            SetError(res.Message ?? "Upload failed.");
         }
 
-        return RedirectAfterImageChange(id, redirectTo);
+        return RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
-    [HttpPost("/admin/areas/{id:guid}/images/delete")]
+    [HttpPost("/admin/areas/{id:guid}/images/{imageId:guid}/delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteImage(Guid id, Guid imageId, string? redirectTo, CancellationToken ct = default)
+    public async Task<IActionResult> DeleteAreaImage(Guid id, Guid imageId, CancellationToken ct = default)
     {
         if (id == Guid.Empty)
         {
-            SetError("Invalid area.");
-            return RedirectAfterImageChange(id, redirectTo);
+            SetError("Invalid area ID.");
+            return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
         var res = await api.DeleteAreaImageAsync(id, imageId, ct);
@@ -189,7 +170,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             SetError(res.Message ?? "Could not delete image.");
         }
 
-        return RedirectAfterImageChange(id, redirectTo);
+        return RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
     private async Task<AreaDetailsVm> BuildAreaEditVmAsync(
@@ -222,23 +203,9 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
         return new AreaDetailsVm
         {
-            Area = area,
+            Area = area ?? new AreaDetailsDto(Guid.Empty, name ?? string.Empty, description, images, cityIds.ToList()),
             Cities = cities,
         };
-    }
-
-    private IActionResult RedirectAfterImageChange(Guid id, string? redirectTo)
-    {
-        if (string.Equals(redirectTo, "edit", StringComparison.OrdinalIgnoreCase))
-        {
-            return id == Guid.Empty
-                ? RedirectToAction(nameof(Index))
-                : RedirectToAction(nameof(Details), new { id });
-        }
-
-        return id == Guid.Empty
-            ? RedirectToAction(nameof(Index))
-            : RedirectToAction(nameof(Details), new { id, tab = "images" });
     }
 
     private async Task<IReadOnlyList<SelectListItem>> LoadCityOptionsAsync(IReadOnlyCollection<Guid>? selectedCityIds, CancellationToken ct)

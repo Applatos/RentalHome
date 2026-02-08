@@ -962,6 +962,132 @@ Comprehensive review of the MVC presentation layer — Controllers, Services, Vi
 
 ---
 
+## Phase 15: Post-Refactor Bug Fixes & Consistency Audit (Feb 8, 2026)
+
+### 21. MVC AreasController Bugs ✅ FIXED
+
+**Location**: `Sommerhus.Mvc/Controllers/Admin/AreasController.cs`
+
+**Problems found**:
+
+- **21a** `Create` action rendered wrong view (`~/Views/Admin/Houses/Create.cshtml` instead of `~/Views/Admin/Areas/Details.cshtml`) — would crash at runtime
+- **21b** `Update` action cast `IReadOnlyList<Guid>` to `List<Guid>` — `InvalidCastException` at runtime
+- **21c** `BuildAreaEditVmAsync` could assign `null` to `required AreaDetailsDto Area` property — crash at runtime
+- **21d** `Update` checked `res.Data is null` on `ApiResponse<object?>` — unnecessary and misleading
+
+### 22. Compiler Warnings (8 total) ✅ FIXED
+
+- **22a** Duplicate `using Sommerhus.Core.Dtos.Shared` in `Api/Controllers/Admin/CitiesController.cs` (CS0105)
+- **22b** Nullable dereference `res.Data.Id` in MVC `AreasController.Create` (CS8602)
+- **22c** Nullability mismatch in `AdminApiClient.GetHousesAsync` return type (CS8619)
+- **22d** `async` method without `await` in MVC `HousesController.AdminIndex` (CS1998)
+- **22e** Null source to `OrderBy` in `HouseGroups/Details.cshtml` Razor view (CS8604)
+
+### 23. Danish Text Remaining ✅ FIXED
+
+- **23a** 4 Danish error messages in `AdminFeatureService.cs` (`Ugyldig`, `Ingen fil`, `Fil er for stor`, `Kun PNG`)
+- **23b** 2 Danish comments in `StorageOptions.cs` (`valgfrit`, `hvis SQLite`)
+
+### 24. Spurious Using ✅ FIXED
+
+- **24a** `UpsertAreaDto.cs` imported `Microsoft.Identity.Client` (wrong package, unused)
+
+---
+
+### Phase 15b: Codebase Consistency ✅ COMPLETED (Feb 8, 2026)
+
+The following consistency improvements were identified and fixed during the audit.
+
+### 25. DTO Style Inconsistency (Pending)
+
+**Problem**: Some DTOs use `record` (immutable), others use `record` with mutable `{ get; set; }`. Some write DTOs are `class`, others are `record`.
+
+| DTO                   | Style                                 | Should Be                                               |
+| --------------------- | ------------------------------------- | ------------------------------------------------------- |
+| `UpsertAreaDto`       | `record` with `{ get; set; }`         | `class` (mutable, form-bound)                           |
+| `UpsertHouseDto`      | `sealed class`                        | OK                                                      |
+| `UpsertHouseGroupDto` | `sealed record` with `{ get; init; }` | `sealed class` (for consistency with other Upsert DTOs) |
+| `UpsertSeasonSpanDto` | `sealed record` with `{ get; init; }` | `sealed class` (for consistency)                        |
+
+**Solution**: Standardize all Upsert DTOs to `sealed class` with `{ get; set; }` for MVC form binding consistency.
+
+### 26. MVC Controller Pattern Inconsistency ✅ FIXED
+
+**Problem**: Area and House MVC controllers followed different patterns:
+
+- **AreasController**: `New` rendered `Details.cshtml` with `AreaCreateVm` (type mismatch), `_TabOverview.cshtml` was a duplicate of `Create.cshtml`
+- **HousesController**: Separate `Create.cshtml`/`Details.cshtml` with matching ViewModels
+
+**Fix**: Standardized Areas to match Houses pattern:
+
+- `New` → renders `Create.cshtml` with `AreaCreateVm`
+- `Details` → renders `Details.cshtml` with `AreaDetailsVm` (now loads cities for edit form)
+- `_TabOverview.cshtml` rewritten as clean edit-only partial (matching Houses `_TabOverview.cshtml`)
+- Removed duplicate content from `Create.cshtml`
+
+### 27. AreaCreateVm Namespace Mismatch ✅ FIXED
+
+**Fix**: Changed namespace from `Sommerhus.Mvc.ViewModels.Admin.Area` to `Sommerhus.Mvc.ViewModels.Admin.Areas`. Removed unused `Houses` namespace import from `AreasController`.
+
+### 28. Image Service Interface Inconsistency (Pending)
+
+**Problem**: Image services have dedicated interfaces but don't implement the generic `IAdminEntityImageService<T>` interfaces defined in `IAdminEntityImageService.cs`.
+
+**Solution**: Either implement the generic interfaces or remove the unused generic interface definitions.
+
+### 29. Admin API Controller Pattern Inconsistency ✅ FIXED
+
+**Problems fixed**:
+
+- `CitiesController.GetAll/Lookup`: Removed unnecessary `async/await` (now direct `Task` return)
+- `FeaturesController.GetAll`: Removed unnecessary `async/await`
+- `HouseGroupsController.Lookup`: Removed unnecessary `async/await`
+- `AreasController.Create/Update/Delete`: Replaced manual `ServiceResultStatus` switch with `FromResult` helper
+- `CityImagesController.Upload`: Replaced manual `ServiceResultStatus` check with `FromResult`, standardized `RequestSizeLimit` to 25MB
+- Removed unused `using Sommerhus.Core.Common` from `AreaImagesController` and `CityImagesController`
+- Removed unused `using Microsoft.AspNetCore.Http` from `AreasController`
+
+### 30. Inconsistent Constructor Styles in Core Services (Pending)
+
+**Problem**: Some services use primary constructors, others use traditional constructors with field assignment.
+
+**Solution**: Convert all Core services to primary constructors (C# 12 feature, already used in controllers).
+
+### 31. House Image Kind Bug ✅ FIXED
+
+**Location**: `Sommerhus.Mvc/Views/Admin/Houses/_TabImages.cshtml`
+
+**Problem**: The image kind selector only had a single "Hero" button sending `kind=hero`, but the `ImageKind` enum defines `Cover`, `Gallery`, `Floorplan`. The "hero" value would fail silently or be rejected by the API.
+
+**Fix**: Replaced single "Hero" button with three buttons (Cover/Gallery/Floorplan) matching the `ImageKind` enum. Active kind is visually highlighted.
+
+### 32. Area Image Upload — Single File Only ✅ FIXED
+
+**Problem**: Area images could only be uploaded one at a time, while houses supported batch upload.
+
+**Fix**: Full stack update to support batch upload:
+
+- `IAdminAreaImageService`: Added `UploadAsync(Guid, IFormFileCollection, ...)` overload
+- `AdminAreaImageService`: Implemented batch upload (matching `AdminHouseImageService` pattern)
+- `AreaImagesController`: Changed from `IFormFile file` to `[FromForm] IFormFileCollection files`
+- `AdminApiClient`: Replaced `UploadAreaImageAsync` (single) with `UploadAreaImagesAsync` (batch)
+- MVC `AreasController`: New `UploadAreaImages` action with count feedback
+- `_TabImages.cshtml`: Multi-file input with card grid layout matching houses
+
+### 33. Area Image Delete Route Inconsistency ✅ FIXED
+
+**Problem**: Area image delete used `/admin/areas/{id}/images/delete` with `imageId` as form field. Houses used `/admin/areas/{id}/images/{imageId}/delete` with `imageId` in route.
+
+**Fix**: Standardized to `/admin/areas/{id}/images/{imageId}/delete` matching houses. Renamed action to `DeleteAreaImage` (matching `DeleteHouseImage`). Removed unused `RedirectAfterImageChange` helper.
+
+### 34. Areas Details Action Missing Cities ✅ FIXED
+
+**Problem**: `AreasController.Details` fetched gallery images but never used them, and didn't load cities for the overview tab's edit form — the city dropdown would be empty.
+
+**Fix**: Removed unused image fetch logic, added `LoadCityOptionsAsync` call, and passed cities to `AreaDetailsVm`.
+
+---
+
 ### Tracking Update
 
 | Issue                               | Priority | Phase | Status  |
@@ -994,6 +1120,16 @@ Comprehensive review of the MVC presentation layer — Controllers, Services, Vi
 | #20z Direct TempData in pub views   | Medium   | 14c   | ✅ Done |
 | #20aa Mojibake in Areas/Details     | Medium   | 14c   | ✅ Done |
 | #20ab Redundant usings in HouseCard | Low      | 14c   | ✅ Done |
+| #25 DTO style inconsistency         | Low      | 15b   | Pending |
+| #26 MVC controller pattern          | High     | 15b   | ✅ Done |
+| #27 AreaCreateVm namespace          | Medium   | 15b   | ✅ Done |
+| #28 Image service interfaces        | Low      | 15b   | Pending |
+| #29 API controller patterns         | Medium   | 15b   | ✅ Done |
+| #30 Core service constructors       | Low      | 15b   | Pending |
+| #31 House image kind bug            | High     | 15b   | ✅ Done |
+| #32 Area image batch upload         | High     | 15b   | ✅ Done |
+| #33 Area image delete route         | Medium   | 15b   | ✅ Done |
+| #34 Areas Details missing cities    | High     | 15b   | ✅ Done |
 
 ---
 

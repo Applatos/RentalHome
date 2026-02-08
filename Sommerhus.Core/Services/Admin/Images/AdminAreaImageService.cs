@@ -64,6 +64,55 @@ public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaIma
         return ServiceResult<ImageDto>.Success(ToDto(image.Id, baseUrl, ImageCategory.Area, areaId, image.FileName, null, "Gallery"));
     }
 
+    public async Task<ServiceResult<IReadOnlyList<ImageDto>>> UploadAsync(Guid areaId, IFormFileCollection files, string baseUrl, CancellationToken ct)
+    {
+        var validationError = ValidateFileCollection(files);
+        if (validationError is not null)
+            return validationError;
+
+        var exists = await Db.Areas.AsNoTracking().AnyAsync(a => a.Id == areaId, ct);
+        if (!exists)
+        {
+            return ServiceResult<IReadOnlyList<ImageDto>>.NotFound();
+        }
+
+        var added = new List<AreaImage>();
+        foreach (var file in files)
+        {
+            if (file is null || file.Length == 0)
+            {
+                continue;
+            }
+
+            if (!IsValidImageFile(file))
+            {
+                return ServiceResult<IReadOnlyList<ImageDto>>.Invalid("files", "Only image files are allowed.");
+            }
+
+            var stored = await SaveToStorageAsync(ImageCategory.Area, areaId, file, ct);
+            added.Add(new AreaImage
+            {
+                AreaId = areaId,
+                FileName = stored.FileName,
+                SortOrder = 0
+            });
+        }
+
+        if (added.Count == 0)
+        {
+            return ServiceResult<IReadOnlyList<ImageDto>>.Invalid("files", "No valid image files were provided.");
+        }
+
+        Db.AreaImages.AddRange(added);
+        await Db.SaveChangesAsync(ct);
+
+        var dtos = added
+            .Select(img => ToDto(img.Id, baseUrl, ImageCategory.Area, areaId, img.FileName, null, "Gallery"))
+            .ToList();
+
+        return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
+    }
+
     public async Task<ServiceResult> DeleteAsync(Guid areaId, Guid imageId, CancellationToken ct)
     {
         var image = await Db.AreaImages.FirstOrDefaultAsync(i => i.Id == imageId && i.AreaId == areaId, ct);

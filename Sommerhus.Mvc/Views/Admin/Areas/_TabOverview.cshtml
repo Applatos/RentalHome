@@ -1,66 +1,39 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
 @model AreaDetailsVm
 
-<section class="container my-3">
-    <partial name="~/Views/Admin/Shared/_FlashMessages.cshtml" />
+<form method="post" asp-controller="Areas" asp-action="Update" asp-route-id="@Model.Area.Id" class="row g-3">
+    @Html.AntiForgeryToken()
 
-    <form method="post"
-          asp-controller="Areas"
-          asp-action="@(Model.IsNew ? "Create" : "Update")"
-          asp-route-id="@(Model.IsNew ? null : Model.Area.Id)">
-        @Html.AntiForgeryToken()
+    <div class="col-md-8">
+        <label class="form-label">Name</label>
+        <input class="form-control" name="Area.Name" value="@Model.Area.Name" required maxlength="100" />
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Area.Name" class="form-label"> Name *</label>
-            <input asp-for="Area.Name" class="form-control" required maxlength="100" />
-        </div>
+    <div class="col-md-6">
+        <label class="form-label">Associated Cities</label>
+        <select class="form-select" name="Area.CityIds" asp-items="Model.Cities" multiple></select>
+        <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Area.CityIds" class="form-label">Associated Cities</label>
-            <select class="form-select" asp-for="Area.CityIds" asp-items="Model.Cities" multiple></select>
-        </div>
+    <div class="col-md-12">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" name="Area.Description" rows="4">@Model.Area.Description</textarea>
+        <div class="form-text">HTML allowed.</div>
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Area.Description" class="form-label">Description</label>
-            <textarea asp-for="Area.Description" class="form-control" rows="6"></textarea>
-            <div class="form-text">HTML allowed.</div>
-        </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Create" : "Save Changes")</button>
-            <a class="btn btn-outline-secondary" asp-controller="Areas" asp-action="Index">Cancel</a>
-        </div>
-    </form>
-
-</section>
-
-
-<dl class="row small">
-    <dt class="col-sm-2">Cities</dt>
-    <dd class="col-sm-10">
-        @if (Model.Area.Cities?.Any() == true)
-        {
-            <span>@string.Join(", ", Model.Area.Cities.Select(c => c.Label))</span>
-        }
-    </dd>
-</dl>
-
-@if (!string.IsNullOrWhiteSpace(Model.Area.Description))
-{
-    <div class="mb-3">@Html.Raw(Model.Area.Description)</div>
-}
+    <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">Save</button>
+        <a class="btn btn-outline-secondary" asp-controller="Areas" asp-action="Index">Back to List</a>
+    </div>
+</form>
 
 @if (Model.Area.Houses?.Any() == true)
 {
-    <h5>Houses in this area</h5>
+    <h5 class="mt-4">Houses in this area</h5>
     <ul>
         @foreach (var house in Model.Area.Houses)
         {
             <li>@house.Title</li>
         }
     </ul>
-}
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
 }

@@ -1,45 +1,41 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
 @model AreaDetailsVm
 
-<div class="mb-3">
-    <form asp-controller="Areas"
-          asp-action="UploadImage"
-          asp-route-id="@Model.Area.Id"
-          asp-route-redirectTo=""
-          method="post"
-          enctype="multipart/form-data">     
+<div class="mb-4">
+    <h5>Upload Images</h5>
+    <form method="post" asp-controller="Areas" asp-action="UploadAreaImages" asp-route-id="@Model.Area.Id" enctype="multipart/form-data" class="row g-2 align-items-end">
         @Html.AntiForgeryToken()
-
-        <div class="input-group">
-            <input type="file" name="file" class="form-control" accept="image/*" />
-            <button type="submit" class="btn btn-outline-primary">Upload</button>
+        <div class="col-md-8">
+            <input type="file" name="files" class="form-control" multiple accept="image/*" />
         </div>
-        <small class="text-muted d-block mt-1">Upload one image at a time to the area gallery.</small>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100">Upload</button>
+        </div>
     </form>
 </div>
 
 @if (Model.Area.Images.Count == 0)
 {
-    <div class="alert alert-info">No images yet.</div>
+    <p class="text-muted">No images uploaded yet.</p>
 }
 else
 {
-    <div class="d-flex flex-wrap gap-3">
+    <h5>Current Images</h5>
+    <div class="row">
         @foreach (var img in Model.Area.Images)
         {
-            <div class="border rounded p-2" style="width: 210px">
-                <img src="@img.Url" alt="" class="img-fluid" />
-                <div class="mt-2 d-flex flex-wrap gap-2">
-                    <form asp-controller="Areas"
-                          asp-action="DeleteImage"
-                          asp-route-id="@Model.Area.Id"
-                          asp-route-imageId="@img.Id"
-                          asp-route-redirectTo=""
-                          method="post"
-                          onsubmit="return confirm('Delete image?');">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
+            <div class="col-md-4 col-lg-3 mb-3">
+                <div class="card h-100">
+                    <img src="@img.Url" class="card-img-top" alt="Area image" style="height:150px;object-fit:cover;" />
+                    <div class="card-body p-2">
+                        <small class="text-muted">@(img.Kind ?? "gallery")</small>
+                        <div class="mt-2">
+                            <form method="post" asp-controller="Areas" asp-action="DeleteAreaImage" asp-route-id="@Model.Area.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('Delete this image?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete">Delete</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         }

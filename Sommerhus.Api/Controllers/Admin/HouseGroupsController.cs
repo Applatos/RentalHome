@@ -16,14 +16,11 @@ public sealed class HouseGroupsController(IAdminHouseGroupService service) : Con
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<HouseGroupDto>>> List(CancellationToken ct)
-    {
-        var result = await service.ListAsync(ct);
-        return this.FromResult(result);
-    }
+        => this.FromResult(await service.ListAsync(ct));
 
     [HttpGet("lookup")]
-    public async Task<IReadOnlyList<LookupItem>> Lookup(CancellationToken ct)
-        => await service.GetAllAsync(ct);
+    public Task<IReadOnlyList<LookupItem>> Lookup(CancellationToken ct)
+        => service.GetAllAsync(ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<HouseGroupDto>> Get(Guid id, CancellationToken ct)

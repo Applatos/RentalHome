@@ -851,14 +851,72 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;ver
 
 ---
 
+## Phase 15: Post-Refactor Bug Fixes & Consistency Audit (Feb 8, 2026)
+
+**Goal**: Fix all bugs and warnings introduced during refactoring, then identify remaining consistency improvements.
+
+### Phase 15a: Bug Fixes & Warning Cleanup ✅ COMPLETED
+
+Fixed 3 runtime bugs, 8 compiler warnings, 6 Danish text remnants, and 1 spurious import.
+
+- [x] **#21a** Fix `AreasController.Create` rendering wrong view (`Houses/Create.cshtml` → `Areas/Details.cshtml`)
+- [x] **#21b** Fix `AreasController.Update` `InvalidCastException` (`IReadOnlyList<Guid>` cast to `List<Guid>`)
+- [x] **#21c** Fix `BuildAreaEditVmAsync` assigning `null` to `required AreaDetailsDto Area`
+- [x] **#21d** Fix `AreasController.Update` unnecessary `res.Data is null` check on `object?`
+- [x] **#22a** Remove duplicate `using` in `CitiesController.cs` (CS0105)
+- [x] **#22b** Fix nullable dereference `res.Data.Id` in MVC `AreasController.Create` (CS8602)
+- [x] **#22c** Fix nullability mismatch in `AdminApiClient.GetHousesAsync` return type (CS8619)
+- [x] **#22d** Fix `async` without `await` in MVC `HousesController.AdminIndex` (CS1998)
+- [x] **#22e** Fix null source to `OrderBy` in `HouseGroups/Details.cshtml` (CS8604)
+- [x] **#23a** Replace 4 Danish error messages in `AdminFeatureService.cs`
+- [x] **#23b** Replace 2 Danish comments in `StorageOptions.cs`
+- [x] **#24a** Remove spurious `using Microsoft.Identity.Client` in `UpsertAreaDto.cs`
+
+**Result**: Build ✅ (0 warnings) | Tests 11/11 ✅
+
+### Phase 15b: Codebase Consistency ✅ COMPLETED
+
+Make the codebase predictable — same pattern for every entity.
+
+**Bugs fixed**:
+
+- [x] **#31** Fix house image kind bug (`hero` → Cover/Gallery/Floorplan buttons matching `ImageKind` enum)
+- [x] **#32** Add batch image upload for areas (full stack: service, API, MVC client, controller, view)
+- [x] **#33** Standardize area image delete route (`/images/delete` → `/images/{imageId}/delete`)
+- [x] **#34** Fix Areas Details action not loading cities for edit form
+
+**Patterns standardized**:
+
+- [x] **#26** Standardize MVC controller Create/Details view pattern (Areas now matches Houses)
+- [x] **#27** Fix `AreaCreateVm` namespace (`Admin.Area` → `Admin.Areas`)
+- [x] **#29** Standardize admin API controller patterns (FromResult, async/await, unused imports)
+
+**Remaining (low priority)**:
+
+- [ ] **#25** Standardize all Upsert DTOs to `sealed class` with `{ get; set; }` for form binding
+- [ ] **#28** Remove unused generic image service interfaces or implement them
+- [ ] **#30** Convert Core services to primary constructors (C# 12, match controller style)
+
+**Result**: Build ✅ (0 errors, 0 warnings) | Tests 11/11 ✅
+
+### Verification
+
+```powershell
+dotnet format Sommerhus_project.sln
+dotnet build Sommerhus_project.sln --warnaserror
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
+```
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:
 
-- [ ] All tests passing
-- [ ] No build warnings
+- [x] All tests passing
+- [x] No build warnings
 - [ ] Code formatted with `dotnet format`
-- [ ] Documentation updated
+- [x] Documentation updated
 - [ ] README.md reflects current state
 - [ ] AGENTS.md updated if patterns changed
 - [ ] Git history clean (squashed WIP commits)
@@ -887,8 +945,10 @@ After completing all phases:
 | Phase 14b | 2-3 hours        | High     | **Completed** |
 | Phase 14c | 2-3 hours        | Medium   | **Completed** |
 | Phase 14d | 1 hour           | Low      | **Completed** |
+| Phase 15a | 30 min           | High     | **Completed** |
+| Phase 15b | 3-4 hours        | Medium   | **Completed** |
 
-**Remaining**: ~26-36 hours
+**Remaining**: ~23-33 hours
 
 ---
 

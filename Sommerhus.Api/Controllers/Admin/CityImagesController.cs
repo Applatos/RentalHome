@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Core.Services.Admin.Images;
-using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Admin;
@@ -18,17 +17,9 @@ public sealed class CityImagesController(IAdminCityImageService service) : Contr
         => this.FromResult(await service.ListAsync(cityId, Request.BaseUrl(), ct));
 
     [HttpPost]
-    [RequestSizeLimit(1024L * 1024L * 100L)]
+    [RequestSizeLimit(25_000_000)]
     public async Task<ActionResult<ImageDto>> Upload(Guid cityId, IFormFile file, [FromForm] string? alt, CancellationToken ct)
-    {
-        var result = await service.UploadAsync(cityId, file, alt, Request.BaseUrl(), ct);
-        if (result.Status == ServiceResultStatus.Success)
-        {
-            return CreatedAtAction(nameof(List), new { cityId }, result.Value);
-        }
-
-        return this.FromResult(result);
-    }
+        => this.FromResult(await service.UploadAsync(cityId, file, alt, Request.BaseUrl(), ct));
 
     [HttpDelete("{imageId:guid}")]
     public async Task<IActionResult> Delete(Guid cityId, Guid imageId, CancellationToken ct)

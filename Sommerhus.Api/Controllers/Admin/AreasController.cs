@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Areas;
-using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
@@ -33,38 +31,13 @@ public sealed class AreasController(IAdminAreaService service) : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<AreaDetailsDto>> Create([FromBody] UpsertAreaDto dto, CancellationToken ct)
-    {
-        var result = await service.CreateAsync(dto, Request.BaseUrl(), ct);
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => CreatedAtAction(nameof(Get), new { id = result.Value!.Id }, result.Value),
-            ServiceResultStatus.Invalid => ValidationProblem((ValidationProblemDetails)result.Errors),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to create area.")
-        };
-    }
+        => this.FromResult(await service.CreateAsync(dto, Request.BaseUrl(), ct));
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertAreaDto dto, CancellationToken ct)
-    {
-        var result = await service.UpdateAsync(id, dto, ct);
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => NoContent(),
-            ServiceResultStatus.NotFound => NotFound(),
-            ServiceResultStatus.Invalid => ValidationProblem((ValidationProblemDetails)result.Errors),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to update area.")
-        };
-    }
+        => this.FromResult(await service.UpdateAsync(id, dto, ct));
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
-    {
-        var result = await service.DeleteAsync(id, ct);
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => NoContent(),
-            ServiceResultStatus.NotFound => NotFound(),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to delete area.")
-        };
-    }
+        => this.FromResult(await service.DeleteAsync(id, ct));
 }

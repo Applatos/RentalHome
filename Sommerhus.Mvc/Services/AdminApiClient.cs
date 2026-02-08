@@ -8,7 +8,7 @@ namespace Sommerhus.Mvc.Services;
 public sealed class AdminApiClient(HttpClient http)
 {
     // Houses
-    public Task<ApiResponse<PageResult<AdminHouseListItemDto>>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
+    public Task<ApiResponse<PageResult<AdminHouseListItemDto>?>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
         => ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
 
     public Task<ApiResponse<AdminHouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct)
@@ -88,11 +88,15 @@ public sealed class AdminApiClient(HttpClient http)
     public Task<ApiResponse<IReadOnlyList<ImageDto>?>> GetAreaImagesAsync(Guid areaId, CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<ImageDto>?>(http, $"api/admin/areas/{areaId}/images", ct);
 
-    public async Task<ApiResponse<ImageDto?>> UploadAreaImageAsync(Guid areaId, IFormFile file, CancellationToken ct)
+    public async Task<ApiResponse<IReadOnlyList<ImageDto>?>> UploadAreaImagesAsync(Guid areaId, IEnumerable<IFormFile> files, CancellationToken ct)
     {
         using var form = new MultipartFormDataContent();
-        AddFile(form, "file", file.OpenReadStream(), file.FileName, file.ContentType);
-        return await ApiHttp.SendAsync<ImageDto?>(http, (client, token) => client.PostAsync($"api/admin/areas/{areaId}/images", form, token), ct);
+        foreach (var file in files)
+        {
+            AddFile(form, "files", file.OpenReadStream(), file.FileName, file.ContentType);
+        }
+
+        return await ApiHttp.SendAsync<IReadOnlyList<ImageDto>?>(http, (client, token) => client.PostAsync($"api/admin/areas/{areaId}/images", form, token), ct);
     }
 
     public Task<ApiResponse<object?>> DeleteAreaImageAsync(Guid areaId, Guid imageId, CancellationToken ct)

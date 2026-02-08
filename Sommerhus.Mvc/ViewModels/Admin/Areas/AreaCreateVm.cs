@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Sommerhus.Core.Dtos.Admin;
 
-namespace Sommerhus.Mvc.ViewModels.Admin.Area;
+namespace Sommerhus.Mvc.ViewModels.Admin.Areas;
 
 public sealed class AreaCreateVm
 {

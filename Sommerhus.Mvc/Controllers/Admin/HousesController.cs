@@ -15,7 +15,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
 {
 
     [HttpGet("admin")]
-    public async Task<IActionResult> AdminIndex(CancellationToken ct = default)
+    public IActionResult AdminIndex()
     {
         return RedirectToAction(nameof(Index));
     }

@@ -1,4 +1,3 @@
-using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sommerhus.Core.Dtos.Admin;

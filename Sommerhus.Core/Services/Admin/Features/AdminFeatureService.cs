@@ -192,7 +192,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
 
         return ServiceResult<FeatureValueType>.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
         {
-            [nameof(UpsertFeatureDto.ValueType)] = new[] { "Ugyldig ValueType (tilladt: Bool, Int, Decimal, Text)." }
+            [nameof(UpsertFeatureDto.ValueType)] = new[] { "Invalid ValueType (allowed: Bool, Int, Decimal, Text)." }
         });
     }
 
@@ -216,7 +216,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["file"] = new[] { "Ingen fil modtaget." }
+                ["file"] = new[] { "No file received." }
             });
         }
 
@@ -224,7 +224,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["file"] = new[] { "Fil er for stor (maks 2MB)." }
+                ["file"] = new[] { "File is too large (max 2MB)." }
             });
         }
 
@@ -233,7 +233,7 @@ public sealed class AdminFeatureService : IAdminFeatureService
         {
             return ServiceResult.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["file"] = new[] { "Kun PNG og JPEG er tilladt." }
+                ["file"] = new[] { "Only PNG and JPEG are allowed." }
             });
         }
 
