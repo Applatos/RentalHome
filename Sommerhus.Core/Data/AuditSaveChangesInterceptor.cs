@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Sommerhus.Domain.Models;
 
@@ -194,7 +195,7 @@ public sealed class AuditSaveChangesInterceptor(IHttpContextAccessor httpContext
         return "system";
     }
 
-    private static string? GetEntityId(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    private static string? GetEntityId(EntityEntry entry)
     {
         var pk = entry.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey());
         if (pk is null)
@@ -206,7 +207,7 @@ public sealed class AuditSaveChangesInterceptor(IHttpContextAccessor httpContext
         return value?.ToString();
     }
 
-    private static string? SerializeChanges(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    private static string? SerializeChanges(EntityEntry entry)
     {
         var changes = new Dictionary<string, object?>();
 
@@ -223,7 +224,7 @@ public sealed class AuditSaveChangesInterceptor(IHttpContextAccessor httpContext
         return changes.Count == 0 ? null : JsonSerializer.Serialize(changes, JsonOptions);
     }
 
-    private static string? SerializeCurrentValues(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    private static string? SerializeCurrentValues(EntityEntry entry)
     {
         var values = new Dictionary<string, object?>();
 
@@ -235,7 +236,7 @@ public sealed class AuditSaveChangesInterceptor(IHttpContextAccessor httpContext
         return values.Count == 0 ? null : JsonSerializer.Serialize(values, JsonOptions);
     }
 
-    private static string? SerializeOriginalValues(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    private static string? SerializeOriginalValues(EntityEntry entry)
     {
         var values = new Dictionary<string, object?>();
 
