@@ -11,6 +11,7 @@ public sealed class HouseDetailsVm
     public required IReadOnlyList<SelectListItem> HouseGroups { get; init; }
     public string ActiveTab { get; init; } = "overview";
 
+
     // Tab-specific data (populated only when needed)
     public IReadOnlyList<FeatureDto> AllFeatures { get; init; } = [];
     public string? FeaturesError { get; init; }

@@ -70,17 +70,6 @@ public sealed class AdminAreaService : IAdminAreaService
             area.Cities.Add(city);
         }
 
-        var images = NormalizeImages(dto.Images).ToList();
-        if (images.Count > 0)
-        {
-            foreach (var img in images)
-            {
-                img.AreaId = area.Id;
-            }
-
-            area.AreaImages = images;
-        }
-
         db.Areas.Add(area);
         await db.SaveChangesAsync(ct);
 
@@ -122,17 +111,17 @@ public sealed class AdminAreaService : IAdminAreaService
             area.Cities.Add(city);
         }
 
-        if (dto.Images is not null)
-        {
-            db.AreaImages.RemoveRange(area.AreaImages);
-            var updatedImages = NormalizeImages(dto.Images).ToList();
-            foreach (var img in updatedImages)
-            {
-                img.AreaId = area.Id;
-            }
+        //if (dto.Images is not null)
+        //{
+        //    db.AreaImages.RemoveRange(area.AreaImages);
+        //    var updatedImages = NormalizeImages(dto.Images).ToList();
+        //    foreach (var img in updatedImages)
+        //    {
+        //        img.AreaId = area.Id;
+        //    }
 
-            area.AreaImages = updatedImages;
-        }
+        //    area.AreaImages = updatedImages;
+        //}
 
         await db.SaveChangesAsync(ct);
         return ServiceResult.Success();

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Admin.Area;
 using Sommerhus.Mvc.ViewModels.Admin.Areas;
+using Sommerhus.Mvc.ViewModels.Admin.Houses;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
@@ -55,73 +57,72 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         return View("~/Views/Admin/Areas/Details.cshtml", new AreaDetailsVm
         {
             Area = res.Data,
-            GalleryImages = galleryImages,
-            Tab = tab
+            ActiveTab = tab
         });
     }
 
     [HttpGet("/admin/areas/new")]
-    public async Task<IActionResult> Create(CancellationToken ct = default)
+    public async Task<IActionResult> New(CancellationToken ct = default)
     {
         SetAdminTab("areas");
-        var vm = await BuildAreaEditVmAsync(null, Array.Empty<Guid>(), null, null, ct);
-        return View("~/Views/Admin/Areas/Edit.cshtml", vm);
+
+        var vm = new AreaCreateVm
+        {
+            Area = new UpsertAreaDto(),
+            Cities = await LoadCityOptionsAsync(null, ct)
+        };
+
+        return View("~/Views/Admin/Areas/Details.cshtml", vm);
     }
 
     [HttpPost("/admin/areas")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([FromForm] AreaEditVm vm, CancellationToken ct = default)
+    public async Task<IActionResult> Create([FromForm] AreaCreateVm vm, CancellationToken ct = default)
     {
-        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
-        var res = await api.CreateAreaAsync(dto, ct);
+        if (!ModelState.IsValid)
+        {
+            vm.Cities = await LoadCityOptionsAsync(vm.Area.CityIds, ct);
+            SetError("Invalid fields.");
+            return View("~/Views/Admin/Houses/Create.cshtml", vm);
+        }
+
+        var res = await api.CreateAreaAsync(vm.Area, ct);
 
         if (!res.Ok)
         {
             SetError(res.Message ?? "Could not create area.");
-            SetAdminTab("areas");
-            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            return View("~/Views/Admin/Areas/Edit.cshtml", rebuiltVm);
+            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.Area.CityIds, vm.Area.Name, vm.Area.Description, ct);
+            return View("~/Views/Admin/Areas/Details.cshtml", rebuiltVm);
         }
 
         SetSuccess("Area created.");
         return RedirectToAction(nameof(Details), new { id = res.Data.Id });
     }
 
+
     [HttpPost("/admin/areas/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(Guid id, [FromForm] AreaEditVm vm, CancellationToken ct = default)
+    public async Task<IActionResult> Update(Guid id, [FromForm] AreaDetailsVm vm, CancellationToken ct = default)
     {
-        var dto = new UpsertAreaDto(vm.Name, vm.CityIds, vm.Description);
+        var dto = new UpsertAreaDto {
+            Name = vm.Area.Name, 
+            CityIds = (List<Guid>)vm.Area.CityIds, 
+            Description = vm.Area.Description
+        };
+
         var res = await api.UpdateAreaAsync(id, dto, ct);
 
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Could not update area.");
             SetAdminTab("areas");
-            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.CityIds, vm.Name, vm.Description, ct);
-            return View("~/Views/Admin/Areas/Edit.cshtml", rebuiltVm);
+            var rebuiltVm = await BuildAreaEditVmAsync(null, vm.Area.CityIds, vm.Area.Name, vm.Area.Description, ct);
+            return View("~/Views/Admin/Areas/Details.cshtml", rebuiltVm);
         }
 
         SetSuccess("Area updated.");
         return RedirectToAction(nameof(Details), new { id });
     }
-
-    [HttpGet("/admin/areas/{id:guid}/edit")]
-    public async Task<IActionResult> Edit(Guid id, CancellationToken ct = default)
-    {
-        SetAdminTab("areas");
-        var res = await api.GetAreaAsync(id, ct);
-        if (!res.Ok || res.Data is null)
-        {
-            SetError(res.Message ?? "Area not found.");
-            return RedirectToAction(nameof(Index));
-        }
-
-        var dto = res.Data;
-        var vm = await BuildAreaEditVmAsync(res.Data, dto.CityIds, dto.Name, dto.Description, ct);
-        return View("~/Views/Admin/Areas/Edit.cshtml", vm);
-    }
-
     [HttpPost("/admin/areas/{id:guid}/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
@@ -191,7 +192,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         return RedirectAfterImageChange(id, redirectTo);
     }
 
-    private async Task<AreaEditVm> BuildAreaEditVmAsync(
+    private async Task<AreaDetailsVm> BuildAreaEditVmAsync(
         AreaDetailsDto? area,
         IReadOnlyCollection<Guid>? selectedCityIds,
         string? name,
@@ -219,14 +220,10 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             }
         }
 
-        return new AreaEditVm
+        return new AreaDetailsVm
         {
-            Id = area?.Id is { } idValue && idValue != Guid.Empty ? idValue : null,
-            Name = name ?? area?.Name ?? string.Empty,
-            CityIds = cityIds.ToList(),
-            Description = description ?? area?.Description,
-            Images = images,
-            Cities = cities
+            Area = area,
+            Cities = cities,
         };
     }
 
@@ -236,7 +233,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         {
             return id == Guid.Empty
                 ? RedirectToAction(nameof(Index))
-                : RedirectToAction(nameof(Edit), new { id });
+                : RedirectToAction(nameof(Details), new { id });
         }
 
         return id == Guid.Empty

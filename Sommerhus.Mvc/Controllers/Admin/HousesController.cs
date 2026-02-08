@@ -13,15 +13,20 @@ namespace Sommerhus.Mvc.Controllers.Admin;
 
 public sealed class HousesController(AdminApiClient api) : AdminControllerBase
 {
-    [HttpGet("/admin")]
-    public IActionResult AdminIndex() => RedirectToAction(nameof(Index));
+
+    [HttpGet("admin")]
+    public async Task<IActionResult> AdminIndex(CancellationToken ct = default)
+    {
+        return RedirectToAction(nameof(Index));
+    }
 
     [HttpGet("/admin/houses")]
     public async Task<IActionResult> Index([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
+        SetAdminTab("houses");
         var res = await api.GetHousesAsync(q, page, pageSize, ct);
 
-        if (!res.Ok)
+        if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Could not load house list.");
             return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
@@ -44,7 +49,6 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     public async Task<IActionResult> Details(Guid id, string tab = "overview", CancellationToken ct = default)
     {
         SetAdminTab("houses");
-
         var res = await api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
@@ -139,7 +143,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     }
 
     [HttpGet("/admin/houses/new")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+    public async Task<IActionResult> New(CancellationToken ct)
     {
         SetAdminTab("houses");
         var cities = await LoadCitiesSelectListAsync(null, ct);

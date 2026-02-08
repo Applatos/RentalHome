@@ -18,14 +18,14 @@
     </form>
 </div>
 
-@if (Model.GalleryImages.Count == 0)
+@if (Model.Area.Images.Count == 0)
 {
     <div class="alert alert-info">No images yet.</div>
 }
 else
 {
     <div class="d-flex flex-wrap gap-3">
-        @foreach (var img in Model.GalleryImages)
+        @foreach (var img in Model.Area.Images)
         {
             <div class="border rounded p-2" style="width: 210px">
                 <img src="@img.Url" alt="" class="img-fluid" />

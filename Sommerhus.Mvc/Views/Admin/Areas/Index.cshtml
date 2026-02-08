@@ -7,7 +7,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Areas</h2>
-        <a class="btn btn-primary" asp-controller="Areas" asp-action="Create">+ Create Area</a>
+        <a class="btn btn-primary" asp-controller="Areas" asp-action="New">+ Create Area</a>
     </div>
 
     @if (Model.Areas.Count == 0)
@@ -38,11 +38,6 @@
                                         asp-controller="Areas" 
                                         asp-action="Details" 
                                         asp-route-id="@a.Id">Details</a>
-
-                                    <a class="btn btn-outline-secondary btn-sm" 
-                                        asp-controller="Areas" 
-                                        asp-action="Edit" 
-                                        asp-route-id="@a.Id">Edit</a>
 
                                     <form asp-controller="Areas"
                                           asp-action="Delete"
