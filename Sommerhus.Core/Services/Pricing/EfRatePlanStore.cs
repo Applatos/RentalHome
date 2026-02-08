@@ -25,7 +25,7 @@ public sealed class EfRatePlanStore : IRatePlanStore
             .AsNoTracking()
             .Include(p => p.SeasonPrices)
             .Where(p => p.HouseId == houseId && p.IsActive)
-            .OrderByDescending(p => p.UpdatedUtc ?? p.CreatedUtc)
+            .OrderByDescending(p => p.UpdatedAtUtc ?? p.CreatedAtUtc)
             .FirstOrDefaultAsync(ct);
     }
 

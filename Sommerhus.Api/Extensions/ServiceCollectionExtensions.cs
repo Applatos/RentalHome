@@ -1,4 +1,5 @@
 using Sommerhus.Core.Services.Admin.Areas;
+using Sommerhus.Core.Services.Admin.Audit;
 using Sommerhus.Core.Services.Admin.Cities;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Services.Admin.Houses;
@@ -36,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminAreaImageService, AdminAreaImageService>();
         services.AddScoped<IAdminCityImageService, AdminCityImageService>();
         services.AddScoped<IAdminHouseImageService, AdminHouseImageService>();
+        services.AddScoped<IAuditService, AuditService>();
 
         return services;
     }

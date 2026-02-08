@@ -69,7 +69,7 @@
         <div class="col-md-4 text-md-end">
             @if (plan is not null)
             {
-                <small class="text-muted d-block">Last updated @(plan.UpdatedUtc?.ToLocalTime().ToString("g") ?? plan.CreatedUtc.ToLocalTime().ToString("g"))</small>
+                <small class="text-muted d-block">Last updated @(plan.UpdatedAtUtc?.ToLocalTime().ToString("g") ?? plan.CreatedAtUtc.ToLocalTime().ToString("g"))</small>
             }
         </div>
     </div>

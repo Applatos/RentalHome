@@ -16,7 +16,7 @@ public sealed record AdminHouseDetailsDto(
     string? CityLabel,
     IReadOnlyList<Guid> AreaIds,
     IReadOnlyList<LookupItem> Areas,
-    DateTime CreatedUtc,
+    DateTime CreatedAtUtc,
     IReadOnlyList<SeasonSpanDto>? Calendar,
     PricePlanDetailsDto? Pricing,
     Guid? GroupId);

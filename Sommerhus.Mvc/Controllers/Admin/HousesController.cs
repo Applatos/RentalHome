@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Mvc.Extensions;
 using Sommerhus.Mvc.Services;
@@ -97,6 +97,21 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
         }
 
+        var auditEntries = Array.Empty<AuditEntryDto>() as IReadOnlyList<AuditEntryDto>;
+        string? auditError = null;
+        if (string.Equals(tab, "audit", StringComparison.OrdinalIgnoreCase))
+        {
+            var auditRes = await api.GetAuditEntriesAsync("VacationHouse", house.Id.ToString(), 1, 50, ct);
+            if (auditRes.Ok && auditRes.Data is not null)
+            {
+                auditEntries = auditRes.Data.Items;
+            }
+            else
+            {
+                auditError = auditRes.Message ?? "Could not load audit history.";
+            }
+        }
+
         return new HouseDetailsVm
         {
             House = house,
@@ -107,7 +122,9 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             AllFeatures = allFeatures,
             FeaturesError = featuresError,
             SeasonCodes = seasonCodes,
-            SeasonCodesError = seasonCodesError
+            SeasonCodesError = seasonCodesError,
+            AuditEntries = auditEntries,
+            AuditError = auditError
         };
     }
 

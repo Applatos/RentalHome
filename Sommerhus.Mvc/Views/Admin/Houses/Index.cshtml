@@ -56,7 +56,7 @@
                             <span class="text-muted">—</span>
                         }
                     </td>
-                    <td>@h.CreatedUtc.ToLocalTime().ToString("g")</td>
+                    <td>@h.CreatedAtUtc.ToLocalTime().ToString("g")</td>
                     <td class="text-end">
                         <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">Details</a>
                         <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("Delete house \"@h.Title\"?");'>

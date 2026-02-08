@@ -152,6 +152,10 @@ public sealed class AdminApiClient(HttpClient http)
     public Task<ApiResponse<SeasonCodeDto?>> CreateSeasonCodeAsync(SeasonCodeDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<SeasonCodeDto, SeasonCodeDto?>(http, "api/admin/pricing/season-codes", dto, ct);
 
+    // Audit
+    public Task<ApiResponse<PageResult<AuditEntryDto>?>> GetAuditEntriesAsync(string? entityType, string? entityId, int page, int pageSize, CancellationToken ct)
+        => ApiHttp.GetAsync<PageResult<AuditEntryDto>?>(http, $"api/admin/audit?entity={Uri.EscapeDataString(entityType ?? "")}&entityId={Uri.EscapeDataString(entityId ?? "")}&page={page}&pageSize={pageSize}", ct);
+
     private static void AddFile(MultipartFormDataContent form, string fieldName, Stream stream, string fileName, string? contentType)
     {
         var content = new StreamContent(stream);

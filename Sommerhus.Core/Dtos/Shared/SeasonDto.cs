@@ -55,6 +55,6 @@ public sealed record PricePlanDetailsDto(
     string Name, 
     string Currency, 
     bool IsActive,   
-    DateTime CreatedUtc,
-    DateTime? UpdatedUtc,
+    DateTime CreatedAtUtc,
+    DateTime? UpdatedAtUtc,
     IReadOnlyList<SeasonPriceDto> SeasonPrices);

@@ -1133,6 +1133,66 @@ The following consistency improvements were identified and fixed during the audi
 
 ---
 
+## Enterprise Readiness Gaps (Phases 16–22)
+
+The following are architectural gaps identified for production readiness. See `ROADMAP.md` for detailed designs.
+
+### 35. Calendar Tied to House Group Only
+
+**Problem**: `SeasonSpan.GroupId` forces all houses in a group to share the same season calendar. Individual house owners cannot have custom calendars, and switching between calendar/pricing configurations requires manual re-entry.
+
+**Solution**: Phase 16 — Introduce `SeasonCalendar` entity with house-level override and group-level default. Add PricePlan switcher for easy activation/deactivation.
+
+### 36. ~~No Audit Trail~~ ✅ Resolved
+
+**Problem**: No record of who changed what and when. `VacationHouse.CreatedUtc` exists but no `UpdatedAtUtc`, `CreatedBy`, or `UpdatedBy` on any entity. No change history for critical data like prices or house details.
+
+**Solution**: Phase 17 (Completed) — `IAuditable` interface with auto-populated timestamps via `AuditSaveChangesInterceptor`, plus `AuditEntry` table with JSON diffs for critical entities. Admin API endpoint at `GET /api/admin/audit` with pagination and filtering. MVC audit history tab on House detail pages. 6 new integration tests verify audit entries on CRUD operations.
+
+### 37. No Entity Lifecycle / Status
+
+**Problem**: All houses are implicitly "published" — there's no way to draft content before making it public, or archive a house without deleting it. Public search returns everything.
+
+**Solution**: Phase 18 — `EntityStatus` enum (Draft/Published/Archived) with transition validation, public search filtering, and admin status management UI.
+
+### 38. No Concurrency Control
+
+**Problem**: If two admins edit the same house simultaneously, the last save silently overwrites the first. No optimistic concurrency tokens on any entity.
+
+**Solution**: Phase 19 — `[ConcurrencyCheck]` version column on all editable entities, `DbUpdateConcurrencyException` handling in services, conflict feedback in MVC.
+
+### 39. Price Computed on Every Request
+
+**Problem**: Calculating a price requires resolving calendar → season spans → nightly rates → modifiers. For search pages showing 20 houses, this is 80+ queries. No caching or pre-computation.
+
+**Solution**: Phase 20 — `HousePriceSummary` (materialized min/max for search cards) + `PriceQuote` (on-demand cached quote with TTL for detail/booking pages).
+
+### 40. No Availability Model
+
+**Problem**: No way to mark dates as blocked/available. No foundation for future booking. Public users cannot see when a house is available.
+
+**Solution**: Phase 21 — `AvailabilityBlock` entity with date-range blocks, availability service, admin calendar grid, public calendar widget. Designed for easy booking integration later.
+
+### 41. Search Uses LIKE '%term%'
+
+**Problem**: `EF.Functions.Like` with leading wildcard cannot use indexes — full table scan on every search. No relevance ranking, no faceted filtering (price, features, dates). Each query joins 4 tables.
+
+**Solution**: Phase 22 — Denormalized `HouseSearchDocument` read model with pre-computed fields, full-text search support (PostgreSQL `tsvector` / SQLite FTS5), faceted filter DTO, and `IHouseSearchService` abstraction.
+
+### Enterprise Tracking
+
+| Issue                          | Priority | Phase | Status   |
+| ------------------------------ | -------- | ----- | -------- |
+| #35 Calendar tied to group     | High     | 16    | Pending  |
+| #36 No audit trail             | High     | 17    | **Done** |
+| #37 No entity lifecycle        | High     | 18    | Pending  |
+| #38 No concurrency control     | Medium   | 19    | Pending  |
+| #39 Price computed per request | High     | 20    | Pending  |
+| #40 No availability model      | High     | 21    | Pending  |
+| #41 LIKE search, no facets     | Medium   | 22    | Pending  |
+
+---
+
 ## How to Add New Issues
 
 When discovering new issues during development:

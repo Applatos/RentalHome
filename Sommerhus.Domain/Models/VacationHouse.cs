@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sommerhus.Domain.Models;
 
-public class VacationHouse
+public class VacationHouse : IAuditable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -14,7 +14,10 @@ public class VacationHouse
 
     public string? Description { get; set; }
 
-    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    [MaxLength(256)] public string? CreatedBy { get; set; }
+    public DateTime? UpdatedAtUtc { get; set; }
+    [MaxLength(256)] public string? UpdatedBy { get; set; }
 
     public ICollection<Area> Areas { get; set; } = new List<Area>();
 
@@ -22,6 +25,5 @@ public class VacationHouse
     public List<HouseFeatureValue> HouseFeatures { get; set; } = new();
 
     public Guid? GroupId { get; set; }           // FK → HouseGroup
-    public HouseGroup? Group { get; set; } 
-
+    public HouseGroup? Group { get; set; }
 }

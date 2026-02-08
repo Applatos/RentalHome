@@ -9,7 +9,7 @@
 
     <div class="d-flex justify-content-between">
         <h2 class="mb-2">@Model.House.Title</h2>
-        <small class="text-muted">Created @Model.House.CreatedUtc.ToLocalTime().ToString("g")</small>
+        <small class="text-muted">Created @Model.House.CreatedAtUtc.ToLocalTime().ToString("g")</small>
     </div>
 
     <ul class="nav nav-tabs mt-2">
@@ -33,6 +33,10 @@
             <a class="nav-link @(Model.ActiveTab == "calendar" ? "active" : "")"
                asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">Season Calendar</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "audit" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="audit">Audit History</a>
+        </li>
     </ul>
 
     <div class="border-start border-end border-bottom p-3 rounded-bottom">
@@ -55,6 +59,10 @@
         else if (Model.ActiveTab == "calendar")
         {
             @await Html.PartialAsync("_TabCalendar.cshtml", Model)
+        }
+        else if (Model.ActiveTab == "audit")
+        {
+            @await Html.PartialAsync("_TabAudit.cshtml", Model)
         }
     </div>
 </section>

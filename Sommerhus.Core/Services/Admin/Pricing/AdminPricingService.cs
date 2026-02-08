@@ -169,12 +169,12 @@ public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteSer
                 .Where(p => p.HouseId == plan.HouseId && p.Id != plan.Id && p.IsActive)
                 .ExecuteUpdateAsync(up => up
                     .SetProperty(p => p.IsActive, false)
-                    .SetProperty(p => p.UpdatedUtc, DateTime.UtcNow), ct);
+                    .SetProperty(p => p.UpdatedAtUtc, DateTime.UtcNow), ct);
 
             if (!plan.IsActive)
             {
                 plan.IsActive = true;
-                plan.UpdatedUtc = DateTime.UtcNow;
+                plan.UpdatedAtUtc = DateTime.UtcNow;
                 await db.SaveChangesAsync(ct);
             }
 

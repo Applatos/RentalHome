@@ -60,6 +60,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (descriptor != null)
                 services.Remove(descriptor);
 
+            // Remove existing interceptor registration from AddSommerhusPersistence
+            var interceptorDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(Sommerhus.Core.Data.AuditSaveChangesInterceptor));
+            if (interceptorDescriptor != null)
+                services.Remove(interceptorDescriptor);
+
             // Remove the MigrationHostedService to avoid conflicts in tests
             var migrationHostedServiceDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService) &&
@@ -70,10 +76,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             _conn = new SqliteConnection("DataSource=:memory:");
             _conn.Open();
 
-            services.AddDbContext<AppDbContext>(opt =>
+            services.AddDbContext<AppDbContext>((sp, opt) =>
             {
                 opt.UseSqlite(_conn);
+                opt.AddInterceptors(sp.GetRequiredService<Sommerhus.Core.Data.AuditSaveChangesInterceptor>());
             });
+
+            services.AddScoped<Sommerhus.Core.Data.AuditSaveChangesInterceptor>();
 
             // Override JWT bearer validation to use test config values
             services.PostConfigure<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions>(

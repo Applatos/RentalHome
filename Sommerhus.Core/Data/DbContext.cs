@@ -30,6 +30,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SeasonCode> SeasonCodes => Set<SeasonCode>();
     public DbSet<SeasonSpan> SeasonSpans => Set<SeasonSpan>();
 
+    // Audit
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         base.OnModelCreating(b);
@@ -178,6 +181,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.StartDate).IsRequired();
             e.Property(x => x.EndDate).IsRequired();
             e.HasIndex(x => new { x.GroupId, x.StartDate, x.EndDate }).IsUnique();
+        });
+
+        // Audit entry
+        b.Entity<AuditEntry>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).ValueGeneratedOnAdd();
+            e.Property(x => x.EntityType).IsRequired().HasMaxLength(100);
+            e.Property(x => x.EntityId).IsRequired().HasMaxLength(64);
+            e.Property(x => x.ChangedBy).IsRequired().HasMaxLength(256);
+            e.HasIndex(x => new { x.EntityType, x.EntityId });
+            e.HasIndex(x => x.ChangedAtUtc);
         });
 
         b.Entity<PriceModifier>(e =>

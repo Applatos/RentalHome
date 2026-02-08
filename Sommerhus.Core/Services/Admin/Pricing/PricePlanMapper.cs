@@ -22,8 +22,8 @@ public static class PricePlanMapper
             plan.Name,
             plan.Currency,
             plan.IsActive,
-            plan.CreatedUtc,
-            plan.UpdatedUtc,
+            plan.CreatedAtUtc,
+            plan.UpdatedAtUtc,
             rates);
     }
 }

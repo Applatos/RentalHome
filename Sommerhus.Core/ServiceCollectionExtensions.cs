@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sommerhus.Core.Data;
 using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Core;
@@ -15,7 +16,9 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("Default") ?? "Data Source=sommerhus.db";
         var provider = ResolveProvider(configuration["DatabaseProvider"], connectionString);
 
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddScoped<AuditSaveChangesInterceptor>();
+
+        services.AddDbContext<AppDbContext>((sp, options) =>
         {
             switch (provider)
             {
@@ -28,6 +31,8 @@ public static class ServiceCollectionExtensions
                 default:
                     throw new InvalidOperationException($"Unsupported database provider '{provider}'.");
             }
+
+            options.AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>());
         });
 
         services.AddOptions<DefaultAdminOptions>()

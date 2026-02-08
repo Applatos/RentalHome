@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.ViewModels.Admin.Houses;
@@ -18,4 +19,7 @@ public sealed class HouseDetailsVm
 
     public IReadOnlyList<SeasonCodeDto> SeasonCodes { get; init; } = [];
     public string? SeasonCodesError { get; init; }
+
+    public IReadOnlyList<AuditEntryDto> AuditEntries { get; init; } = [];
+    public string? AuditError { get; init; }
 }

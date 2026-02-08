@@ -41,7 +41,7 @@ public sealed class AdminHousePricingService : IAdminHousePricingService
         plan.Name = dto.Name;
         plan.Currency = dto.Currency;
         plan.IsActive = dto.IsActive;
-        plan.UpdatedUtc = DateTime.UtcNow;
+        plan.UpdatedAtUtc = DateTime.UtcNow;
 
         if (db.Entry(plan).State == EntityState.Detached)
         {

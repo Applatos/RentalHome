@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sommerhus.Domain.Models;
 
-public class Feature
+public class Feature : IAuditable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -22,4 +22,9 @@ public class Feature
     public string? IconUrl { get; set; }
 
     public int SortOrder { get; set; } = 0;
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    [MaxLength(256)] public string? CreatedBy { get; set; }
+    public DateTime? UpdatedAtUtc { get; set; }
+    [MaxLength(256)] public string? UpdatedBy { get; set; }
 }

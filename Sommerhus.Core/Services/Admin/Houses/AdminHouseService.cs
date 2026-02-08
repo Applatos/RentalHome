@@ -46,7 +46,7 @@ public sealed class AdminHouseService : IAdminHouseService
         var total = await houseQuery.CountAsync(ct);
 
         var items = await houseQuery
-            .OrderByDescending(h => h.CreatedUtc)
+            .OrderByDescending(h => h.CreatedAtUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(h => new AdminHouseListItemDto(
@@ -58,7 +58,7 @@ public sealed class AdminHouseService : IAdminHouseService
                 h.Description,
                 h.City != null ? $"{h.City.Zip}  {h.City.Name}" : null,
                 h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(),
-                h.CreatedUtc))
+                h.CreatedAtUtc))
             .ToListAsync(ct);
 
         return new PageResult<AdminHouseListItemDto>
@@ -91,7 +91,7 @@ public sealed class AdminHouseService : IAdminHouseService
             .Include(p => p.SeasonPrices)
             .Where(p => p.HouseId == house.Id && p.IsActive)
             .OrderByDescending(rp => rp.IsActive)
-            .ThenByDescending(rp => rp.UpdatedUtc.HasValue ? rp.UpdatedUtc.Value : rp.CreatedUtc)
+            .ThenByDescending(rp => rp.UpdatedAtUtc.HasValue ? rp.UpdatedAtUtc.Value : rp.CreatedAtUtc)
             .FirstOrDefaultAsync(ct);
 
         var calendarSegments = await db.SeasonSpans
@@ -121,7 +121,7 @@ public sealed class AdminHouseService : IAdminHouseService
             Address = dto.Address,
             CityId = dto.CityId,
             Description = dto.Description,
-            CreatedUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow
         };
 
         foreach (var area in areasResult.Value ?? Array.Empty<Area>())
@@ -265,7 +265,7 @@ public sealed class AdminHouseService : IAdminHouseService
             house.City != null ? $"{house.City.Zip}  {house.City.Name}" : null,
             areaIds,
             areaItems,
-            house.CreatedUtc,
+            house.CreatedAtUtc,
             calendar,
             planDto,
             house.GroupId);

@@ -909,6 +909,626 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;ver
 
 ---
 
+## Enterprise Readiness Phases (16–22)
+
+These phases transform Sommerhus from a working admin tool into a production-grade vacation rental platform.
+
+---
+
+## Phase 16: Flexible Calendar & Pricing Model
+
+**Goal**: Decouple season calendars from house groups so individual houses can have custom calendars, and make it easy to switch between pricing/calendar configurations.
+
+### Current State
+
+- `SeasonSpan` is tied to `HouseGroup` via `GroupId` — every house in a group shares the same calendar
+- `PricePlan` is tied to a single house via `HouseId` — pricing is already per-house
+- No way for a house owner to have a custom season calendar independent of their group
+
+### Design
+
+#### New Domain Model: `SeasonCalendar`
+
+```
+SeasonCalendar (new)
+├── Id: Guid
+├── Name: string              ("Standard 2026", "Owner Jensen Custom")
+├── Year: int?                (null = template, int = year-specific)
+├── IsTemplate: bool          (reusable template vs one-off)
+├── CreatedUtc / UpdatedUtc
+└── Spans: ICollection<SeasonSpan>
+
+SeasonSpan (modified)
+├── CalendarId: Guid          (FK → SeasonCalendar, replaces GroupId)
+└── (rest unchanged)
+
+HouseGroup (modified)
+├── DefaultCalendarId: Guid?  (FK → SeasonCalendar)
+└── (rest unchanged)
+
+VacationHouse (modified)
+├── CalendarOverrideId: Guid? (FK → SeasonCalendar, null = use group default)
+└── (rest unchanged)
+```
+
+#### Resolution Logic
+
+```csharp
+// Pseudo-code for resolving a house's effective calendar
+SeasonCalendar GetEffectiveCalendar(VacationHouse house)
+    => house.CalendarOverride       // 1. House-level override
+    ?? house.Group?.DefaultCalendar // 2. Group default
+    ?? systemDefaultCalendar;       // 3. Global fallback
+```
+
+#### PricePlan Enhancements
+
+```
+PricePlan (modified)
+├── IsActive: bool            (already exists)
+├── Label: string?            ("Summer 2026 rates", "Early bird")
+└── ActivatedUtc: DateTime?   (when this plan was last activated)
+```
+
+- A house can have multiple `PricePlan` records but only one `IsActive = true`
+- Admin UI shows a dropdown to switch active plan (one click)
+- Old plans are preserved for history/reactivation
+
+### Tasks
+
+- [ ] **16a** Create `SeasonCalendar` entity, migration, and seed data (migrate existing `SeasonSpan` rows)
+- [ ] **16b** Add `CalendarOverrideId` to `VacationHouse`, `DefaultCalendarId` to `HouseGroup`
+- [ ] **16c** Build calendar resolution service (`ICalendarResolver`)
+- [ ] **16d** Admin CRUD for `SeasonCalendar` (API + MVC)
+- [ ] **16e** Admin UI: house detail tab to pick/override calendar
+- [ ] **16f** Admin UI: PricePlan switcher (activate/deactivate plans)
+- [ ] **16g** Update pricing calculation to use resolved calendar
+- [ ] **16h** Tests: calendar resolution, plan switching, migration integrity
+
+**Estimated effort**: 8–12 hours | **Priority**: High
+
+---
+
+## Phase 17: Audit Trail
+
+**Goal**: Track who changed what and when on all critical entities. Provide a browsable change history in the admin UI.
+
+### Design
+
+#### Approach: EF Core Interceptor + Audit Log Table
+
+Two complementary layers:
+
+**Layer 1 — Timestamp columns** (on every entity):
+
+```
+IAuditable (interface)
+├── CreatedAtUtc: DateTime
+├── CreatedBy: string?        (user ID or "system")
+├── UpdatedAtUtc: DateTime?
+├── UpdatedBy: string?
+```
+
+Populated automatically via a `SaveChangesInterceptor` that reads the current `ClaimsPrincipal` from `IHttpContextAccessor`.
+
+**Layer 2 — Change history table** (for critical entities):
+
+```
+AuditEntry
+├── Id: long (auto-increment)
+├── EntityType: string        ("VacationHouse", "PricePlan", etc.)
+├── EntityId: string          (the PK, stored as string for flexibility)
+├── Action: AuditAction       (Created, Updated, Deleted)
+├── ChangedBy: string
+├── ChangedAtUtc: DateTime
+├── Changes: string           (JSON diff of old→new values)
+```
+
+#### Which Entities to Audit
+
+| Entity         | Timestamps | Change History |
+| -------------- | ---------- | -------------- |
+| VacationHouse  | ✅         | ✅             |
+| PricePlan      | ✅         | ✅             |
+| SeasonPrice    | ✅         | ✅             |
+| SeasonCalendar | ✅         | ✅             |
+| Area           | ✅         | ✅             |
+| Feature        | ✅         | ✅             |
+| HouseGroup     | ✅         | ✅             |
+| City           | ✅         | ❌ (low churn) |
+| Images         | ✅         | ❌ (binary)    |
+
+#### Recommended Package
+
+No external packages needed. EF Core's `SaveChangesInterceptor` + `ChangeTracker.Entries()` gives us everything. The interceptor:
+
+1. Iterates `ChangeTracker.Entries<IAuditable>()` to set timestamps
+2. Iterates tracked critical entities to build JSON diffs
+3. Writes `AuditEntry` rows in the same transaction
+
+### Tasks
+
+- [x] **17a** Create `IAuditable` interface, add to all entities, create migration
+  - `IAuditable` interface in `Sommerhus.Domain/Models/IAuditable.cs`
+  - Added to: `VacationHouse`, `Area`, `City`, `Feature`, `HouseGroup`, `PricePlan`
+  - Renamed `CreatedUtc` → `CreatedAtUtc`, `UpdatedUtc` → `UpdatedAtUtc` for consistency
+  - Migration `20260208183224_AuditTrail` handles column renames and additions
+- [x] **17b** Build `AuditSaveChangesInterceptor` (timestamps + change log)
+  - `Sommerhus.Core/Data/AuditSaveChangesInterceptor.cs`
+  - Layer 1: Auto-populates `CreatedAtUtc`/`CreatedBy`/`UpdatedAtUtc`/`UpdatedBy` on all `IAuditable` entities
+  - Layer 2: Writes JSON change diffs to `AuditEntry` for critical entities (VacationHouse, Area, Feature, HouseGroup, PricePlan, SeasonPrice)
+  - Reads current user from `IHttpContextAccessor` → `ClaimsPrincipal`
+- [x] **17c** Create `AuditEntry` entity and `DbSet`, migration
+  - `Sommerhus.Domain/Models/AuditEntry.cs` with `AuditAction` enum (Created, Updated, Deleted)
+  - `DbSet<AuditEntry>` in `AppDbContext` with indexes on `(EntityType, EntityId)` and `ChangedAtUtc`
+- [x] **17d** Register interceptor in DI, inject `IHttpContextAccessor`
+  - Registered as `Scoped` in `ServiceCollectionExtensions.AddSommerhusPersistence()`
+  - Added to `DbContextOptions` via `options.AddInterceptors()`
+  - Test factory updated to include interceptor
+- [x] **17e** Admin API: `GET /api/admin/audit?entity=House&entityId=xxx` with pagination
+  - `IAuditService` / `AuditService` in `Core/Services/Admin/Audit/`
+  - `AuditController` at `api/admin/audit` with filters: `entity`, `entityId`, `changedBy`, `page`, `pageSize`
+  - Returns `PageResult<AuditEntryDto>`
+- [x] **17f** Admin MVC: audit history tab on House detail pages
+  - New "Audit History" tab on House Details page
+  - `_TabAudit.cshtml` partial with action badges, timestamps, expandable JSON diffs
+  - `AdminApiClient.GetAuditEntriesAsync()` for MVC → API communication
+- [x] **17g** Tests: verify audit entries created on CRUD operations
+  - 6 new tests in `AuditTests.cs`: Create/Update/Delete generate audit entries, endpoint pagination, entity type filtering, IAuditable timestamp population
+  - All 17 tests passing (11 existing + 6 new)
+- [x] **17h** Backfill `CreatedAtUtc` for existing rows
+  - Migration renames existing `CreatedUtc` columns to `CreatedAtUtc`
+  - New entities get `CreatedAtUtc` with default value; interceptor auto-populates going forward
+
+**Estimated effort**: 6–10 hours | **Priority**: High | **Status**: ✅ Completed
+
+---
+
+## Phase 18: Entity Status & Lifecycle
+
+**Goal**: Add a status lifecycle to houses (and optionally other entities) so content can be drafted, reviewed, published, and archived.
+
+### Design
+
+#### Status Enum
+
+```csharp
+public enum EntityStatus
+{
+    Draft = 0,       // Visible only to admins, not in public search
+    Published = 1,   // Live on the public site
+    Archived = 2     // Hidden from public, preserved for records
+}
+```
+
+#### Domain Changes
+
+```
+VacationHouse (modified)
+├── Status: EntityStatus = Draft
+├── PublishedAtUtc: DateTime?    (set when first published)
+├── ArchivedAtUtc: DateTime?    (set when archived)
+
+Area (modified)
+├── Status: EntityStatus = Draft
+
+Feature (optional, lower priority)
+├── Status: EntityStatus = Published  (default published since features are reusable)
+```
+
+#### Business Rules
+
+- **Draft → Published**: Requires validation (title, city, at least one image, active price plan)
+- **Published → Archived**: Soft-delete; existing bookings (future) remain valid
+- **Archived → Draft**: Re-opens for editing
+- **Published → Draft**: Unpublishes immediately (admin override only)
+- Public search (`HouseQueryService`) filters to `Status == Published` only
+- Admin search shows all statuses with a filter dropdown
+
+#### Transition Service
+
+```csharp
+public interface IEntityLifecycleService
+{
+    Task<ServiceResult> TransitionAsync(Guid houseId, EntityStatus target, CancellationToken ct);
+}
+```
+
+The service validates preconditions before allowing transitions and writes an audit entry.
+
+### Tasks
+
+- [ ] **18a** Create `EntityStatus` enum, add `Status` + timestamp fields to `VacationHouse`, migration
+- [ ] **18b** Build `IEntityLifecycleService` with validation rules
+- [ ] **18c** Add status filter to public `HouseQueryService` (only `Published`)
+- [ ] **18d** Add status filter to admin `AdminHouseService.SearchAsync`
+- [ ] **18e** Admin API: `POST /api/admin/houses/{id}/status` endpoint
+- [ ] **18f** Admin MVC: status badge on list, transition buttons on detail page
+- [ ] **18g** Extend to `Area` entity
+- [ ] **18h** Tests: lifecycle transitions, public visibility, validation rules
+
+**Estimated effort**: 5–8 hours | **Priority**: High
+
+---
+
+## Phase 19: Optimistic Concurrency Control
+
+**Goal**: Prevent admins from silently overwriting each other's changes.
+
+### Design
+
+#### Approach: EF Core Row Version (best practice for SQL databases)
+
+```
+IConcurrencyAware (interface)
+├── RowVersion: byte[]        ([Timestamp] attribute)
+```
+
+EF Core natively supports this: if two admins load the same entity, the second `SaveChanges` throws `DbUpdateConcurrencyException` because the `RowVersion` changed.
+
+#### Entities to Protect
+
+All entities that admins edit concurrently:
+
+- `VacationHouse`, `Area`, `Feature`, `HouseGroup`
+- `PricePlan`, `SeasonPrice`, `SeasonCalendar`, `SeasonSpan`
+
+#### Flow
+
+1. Admin loads entity → API returns `RowVersion` (as Base64 string in DTO)
+2. Admin submits edit → sends `RowVersion` back in the update DTO
+3. Service sets `OriginalValues["RowVersion"]` before saving
+4. If stale → `DbUpdateConcurrencyException` → return `ServiceResult` with `Conflict` status
+5. MVC shows "This record was modified by another user. Please reload and try again."
+
+#### DTO Changes
+
+```csharp
+// Add to all Upsert DTOs
+public string? RowVersion { get; set; }  // Base64-encoded byte[]
+```
+
+#### ServiceResult Extension
+
+```csharp
+public enum ServiceResultStatus
+{
+    Success, NotFound, Invalid, Error,
+    Conflict  // NEW — concurrency conflict
+}
+```
+
+#### SQLite Consideration
+
+SQLite doesn't support `[Timestamp]`/`rowversion`. Use a `Guid` or `long` concurrency token instead, incremented manually in the interceptor. The `[ConcurrencyCheck]` attribute works on any column.
+
+```csharp
+[ConcurrencyCheck]
+public long Version { get; set; }
+```
+
+### Tasks
+
+- [ ] **19a** Create `IConcurrencyAware` interface with `Version` property
+- [ ] **19b** Add `Version` column to all editable entities, migration
+- [ ] **19c** Build `ConcurrencyInterceptor` to auto-increment version on save
+- [ ] **19d** Add `Conflict` to `ServiceResultStatus`, update `FromResult` helper
+- [ ] **19e** Update all admin update services to catch `DbUpdateConcurrencyException`
+- [ ] **19f** Add `Version` to all Upsert DTOs and detail DTOs
+- [ ] **19g** MVC: show conflict error message, reload prompt
+- [ ] **19h** Tests: simulate concurrent edits, verify conflict detection
+
+**Estimated effort**: 5–7 hours | **Priority**: Medium
+
+---
+
+## Phase 20: Price Snapshots & Quotation Cache
+
+**Goal**: Pre-compute and cache price quotes so public-facing pages are fast and prices are consistent during a customer's session.
+
+### Design
+
+#### Why Snapshots?
+
+Computing a price requires: resolving the calendar → finding season spans for the date range → looking up nightly rates per season code → applying modifiers. This involves 4+ DB queries and business logic. For a search results page showing 20 houses, that's 80+ queries per page load.
+
+#### Approach: Materialized Price Summary + On-Demand Quote Cache
+
+**Layer 1 — Price Summary (materialized, updated on price/calendar change)**:
+
+```
+HousePriceSummary (new)
+├── HouseId: Guid (PK)
+├── MinNightlyPrice: decimal?     (cheapest season)
+├── MaxNightlyPrice: decimal?     (most expensive season)
+├── Currency: string
+├── ComputedAtUtc: DateTime
+```
+
+This is what search results show ("from 850 DKK/night"). Recomputed whenever a `PricePlan` or `SeasonCalendar` changes (via a domain event or service call).
+
+**Layer 2 — Quote Cache (on-demand, short TTL)**:
+
+```
+PriceQuote (new)
+├── Id: Guid
+├── HouseId: Guid
+├── CheckIn: DateOnly
+├── CheckOut: DateOnly
+├── Nights: int
+├── NightlyBreakdown: string      (JSON: [{date, seasonCode, price}])
+├── Subtotal: decimal
+├── Modifiers: string             (JSON: [{name, amount}])
+├── Total: decimal
+├── Currency: string
+├── PricePlanId: Guid             (snapshot of which plan was used)
+├── CalendarId: Guid              (snapshot of which calendar was used)
+├── ComputedAtUtc: DateTime
+├── ExpiresAtUtc: DateTime        (e.g., +15 minutes)
+```
+
+#### Quote Service
+
+```csharp
+public interface IPriceQuoteService
+{
+    // Used by search results — fast, pre-computed
+    Task<HousePriceSummary?> GetSummaryAsync(Guid houseId, CancellationToken ct);
+
+    // Used by detail page / booking flow — computed or cached
+    Task<PriceQuote> GetQuoteAsync(Guid houseId, DateOnly checkIn, DateOnly checkOut, CancellationToken ct);
+
+    // Called when prices/calendar change
+    Task RecomputeSummaryAsync(Guid houseId, CancellationToken ct);
+}
+```
+
+#### Cache Strategy
+
+- `HousePriceSummary`: stored in DB, recomputed on price/calendar write operations
+- `PriceQuote`: stored in DB with TTL, or use `IMemoryCache` for smaller deployments
+- No external cache infrastructure needed (Redis etc.) — DB + memory cache is sufficient at this scale
+
+### Tasks
+
+- [ ] **20a** Create `HousePriceSummary` entity, migration, seed from existing price plans
+- [ ] **20b** Create `PriceQuote` entity (or in-memory model), migration
+- [ ] **20c** Build `IPriceQuoteService` with summary computation and quote calculation
+- [ ] **20d** Hook summary recomputation into price plan and calendar save operations
+- [ ] **20e** Public API: `GET /api/houses/{id}/quote?checkIn=&checkOut=`
+- [ ] **20f** Public search: include `MinNightlyPrice` in list DTOs from summary table
+- [ ] **20g** MVC: price display on search cards, quote widget on detail page
+- [ ] **20h** Tests: quote accuracy, cache invalidation, summary recomputation
+
+**Estimated effort**: 8–12 hours | **Priority**: High
+
+---
+
+## Phase 21: Availability Model
+
+**Goal**: Future-proof the system with an availability model and realistic UI, so booking can be added later with minimal changes.
+
+### Design
+
+#### Approach: Date-Level Availability Grid
+
+```
+AvailabilityBlock (new)
+├── Id: Guid
+├── HouseId: Guid
+├── StartDate: DateOnly
+├── EndDate: DateOnly
+├── Status: AvailabilityStatus
+├── Source: AvailabilitySource
+├── Note: string?                 (e.g., "Owner blocked", "Maintenance")
+├── CreatedAtUtc: DateTime
+├── CreatedBy: string?
+
+public enum AvailabilityStatus
+{
+    Available = 0,
+    Blocked = 1,           // Owner/admin blocked dates
+    Tentative = 2,         // Hold / pending confirmation (future booking use)
+    Booked = 3             // Confirmed booking (future)
+}
+
+public enum AvailabilitySource
+{
+    Manual = 0,            // Admin/owner set it
+    ICalSync = 1,          // Imported from external calendar (future)
+    Booking = 2            // Created by booking system (future)
+}
+```
+
+#### Why Not a Per-Day Table?
+
+A per-day row for every house × every day would be millions of rows. Date-range blocks are more efficient and match how vacation rentals actually work (week-long blocks, seasonal closures). Querying "is house available for dates X–Y?" becomes:
+
+```sql
+SELECT COUNT(*) FROM AvailabilityBlocks
+WHERE HouseId = @id
+  AND StartDate < @checkOut
+  AND EndDate > @checkIn
+  AND Status IN (Blocked, Tentative, Booked)
+```
+
+If count = 0, the house is available.
+
+#### Availability Service
+
+```csharp
+public interface IAvailabilityService
+{
+    Task<bool> IsAvailableAsync(Guid houseId, DateOnly checkIn, DateOnly checkOut, CancellationToken ct);
+    Task<IReadOnlyList<AvailabilityBlock>> GetBlocksAsync(Guid houseId, DateOnly from, DateOnly to, CancellationToken ct);
+    Task<ServiceResult> BlockDatesAsync(Guid houseId, DateOnly start, DateOnly end, string? note, CancellationToken ct);
+    Task<ServiceResult> UnblockDatesAsync(Guid blockId, CancellationToken ct);
+}
+```
+
+#### UI Components
+
+- **Admin**: Calendar grid on house detail page (new tab "Availability"). Click-drag to block/unblock dates. Color-coded by status.
+- **Public**: Calendar widget on house detail page showing available (green) / unavailable (red) dates. Date picker for check-in/check-out that disables unavailable dates.
+- **Search filter** (future): "Available from X to Y" filter on public search.
+
+#### Future Booking Integration Point
+
+When booking is implemented later:
+
+1. `BookingService.CreateAsync()` calls `AvailabilityService.IsAvailableAsync()` to check
+2. On confirmation, creates an `AvailabilityBlock` with `Status = Booked, Source = Booking`
+3. On cancellation, removes the block
+4. The availability model doesn't need to change — only a new `Source` value is added
+
+### Tasks
+
+- [ ] **21a** Create `AvailabilityBlock` entity, enums, migration
+- [ ] **21b** Build `IAvailabilityService` (check, list, block, unblock)
+- [ ] **21c** Admin API: CRUD endpoints for availability blocks
+- [ ] **21d** Admin MVC: availability calendar tab on house details (interactive grid)
+- [ ] **21e** Public API: `GET /api/houses/{id}/availability?from=&to=`
+- [ ] **21f** Public MVC: calendar widget on house detail page
+- [ ] **21g** Integrate availability check into quote service (no quote for unavailable dates)
+- [ ] **21h** Tests: overlap detection, block/unblock, availability queries
+
+**Estimated effort**: 8–12 hours | **Priority**: High
+
+---
+
+## Phase 22: Search Engine Upgrade
+
+**Goal**: Replace the current `EF.Functions.Like` search with a proper search-ready model that supports fast full-text search, faceted filtering, and relevance ranking.
+
+### Current State
+
+- Search uses `LIKE '%term%'` which cannot use indexes — full table scan on every query
+- No relevance ranking (results ordered by `CreatedUtc` only)
+- No faceted filtering (by price range, features, number of bedrooms, etc.)
+- Includes 4 joins per query (`Images`, `City`, `Areas`, `HouseFeatures`)
+
+### Design
+
+#### Approach: Search-Ready Denormalized Read Model
+
+Instead of adding an external search engine (Elasticsearch, Meilisearch), which adds infrastructure complexity, we build a **denormalized search table** that is optimized for read queries. This is the standard pattern for systems at this scale (hundreds to low thousands of houses).
+
+```
+HouseSearchDocument (new, denormalized read model)
+├── HouseId: Guid (PK)
+├── Title: string
+├── Description: string?
+├── Summary: string?              (pre-computed, HTML-stripped)
+├── CityName: string?
+├── CityZip: string?
+├── Address: string?
+├── AreaNames: string?            (comma-separated, for LIKE search)
+├── FeatureJson: string?          (JSON array of {key, name, value, unit})
+├── CoverImageUrl: string?
+├── Status: EntityStatus
+├── MinNightlyPrice: decimal?     (from HousePriceSummary)
+├── MaxNightlyPrice: decimal?
+├── Currency: string?
+├── Bedrooms: int?                (extracted from features)
+├── MaxGuests: int?               (extracted from features)
+├── HasPool: bool                 (extracted from features)
+├── PetFriendly: bool             (extracted from features)
+├── Latitude: double?             (future: geo search)
+├── Longitude: double?            (future: geo search)
+├── SearchVector: string          (concatenated searchable text for FTS)
+├── UpdatedAtUtc: DateTime
+```
+
+#### Why This Over Elasticsearch?
+
+- **No infrastructure**: No separate service to deploy, monitor, or pay for
+- **Transactional consistency**: Updated in the same DB transaction as the source data
+- **Sufficient at scale**: PostgreSQL FTS or SQLite FTS5 handles 10K+ documents easily
+- **Upgrade path**: If you outgrow this, the denormalized model maps 1:1 to an Elasticsearch index
+
+#### Full-Text Search Strategy
+
+- **PostgreSQL** (production): Use `tsvector`/`tsquery` with GIN index on `SearchVector`
+- **SQLite** (dev/test): Use FTS5 virtual table or fall back to optimized `LIKE` on `SearchVector`
+- Abstract behind `ISearchEngine` interface so the implementation can be swapped
+
+#### Search Service
+
+```csharp
+public interface IHouseSearchService
+{
+    Task<PageResult<HouseSearchResultDto>> SearchAsync(HouseSearchFilter filter, CancellationToken ct);
+    Task RebuildIndexAsync(CancellationToken ct);           // Full rebuild
+    Task UpdateDocumentAsync(Guid houseId, CancellationToken ct);  // Single house refresh
+}
+
+public record HouseSearchFilter
+{
+    public string? Query { get; init; }
+    public Guid? AreaId { get; init; }
+    public string? City { get; init; }
+    public decimal? MinPrice { get; init; }
+    public decimal? MaxPrice { get; init; }
+    public int? MinBedrooms { get; init; }
+    public int? MinGuests { get; init; }
+    public bool? HasPool { get; init; }
+    public bool? PetFriendly { get; init; }
+    public DateOnly? CheckIn { get; init; }       // Integrates with availability
+    public DateOnly? CheckOut { get; init; }
+    public HouseSearchSort Sort { get; init; }    // Relevance, Price, Newest
+    public int Page { get; init; } = 1;
+    public int PageSize { get; init; } = 20;
+}
+```
+
+#### Index Maintenance
+
+The search document is refreshed:
+
+- **On write**: When a house, its features, price plan, or images change → `UpdateDocumentAsync`
+- **On deploy**: `RebuildIndexAsync` as a startup task or admin action
+- No background jobs needed — synchronous refresh in the same request is fast enough for a single document
+
+### Tasks
+
+- [ ] **22a** Create `HouseSearchDocument` entity, migration, DB indexes
+- [ ] **22b** Build `ISearchIndexer` to populate/refresh documents from source entities
+- [ ] **22c** Build `IHouseSearchService` with filter, sort, and pagination
+- [ ] **22d** Create `HouseSearchFilter` and `HouseSearchResultDto`
+- [ ] **22e** Hook indexer into house/feature/price/image save operations
+- [ ] **22f** Admin API: `POST /api/admin/search/rebuild` endpoint
+- [ ] **22g** Public API: replace `HouseQueryService.SearchAsync` with new search service
+- [ ] **22h** Public MVC: faceted search UI (price slider, feature checkboxes, date picker)
+- [ ] **22i** Tests: search relevance, filter combinations, index rebuild
+
+**Estimated effort**: 10–15 hours | **Priority**: Medium
+
+---
+
+## Phase Dependency Graph
+
+```
+Phase 16 (Calendar)  ──┐
+                       ├──→ Phase 20 (Price Snapshots) ──→ Phase 22 (Search)
+Phase 17 (Audit)       │                                        ↑
+                       │                                        │
+Phase 18 (Status)  ────┤──→ Phase 21 (Availability) ───────────┘
+                       │
+Phase 19 (Concurrency) ┘
+```
+
+**Recommended order**: 17 → 19 → 18 → 16 → 20 → 21 → 22
+
+- **17 (Audit)** first: every subsequent phase benefits from change tracking
+- **19 (Concurrency)** early: prevents data loss as more admins use the system
+- **18 (Status)** before public features: controls what's visible
+- **16 (Calendar)** before pricing: pricing depends on resolved calendar
+- **20 (Price Snapshots)** after calendar: needs the resolution logic
+- **21 (Availability)** after status: only published houses need availability
+- **22 (Search)** last: aggregates data from all previous phases
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:
@@ -947,8 +1567,16 @@ After completing all phases:
 | Phase 14d | 1 hour           | Low      | **Completed** |
 | Phase 15a | 30 min           | High     | **Completed** |
 | Phase 15b | 3-4 hours        | Medium   | **Completed** |
+| Phase 16  | 8-12 hours       | High     | Pending       |
+| Phase 17  | 6-10 hours       | High     | **Completed** |
+| Phase 18  | 5-8 hours        | High     | Pending       |
+| Phase 19  | 5-7 hours        | Medium   | Pending       |
+| Phase 20  | 8-12 hours       | High     | Pending       |
+| Phase 21  | 8-12 hours       | High     | Pending       |
+| Phase 22  | 10-15 hours      | Medium   | Pending       |
 
-**Remaining**: ~23-33 hours
+**Remaining (refactoring)**: ~23-33 hours
+**Remaining (enterprise)**: ~50-76 hours
 
 ---
 

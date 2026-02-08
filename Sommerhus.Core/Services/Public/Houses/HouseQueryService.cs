@@ -31,7 +31,7 @@ public sealed class HouseQueryService : IHouseQueryService
             .Include(h => h.City)
             .Include(h => h.Areas)
             .Include(h => h.HouseFeatures).ThenInclude(v => v.Feature)
-            .OrderByDescending(h => h.CreatedUtc)
+            .OrderByDescending(h => h.CreatedAtUtc)
             .AsQueryable();
 
         if (areaId.HasValue && areaId.Value != Guid.Empty)

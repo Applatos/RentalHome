@@ -12,7 +12,7 @@ public sealed record AdminHouseListItemDto(
     string? Description,
     string? CityLabel,
     IReadOnlyList<string> AreaLabels,
-    DateTime CreatedUtc);
+    DateTime CreatedAtUtc);
 
 /// <summary>
 /// House list item for public context.
