@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.ViewModels.Admin.Areas;
@@ -11,5 +12,7 @@ public sealed class AreaDetailsVm
     public string ActiveTab { get; init; } = "overview";
 
     public bool IsNew => Area.Id == Guid.Empty;
+
+    public IReadOnlyList<AuditEntryDto> AuditEntries { get; init; } = [];
+    public string? AuditError { get; init; }
 }
- 

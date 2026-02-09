@@ -112,6 +112,25 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
         }
 
+        var pricingAuditEntries = Array.Empty<AuditEntryDto>() as IReadOnlyList<AuditEntryDto>;
+        string? pricingAuditError = null;
+        if (string.Equals(tab, "pricing", StringComparison.OrdinalIgnoreCase))
+        {
+            var planId = house.Pricing?.PlanId.ToString();
+            if (!string.IsNullOrEmpty(planId))
+            {
+                var pricingAuditRes = await api.GetAuditEntriesAsync("PricePlan", planId, 1, 50, ct);
+                if (pricingAuditRes.Ok && pricingAuditRes.Data is not null)
+                {
+                    pricingAuditEntries = pricingAuditRes.Data.Items;
+                }
+                else
+                {
+                    pricingAuditError = pricingAuditRes.Message ?? "Could not load price change history.";
+                }
+            }
+        }
+
         return new HouseDetailsVm
         {
             House = house,
@@ -124,7 +143,9 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             SeasonCodes = seasonCodes,
             SeasonCodesError = seasonCodesError,
             AuditEntries = auditEntries,
-            AuditError = auditError
+            AuditError = auditError,
+            PricingAuditEntries = pricingAuditEntries,
+            PricingAuditError = pricingAuditError
         };
     }
 

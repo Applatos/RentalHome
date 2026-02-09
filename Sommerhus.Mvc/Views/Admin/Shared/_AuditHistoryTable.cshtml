@@ -1,0 +1,58 @@
+@using Sommerhus.Core.Dtos.Admin
+@model IReadOnlyList<AuditEntryDto>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">No audit history recorded yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+                <tr>
+                    <th style="width:160px">Date</th>
+                    <th style="width:100px">Action</th>
+                    <th style="width:140px">Changed By</th>
+                    <th>Changes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entry in Model)
+                {
+                    <tr>
+                        <td>
+                            <small>@entry.ChangedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</small>
+                        </td>
+                        <td>
+                            @{
+                                var badgeClass = entry.Action switch
+                                {
+                                    "Created" => "bg-success",
+                                    "Updated" => "bg-primary",
+                                    "Deleted" => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass">@entry.Action</span>
+                        </td>
+                        <td><small>@entry.ChangedBy</small></td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(entry.Changes))
+                            {
+                                <details>
+                                    <summary class="text-muted" style="cursor:pointer"><small>View details</small></summary>
+                                    <pre class="bg-light p-2 mt-1 rounded" style="max-height:200px;overflow:auto;font-size:0.8rem">@entry.Changes</pre>
+                                </details>
+                            }
+                            else
+                            {
+                                <small class="text-muted">—</small>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -131,3 +131,16 @@
         <button class="btn btn-primary">Save Prices</button>
     </div>
 </form>
+
+@if (Model.PricingAuditEntries.Count > 0 || !string.IsNullOrWhiteSpace(Model.PricingAuditError))
+{
+    <hr class="my-4" />
+    <h5>Price Change History</h5>
+
+    @if (!string.IsNullOrWhiteSpace(Model.PricingAuditError))
+    {
+        <div class="alert alert-warning">@Model.PricingAuditError</div>
+    }
+
+    <partial name="~/Views/Admin/Shared/_AuditHistoryTable.cshtml" model="Model.PricingAuditEntries" />
+}

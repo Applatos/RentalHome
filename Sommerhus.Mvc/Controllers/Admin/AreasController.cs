@@ -39,11 +39,28 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
         var cities = await LoadCityOptionsAsync(res.Data.CityIds, ct);
 
+        var auditEntries = Array.Empty<AuditEntryDto>() as IReadOnlyList<AuditEntryDto>;
+        string? auditError = null;
+        if (string.Equals(tab, "audit", StringComparison.OrdinalIgnoreCase))
+        {
+            var auditRes = await api.GetAuditEntriesAsync("Area", id.ToString(), 1, 50, ct);
+            if (auditRes.Ok && auditRes.Data is not null)
+            {
+                auditEntries = auditRes.Data.Items;
+            }
+            else
+            {
+                auditError = auditRes.Message ?? "Could not load audit history.";
+            }
+        }
+
         return View("~/Views/Admin/Areas/Details.cshtml", new AreaDetailsVm
         {
             Area = res.Data,
             Cities = cities,
-            ActiveTab = tab
+            ActiveTab = tab,
+            AuditEntries = auditEntries,
+            AuditError = auditError
         });
     }
 

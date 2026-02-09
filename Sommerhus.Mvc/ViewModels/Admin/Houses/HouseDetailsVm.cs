@@ -22,4 +22,7 @@ public sealed class HouseDetailsVm
 
     public IReadOnlyList<AuditEntryDto> AuditEntries { get; init; } = [];
     public string? AuditError { get; init; }
+
+    public IReadOnlyList<AuditEntryDto> PricingAuditEntries { get; init; } = [];
+    public string? PricingAuditError { get; init; }
 }
