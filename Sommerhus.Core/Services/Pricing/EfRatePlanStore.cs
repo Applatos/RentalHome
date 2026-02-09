@@ -31,20 +31,20 @@ public sealed class EfRatePlanStore : IRatePlanStore
 
     public async Task<IReadOnlyList<SeasonSpan>> GetSeasonCalendarAsync(Guid houseId, CancellationToken ct)
     {
-        var houseGroup = await db.Houses
+        var house = await db.Houses
             .AsNoTracking()
+            .Include(h => h.Group)
             .Where(h => h.Id == houseId)
-            .Select(h => new { h.Id, h.GroupId })
+            .Select(h => new { h.CalendarOverrideId, GroupCalendarId = h.Group != null ? h.Group.DefaultCalendarId : null })
             .FirstOrDefaultAsync(ct);
 
-        if (houseGroup?.GroupId is not Guid groupId)
-        {
+        var calendarId = house?.CalendarOverrideId ?? house?.GroupCalendarId;
+        if (calendarId is null)
             return Array.Empty<SeasonSpan>();
-        }
 
         return await db.SeasonSpans
             .AsNoTracking()
-            .Where(s => s.GroupId == groupId)
+            .Where(s => s.CalendarId == calendarId.Value)
             .OrderBy(s => s.StartDate)
             .ThenBy(s => s.EndDate)
             .ToListAsync(ct);

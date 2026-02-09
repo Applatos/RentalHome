@@ -6,6 +6,9 @@
 @{
     var seasonCodes = Model.SeasonCodes;
     var calendar = Model.House.Calendar ?? Array.Empty<SeasonSpanDto>();
+    var hasOverride = Model.House.CalendarOverrideId.HasValue;
+    var calendarSource = Model.House.CalendarSource;
+    var hasCalendar = !string.IsNullOrEmpty(calendarSource);
     
     var labelLookup = seasonCodes.ToDictionary(
         c => c.Code,
@@ -16,30 +19,73 @@
 <section>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5>Season Calendar</h5>
-        @if (Model.House.GroupId.HasValue)
+        @if (hasCalendar)
         {
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addHouseSeasonSpanModal">
                 <i class="bi bi-plus-lg"></i> Add Season Span
             </button>
         }
-        else
-        {
-            <small class="text-muted">Assign house to a group to manage season calendar</small>
-        }
     </div>
 
-    @if (calendar.Count == 0)
+    <!-- Calendar source info -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Calendar source:</small>
+                    @if (hasCalendar)
+                    {
+                        <span class="fw-semibold ms-1">
+                            @if (hasOverride)
+                            {
+                                <span class="badge bg-info text-dark">Custom Override</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@calendarSource</span>
+                            }
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted ms-1">No calendar assigned</span>
+                    }
+                </div>
+                <div class="d-flex gap-1">
+                    @if (hasOverride)
+                    {
+                        <form method="post" action="/admin/houses/@Model.House.Id/calendar-override/remove" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-warning btn-sm"
+                                    onclick="return confirm('Remove override and revert to group calendar?')">
+                                <i class="bi bi-arrow-counterclockwise"></i> Revert to Group
+                            </button>
+                        </form>
+                    }
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#calendarOverrideModal">
+                        <i class="bi bi-calendar-plus"></i> @(hasOverride ? "Change Override" : "Set Override")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!hasCalendar)
     {
         <p class="text-muted mb-0">
             @if (Model.House.GroupId.HasValue)
             {
-                <text>No season spans defined for this house's group.</text>
+                <text>The group has no default calendar yet. Add season spans to the group, or create a custom override for this house.</text>
             }
             else
             {
-                <text>This house is not assigned to a group, so there is no shared season calendar.</text>
+                <text>This house is not assigned to a group. Create a custom calendar override, or assign the house to a group first.</text>
             }
         </p>
+    }
+    else if (calendar.Count == 0)
+    {
+        <p class="text-muted mb-0">No season spans defined yet. Click "Add Season Span" to get started.</p>
     }
     else
     {
@@ -91,7 +137,7 @@
                         <th>Description</th>
                         <th>Start Date</th>
                         <th>End Date</th>
-                        @if (Model.House.GroupId.HasValue)
+                        @if (hasCalendar)
                         {
                             <th class="text-end">Actions</th>
                         }
@@ -112,7 +158,7 @@
                             <td>@label</td>
                             <td>@span.StartDate.ToString("d", CultureInfo.CurrentCulture)</td>
                             <td>@span.EndDate.ToString("d", CultureInfo.CurrentCulture)</td>
-                            @if (Model.House.GroupId.HasValue)
+                            @if (hasCalendar)
                             {
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
@@ -143,7 +189,7 @@
     }
 </section>
 
-@if (Model.House.GroupId.HasValue)
+@if (hasCalendar)
 {
     <div class="modal fade" id="addHouseSeasonSpanModal" tabindex="-1">
         <div class="modal-dialog">
@@ -228,6 +274,54 @@
         </div>
     </div>
 }
+
+<!-- Calendar Override Modal -->
+<div class="modal fade" id="calendarOverrideModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Calendar Override</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.AvailableCalendars.Count > 0)
+                {
+                    <h6>Use an existing calendar</h6>
+                    <form method="post" action="/admin/houses/@Model.House.Id/calendar-override">
+                        @Html.AntiForgeryToken()
+                        <div class="input-group mb-3">
+                            <select name="calendarId" class="form-select" required>
+                                <option value="">Select a calendar...</option>
+                                @foreach (var cal in Model.AvailableCalendars)
+                                {
+                                    var selected = cal.Id == Model.House.CalendarOverrideId;
+                                    <option value="@cal.Id" selected="@selected">
+                                        @cal.Name (@cal.SpanCount spans)@(cal.IsTemplate ? " [Template]" : "")
+                                    </option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </div>
+                    </form>
+                    <hr />
+                }
+
+                <h6>Create a new custom calendar</h6>
+                <form method="post" action="/admin/houses/@Model.House.Id/calendar-override/create">
+                    @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="text" name="name" class="form-control" placeholder="Calendar name (optional)" />
+                        <button type="submit" class="btn btn-outline-primary">Create &amp; Apply</button>
+                    </div>
+                    <small class="text-muted">Creates an empty calendar and sets it as this house's override. You can then add season spans to it.</small>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>

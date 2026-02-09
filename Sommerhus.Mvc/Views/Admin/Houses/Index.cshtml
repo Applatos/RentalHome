@@ -1,4 +1,5 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
+@using Sommerhus.Domain.Models
 @model HouseListVm
 @{
     ViewData["Title"] = "Admin - Houses";
@@ -14,8 +15,17 @@
     </div>
 
     <form method="get" class="row gy-2 gx-2 mb-3" asp-controller="Houses" asp-action="Index">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <input class="form-control" name="q" value="@Model.SearchQuery" placeholder="Search..." />
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="status">
+                <option value="">All statuses</option>
+                @foreach (var s in Enum.GetValues<EntityStatus>())
+                {
+                    <option value="@s" selected="@(Model.StatusFilter == s)">@s</option>
+                }
+            </select>
         </div>
         <div class="col-md-2">
             <select class="form-select" name="pageSize">
@@ -36,6 +46,7 @@
                 <th>Title</th>
                 <th>City</th>
                 <th>Areas</th>
+                <th>Status</th>
                 <th>Created</th>
                 <th class="text-end">Actions</th>
             </tr>
@@ -55,6 +66,17 @@
                         {
                             <span class="text-muted">—</span>
                         }
+                    </td>
+                    <td>
+                        @{
+                            var badgeClass = h.Status switch
+                            {
+                                EntityStatus.Published => "bg-success",
+                                EntityStatus.Archived => "bg-secondary",
+                                _ => "bg-warning text-dark"
+                            };
+                        }
+                        <span class="badge @badgeClass">@h.Status</span>
                     </td>
                     <td>@h.CreatedAtUtc.ToLocalTime().ToString("g")</td>
                     <td class="text-end">

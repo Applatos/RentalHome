@@ -1,3 +1,5 @@
+using Sommerhus.Domain.Models;
+
 namespace Sommerhus.Core.Dtos.Shared;
 
 /// <summary>
@@ -12,7 +14,8 @@ public sealed record AdminHouseListItemDto(
     string? Description,
     string? CityLabel,
     IReadOnlyList<string> AreaLabels,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    EntityStatus Status);
 
 /// <summary>
 /// House list item for public context.

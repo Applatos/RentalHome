@@ -5,13 +5,14 @@ using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Services.Admin.Lifecycle;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = AdminRoles.Admin)]
 [Route("api/admin/areas")]
-public sealed class AreasController(IAdminAreaService service) : ControllerBase
+public sealed class AreasController(IAdminAreaService service, IEntityLifecycleService lifecycleService) : ControllerBase
 {
 
     [HttpGet]
@@ -40,4 +41,13 @@ public sealed class AreasController(IAdminAreaService service) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         => this.FromResult(await service.DeleteAsync(id, ct));
+
+    [HttpPost("{id:guid}/status")]
+    public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] ChangeStatusDto dto, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+        var result = await lifecycleService.TransitionAreaAsync(id, dto.Target, ct);
+        return this.FromResult(result);
+    }
 }

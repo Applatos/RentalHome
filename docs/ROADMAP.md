@@ -976,16 +976,40 @@ PricePlan (modified)
 
 ### Tasks
 
-- [ ] **16a** Create `SeasonCalendar` entity, migration, and seed data (migrate existing `SeasonSpan` rows)
-- [ ] **16b** Add `CalendarOverrideId` to `VacationHouse`, `DefaultCalendarId` to `HouseGroup`
-- [ ] **16c** Build calendar resolution service (`ICalendarResolver`)
-- [ ] **16d** Admin CRUD for `SeasonCalendar` (API + MVC)
-- [ ] **16e** Admin UI: house detail tab to pick/override calendar
-- [ ] **16f** Admin UI: PricePlan switcher (activate/deactivate plans)
-- [ ] **16g** Update pricing calculation to use resolved calendar
-- [ ] **16h** Tests: calendar resolution, plan switching, migration integrity
+- [x] **16a** Create `SeasonCalendar` entity, replace `SeasonSpan.GroupId` with `CalendarId`, migration
+  - `Sommerhus.Domain/Models/Pricing/SeasonCalendar.cs` — entity with Name, Year, IsTemplate, IAuditable, Spans collection
+  - `SeasonSpan.GroupId` → `SeasonSpan.CalendarId` (FK to SeasonCalendar)
+  - EF Core config: cascade delete from calendar to spans, unique index on `{CalendarId, StartDate, EndDate}`
+  - Migration `20260209105033_FlexibleCalendar`
+  - DbSeeder updated: creates "Vesterhavet Calendar" and links to group via `DefaultCalendar`
+- [x] **16b** Add `CalendarOverrideId` to `VacationHouse`, `DefaultCalendarId` to `HouseGroup`
+  - `VacationHouse.CalendarOverrideId` (nullable FK → SeasonCalendar, SetNull on delete)
+  - `HouseGroup.DefaultCalendarId` (nullable FK → SeasonCalendar, SetNull on delete)
+  - Navigation properties with proper EF config
+- [x] **16c** Calendar resolution logic (house override → group default → empty)
+  - `EfRatePlanStore.GetSeasonCalendarAsync` resolves effective calendar for pricing
+  - `AdminHouseService.GetDetailsAsync` resolves effective calendar for admin display
+  - `AdminHouseGroupService` season span CRUD works through group's `DefaultCalendarId`
+  - Auto-creates calendar for group on first span add (`EnsureGroupCalendarAsync`)
+- [x] **16d** Admin CRUD for `SeasonCalendar` (API + service)
+  - `IAdminCalendarService` / `AdminCalendarService` — List, Get, Create, Update, Delete
+  - `CalendarsController` at `api/admin/calendars` — full REST CRUD
+  - `CalendarDto`, `UpsertCalendarDto`, `SetCalendarOverrideDto`, `CreateCalendarOverrideDto`
+  - Delete protection: cannot delete calendars in use by groups or houses
+- [x] **16e** Admin UI: house detail calendar tab with override management
+  - Calendar source badge (Group: name / Custom Override / No calendar)
+  - "Set Override" modal: pick existing calendar or create new custom one
+  - "Revert to Group" button to remove override
+  - Season span CRUD works on effective calendar (override or group default)
+  - `AdminApiClient`: `GetCalendarsAsync`, `SetHouseCalendarOverrideAsync`, `RemoveHouseCalendarOverrideAsync`, `CreateHouseCalendarOverrideAsync`
+  - MVC controller actions: `SetCalendarOverride`, `RemoveCalendarOverride`, `CreateCalendarOverride`
+- [x] **16f** Pricing calculation uses resolved calendar (done in 16c)
+  - `EfRatePlanStore` and `BaseNightlyRateRule` unchanged — already use `GetSeasonCalendarAsync` which now resolves override → group default
+- [x] **16g** Tests: calendar CRUD, override logic, revert, span management
+  - 10 new tests in `CalendarTests.cs`: list seeded, create, update, delete unused, delete in-use fails, house shows group source, create override, remove override reverts, set existing calendar, span CRUD on group calendar
+  - All 40 tests passing (30 existing + 10 new)
 
-**Estimated effort**: 8–12 hours | **Priority**: High
+**Estimated effort**: 8–12 hours | **Priority**: High | **Status**: ✅ Completed
 
 ---
 
@@ -1138,16 +1162,40 @@ The service validates preconditions before allowing transitions and writes an au
 
 ### Tasks
 
-- [ ] **18a** Create `EntityStatus` enum, add `Status` + timestamp fields to `VacationHouse`, migration
-- [ ] **18b** Build `IEntityLifecycleService` with validation rules
-- [ ] **18c** Add status filter to public `HouseQueryService` (only `Published`)
-- [ ] **18d** Add status filter to admin `AdminHouseService.SearchAsync`
-- [ ] **18e** Admin API: `POST /api/admin/houses/{id}/status` endpoint
-- [ ] **18f** Admin MVC: status badge on list, transition buttons on detail page
-- [ ] **18g** Extend to `Area` entity
-- [ ] **18h** Tests: lifecycle transitions, public visibility, validation rules
+- [x] **18a** Create `EntityStatus` enum, add `Status` + timestamp fields to `VacationHouse` and `Area`, migration
+  - `Sommerhus.Domain/Models/EntityStatus.cs` — enum with `Draft`, `Published`, `Archived`
+  - `VacationHouse`: added `Status`, `PublishedAtUtc`, `ArchivedAtUtc`
+  - `Area`: added `Status`
+  - EF Core config: default values + indexes on `Status`
+  - Migration `20260209084309_EntityStatusLifecycle`
+- [x] **18b** Build `IEntityLifecycleService` with validation rules
+  - `Core/Services/Admin/Lifecycle/IEntityLifecycleService.cs` — `TransitionHouseAsync`, `TransitionAreaAsync`
+  - `Core/Services/Admin/Lifecycle/EntityLifecycleService.cs` — validates transitions, enforces publish preconditions (title, city, images), manages timestamps
+  - Allowed transitions: Draft→Published, Published→Archived, Published→Draft, Archived→Draft
+- [x] **18c** Add status filter to public `HouseQueryService` (only `Published`) + `AreaQueryService`
+  - `SearchAsync` and `GetAsync` in both services filter by `Status == Published`
+  - Draft and Archived entities hidden from public API
+- [x] **18d** Add status filter to admin `AdminHouseService.SearchAsync` + update DTOs
+  - Optional `EntityStatus? status` parameter on `SearchAsync`
+  - `AdminHouseListItemDto` includes `Status` field
+  - `AdminHouseDetailsDto` includes `Status`, `PublishedAtUtc`, `ArchivedAtUtc`
+- [x] **18e** Admin API: `POST /api/admin/houses/{id}/status` + `POST /api/admin/areas/{id}/status`
+  - `ChangeStatusDto` with `[Required] Target` property
+  - Both endpoints use `IEntityLifecycleService` and return `ServiceResult` via `FromResult()`
+  - Admin search endpoint accepts `?status=Draft` query parameter
+- [x] **18f** Admin MVC: status badge on list, transition buttons on detail page
+  - House list: status filter dropdown + color-coded badges (Draft=warning, Published=success, Archived=secondary)
+  - House details overview tab: status badge + contextual transition buttons (Publish/Archive/Unpublish/Re-open)
+  - `AdminApiClient`: `ChangeHouseStatusAsync`, `ChangeAreaStatusAsync`, updated `GetHousesAsync` with status filter
+- [x] **18g** Extend to `Area` entity (done alongside 18a–18e)
+  - Area lifecycle transitions share the same `IEntityLifecycleService`
+  - Public `AreaQueryService` filters by `Published`
+- [x] **18h** Tests: lifecycle transitions, public visibility, validation rules
+  - 13 new tests in `LifecycleTests.cs`: new house defaults to Draft, publish with/without image, archive, reopen, invalid transitions, same-status rejection, public search excludes drafts, public search includes published, public get-by-id returns 404 for draft, admin search filters by status, admin details includes status fields, non-existent house returns 404
+  - Fixed pre-existing `HouseImagesTests` to use admin endpoint (public endpoint now filters by Published)
+  - All 30 tests passing (17 existing + 13 new)
 
-**Estimated effort**: 5–8 hours | **Priority**: High
+**Estimated effort**: 5–8 hours | **Priority**: High | **Status**: ✅ Completed
 
 ---
 

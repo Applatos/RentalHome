@@ -10,6 +10,8 @@ public class Area : IAuditable
     public string Name { get; set; } = "";
     public string? Description { get; set; }
 
+    public EntityStatus Status { get; set; } = EntityStatus.Draft;
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     [MaxLength(256)] public string? CreatedBy { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }

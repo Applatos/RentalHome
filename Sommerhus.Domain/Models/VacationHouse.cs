@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Domain.Models;
 
@@ -14,6 +15,10 @@ public class VacationHouse : IAuditable
 
     public string? Description { get; set; }
 
+    public EntityStatus Status { get; set; } = EntityStatus.Draft;
+    public DateTime? PublishedAtUtc { get; set; }
+    public DateTime? ArchivedAtUtc { get; set; }
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     [MaxLength(256)] public string? CreatedBy { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
@@ -26,4 +31,7 @@ public class VacationHouse : IAuditable
 
     public Guid? GroupId { get; set; }           // FK → HouseGroup
     public HouseGroup? Group { get; set; }
+
+    public Guid? CalendarOverrideId { get; set; }  // FK → SeasonCalendar (null = use group default)
+    public SeasonCalendar? CalendarOverride { get; set; }
 }

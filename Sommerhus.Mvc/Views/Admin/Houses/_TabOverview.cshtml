@@ -1,5 +1,49 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
+@using Sommerhus.Domain.Models
 @model HouseDetailsVm
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <span class="fw-semibold">Status:</span>
+    @{
+        var statusBadge = Model.House.Status switch
+        {
+            EntityStatus.Published => "bg-success",
+            EntityStatus.Archived => "bg-secondary",
+            _ => "bg-warning text-dark"
+        };
+    }
+    <span class="badge @statusBadge fs-6">@Model.House.Status</span>
+
+    @if (Model.House.Status == EntityStatus.Draft)
+    {
+        <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="target" value="@EntityStatus.Published" />
+            <button type="submit" class="btn btn-success btn-sm">Publish</button>
+        </form>
+    }
+    else if (Model.House.Status == EntityStatus.Published)
+    {
+        <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="target" value="@EntityStatus.Archived" />
+            <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+        </form>
+        <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="target" value="@EntityStatus.Draft" />
+            <button type="submit" class="btn btn-outline-warning btn-sm">Unpublish</button>
+        </form>
+    }
+    else if (Model.House.Status == EntityStatus.Archived)
+    {
+        <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="target" value="@EntityStatus.Draft" />
+            <button type="submit" class="btn btn-outline-warning btn-sm">Re-open as Draft</button>
+        </form>
+    }
+</div>
 
 <form method="post" asp-controller="Houses" asp-action="Update" asp-route-id="@Model.House.Id" class="row g-3">
     @Html.AntiForgeryToken()

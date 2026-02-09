@@ -2,14 +2,20 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Mvc.Services;
 
 public sealed class AdminApiClient(HttpClient http)
 {
     // Houses
-    public Task<ApiResponse<PageResult<AdminHouseListItemDto>?>> GetHousesAsync(string? q, int page, int pageSize, CancellationToken ct)
-        => ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}", ct);
+    public Task<ApiResponse<PageResult<AdminHouseListItemDto>?>> GetHousesAsync(string? q, EntityStatus? status, int page, int pageSize, CancellationToken ct)
+    {
+        var url = $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}";
+        if (status.HasValue)
+            url += $"&status={status.Value}";
+        return ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, url, ct);
+    }
 
     public Task<ApiResponse<AdminHouseDetailsDto?>> GetHouseAsync(Guid id, CancellationToken ct)
         => ApiHttp.GetAsync<AdminHouseDetailsDto?>(http, $"api/admin/houses/{id}", ct);
@@ -22,6 +28,9 @@ public sealed class AdminApiClient(HttpClient http)
 
     public Task<ApiResponse<object?>> DeleteHouseAsync(Guid id, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{id}", ct);
+
+    public Task<ApiResponse<object?>> ChangeHouseStatusAsync(Guid id, ChangeStatusDto dto, CancellationToken ct)
+        => ApiHttp.PostAsync<ChangeStatusDto, object?>(http, $"api/admin/houses/{id}/status", dto, ct);
 
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetCitiesAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/cities/lookup", ct);
@@ -81,6 +90,9 @@ public sealed class AdminApiClient(HttpClient http)
 
     public Task<ApiResponse<object?>> DeleteAreaAsync(Guid id, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/areas/{id}", ct);
+
+    public Task<ApiResponse<object?>> ChangeAreaStatusAsync(Guid id, ChangeStatusDto dto, CancellationToken ct)
+        => ApiHttp.PostAsync<ChangeStatusDto, object?>(http, $"api/admin/areas/{id}/status", dto, ct);
 
     public Task<ApiResponse<IReadOnlyList<LookupItem>?>> GetAreasLookupAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<LookupItem>?>(http, "api/admin/areas/lookup", ct);
@@ -144,6 +156,19 @@ public sealed class AdminApiClient(HttpClient http)
 
     public Task<ApiResponse<object?>> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/calendar/{spanId}", ct);
+
+    // Calendars
+    public Task<ApiResponse<IReadOnlyList<CalendarDto>?>> GetCalendarsAsync(CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<CalendarDto>?>(http, "api/admin/calendars", ct);
+
+    public Task<ApiResponse<object?>> SetHouseCalendarOverrideAsync(Guid houseId, Guid calendarId, CancellationToken ct)
+        => ApiHttp.PostAsync<SetCalendarOverrideDto, object?>(http, $"api/admin/houses/{houseId}/calendar-override", new SetCalendarOverrideDto { CalendarId = calendarId }, ct);
+
+    public Task<ApiResponse<object?>> RemoveHouseCalendarOverrideAsync(Guid houseId, CancellationToken ct)
+        => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/calendar-override", ct);
+
+    public Task<ApiResponse<CalendarDto?>> CreateHouseCalendarOverrideAsync(Guid houseId, string name, CancellationToken ct)
+        => ApiHttp.PostAsync<CreateCalendarOverrideDto, CalendarDto?>(http, $"api/admin/houses/{houseId}/calendar-override/create", new CreateCalendarOverrideDto { Name = name }, ct);
 
     // Season Codes
     public Task<ApiResponse<IReadOnlyList<SeasonCodeDto>?>> GetSeasonCodesAsync(CancellationToken ct)

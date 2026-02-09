@@ -59,8 +59,15 @@ public static class Seeder
             new HouseFeatureValue { House = house, Feature = sizeF, RawValue = "210" }
         );
 
-        // Create season calendar segments for groupA (the house's group)
-        // Full year coverage with alternating season codes
+        // Create a SeasonCalendar for groupA and assign spans to it
+        var groupACalendar = new SeasonCalendar
+        {
+            Id = Guid.NewGuid(),
+            Name = "Vesterhavet Calendar",
+            IsTemplate = false
+        };
+        groupA.DefaultCalendar = groupACalendar;
+
         var calendarSegments = new List<SeasonSpan>();
         var currentYear = DateTime.UtcNow.Year;
         var seededYears = new[] { currentYear, currentYear + 1 };
@@ -73,7 +80,7 @@ public static class Seeder
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
-                GroupId = groupA.Id,
+                CalendarId = groupACalendar.Id,
                 Code = "A",
                 StartDate = new DateOnly(year, 1, 1),
                 EndDate = new DateOnly(year, 2, winterEndDay)
@@ -83,7 +90,7 @@ public static class Seeder
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
-                GroupId = groupA.Id,
+                CalendarId = groupACalendar.Id,
                 Code = "B",
                 StartDate = new DateOnly(year, 3, 1),
                 EndDate = new DateOnly(year, 5, 31)
@@ -93,7 +100,7 @@ public static class Seeder
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
-                GroupId = groupA.Id,
+                CalendarId = groupACalendar.Id,
                 Code = "A",
                 StartDate = new DateOnly(year, 6, 1),
                 EndDate = new DateOnly(year, 8, 31)
@@ -103,12 +110,14 @@ public static class Seeder
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
-                GroupId = groupA.Id,
+                CalendarId = groupACalendar.Id,
                 Code = "B",
                 StartDate = new DateOnly(year, 9, 1),
                 EndDate = new DateOnly(year, 12, 31)
             });
         }
+
+        db.SeasonCalendars.Add(groupACalendar);
 
         var seasonRates = new List<SeasonPrice>
         {

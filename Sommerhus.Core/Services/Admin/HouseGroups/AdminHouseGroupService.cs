@@ -108,8 +108,6 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
         if (hasHouses)
             return ServiceResult.Invalid("group", "Cannot delete group with assigned houses.");
 
-        var spans = await db.SeasonSpans.Where(s => s.GroupId == id).ToListAsync(ct);
-        db.SeasonSpans.RemoveRange(spans);
         db.HouseGroups.Remove(group);
         await db.SaveChangesAsync(ct);
 
@@ -118,38 +116,21 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
 
     public async Task<ServiceResult<SeasonSpanDto>> AddSeasonSpanAsync(Guid groupId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        var groupExists = await db.HouseGroups.AnyAsync(g => g.Id == groupId, ct);
-        if (!groupExists)
+        var group = await db.HouseGroups.FirstOrDefaultAsync(g => g.Id == groupId, ct);
+        if (group is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
-        var validationError = ValidateSeasonSpan(dto);
-        if (validationError is not null)
-            return validationError;
-
-        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
-        if (seasonCode is null)
-            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
-
-        var span = new SeasonSpan
-        {
-            Id = Guid.NewGuid(),
-            GroupId = groupId,
-            Code = dto.Code,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate
-        };
-
-        db.SeasonSpans.Add(span);
-        await db.SaveChangesAsync(ct);
-
-        return ServiceResult<SeasonSpanDto>.Success(
-            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
-        );
+        var calendarId = await EnsureGroupCalendarAsync(group, ct);
+        return await AddSpanToCalendarAsync(calendarId, dto, ct);
     }
 
     public async Task<ServiceResult<SeasonSpanDto>> UpdateSeasonSpanAsync(Guid groupId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.GroupId == groupId, ct);
+        var group = await db.HouseGroups.AsNoTracking().FirstOrDefaultAsync(g => g.Id == groupId, ct);
+        if (group?.DefaultCalendarId is null)
+            return ServiceResult<SeasonSpanDto>.NotFound();
+
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == group.DefaultCalendarId, ct);
         if (span is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
@@ -173,7 +154,11 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
 
     public async Task<ServiceResult> DeleteSeasonSpanAsync(Guid groupId, Guid spanId, CancellationToken ct)
     {
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.GroupId == groupId, ct);
+        var group = await db.HouseGroups.AsNoTracking().FirstOrDefaultAsync(g => g.Id == groupId, ct);
+        if (group?.DefaultCalendarId is null)
+            return ServiceResult.NotFound();
+
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == group.DefaultCalendarId, ct);
         if (span is null)
             return ServiceResult.NotFound();
 
@@ -183,41 +168,81 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
         return ServiceResult.Success();
     }
 
-    // House season span management (when house has a group)
+    // House season span management — resolves effective calendar (override or group default)
     public async Task<ServiceResult<SeasonSpanDto>> AddHouseSeasonSpanAsync(Guid houseId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
-        if (house is null || house.GroupId is null)
+        var calendarId = await ResolveEffectiveCalendarIdAsync(houseId, ct);
+        if (calendarId is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
-        return await AddSeasonSpanAsync(house.GroupId.Value, dto, ct);
+        return await AddSpanToCalendarAsync(calendarId.Value, dto, ct);
     }
 
     public async Task<ServiceResult<SeasonSpanDto>> UpdateHouseSeasonSpanAsync(Guid houseId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
-        if (house is null || house.GroupId is null)
+        var calendarId = await ResolveEffectiveCalendarIdAsync(houseId, ct);
+        if (calendarId is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
-        return await UpdateSeasonSpanAsync(house.GroupId.Value, spanId, dto, ct);
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
+        if (span is null)
+            return ServiceResult<SeasonSpanDto>.NotFound();
+
+        var validationError = ValidateSeasonSpan(dto);
+        if (validationError is not null)
+            return validationError;
+
+        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
+        if (seasonCode is null)
+            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
+
+        span.Code = dto.Code;
+        span.StartDate = dto.StartDate;
+        span.EndDate = dto.EndDate;
+        await db.SaveChangesAsync(ct);
+
+        return ServiceResult<SeasonSpanDto>.Success(
+            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
+        );
     }
 
     public async Task<ServiceResult> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
     {
-        var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
-        if (house is null || house.GroupId is null)
+        var calendarId = await ResolveEffectiveCalendarIdAsync(houseId, ct);
+        if (calendarId is null)
             return ServiceResult.NotFound();
 
-        return await DeleteSeasonSpanAsync(house.GroupId.Value, spanId, ct);
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
+        if (span is null)
+            return ServiceResult.NotFound();
+
+        db.SeasonSpans.Remove(span);
+        await db.SaveChangesAsync(ct);
+
+        return ServiceResult.Success();
     }
 
     private async Task<IReadOnlyList<SeasonSpanDto>> GetCalendarAsync(Guid groupId, CancellationToken ct)
+    {
+        var calendarId = await db.HouseGroups
+            .AsNoTracking()
+            .Where(g => g.Id == groupId)
+            .Select(g => g.DefaultCalendarId)
+            .FirstOrDefaultAsync(ct);
+
+        if (calendarId is null)
+            return [];
+
+        return await GetSpansByCalendarIdAsync(calendarId.Value, ct);
+    }
+
+    private async Task<IReadOnlyList<SeasonSpanDto>> GetSpansByCalendarIdAsync(Guid calendarId, CancellationToken ct)
     {
         var seasonCodes = await db.SeasonCodes.AsNoTracking().ToDictionaryAsync(c => c.Code, ct);
 
         var spans = await db.SeasonSpans
             .AsNoTracking()
-            .Where(s => s.GroupId == groupId)
+            .Where(s => s.CalendarId == calendarId)
             .OrderBy(s => s.StartDate)
             .ToListAsync(ct);
 
@@ -226,6 +251,64 @@ public sealed class AdminHouseGroupService : IAdminHouseGroupService
             seasonCodes.TryGetValue(s.Code, out var sc);
             return new SeasonSpanDto(s.Id, s.StartDate, s.EndDate, s.Code, sc?.Name, sc?.Color);
         }).ToList();
+    }
+
+    private async Task<Guid> EnsureGroupCalendarAsync(HouseGroup group, CancellationToken ct)
+    {
+        if (group.DefaultCalendarId.HasValue)
+            return group.DefaultCalendarId.Value;
+
+        var calendar = new SeasonCalendar
+        {
+            Name = $"{group.Name} Calendar",
+            IsTemplate = false
+        };
+        db.SeasonCalendars.Add(calendar);
+        group.DefaultCalendarId = calendar.Id;
+        await db.SaveChangesAsync(ct);
+
+        return calendar.Id;
+    }
+
+    private async Task<ServiceResult<SeasonSpanDto>> AddSpanToCalendarAsync(Guid calendarId, UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var validationError = ValidateSeasonSpan(dto);
+        if (validationError is not null)
+            return validationError;
+
+        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
+        if (seasonCode is null)
+            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
+
+        var span = new SeasonSpan
+        {
+            Id = Guid.NewGuid(),
+            CalendarId = calendarId,
+            Code = dto.Code,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate
+        };
+
+        db.SeasonSpans.Add(span);
+        await db.SaveChangesAsync(ct);
+
+        return ServiceResult<SeasonSpanDto>.Success(
+            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
+        );
+    }
+
+    private async Task<Guid?> ResolveEffectiveCalendarIdAsync(Guid houseId, CancellationToken ct)
+    {
+        var house = await db.Houses
+            .AsNoTracking()
+            .Include(h => h.Group)
+            .FirstOrDefaultAsync(h => h.Id == houseId, ct);
+
+        if (house is null)
+            return null;
+
+        return house.CalendarOverrideId
+            ?? house.Group?.DefaultCalendarId;
     }
 
     private static ServiceResult<SeasonSpanDto>? ValidateSeasonSpan(UpsertSeasonSpanDto dto)

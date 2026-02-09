@@ -24,7 +24,7 @@ public sealed class AdminHouseService : IAdminHouseService
         this.imageStorage = imageStorage;
     }
 
-    public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, int page, int pageSize, CancellationToken ct)
+    public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, EntityStatus? status, int page, int pageSize, CancellationToken ct)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 5, 50);
@@ -33,6 +33,11 @@ public sealed class AdminHouseService : IAdminHouseService
             .Include(h => h.City)
             .Include(h => h.Areas)
             .AsQueryable();
+
+        if (status.HasValue)
+        {
+            houseQuery = houseQuery.Where(h => h.Status == status.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -58,7 +63,8 @@ public sealed class AdminHouseService : IAdminHouseService
                 h.Description,
                 h.City != null ? $"{h.City.Zip}  {h.City.Name}" : null,
                 h.Areas.OrderBy(a => a.Name).Select(a => a.Name).ToList(),
-                h.CreatedAtUtc))
+                h.CreatedAtUtc,
+                h.Status))
             .ToListAsync(ct);
 
         return new PageResult<AdminHouseListItemDto>
@@ -94,13 +100,16 @@ public sealed class AdminHouseService : IAdminHouseService
             .ThenByDescending(rp => rp.UpdatedAtUtc.HasValue ? rp.UpdatedAtUtc.Value : rp.CreatedAtUtc)
             .FirstOrDefaultAsync(ct);
 
-        var calendarSegments = await db.SeasonSpans
-            .AsNoTracking()
-            .Where(s => s.GroupId == house.GroupId)
-            .OrderBy(s => s.StartDate)
-            .ThenBy(s => s.EndDate)
-            .Select(s => new SeasonSpanDto(s.Id, s.StartDate, s.EndDate, s.Code, null, null))
-            .ToListAsync(ct);
+        var effectiveCalendarId = house.CalendarOverrideId ?? house.Group?.DefaultCalendarId;
+        var calendarSegments = effectiveCalendarId.HasValue
+            ? await db.SeasonSpans
+                .AsNoTracking()
+                .Where(s => s.CalendarId == effectiveCalendarId.Value)
+                .OrderBy(s => s.StartDate)
+                .ThenBy(s => s.EndDate)
+                .Select(s => new SeasonSpanDto(s.Id, s.StartDate, s.EndDate, s.Code, null, null))
+                .ToListAsync(ct)
+            : new List<SeasonSpanDto>();
 
         var details = MapDetails(house, baseUrl, plan, calendarSegments);
         return ServiceResult<AdminHouseDetailsDto>.Success(details);
@@ -252,6 +261,12 @@ public sealed class AdminHouseService : IAdminHouseService
 
         var planDto = plan is null ? null : PricePlanMapper.ToDto(plan);
 
+        var calendarSource = house.CalendarOverrideId.HasValue
+            ? "Custom (house override)"
+            : house.Group?.DefaultCalendarId.HasValue == true
+                ? $"Group: {house.Group.Name}"
+                : null;
+
         return new AdminHouseDetailsDto(
             house.Id,
             house.Title,
@@ -268,7 +283,12 @@ public sealed class AdminHouseService : IAdminHouseService
             house.CreatedAtUtc,
             calendar,
             planDto,
-            house.GroupId);
+            house.GroupId,
+            house.Status,
+            house.PublishedAtUtc,
+            house.ArchivedAtUtc,
+            house.CalendarOverrideId,
+            calendarSource);
     }
 
 }

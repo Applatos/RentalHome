@@ -42,9 +42,18 @@ public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteSer
 
     public async Task<IReadOnlyList<SeasonSpanDto>> GetSeasonSpansAsync(Guid groupId, CancellationToken ct)
     {
+        var calendarId = await db.HouseGroups
+            .AsNoTracking()
+            .Where(g => g.Id == groupId)
+            .Select(g => g.DefaultCalendarId)
+            .FirstOrDefaultAsync(ct);
+
+        if (calendarId is null)
+            return [];
+
         var spans = await db.SeasonSpans
             .AsNoTracking()
-            .Where(s => s.GroupId == groupId)
+            .Where(s => s.CalendarId == calendarId.Value)
             .OrderBy(s => s.StartDate)
             .ThenBy(s => s.EndDate)
             .ToListAsync(ct);
@@ -113,17 +122,32 @@ public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteSer
             }
         }
 
+        var group = await db.HouseGroups.FirstOrDefaultAsync(g => g.Id == groupId, ct);
+        if (group is null)
+            return ServiceResult<IReadOnlyList<SeasonSpanDto>>.NotFound();
+
+        // Ensure group has a calendar
+        if (!group.DefaultCalendarId.HasValue)
+        {
+            var calendar = new SeasonCalendar { Name = $"{group.Name} Calendar" };
+            db.SeasonCalendars.Add(calendar);
+            group.DefaultCalendarId = calendar.Id;
+            await db.SaveChangesAsync(ct);
+        }
+
+        var calendarId = group.DefaultCalendarId!.Value;
+
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         try
         {
-            var existing = db.SeasonSpans.Where(s => s.GroupId == groupId);
+            var existing = db.SeasonSpans.Where(s => s.CalendarId == calendarId);
             db.SeasonSpans.RemoveRange(existing);
             await db.SaveChangesAsync(ct);
 
             var entities = spans.Select(s => new SeasonSpan
             {
                 Id = s.Id == Guid.Empty ? Guid.NewGuid() : s.Id,
-                GroupId = groupId,
+                CalendarId = calendarId,
                 StartDate = s.StartDate,
                 EndDate = s.EndDate,
                 Code = s.Code!

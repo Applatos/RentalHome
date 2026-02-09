@@ -27,6 +27,7 @@ public sealed class HouseQueryService : IHouseQueryService
         pageSize = Math.Clamp(pageSize, 5, 50);
 
         var houseQuery = db.Houses.AsNoTracking()
+            .Where(h => h.Status == EntityStatus.Published)
             .Include(h => h.Images)
             .Include(h => h.City)
             .Include(h => h.Areas)
@@ -118,7 +119,7 @@ public sealed class HouseQueryService : IHouseQueryService
             .Include(x => x.Images)
             .Include(x => x.City)
             .Include(x => x.HouseFeatures).ThenInclude(v => v.Feature)
-            .FirstOrDefaultAsync(x => x.Id == id, ct);
+            .FirstOrDefaultAsync(x => x.Id == id && x.Status == EntityStatus.Published, ct);
 
         if (house is null)
         {

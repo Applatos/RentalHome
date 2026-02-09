@@ -7,6 +7,9 @@ using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Services.Admin.Calendars;
+using Sommerhus.Core.Services.Admin.Lifecycle;
+using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
@@ -17,11 +20,13 @@ public sealed class HousesController(
     IAdminHouseService houseService,
     IAdminHouseFeatureService featureService,
     IAdminHousePricingService pricingService,
-    IAdminHouseGroupService houseGroupService) : ControllerBase
+    IAdminHouseGroupService houseGroupService,
+    IEntityLifecycleService lifecycleService,
+    IAdminCalendarService calendarService) : ControllerBase
 {
     [HttpGet]
-    public Task<PageResult<AdminHouseListItemDto>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
-        => houseService.SearchAsync(query, page, pageSize, ct);
+    public Task<PageResult<AdminHouseListItemDto>> Search([FromQuery] string? query, [FromQuery] EntityStatus? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+        => houseService.SearchAsync(query, status, page, pageSize, ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AdminHouseDetailsDto>> Get(Guid id, CancellationToken ct)
@@ -129,4 +134,25 @@ public sealed class HousesController(
         var result = await houseGroupService.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
         return this.FromResult(result);
     }
+
+    [HttpPost("{id:guid}/status")]
+    public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] ChangeStatusDto dto, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+        var result = await lifecycleService.TransitionHouseAsync(id, dto.Target, ct);
+        return this.FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/calendar-override")]
+    public async Task<ActionResult<CalendarDto>> SetCalendarOverride(Guid id, [FromBody] SetCalendarOverrideDto dto, CancellationToken ct)
+        => this.FromResult(await calendarService.SetHouseCalendarOverrideAsync(id, dto.CalendarId, ct));
+
+    [HttpDelete("{id:guid}/calendar-override")]
+    public async Task<IActionResult> RemoveCalendarOverride(Guid id, CancellationToken ct)
+        => this.FromResult(await calendarService.RemoveHouseCalendarOverrideAsync(id, ct));
+
+    [HttpPost("{id:guid}/calendar-override/create")]
+    public async Task<ActionResult<CalendarDto>> CreateCalendarOverride(Guid id, [FromBody] CreateCalendarOverrideDto dto, CancellationToken ct)
+        => this.FromResult(await calendarService.CreateHouseOverrideAsync(id, dto.Name, ct));
 }

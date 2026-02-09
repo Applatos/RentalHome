@@ -1,3 +1,5 @@
+using Sommerhus.Domain.Models;
+
 namespace Sommerhus.Core.Dtos.Shared;
 
 /// <summary>
@@ -19,7 +21,12 @@ public sealed record AdminHouseDetailsDto(
     DateTime CreatedAtUtc,
     IReadOnlyList<SeasonSpanDto>? Calendar,
     PricePlanDetailsDto? Pricing,
-    Guid? GroupId);
+    Guid? GroupId,
+    EntityStatus Status,
+    DateTime? PublishedAtUtc = null,
+    DateTime? ArchivedAtUtc = null,
+    Guid? CalendarOverrideId = null,
+    string? CalendarSource = null);
 
 /// <summary>
 /// House details for public context — only public-relevant fields.

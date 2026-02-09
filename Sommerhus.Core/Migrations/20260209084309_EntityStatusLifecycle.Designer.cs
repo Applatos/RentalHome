@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sommerhus.Core;
 
@@ -10,9 +11,11 @@ using Sommerhus.Core;
 namespace Sommerhus.Core.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260209084309_EntityStatusLifecycle")]
+    partial class EntityStatusLifecycle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -499,9 +502,6 @@ namespace Sommerhus.Core.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("DefaultCalendarId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -515,8 +515,6 @@ namespace Sommerhus.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DefaultCalendarId");
 
                     b.ToTable("HouseGroups");
                 });
@@ -631,42 +629,6 @@ namespace Sommerhus.Core.Migrations
                     b.ToTable("PricePlans");
                 });
 
-            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.SeasonCalendar", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsTemplate")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("Year")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SeasonCalendars");
-                });
-
             modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.SeasonCode", b =>
                 {
                     b.Property<string>("Code")
@@ -722,14 +684,14 @@ namespace Sommerhus.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CalendarId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GroupId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("StartDate")
@@ -739,7 +701,7 @@ namespace Sommerhus.Core.Migrations
 
                     b.HasIndex("Code");
 
-                    b.HasIndex("CalendarId", "StartDate", "EndDate")
+                    b.HasIndex("GroupId", "StartDate", "EndDate")
                         .IsUnique();
 
                     b.ToTable("SeasonSpans");
@@ -756,9 +718,6 @@ namespace Sommerhus.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ArchivedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("CalendarOverrideId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("CityId")
@@ -798,8 +757,6 @@ namespace Sommerhus.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CalendarOverrideId");
 
                     b.HasIndex("CityId");
 
@@ -932,16 +889,6 @@ namespace Sommerhus.Core.Migrations
                     b.Navigation("House");
                 });
 
-            modelBuilder.Entity("Sommerhus.Domain.Models.HouseGroup", b =>
-                {
-                    b.HasOne("Sommerhus.Domain.Models.Pricing.SeasonCalendar", "DefaultCalendar")
-                        .WithMany()
-                        .HasForeignKey("DefaultCalendarId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("DefaultCalendar");
-                });
-
             modelBuilder.Entity("Sommerhus.Domain.Models.HouseImage", b =>
                 {
                     b.HasOne("Sommerhus.Domain.Models.VacationHouse", "House")
@@ -992,28 +939,21 @@ namespace Sommerhus.Core.Migrations
 
             modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.SeasonSpan", b =>
                 {
-                    b.HasOne("Sommerhus.Domain.Models.Pricing.SeasonCalendar", "Calendar")
-                        .WithMany("Spans")
-                        .HasForeignKey("CalendarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Sommerhus.Domain.Models.Pricing.SeasonCode", null)
                         .WithMany()
                         .HasForeignKey("Code")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Calendar");
+                    b.HasOne("Sommerhus.Domain.Models.HouseGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sommerhus.Domain.Models.VacationHouse", b =>
                 {
-                    b.HasOne("Sommerhus.Domain.Models.Pricing.SeasonCalendar", "CalendarOverride")
-                        .WithMany()
-                        .HasForeignKey("CalendarOverrideId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Sommerhus.Domain.Models.City", "City")
                         .WithMany("Houses")
                         .HasForeignKey("CityId")
@@ -1024,8 +964,6 @@ namespace Sommerhus.Core.Migrations
                         .WithMany()
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("CalendarOverride");
 
                     b.Navigation("City");
 
@@ -1047,11 +985,6 @@ namespace Sommerhus.Core.Migrations
             modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.PricePlan", b =>
                 {
                     b.Navigation("SeasonPrices");
-                });
-
-            modelBuilder.Entity("Sommerhus.Domain.Models.Pricing.SeasonCalendar", b =>
-                {
-                    b.Navigation("Spans");
                 });
 
             modelBuilder.Entity("Sommerhus.Domain.Models.VacationHouse", b =>

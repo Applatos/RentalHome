@@ -21,25 +21,26 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     }
 
     [HttpGet("/admin/houses")]
-    public async Task<IActionResult> Index([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public async Task<IActionResult> Index([FromQuery] string? q, [FromQuery] EntityStatus? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
         SetAdminTab("houses");
-        var res = await api.GetHousesAsync(q, page, pageSize, ct);
+        var res = await api.GetHousesAsync(q, status, page, pageSize, ct);
 
         if (!res.Ok || res.Data is null)
         {
             SetError(res.Message ?? "Could not load house list.");
             return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
             {
-                Houses = new PageResult<AdminHouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q }
+                Houses = new PageResult<AdminHouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q },
+                StatusFilter = status
             });
         }
 
-        SetAdminTab("houses");
         return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
         {
             Houses = res.Data,
-            SearchQuery = q
+            SearchQuery = q,
+            StatusFilter = status
         });
     }
 
@@ -112,6 +113,14 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
         }
 
+        var availableCalendars = Array.Empty<CalendarDto>() as IReadOnlyList<CalendarDto>;
+        if (string.Equals(tab, "calendar", StringComparison.OrdinalIgnoreCase))
+        {
+            var calRes = await api.GetCalendarsAsync(ct);
+            if (calRes.Ok && calRes.Data is not null)
+                availableCalendars = calRes.Data;
+        }
+
         var pricingAuditEntries = Array.Empty<AuditEntryDto>() as IReadOnlyList<AuditEntryDto>;
         string? pricingAuditError = null;
         if (string.Equals(tab, "pricing", StringComparison.OrdinalIgnoreCase))
@@ -145,7 +154,8 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             AuditEntries = auditEntries,
             AuditError = auditError,
             PricingAuditEntries = pricingAuditEntries,
-            PricingAuditError = pricingAuditError
+            PricingAuditError = pricingAuditError,
+            AvailableCalendars = availableCalendars
         };
     }
 
@@ -282,6 +292,24 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
 
         SetAdminTab("houses");
         return View("~/Views/Admin/Houses/Details.cshtml", vm);
+    }
+
+    [HttpPost("/admin/houses/{id:guid}/status")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatus(Guid id, [FromForm] EntityStatus target, CancellationToken ct = default)
+    {
+        var dto = new ChangeStatusDto { Target = target };
+        var res = await api.ChangeHouseStatusAsync(id, dto, ct);
+        if (res.Ok)
+        {
+            SetSuccess($"Status changed to {target}.");
+        }
+        else
+        {
+            SetError(res.Message ?? "Could not change status.");
+        }
+
+        return RedirectToAction(nameof(Details), new { id, tab = "overview" });
     }
 
     [HttpPost("/admin/houses/{id:guid}/delete")]
@@ -603,6 +631,45 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         {
             SetError(res.Message ?? "Could not delete season span.");
         }
+
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
+    }
+
+    [HttpPost("/admin/houses/{houseId:guid}/calendar-override")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetCalendarOverride(Guid houseId, [FromForm] Guid calendarId, CancellationToken ct = default)
+    {
+        var res = await api.SetHouseCalendarOverrideAsync(houseId, calendarId, ct);
+        if (res.Ok)
+            SetSuccess("Calendar override applied.");
+        else
+            SetError(res.Message ?? "Could not set calendar override.");
+
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
+    }
+
+    [HttpPost("/admin/houses/{houseId:guid}/calendar-override/remove")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveCalendarOverride(Guid houseId, CancellationToken ct = default)
+    {
+        var res = await api.RemoveHouseCalendarOverrideAsync(houseId, ct);
+        if (res.Ok)
+            SetSuccess("Calendar override removed. House now uses group default.");
+        else
+            SetError(res.Message ?? "Could not remove calendar override.");
+
+        return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
+    }
+
+    [HttpPost("/admin/houses/{houseId:guid}/calendar-override/create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateCalendarOverride(Guid houseId, [FromForm] string name, CancellationToken ct = default)
+    {
+        var res = await api.CreateHouseCalendarOverrideAsync(houseId, name, ct);
+        if (res.Ok)
+            SetSuccess("Custom calendar created and applied as override.");
+        else
+            SetError(res.Message ?? "Could not create custom calendar.");
 
         return RedirectToAction(nameof(Details), new { id = houseId, tab = "calendar" });
     }

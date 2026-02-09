@@ -5,6 +5,8 @@ using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Services.Admin.HouseGroups;
+using Sommerhus.Core.Services.Admin.Calendars;
+using Sommerhus.Core.Services.Admin.Lifecycle;
 using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Public.Cities;
@@ -38,6 +40,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminCityImageService, AdminCityImageService>();
         services.AddScoped<IAdminHouseImageService, AdminHouseImageService>();
         services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IEntityLifecycleService, EntityLifecycleService>();
+        services.AddScoped<IAdminCalendarService, AdminCalendarService>();
 
         return services;
     }

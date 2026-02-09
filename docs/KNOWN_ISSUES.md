@@ -1137,11 +1137,11 @@ The following consistency improvements were identified and fixed during the audi
 
 The following are architectural gaps identified for production readiness. See `ROADMAP.md` for detailed designs.
 
-### 35. Calendar Tied to House Group Only
+### 35. ~~Calendar Tied to House Group Only~~ ✅ Resolved
 
 **Problem**: `SeasonSpan.GroupId` forces all houses in a group to share the same season calendar. Individual house owners cannot have custom calendars, and switching between calendar/pricing configurations requires manual re-entry.
 
-**Solution**: Phase 16 — Introduce `SeasonCalendar` entity with house-level override and group-level default. Add PricePlan switcher for easy activation/deactivation.
+**Solution**: Phase 16 (Completed) — New `SeasonCalendar` entity decouples calendars from groups. `SeasonSpan.GroupId` replaced with `SeasonSpan.CalendarId`. `HouseGroup.DefaultCalendarId` provides the group default; `VacationHouse.CalendarOverrideId` allows per-house overrides. Resolution: house override → group default → empty. Admin CRUD at `api/admin/calendars`. MVC calendar tab shows source badge, override picker (existing or new custom), and revert-to-group button. Pricing engine (`EfRatePlanStore`) resolves effective calendar automatically. 10 new integration tests.
 
 ### 36. ~~No Audit Trail~~ ✅ Resolved
 
@@ -1149,11 +1149,11 @@ The following are architectural gaps identified for production readiness. See `R
 
 **Solution**: Phase 17 (Completed) — `IAuditable` interface with auto-populated timestamps via `AuditSaveChangesInterceptor`, plus `AuditEntry` table with JSON diffs for critical entities. Admin API endpoint at `GET /api/admin/audit` with pagination and filtering. MVC audit history tab on House detail pages. 6 new integration tests verify audit entries on CRUD operations.
 
-### 37. No Entity Lifecycle / Status
+### 37. ~~No Entity Lifecycle / Status~~ ✅ Resolved
 
 **Problem**: All houses are implicitly "published" — there's no way to draft content before making it public, or archive a house without deleting it. Public search returns everything.
 
-**Solution**: Phase 18 — `EntityStatus` enum (Draft/Published/Archived) with transition validation, public search filtering, and admin status management UI.
+**Solution**: Phase 18 (Completed) — `EntityStatus` enum (Draft/Published/Archived) with `IEntityLifecycleService` for validated transitions. Public search filters to `Published` only. Admin search supports status filter dropdown. Admin MVC shows status badges and contextual transition buttons (Publish/Archive/Unpublish/Re-open). Applied to both `VacationHouse` and `Area` entities. 13 new integration tests cover lifecycle transitions, public visibility, and validation rules.
 
 ### 38. No Concurrency Control
 
@@ -1183,9 +1183,9 @@ The following are architectural gaps identified for production readiness. See `R
 
 | Issue                          | Priority | Phase | Status   |
 | ------------------------------ | -------- | ----- | -------- |
-| #35 Calendar tied to group     | High     | 16    | Pending  |
+| #35 Calendar tied to group     | High     | 16    | **Done** |
 | #36 No audit trail             | High     | 17    | **Done** |
-| #37 No entity lifecycle        | High     | 18    | Pending  |
+| #37 No entity lifecycle        | High     | 18    | **Done** |
 | #38 No concurrency control     | Medium   | 19    | Pending  |
 | #39 Price computed per request | High     | 20    | Pending  |
 | #40 No availability model      | High     | 21    | Pending  |

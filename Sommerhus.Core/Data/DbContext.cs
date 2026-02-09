@@ -29,6 +29,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SeasonPrice> SeasonPrices => Set<SeasonPrice>();
     public DbSet<SeasonCode> SeasonCodes => Set<SeasonCode>();
     public DbSet<SeasonSpan> SeasonSpans => Set<SeasonSpan>();
+    public DbSet<SeasonCalendar> SeasonCalendars => Set<SeasonCalendar>();
 
     // Audit
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
@@ -70,6 +71,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
                         j.HasKey("HouseId", "AreaId");
                         j.ToTable("HouseAreas");
                     });
+            e.Property(x => x.Status).HasDefaultValue(Sommerhus.Domain.Models.EntityStatus.Draft);
+            e.HasIndex(x => x.Status);
             e.HasMany(x => x.Images)
                 .WithOne(i => i.House!)
                 .HasForeignKey(i => i.HouseId)
@@ -81,6 +84,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(x => x.Group)
                 .WithMany()
                 .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.CalendarOverride)
+                .WithMany()
+                .HasForeignKey(x => x.CalendarOverrideId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
@@ -118,6 +125,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<Area>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Status).HasDefaultValue(Sommerhus.Domain.Models.EntityStatus.Draft);
+            e.HasIndex(x => x.Status);
 
             e.HasMany(x => x.AreaImages)
                 .WithOne(i => i.Area!)
@@ -168,19 +177,32 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        b.Entity<SeasonCalendar>(e =>
+        {
+            e.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            e.HasMany(x => x.Spans)
+                .WithOne(s => s.Calendar)
+                .HasForeignKey(s => s.CalendarId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<HouseGroup>(e =>
+        {
+            e.HasOne(x => x.DefaultCalendar)
+                .WithMany()
+                .HasForeignKey(x => x.DefaultCalendarId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
         b.Entity<SeasonSpan>(e =>
         {
             e.HasOne<SeasonCode>()
                 .WithMany()
                 .HasForeignKey(x => x.Code)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<HouseGroup>()
-                .WithMany()
-                .HasForeignKey(x => x.GroupId)
-                .OnDelete(DeleteBehavior.Cascade);
             e.Property(x => x.StartDate).IsRequired();
             e.Property(x => x.EndDate).IsRequired();
-            e.HasIndex(x => new { x.GroupId, x.StartDate, x.EndDate }).IsUnique();
+            e.HasIndex(x => new { x.CalendarId, x.StartDate, x.EndDate }).IsUnique();
         });
 
         // Audit entry

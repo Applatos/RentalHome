@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Areas;
 
@@ -18,7 +19,9 @@ public sealed class AreaQueryService : IAreaQueryService
 
     public async Task<IEnumerable<AreaListItemDto>> SearchAsync(string? query, CancellationToken ct)
     {
-        var areaQuery = db.Areas.AsNoTracking().AsQueryable();
+        var areaQuery = db.Areas.AsNoTracking()
+            .Where(a => a.Status == EntityStatus.Published)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -38,7 +41,7 @@ public sealed class AreaQueryService : IAreaQueryService
             .Include(a => a.AreaImages)
             .Include(a => a.Cities)
             .Include(a => a.Houses)
-            .FirstOrDefaultAsync(a => a.Id == id, ct);
+            .FirstOrDefaultAsync(a => a.Id == id && a.Status == EntityStatus.Published, ct);
 
         if (area is null)
         {

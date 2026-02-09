@@ -25,4 +25,6 @@ public sealed class HouseDetailsVm
 
     public IReadOnlyList<AuditEntryDto> PricingAuditEntries { get; init; } = [];
     public string? PricingAuditError { get; init; }
+
+    public IReadOnlyList<CalendarDto> AvailableCalendars { get; init; } = [];
 }

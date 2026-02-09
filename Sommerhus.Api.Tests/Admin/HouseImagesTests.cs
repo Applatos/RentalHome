@@ -99,7 +99,7 @@ public class HouseImagesTests : IDisposable
 
     private async Task<Guid> GetExistingHouseIdAsync()
     {
-        var page = await client.GetFromJsonAsync<PageResult<PublicHouseListItemDto>>("/api/houses?pageSize=1");
+        var page = await client.GetFromJsonAsync<PageResult<AdminHouseListItemDto>>("/api/admin/houses?pageSize=1");
         page.Should().NotBeNull();
         page!.Items.Should().NotBeEmpty();
         return page.Items.First().Id;
