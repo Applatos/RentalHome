@@ -130,6 +130,7 @@ public sealed class AdminHouseService : IAdminHouseService
             Address = dto.Address,
             CityId = dto.CityId,
             Description = dto.Description,
+            SearchKeywords = NormalizeSearchKeywords(dto.SearchKeywords),
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -165,6 +166,7 @@ public sealed class AdminHouseService : IAdminHouseService
         house.Address = dto.Address;
         house.CityId = dto.CityId;
         house.Description = dto.Description;
+        house.SearchKeywords = NormalizeSearchKeywords(dto.SearchKeywords);
 
         house.Areas.Clear();
         foreach (var area in areasResult.Value ?? Array.Empty<Area>())
@@ -219,6 +221,12 @@ public sealed class AdminHouseService : IAdminHouseService
         }
 
         return ServiceResult<IReadOnlyList<Area>>.Success(areas);
+    }
+
+    private static string? NormalizeSearchKeywords(string? keywords)
+    {
+        var trimmed = (keywords ?? string.Empty).Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
     private static ServiceResult<IReadOnlyList<Area>> InvalidAreaIds()
@@ -285,6 +293,7 @@ public sealed class AdminHouseService : IAdminHouseService
             planDto,
             house.GroupId,
             house.Status,
+            house.SearchKeywords,
             house.PublishedAtUtc,
             house.ArchivedAtUtc,
             house.CalendarOverrideId,

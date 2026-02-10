@@ -31,8 +31,27 @@
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select name="Category" class="form-select">
+                        <option value="Property">Property</option>
+                        <option value="Facility">Facility</option>
+                        <option value="Distance">Distance</option>
+                        <option value="Other" selected>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Unit</label>
                     <input name="Unit" class="form-control" placeholder="e.g. m2, km" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Options (JSON)</label>
+                    <input name="Options" class="form-control" placeholder='e.g. ["1","2","3","4+"]' />
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <div class="form-check">
+                        <input name="IsSearchable" type="checkbox" class="form-check-input" value="true" checked />
+                        <label class="form-check-label">Searchable</label>
+                    </div>
                 </div>
                 <div class="col-md-12 mt-2">
                     <button class="btn btn-dark">Create</button>
@@ -48,7 +67,10 @@
                 <th>Name</th>
                 <th>Key</th>
                 <th>Type</th>
+                <th>Category</th>
                 <th>Unit</th>
+                <th>Options</th>
+                <th>Search</th>
                 <th style="width:220px;">Icon</th>
                 <th style="width:140px;"></th>
             </tr>
@@ -61,7 +83,10 @@
                 <td>@f.Name</td>
                 <td>@f.Key</td>
                 <td>@f.ValueType</td>
+                <td>@f.Category</td>
                 <td>@f.Unit</td>
+                <td class="small text-muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="@f.Options">@f.Options</td>
+                <td>@(f.IsSearchable ? "Yes" : "No")</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <div>

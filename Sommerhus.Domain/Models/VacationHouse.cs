@@ -15,6 +15,9 @@ public class VacationHouse : IAuditable
 
     public string? Description { get; set; }
 
+    [MaxLength(500)]
+    public string? SearchKeywords { get; set; }
+
     public EntityStatus Status { get; set; } = EntityStatus.Draft;
     public DateTime? PublishedAtUtc { get; set; }
     public DateTime? ArchivedAtUtc { get; set; }

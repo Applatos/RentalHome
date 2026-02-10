@@ -1177,19 +1177,40 @@ The following are architectural gaps identified for production readiness. See `R
 
 **Problem**: `EF.Functions.Like` with leading wildcard cannot use indexes — full table scan on every search. No relevance ranking, no faceted filtering (price, features, dates). Each query joins 4 tables.
 
-**Solution**: Phase 22 — Denormalized `HouseSearchDocument` read model with pre-computed fields, full-text search support (PostgreSQL `tsvector` / SQLite FTS5), faceted filter DTO, and `IHouseSearchService` abstraction.
+**Solution**: Phase 22 — Denormalized `HouseSearchDocument` read model with pre-computed fields, full-text search support (PostgreSQL `tsvector` / SQLite FTS5), faceted filter DTO, and `IHouseSearchService` abstraction. Phase 22 now depends on Phase 23 (Feature Categorization) for dynamic search filters.
+
+### 42. ~~Features Lack Categorization for Search UI~~ ✅ Resolved
+
+**Problem**: `Feature` has `FeatureValueType` (Bool/Int/Decimal/Text) for storage, but no grouping or categorization. "Pool?" and "How many bedrooms?" are treated identically in the UI. Professional vacation rental search interfaces (e.g., sommerhussøgning.dk) group features into sections: Facilities (checkboxes), Property (dropdowns for bedrooms/bathrooms/guests), Distances (range selectors). Our system cannot render typed search filters because features carry no UI metadata.
+
+**Solution**: Phase 23 (Completed) — `FeatureCategory` enum (Property, Facility, Distance, Other), `IsSearchable` flag, and `Options` JSON field added to `Feature` entity. `SearchKeywords` added to `VacationHouse`. Public `GET /api/features/searchable` endpoint returns features grouped by category. Admin UI updated with category dropdown, IsSearchable checkbox, and options editor. Seed data includes 20 categorized features. 7 new integration tests (60 total, all passing).
+
+### 43. No Internationalization Framework
+
+**Problem**: UI text is hardcoded Danish in Razor views. Error messages are English (after Phase 13d/14a). Feature names and area names are stored in Danish only. No localization framework exists — all strings are inline in `.cshtml` files. Users cannot switch between Danish and English.
+
+**Solution**: Phase 24 — ASP.NET Core built-in localization with `IStringLocalizer<T>` + `.resx` resource files. Cookie-based language selection with switcher in header. `NameEn` columns on `Feature` and `Area` for DB-stored translations. Danish default, English option.
+
+### 44. ~~No Stress Testing or Realistic Seed Data~~ ✅ Partially Resolved
+
+**Problem**: Development uses a minimal seed (~5 houses, ~3 cities). No way to test performance at scale. No realistic Danish geographic data (only a few manually entered cities). Cannot measure the impact of pricing optimizations (Phase 20) without before/after benchmarks.
+
+**Solution**: Phase 25 (Partial) — Bundled 1,089 Danish zip codes from DAWA API as embedded resource. `StressDataGenerator` service with `Bogus` package generates configurable bulk data (10–10,000 houses) with realistic features (probability-weighted distribution), pricing (3-tier season codes with DKK ranges), availability blocks, and image metadata. Admin API at `POST /api/admin/stress/seed` + `DELETE /api/admin/stress/clear` (dev/test only). 4 k6 load test scripts (public-search, house-detail, concurrent-browse, admin-crud). 5 integration tests (65 total, all passing). Baseline benchmark (25h) and Phase 20 comparison (25i) deferred until Phase 20 is implemented.
 
 ### Enterprise Tracking
 
-| Issue                          | Priority | Phase | Status   |
-| ------------------------------ | -------- | ----- | -------- |
-| #35 Calendar tied to group     | High     | 16    | **Done** |
-| #36 No audit trail             | High     | 17    | **Done** |
-| #37 No entity lifecycle        | High     | 18    | **Done** |
-| #38 No concurrency control     | Medium   | 19    | Pending  |
-| #39 Price computed per request | High     | 20    | Pending  |
-| #40 No availability model      | High     | 21    | **Done** |
-| #41 LIKE search, no facets     | Medium   | 22    | Pending  |
+| Issue                          | Priority | Phase | Status      |
+| ------------------------------ | -------- | ----- | ----------- |
+| #35 Calendar tied to group     | High     | 16    | **Done**    |
+| #36 No audit trail             | High     | 17    | **Done**    |
+| #37 No entity lifecycle        | High     | 18    | **Done**    |
+| #38 No concurrency control     | Medium   | 19    | Pending     |
+| #39 Price computed per request | High     | 20    | Pending     |
+| #40 No availability model      | High     | 21    | **Done**    |
+| #41 LIKE search, no facets     | Medium   | 22    | Pending     |
+| #42 No feature categorization  | High     | 23    | **Done**    |
+| #43 No i18n framework          | Medium   | 24    | Pending     |
+| #44 No stress test / seed data | High     | 25    | **Partial** |
 
 ---
 

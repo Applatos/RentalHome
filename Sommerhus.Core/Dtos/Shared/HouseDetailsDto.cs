@@ -23,6 +23,7 @@ public sealed record AdminHouseDetailsDto(
     PricePlanDetailsDto? Pricing,
     Guid? GroupId,
     EntityStatus Status,
+    string? SearchKeywords = null,
     DateTime? PublishedAtUtc = null,
     DateTime? ArchivedAtUtc = null,
     Guid? CalendarOverrideId = null,

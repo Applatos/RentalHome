@@ -1448,6 +1448,8 @@ When booking is implemented later:
 
 **Goal**: Replace the current `EF.Functions.Like` search with a proper search-ready model that supports fast full-text search, faceted filtering, and relevance ranking.
 
+**Dependencies**: Phase 20 (Price Snapshots — `MinNightlyPrice` for search cards), Phase 23 (Feature Categorization — typed search filters)
+
 ### Current State
 
 - Search uses `LIKE '%term%'` which cannot use indexes — full table scan on every query
@@ -1471,7 +1473,8 @@ HouseSearchDocument (new, denormalized read model)
 ├── CityZip: string?
 ├── Address: string?
 ├── AreaNames: string?            (comma-separated, for LIKE search)
-├── FeatureJson: string?          (JSON array of {key, name, value, unit})
+├── SearchKeywords: string?        (from VacationHouse.SearchKeywords — Phase 23)
+├── FeatureJson: string?          (JSON array of {key, name, value, unit, category})
 ├── CoverImageUrl: string?
 ├── Status: EntityStatus
 ├── MinNightlyPrice: decimal?     (from HousePriceSummary)
@@ -1521,6 +1524,7 @@ public record HouseSearchFilter
     public int? MinGuests { get; init; }
     public bool? HasPool { get; init; }
     public bool? PetFriendly { get; init; }
+    public Dictionary<string, string>? FeatureFilters { get; init; }  // Dynamic: {"sauna": "true", "distance_shop": "500"}
     public DateOnly? CheckIn { get; init; }       // Integrates with availability
     public DateOnly? CheckOut { get; init; }
     public HouseSearchSort Sort { get; init; }    // Relevance, Price, Newest
@@ -1546,34 +1550,390 @@ The search document is refreshed:
 - [ ] **22e** Hook indexer into house/feature/price/image save operations
 - [ ] **22f** Admin API: `POST /api/admin/search/rebuild` endpoint
 - [ ] **22g** Public API: replace `HouseQueryService.SearchAsync` with new search service
-- [ ] **22h** Public MVC: faceted search UI (price slider, feature checkboxes, date picker)
+- [ ] **22h** Public MVC: faceted search UI (price range filter, feature checkboxes/dropdowns from Phase 23 categories, keyword search)
 - [ ] **22i** Tests: search relevance, filter combinations, index rebuild
 
 **Estimated effort**: 10–15 hours | **Priority**: Medium
 
 ---
 
+## Phase 23: Feature Categorization & Search Metadata
+
+**Goal**: Add categories, display hints, and search metadata to features so the search UI can render typed filters (checkboxes for boolean features, dropdowns for numeric features, range selectors for distances) — matching professional vacation rental search interfaces like the one at sommerhussøgning.dk.
+
+**Dependencies**: None (can start immediately)
+
+### Current State
+
+- `Feature` has `FeatureValueType` (Bool, Int, Decimal, Text) — good for storage
+- No grouping/categorization — "Pool?" and "Bedrooms" are treated identically in the UI
+- No way to mark which features should appear in search filters
+- No predefined options for dropdown features (e.g., Bedrooms: 1–10)
+- Search UI cannot dynamically generate filter controls from feature metadata
+
+### Design
+
+#### Feature Categorization
+
+```csharp
+public enum FeatureCategory
+{
+    Property = 0,     // Bedrooms, bathrooms, max guests, size (m²)
+    Facility = 1,     // Pool, wifi, sauna, dishwasher, washing machine
+    Distance = 2,     // Distance to shop, beach, water
+    Other = 3         // Catch-all for uncategorized features
+}
+```
+
+#### Feature Entity Changes
+
+```
+Feature (modified)
+├── Category: FeatureCategory = Other
+├── IsSearchable: bool = true              (appears in search filter UI)
+├── Options: string?                        (JSON array: ["1","2","3","4","5+"] for dropdowns)
+├── (rest unchanged: Name, Key, ValueType, Unit, IconUrl, SortOrder)
+```
+
+How categories map to search UI controls:
+
+| ValueType       | Category   | Search UI Control                             |
+| --------------- | ---------- | --------------------------------------------- |
+| `Bool`          | `Facility` | Checkbox (Pool? Wifi? Sauna?)                 |
+| `Int`           | `Property` | Dropdown (Bedrooms: 1, 2, 3, 4, 5+)           |
+| `Int`/`Decimal` | `Distance` | Dropdown (< 500m, < 1 km, < 5 km)             |
+| `Text`          | Any        | Excluded from search (`IsSearchable = false`) |
+
+The `Options` field provides predefined choices for dropdown rendering. When `null`, the UI falls back to free input (numeric) or checkbox (boolean).
+
+#### Tags Decision: Lightweight Keywords, Not a Formal Entity
+
+**Recommendation: No separate Tag entity.** Instead, add a `SearchKeywords` field to `VacationHouse`.
+
+**Rationale**:
+
+- Features already cover all **structured** attributes (Pool, Bedrooms, Distance to shop)
+- Phase 22's full-text search on `Description` handles **informal** discovery ("romantic", "beach")
+- A formal many-to-many Tag system adds: Tag entity, HouseTag join table, tag CRUD UI, tag admin, tag normalization — significant complexity for marginal benefit
+- A `SearchKeywords` string field gives 80% of the value at 10% of the cost
+- If formal tags are needed later, keywords can be migrated to a proper tag system
+
+```
+VacationHouse (modified)
+├── SearchKeywords: string?    (comma-separated: "romantic, beach, modern, family-friendly")
+```
+
+The search engine (Phase 22) indexes `SearchKeywords` alongside `Title`, `Description`, and `AreaNames` in the `SearchVector`, making them discoverable via free-text search without any extra infrastructure.
+
+#### Feature Category Seed Data
+
+| Key               | Name                | Category | ValueType | Options                                 |
+| ----------------- | ------------------- | -------- | --------- | --------------------------------------- |
+| `bedrooms`        | Bedrooms            | Property | Int       | `["1","2","3","4","5","6+"]`            |
+| `bathrooms`       | Bathrooms           | Property | Int       | `["1","2","3","4+"]`                    |
+| `max_guests`      | Max guests          | Property | Int       | `["1-2","3-4","5-6","7-8","9+"]`        |
+| `size_m2`         | Size (m²)           | Property | Int       | `null` (free input)                     |
+| `pool`            | Swimming pool       | Facility | Bool      | `null`                                  |
+| `sauna`           | Sauna               | Facility | Bool      | `null`                                  |
+| `spa`             | Spa / hot tub       | Facility | Bool      | `null`                                  |
+| `wifi`            | Internet / Wifi     | Facility | Bool      | `null`                                  |
+| `dishwasher`      | Dishwasher          | Facility | Bool      | `null`                                  |
+| `washing_machine` | Washing machine     | Facility | Bool      | `null`                                  |
+| `dryer`           | Tumble dryer        | Facility | Bool      | `null`                                  |
+| `pet_friendly`    | Pet friendly        | Facility | Bool      | `null`                                  |
+| `fireplace`       | Fireplace           | Facility | Bool      | `null`                                  |
+| `aircondition`    | Air conditioning    | Facility | Bool      | `null`                                  |
+| `ev_charger`      | EV charger          | Facility | Bool      | `null`                                  |
+| `nonsmoking`      | Non-smoking         | Facility | Bool      | `null`                                  |
+| `handicap`        | Handicap accessible | Facility | Bool      | `null`                                  |
+| `distance_shop`   | Distance to shop    | Distance | Int       | `["< 500m","< 1 km","< 2 km","< 5 km"]` |
+| `distance_water`  | Distance to water   | Distance | Int       | `["< 100m","< 500m","< 1 km","< 5 km"]` |
+| `water_view`      | Water view          | Distance | Bool      | `null`                                  |
+
+#### Public API
+
+```
+GET /api/features/searchable    → returns features grouped by category with options
+```
+
+Response structure:
+
+```json
+{
+  "Property": [
+    {
+      "key": "bedrooms",
+      "name": "Bedrooms",
+      "valueType": "Int",
+      "options": ["1", "2", "3", "4", "5", "6+"]
+    }
+  ],
+  "Facility": [
+    { "key": "pool", "name": "Swimming pool", "valueType": "Bool" },
+    { "key": "wifi", "name": "Internet / Wifi", "valueType": "Bool" }
+  ],
+  "Distance": [
+    {
+      "key": "distance_shop",
+      "name": "Distance to shop",
+      "valueType": "Int",
+      "options": ["< 500m", "< 1 km", "< 2 km", "< 5 km"]
+    }
+  ]
+}
+```
+
+The search UI consumes this endpoint to dynamically build filter controls.
+
+### Tasks
+
+- [x] **23a** Create `FeatureCategory` enum, add `Category`, `IsSearchable`, `Options` to `Feature` entity, migration
+- [x] **23b** Add `SearchKeywords` (string, nullable) to `VacationHouse`, migration
+- [x] **23c** Update `FeatureDto` and `UpsertFeatureDto` with new fields
+- [x] **23d** Update `AdminFeatureService` CRUD to handle new fields
+- [x] **23e** Admin UI: feature form with category dropdown, IsSearchable checkbox, options editor
+- [x] **23f** Seed data: categorize existing features and add standard features from table above
+- [x] **23g** Public API: `GET /api/features/searchable` — returns categorized features for search UI
+- [x] **23h** Admin UI: `SearchKeywords` text field on house edit form (overview tab)
+- [x] **23i** Tests: feature categorization CRUD, searchable feature listing, keyword persistence (7 integration tests)
+
+**Estimated effort**: 5–8 hours | **Priority**: High (prerequisite for Phase 22)
+
+---
+
+## Phase 24: Internationalization — EN/DA Language Switching
+
+**Goal**: Support switching between English and Danish across the entire MVC frontend, with a language switcher in the header.
+
+**Dependencies**: None (can start independently, but best done after Phase 15 cleanup)
+
+### Current State
+
+- UI text is hardcoded Danish in Razor views (labels, buttons, headings)
+- Error messages are English (after Phase 13d/14a cleanup)
+- Feature names and area/city names are stored in Danish in the DB
+- No localization framework — all strings are inline in `.cshtml` files
+
+### Design
+
+#### Approach: ASP.NET Core Built-in Localization
+
+Use `IStringLocalizer<T>` + `.resx` resource files — the standard .NET approach. This integrates natively with Razor views via `IViewLocalizer`, handles culture negotiation, and is well-documented.
+
+#### Language Selection
+
+- **Cookie-based** (primary): `.AspNetCore.Culture` cookie set via language switcher in header
+- **URL query** (for sharing): `?culture=da-DK` or `?culture=en-GB`
+- **Default**: Danish (`da-DK`) since this is a Danish product
+
+#### What Gets Localized
+
+| Layer                   | Approach                                                   |
+| ----------------------- | ---------------------------------------------------------- |
+| **MVC Views** (public)  | `IViewLocalizer` + `.resx` per view or shared resource     |
+| **Error messages**      | `IStringLocalizer<SharedResource>` in controllers/services |
+| **Feature names**       | DB: add `NameEn` column to `Feature` entity                |
+| **Area names**          | DB: add `NameEn` column to `Area` entity                   |
+| **City names**          | Keep Danish only (official geographic names)               |
+| **Validation messages** | DataAnnotations localization via adapter                   |
+| **JavaScript strings**  | Pass via `data-*` attributes or inline `<script>` block    |
+
+#### Resource File Structure
+
+```
+Sommerhus.Mvc/
+├── Resources/
+│   ├── SharedResource.da.resx       (Danish — base, can be empty if views default to DA)
+│   ├── SharedResource.en.resx       (English translations)
+│   ├── Views/Houses/Details.en.resx (per-view overrides if needed)
+│   └── ...
+```
+
+#### Language Switcher UI
+
+Simple dropdown or flag toggle in `_Layout.cshtml` header:
+
+- 🇩🇰 Dansk | 🇬🇧 English
+- Sets the culture cookie via a `POST` to `CultureController` and reloads the page
+- Current language visually highlighted
+
+#### DB Translation Strategy
+
+For a two-language system, direct columns are simpler than a translation table:
+
+```
+Feature (modified)
+├── Name: string        (Danish — default)
+├── NameEn: string?     (English — null falls back to Danish)
+
+Area (modified)
+├── Name: string        (Danish)
+├── NameEn: string?     (English)
+```
+
+Resolution: `culture == "en" && entity.NameEn != null ? entity.NameEn : entity.Name`
+
+If more languages are needed later, migrate to a `Translation` table with `(EntityType, EntityId, Culture, Value)`. For now, 2 columns is pragmatic and avoids join overhead.
+
+### Tasks
+
+- [ ] **24a** Configure ASP.NET Core localization in `Sommerhus.Mvc/Program.cs` (supported cultures, cookie provider, request localization middleware)
+- [ ] **24b** Create `SharedResource.resx` (DA) and `SharedResource.en.resx` (EN) with common strings (nav, buttons, labels, error messages)
+- [ ] **24c** Add language switcher to `_Layout.cshtml` with `CultureController.SetCulture` action to set cookie
+- [ ] **24d** Localize shared layout: navigation labels, footer, flash message text
+- [ ] **24e** Localize public views: Houses (list, details, search), Areas (list, details), Home page
+- [ ] **24f** Add `NameEn` to `Feature` and `Area` entities, migration
+- [ ] **24g** Update DTOs and services to return localized names based on `CultureInfo.CurrentCulture`
+- [ ] **24h** Localize admin views (optional — admin is typically internal, can stay Danish initially)
+- [ ] **24i** Localize validation error messages via DataAnnotations localization
+- [ ] **24j** Tests: culture switching, localized API responses, fallback behavior
+
+**Estimated effort**: 10–15 hours | **Priority**: Medium
+
+---
+
+## Phase 25: Stress Testing & Realistic Seed Data
+
+**Goal**: Generate a realistic Danish dataset for development and load testing, then stress test the system to establish performance baselines — specifically **before and after Phase 20 (Price Snapshots)** to measure the impact of pre-computed pricing.
+
+**Dependencies**: Should be completed before Phase 20 to establish baseline metrics. Run again after Phase 20 for comparison.
+
+### Design
+
+#### Realistic Seed Data
+
+**Danish geography** (from DAWA API — `dawa.aws.dk`):
+
+- All ~1,300 Danish zip codes with city names
+- Municipalities and regions for area generation
+- Real addresses for realistic house locations
+
+**Data volumes** (configurable via parameters):
+
+| Entity                 | Development         | Stress Test     |
+| ---------------------- | ------------------- | --------------- |
+| Cities (zip codes)     | ~1,300 (all Danish) | ~1,300          |
+| Areas                  | 50                  | 100             |
+| Houses                 | 500                 | 5,000–10,000    |
+| Features               | 25                  | 25              |
+| HouseFeatureValues     | ~5,000              | ~50,000–100,000 |
+| Season Calendars       | 10                  | 50              |
+| Price Plans            | 500                 | 5,000–10,000    |
+| Season Prices          | ~3,000              | ~30,000–60,000  |
+| Availability Blocks    | ~1,000              | ~10,000–20,000  |
+| Images (metadata only) | ~2,500              | ~25,000–50,000  |
+
+**Data generation approach**:
+
+- `Bogus` NuGet package for realistic fake data (house titles, descriptions, addresses)
+- Danish zip codes fetched from DAWA API or bundled as `DanishGeoData.json`
+- Features distributed realistically (90% have wifi, 15% have pool, etc.)
+- Season calendars with realistic Danish holiday patterns (summer high season Jun–Aug, winter low season Nov–Feb)
+- Prices in realistic DKK ranges (500–5,000/night depending on season and house size)
+- Availability blocks: ~60% available, ~20% booked, ~20% owner-blocked
+
+#### Load Testing Tool
+
+**Recommendation: k6** (open source by Grafana Labs)
+
+- JavaScript-based test scripts — easy to write and maintain
+- Runs locally — no infrastructure or cloud accounts needed
+- Excellent metrics: p50/p95/p99 response times, throughput, error rates
+- Export to JSON/CSV for before/after comparison
+
+Alternative: **NBomber** (.NET native, if the team prefers C# test scripts)
+
+#### Test Scenarios
+
+| Scenario                 | Description                                               | Target      |
+| ------------------------ | --------------------------------------------------------- | ----------- |
+| **Public Search**        | Search with various filters (area, features, price range) | < 200ms p95 |
+| **House Detail + Price** | Load house detail page + compute price quote              | < 300ms p95 |
+| **Search Pagination**    | Browse through 10 pages of results                        | < 200ms p95 |
+| **Concurrent Users**     | 50–200 simultaneous users browsing and searching          | < 500ms p95 |
+| **Admin CRUD**           | Create/update houses, change prices                       | < 500ms p95 |
+
+#### Benchmark Protocol
+
+1. **Baseline** (before Phase 20): Seed 5,000 houses → run all scenarios → record metrics
+2. **After Phase 20**: Same data → same scenarios → compare metrics
+3. **Document**: Response time improvement, query count reduction, throughput change
+4. **Report**: Markdown file in `stress-tests/results/` with side-by-side comparison
+
+#### Implementation Structure
+
+```
+Sommerhus.Core/
+├── Data/
+│   ├── DbSeeder.cs                  (existing — minimal dev seed)
+│   ├── StressDataGenerator.cs       (NEW — generates realistic bulk data)
+│   └── DanishGeoData.json           (bundled zip codes/cities from DAWA)
+
+stress-tests/
+├── k6/
+│   ├── public-search.js             (search with filters)
+│   ├── house-detail.js              (detail page + pricing)
+│   ├── concurrent-browse.js         (multi-user simulation)
+│   └── admin-crud.js                (admin operations under load)
+├── results/
+│   ├── baseline-YYYY-MM-DD.json     (before Phase 20)
+│   └── post-phase20-YYYY-MM-DD.json (after Phase 20)
+└── README.md                         (how to run tests, interpret results)
+```
+
+#### Admin Endpoint for Data Generation
+
+```http
+POST   /api/admin/stress/seed?houses=5000    # Generate realistic data
+DELETE /api/admin/stress/clear                # Remove generated data
+```
+
+Protected by admin auth. Only available in `Development` / `Testing` environments (guarded by `IHostEnvironment` check).
+
+### Tasks
+
+- [x] **25a** Bundle Danish zip code/city data (JSON from DAWA API, 1,089 entries as embedded resource)
+- [x] **25b** Add `Bogus` NuGet package, build `StressDataGenerator` service with configurable entity counts
+- [x] **25c** Generate realistic features with proper categorization and distribution (depends on Phase 23)
+- [x] **25d** Generate realistic pricing: season calendars, price plans, season prices in DKK ranges
+- [x] **25e** Generate realistic availability blocks (available/booked/blocked distribution)
+- [x] **25f** Admin API: `POST /api/admin/stress/seed` + `DELETE /api/admin/stress/clear` (dev/test only)
+- [x] **25g** Write k6 load test scripts for all scenarios (search, detail, concurrent, admin)
+- [ ] **25h** Run baseline benchmark (before Phase 20), save results to `stress-tests/results/` _(deferred — run when ready for Phase 20)_
+- [ ] **25i** After Phase 20: run comparison benchmark, document improvement in results report _(deferred — depends on Phase 20)_
+- [x] **25j** Tests: verify data generator produces valid, queryable data with correct relationships (5 integration tests)
+
+**Estimated effort**: 10–15 hours | **Priority**: High
+
+---
+
 ## Phase Dependency Graph
 
 ```
-Phase 16 (Calendar)  ──┐
-                       ├──→ Phase 20 (Price Snapshots) ──→ Phase 22 (Search)
-Phase 17 (Audit)       │                                        ↑
-                       │                                        │
-Phase 18 (Status)  ────┤──→ Phase 21 (Availability) ───────────┘
-                       │
-Phase 19 (Concurrency) ┘
+Phase 16 (Calendar) ✅ ──┐
+                         ├──→ Phase 20 (Price Snapshots) ──┐
+Phase 17 (Audit) ✅      │                                 │
+                         │                                 ├──→ Phase 22 (Search)
+Phase 18 (Status) ✅ ────┤──→ Phase 21 (Availability) ────┘         ↑
+                         │                                           │
+Phase 19 (Concurrency)  ─┘                                          │
+                                                                     │
+Phase 23 (Feature Categories) ──────────────────────────────────────┘
+
+Phase 24 (i18n) ──────── independent, can start anytime after Phase 15
+
+Phase 25 (Stress Test) ── before Phase 20 (baseline) → after Phase 20 (comparison)
 ```
 
-**Recommended order**: 17 → 19 → 18 → 16 → 20 → 21 → 22
+**Recommended order**: ~~17 → 19 → 18 → 16~~ (done) → **23 → 25 → 19 → 20 → 22 → 24 → 21-UI**
 
-- **17 (Audit)** first: every subsequent phase benefits from change tracking
-- **19 (Concurrency)** early: prevents data loss as more admins use the system
-- **18 (Status)** before public features: controls what's visible
-- **16 (Calendar)** before pricing: pricing depends on resolved calendar
-- **20 (Price Snapshots)** after calendar: needs the resolution logic
-- **21 (Availability)** after status: only published houses need availability
-- **22 (Search)** last: aggregates data from all previous phases
+- **23 (Feature Categories)** first: prerequisite for search engine, low-risk domain change
+- **25 (Stress Test)** early: establishes baseline before pricing optimization
+- **19 (Concurrency)** next: prevents data loss as admin usage grows
+- **20 (Price Snapshots)** after 25 baseline: then re-run stress test to measure improvement
+- **22 (Search)** after 20 + 23: aggregates price summaries and categorized features
+- **24 (i18n)** anytime: independent, can be parallelized with other work
+- **21 UI** (deferred tasks 21d/21f/21g): after Phase 20 and 22 are done
 
 ---
 
@@ -1615,16 +1975,19 @@ After completing all phases:
 | Phase 14d | 1 hour           | Low      | **Completed** |
 | Phase 15a | 30 min           | High     | **Completed** |
 | Phase 15b | 3-4 hours        | Medium   | **Completed** |
-| Phase 16  | 8-12 hours       | High     | Pending       |
+| Phase 16  | 8-12 hours       | High     | **Completed** |
 | Phase 17  | 6-10 hours       | High     | **Completed** |
-| Phase 18  | 5-8 hours        | High     | Pending       |
+| Phase 18  | 5-8 hours        | High     | **Completed** |
 | Phase 19  | 5-7 hours        | Medium   | Pending       |
 | Phase 20  | 8-12 hours       | High     | Pending       |
-| Phase 21  | 8-12 hours       | High     | Pending       |
+| Phase 21  | 8-12 hours       | High     | **Partial**   |
 | Phase 22  | 10-15 hours      | Medium   | Pending       |
+| Phase 23  | 5-8 hours        | High     | **Completed** |
+| Phase 24  | 10-15 hours      | Medium   | Pending       |
+| Phase 25  | 10-15 hours      | High     | **Partial**   |
 
 **Remaining (refactoring)**: ~23-33 hours
-**Remaining (enterprise)**: ~50-76 hours
+**Remaining (enterprise)**: ~75-114 hours
 
 ---
 

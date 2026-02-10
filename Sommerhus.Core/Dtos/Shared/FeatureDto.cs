@@ -11,6 +11,9 @@ public sealed record FeatureDto(
     string Name,
     string Key,
     FeatureValueType ValueType,
+    FeatureCategory Category,
+    bool IsSearchable,
+    string? Options = null,
     string? Unit = null,
     string? IconUrl = null,
     string? Description = null);
@@ -22,5 +25,8 @@ public sealed record UpsertFeatureDto(
     [Required, MaxLength(100)] string Name,
     [Required, MaxLength(50)] string Key,
     [Required] string ValueType,
+    string? Category = null,
+    bool IsSearchable = true,
+    [MaxLength(500)] string? Options = null,
     [MaxLength(20)] string? Unit = null,
     [MaxLength(500)] string? IconUrl = null);

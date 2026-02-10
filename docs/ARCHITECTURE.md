@@ -37,7 +37,7 @@ Models/
 ├── VacationHouse.cs      # Main entity - vacation rental property
 ├── City.cs               # Location entity
 ├── Area.cs               # Geographic region grouping cities
-├── Feature.cs            # Property features (pool, wifi, etc.)
+├── Feature.cs            # Property features (pool, wifi, etc.) — Phase 23 adds Category, IsSearchable, Options
 ├── HouseFeatureValue.cs  # Feature values per house
 ├── HouseImage.cs         # Image metadata
 ├── HouseGroup.cs         # Grouping for pricing

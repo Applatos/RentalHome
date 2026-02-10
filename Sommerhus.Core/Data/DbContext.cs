@@ -47,12 +47,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
             e.Property(x => x.Key).IsRequired().HasMaxLength(60);
             e.HasIndex(x => x.Key).IsUnique();
+            e.Property(x => x.Options).HasMaxLength(500);
+            e.HasIndex(x => x.IsSearchable);
         });
 
         // House
         b.Entity<VacationHouse>(e =>
         {
             e.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            e.Property(x => x.SearchKeywords).HasMaxLength(500);
             e.HasOne(x => x.City)
                 .WithMany(c => c.Houses)
                 .HasForeignKey(x => x.CityId)

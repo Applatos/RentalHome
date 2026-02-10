@@ -18,5 +18,8 @@ public sealed class UpsertHouseDto
     [Required(ErrorMessage = "Description is required.")]
     public string Description { get; set; } = string.Empty;
 
+    [MaxLength(500, ErrorMessage = "Search keywords must be at most 500 characters.")]
+    public string? SearchKeywords { get; set; }
+
     public List<Guid> AreaIds { get; set; } = new();
 }

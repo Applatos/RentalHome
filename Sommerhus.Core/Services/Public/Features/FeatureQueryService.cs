@@ -25,7 +25,25 @@ public sealed class FeatureQueryService : IFeatureQueryService
         return rows.Select(f =>
         {
             var icon = storage.GetUrl(baseUrl, f.IconUrl);
-            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType, f.Unit, icon);
+            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType, f.Category, f.IsSearchable, f.Options, f.Unit, icon);
         }).ToList();
+    }
+
+    public async Task<Dictionary<string, IReadOnlyList<SearchableFeatureDto>>> GetSearchableAsync(CancellationToken ct)
+    {
+        var rows = await db.Features.AsNoTracking()
+            .Where(f => f.IsSearchable)
+            .OrderBy(f => f.Category)
+            .ThenBy(f => f.SortOrder)
+            .ThenBy(f => f.Name)
+            .ToListAsync(ct);
+
+        return rows
+            .GroupBy(f => f.Category.ToString())
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<SearchableFeatureDto>)g
+                    .Select(f => new SearchableFeatureDto(f.Key, f.Name, f.ValueType, f.Unit, f.Options))
+                    .ToList());
     }
 }

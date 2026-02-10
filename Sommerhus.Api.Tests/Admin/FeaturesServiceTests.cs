@@ -30,7 +30,7 @@ public sealed class FeaturesServiceTests : IClassFixture<CustomWebApplicationFac
         var service = scope.ServiceProvider.GetRequiredService<IAdminFeatureService>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var dto = new UpsertFeatureDto("Pool", " pool_key ", "Bool", " ", null);
+        var dto = new UpsertFeatureDto("Pool", " pool_key ", "Bool", Unit: " ");
 
         var result = await service.CreateAsync(dto, CancellationToken.None);
 
@@ -51,16 +51,17 @@ public sealed class FeaturesServiceTests : IClassFixture<CustomWebApplicationFac
         var service = scope.ServiceProvider.GetRequiredService<IAdminFeatureService>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+        var uniqueKey = $"duptest_{Guid.NewGuid():N}"[..30];
         db.Features.Add(new Feature
         {
             Id = Guid.NewGuid(),
-            Name = "Wifi",
-            Key = "wifi",
+            Name = "Dup Test Feature",
+            Key = uniqueKey,
             ValueType = FeatureValueType.Bool,
         });
         await db.SaveChangesAsync();
 
-        var dto = new UpsertFeatureDto("Wifi 2", "wifi", "Bool", null, null);
+        var dto = new UpsertFeatureDto("Dup Test Feature 2", uniqueKey, "Bool");
 
         var result = await service.CreateAsync(dto, CancellationToken.None);
 

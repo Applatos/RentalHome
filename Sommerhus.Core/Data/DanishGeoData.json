@@ -1,0 +1,5447 @@
+[
+  {
+    "nr": "1050",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1051",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1052",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1053",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1054",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1055",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1056",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1057",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1058",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1059",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1060",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1061",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1062",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1063",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1064",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1065",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1066",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1067",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1068",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1069",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1070",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1071",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1072",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1073",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1074",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1100",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1101",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1102",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1103",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1104",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1105",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1106",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1107",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1110",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1111",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1112",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1113",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1114",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1115",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1116",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1117",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1118",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1119",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1120",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1121",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1122",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1123",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1124",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1125",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1126",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1127",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1128",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1129",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1130",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1131",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1150",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1151",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1152",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1153",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1154",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1155",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1156",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1157",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1158",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1159",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1160",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1161",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1162",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1164",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1165",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1166",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1167",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1168",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1169",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1170",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1171",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1172",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1173",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1174",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1175",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1200",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1201",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1202",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1203",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1204",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1205",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1206",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1207",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1208",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1209",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1210",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1211",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1212",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1213",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1214",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1215",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1216",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1218",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1219",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1220",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1221",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1250",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1251",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1252",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1253",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1254",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1255",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1256",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1257",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1259",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1260",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1261",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1263",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1264",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1265",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1266",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1267",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1268",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1270",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1271",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1300",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1301",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1302",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1303",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1304",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1306",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1307",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1308",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1309",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1310",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1311",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1312",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1313",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1314",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1315",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1316",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1317",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1318",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1319",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1320",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1321",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1322",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1323",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1324",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1325",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1326",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1327",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1328",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1329",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1350",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1352",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1353",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1354",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1355",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1356",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1357",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1358",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1359",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1360",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1361",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1362",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1363",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1364",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1365",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1366",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1367",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1368",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1369",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1370",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1371",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1400",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1401",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1402",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1403",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1406",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1407",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1408",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1409",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1410",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1411",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1412",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1413",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1414",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1415",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1416",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1417",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1418",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1419",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1420",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1421",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1422",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1423",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1424",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1425",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1426",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1427",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1428",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1429",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1430",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1432",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1433",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1434",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1435",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1436",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1437",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1438",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1439",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1440",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1441",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1450",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1451",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1452",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1453",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1454",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1455",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1456",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1457",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1458",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1459",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1460",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1461",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1462",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1463",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1464",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1465",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1466",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1467",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1468",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1470",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1471",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1472",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1473",
+    "navn": "København K",
+    "kommune": "København"
+  },
+  {
+    "nr": "1550",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1551",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1552",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1553",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1554",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1555",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1556",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1557",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1558",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1559",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1560",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1561",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1562",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1563",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1564",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1567",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1568",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1569",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1570",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1571",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1572",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1573",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1574",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1575",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1576",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1577",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1600",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1601",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1602",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1603",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1604",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1605",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1606",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1607",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1608",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1609",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1610",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1611",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1612",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1613",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1614",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1615",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1616",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1617",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1618",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1619",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1620",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1621",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1622",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1623",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1624",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1631",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1632",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1633",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1634",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1635",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1650",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1651",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1652",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1653",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1654",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1655",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1656",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1657",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1658",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1659",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1660",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1661",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1662",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1663",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1664",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1665",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1666",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1667",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1668",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1669",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1670",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1671",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1672",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1673",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1674",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1675",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1676",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1677",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1699",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1700",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1701",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1702",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1703",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1704",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1705",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1706",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1707",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1708",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1709",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1710",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1711",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1712",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1714",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1715",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1716",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1717",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1718",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1719",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1720",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1721",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1722",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1723",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1724",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1725",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1726",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1727",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1728",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1729",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1730",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1731",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1732",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1733",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1734",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1735",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1736",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1737",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1738",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1739",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1749",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1750",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1751",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1752",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1753",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1754",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1755",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1756",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1757",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1758",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1759",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1760",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1761",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1762",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1763",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1764",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1765",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1766",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1770",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1771",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1772",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1773",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1774",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1775",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1777",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1799",
+    "navn": "København V",
+    "kommune": "København"
+  },
+  {
+    "nr": "1800",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1801",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1802",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1803",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1804",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1805",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1806",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1807",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1808",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1809",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1810",
+    "navn": "Frederiksberg C",
+    "kommune": "København"
+  },
+  {
+    "nr": "1811",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1812",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1813",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1814",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1815",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1816",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1817",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1818",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1819",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1820",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1822",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1823",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1824",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1825",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1826",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1827",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1828",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1829",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1850",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1851",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1852",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1853",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1854",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1855",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1856",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1857",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1860",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1861",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1862",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1863",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1864",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1865",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1866",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1867",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1868",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1870",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1871",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1872",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1873",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1874",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1875",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1876",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1877",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1878",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1879",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1900",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1901",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1902",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1903",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1904",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1905",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1906",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1908",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1909",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1910",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1911",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1912",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1913",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1914",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1915",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1916",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1917",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1920",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1921",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1922",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1923",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1924",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1925",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1926",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1927",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1928",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1950",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1951",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1952",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1953",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1954",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1955",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1956",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1957",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1958",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1959",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1960",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1961",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1962",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1963",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1964",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1965",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1966",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1967",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1970",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1971",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1972",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1973",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "1974",
+    "navn": "Frederiksberg C",
+    "kommune": "Frederiksberg"
+  },
+  {
+    "nr": "2000",
+    "navn": "Frederiksberg",
+    "kommune": "København"
+  },
+  {
+    "nr": "2100",
+    "navn": "København Ø",
+    "kommune": "København"
+  },
+  {
+    "nr": "2150",
+    "navn": "Nordhavn",
+    "kommune": "København"
+  },
+  {
+    "nr": "2200",
+    "navn": "København N",
+    "kommune": "København"
+  },
+  {
+    "nr": "2300",
+    "navn": "København S",
+    "kommune": "København"
+  },
+  {
+    "nr": "2400",
+    "navn": "København NV",
+    "kommune": "København"
+  },
+  {
+    "nr": "2450",
+    "navn": "København SV",
+    "kommune": "København"
+  },
+  {
+    "nr": "2500",
+    "navn": "Valby",
+    "kommune": "København"
+  },
+  {
+    "nr": "2600",
+    "navn": "Glostrup",
+    "kommune": "Brøndby"
+  },
+  {
+    "nr": "2605",
+    "navn": "Brøndby",
+    "kommune": "Brøndby"
+  },
+  {
+    "nr": "2610",
+    "navn": "Rødovre",
+    "kommune": "København"
+  },
+  {
+    "nr": "2620",
+    "navn": "Albertslund",
+    "kommune": "Brøndby"
+  },
+  {
+    "nr": "2625",
+    "navn": "Vallensbæk",
+    "kommune": "Vallensbæk"
+  },
+  {
+    "nr": "2630",
+    "navn": "Taastrup",
+    "kommune": "Albertslund"
+  },
+  {
+    "nr": "2635",
+    "navn": "Ishøj",
+    "kommune": "Ishøj"
+  },
+  {
+    "nr": "2640",
+    "navn": "Hedehusene",
+    "kommune": "Høje-Taastrup"
+  },
+  {
+    "nr": "2650",
+    "navn": "Hvidovre",
+    "kommune": "Brøndby"
+  },
+  {
+    "nr": "2660",
+    "navn": "Brøndby Strand",
+    "kommune": "Brøndby"
+  },
+  {
+    "nr": "2665",
+    "navn": "Vallensbæk Strand",
+    "kommune": "Vallensbæk"
+  },
+  {
+    "nr": "2670",
+    "navn": "Greve",
+    "kommune": "Greve"
+  },
+  {
+    "nr": "2680",
+    "navn": "Solrød Strand",
+    "kommune": "Solrød"
+  },
+  {
+    "nr": "2690",
+    "navn": "Karlslunde",
+    "kommune": "Greve"
+  },
+  {
+    "nr": "2700",
+    "navn": "Brønshøj",
+    "kommune": "København"
+  },
+  {
+    "nr": "2720",
+    "navn": "Vanløse",
+    "kommune": "København"
+  },
+  {
+    "nr": "2730",
+    "navn": "Herlev",
+    "kommune": "Ballerup"
+  },
+  {
+    "nr": "2740",
+    "navn": "Skovlunde",
+    "kommune": "Ballerup"
+  },
+  {
+    "nr": "2750",
+    "navn": "Ballerup",
+    "kommune": "Ballerup"
+  },
+  {
+    "nr": "2760",
+    "navn": "Måløv",
+    "kommune": "Ballerup"
+  },
+  {
+    "nr": "2765",
+    "navn": "Smørum",
+    "kommune": "Egedal"
+  },
+  {
+    "nr": "2770",
+    "navn": "Kastrup",
+    "kommune": "København"
+  },
+  {
+    "nr": "2791",
+    "navn": "Dragør",
+    "kommune": "Dragør"
+  },
+  {
+    "nr": "2800",
+    "navn": "Kongens Lyngby",
+    "kommune": "Gentofte"
+  },
+  {
+    "nr": "2820",
+    "navn": "Gentofte",
+    "kommune": "Gentofte"
+  },
+  {
+    "nr": "2830",
+    "navn": "Virum",
+    "kommune": "Lyngby-Taarbæk"
+  },
+  {
+    "nr": "2840",
+    "navn": "Holte",
+    "kommune": "Lyngby-Taarbæk"
+  },
+  {
+    "nr": "2850",
+    "navn": "Nærum",
+    "kommune": "Rudersdal"
+  },
+  {
+    "nr": "2860",
+    "navn": "Søborg",
+    "kommune": "København"
+  },
+  {
+    "nr": "2870",
+    "navn": "Dyssegård",
+    "kommune": "Gentofte"
+  },
+  {
+    "nr": "2880",
+    "navn": "Bagsværd",
+    "kommune": "Gladsaxe"
+  },
+  {
+    "nr": "2900",
+    "navn": "Hellerup",
+    "kommune": "København"
+  },
+  {
+    "nr": "2920",
+    "navn": "Charlottenlund",
+    "kommune": "Gentofte"
+  },
+  {
+    "nr": "2930",
+    "navn": "Klampenborg",
+    "kommune": "Gentofte"
+  },
+  {
+    "nr": "2942",
+    "navn": "Skodsborg",
+    "kommune": "Rudersdal"
+  },
+  {
+    "nr": "2950",
+    "navn": "Vedbæk",
+    "kommune": "Hørsholm"
+  },
+  {
+    "nr": "2960",
+    "navn": "Rungsted Kyst",
+    "kommune": "Hørsholm"
+  },
+  {
+    "nr": "2970",
+    "navn": "Hørsholm",
+    "kommune": "Allerød"
+  },
+  {
+    "nr": "2980",
+    "navn": "Kokkedal",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "2990",
+    "navn": "Nivå",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "3000",
+    "navn": "Helsingør",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3050",
+    "navn": "Humlebæk",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "3060",
+    "navn": "Espergærde",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "3070",
+    "navn": "Snekkersten",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3080",
+    "navn": "Tikøb",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3100",
+    "navn": "Hornbæk",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3120",
+    "navn": "Dronningmølle",
+    "kommune": "Gribskov"
+  },
+  {
+    "nr": "3140",
+    "navn": "Ålsgårde",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3150",
+    "navn": "Hellebæk",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3200",
+    "navn": "Helsinge",
+    "kommune": "Hillerød"
+  },
+  {
+    "nr": "3210",
+    "navn": "Vejby",
+    "kommune": "Gribskov"
+  },
+  {
+    "nr": "3220",
+    "navn": "Tisvildeleje",
+    "kommune": "Gribskov"
+  },
+  {
+    "nr": "3230",
+    "navn": "Græsted",
+    "kommune": "Helsingør"
+  },
+  {
+    "nr": "3250",
+    "navn": "Gilleleje",
+    "kommune": "Gribskov"
+  },
+  {
+    "nr": "3300",
+    "navn": "Frederiksværk",
+    "kommune": "Halsnæs"
+  },
+  {
+    "nr": "3310",
+    "navn": "Ølsted",
+    "kommune": "Hillerød"
+  },
+  {
+    "nr": "3320",
+    "navn": "Skævinge",
+    "kommune": "Hillerød"
+  },
+  {
+    "nr": "3330",
+    "navn": "Gørløse",
+    "kommune": "Hillerød"
+  },
+  {
+    "nr": "3360",
+    "navn": "Liseleje",
+    "kommune": "Halsnæs"
+  },
+  {
+    "nr": "3370",
+    "navn": "Melby",
+    "kommune": "Halsnæs"
+  },
+  {
+    "nr": "3390",
+    "navn": "Hundested",
+    "kommune": "Halsnæs"
+  },
+  {
+    "nr": "3400",
+    "navn": "Hillerød",
+    "kommune": "Allerød"
+  },
+  {
+    "nr": "3450",
+    "navn": "Allerød",
+    "kommune": "Allerød"
+  },
+  {
+    "nr": "3460",
+    "navn": "Birkerød",
+    "kommune": "Furesø"
+  },
+  {
+    "nr": "3480",
+    "navn": "Fredensborg",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "3490",
+    "navn": "Kvistgård",
+    "kommune": "Fredensborg"
+  },
+  {
+    "nr": "3500",
+    "navn": "Værløse",
+    "kommune": "Ballerup"
+  },
+  {
+    "nr": "3520",
+    "navn": "Farum",
+    "kommune": "Furesø"
+  },
+  {
+    "nr": "3540",
+    "navn": "Lynge",
+    "kommune": "Furesø"
+  },
+  {
+    "nr": "3550",
+    "navn": "Slangerup",
+    "kommune": "Allerød"
+  },
+  {
+    "nr": "3600",
+    "navn": "Frederikssund",
+    "kommune": "Hillerød"
+  },
+  {
+    "nr": "3630",
+    "navn": "Jægerspris",
+    "kommune": "Frederikssund"
+  },
+  {
+    "nr": "3650",
+    "navn": "Ølstykke",
+    "kommune": "Egedal"
+  },
+  {
+    "nr": "3660",
+    "navn": "Stenløse",
+    "kommune": "Egedal"
+  },
+  {
+    "nr": "3670",
+    "navn": "Veksø Sjælland",
+    "kommune": "Egedal"
+  },
+  {
+    "nr": "3700",
+    "navn": "Rønne",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3720",
+    "navn": "Aakirkeby",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3730",
+    "navn": "Nexø",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3740",
+    "navn": "Svaneke",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3751",
+    "navn": "Østermarie",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3760",
+    "navn": "Gudhjem",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3770",
+    "navn": "Allinge",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3782",
+    "navn": "Klemensker",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "3790",
+    "navn": "Hasle",
+    "kommune": "Bornholm"
+  },
+  {
+    "nr": "4000",
+    "navn": "Roskilde",
+    "kommune": "Høje-Taastrup"
+  },
+  {
+    "nr": "4030",
+    "navn": "Tune",
+    "kommune": "Greve"
+  },
+  {
+    "nr": "4040",
+    "navn": "Jyllinge",
+    "kommune": "Roskilde"
+  },
+  {
+    "nr": "4050",
+    "navn": "Skibby",
+    "kommune": "Frederikssund"
+  },
+  {
+    "nr": "4060",
+    "navn": "Kirke Såby",
+    "kommune": "Lejre"
+  },
+  {
+    "nr": "4070",
+    "navn": "Kirke Hyllinge",
+    "kommune": "Lejre"
+  },
+  {
+    "nr": "4100",
+    "navn": "Ringsted",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4130",
+    "navn": "Viby Sjælland",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4140",
+    "navn": "Borup",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4160",
+    "navn": "Herlufmagle",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4171",
+    "navn": "Glumsø",
+    "kommune": "Næstved"
+  },
+  {
+    "nr": "4173",
+    "navn": "Fjenneslev",
+    "kommune": "Ringsted"
+  },
+  {
+    "nr": "4174",
+    "navn": "Jystrup Midtsj",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4180",
+    "navn": "Sorø",
+    "kommune": "Ringsted"
+  },
+  {
+    "nr": "4190",
+    "navn": "Munke Bjergby",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4200",
+    "navn": "Slagelse",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4220",
+    "navn": "Korsør",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4230",
+    "navn": "Skælskør",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4241",
+    "navn": "Vemmelev",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4242",
+    "navn": "Boeslunde",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4243",
+    "navn": "Rude",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4244",
+    "navn": "Agersø",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4245",
+    "navn": "Omø",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4250",
+    "navn": "Fuglebjerg",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4261",
+    "navn": "Dalmose",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4262",
+    "navn": "Sandved",
+    "kommune": "Slagelse"
+  },
+  {
+    "nr": "4270",
+    "navn": "Høng",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4281",
+    "navn": "Gørlev",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4291",
+    "navn": "Ruds Vedby",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4293",
+    "navn": "Dianalund",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4295",
+    "navn": "Stenlille",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4296",
+    "navn": "Nyrup",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4300",
+    "navn": "Holbæk",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4305",
+    "navn": "Orø",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4320",
+    "navn": "Lejre",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4330",
+    "navn": "Hvalsø",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4340",
+    "navn": "Tølløse",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4350",
+    "navn": "Ugerløse",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4360",
+    "navn": "Kirke Eskilstrup",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4370",
+    "navn": "Store Merløse",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4390",
+    "navn": "Vipperød",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4400",
+    "navn": "Kalundborg",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4420",
+    "navn": "Regstrup",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4440",
+    "navn": "Mørkøv",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4450",
+    "navn": "Jyderup",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4460",
+    "navn": "Snertinge",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4470",
+    "navn": "Svebølle",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4480",
+    "navn": "Store Fuglede",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4490",
+    "navn": "Jerslev Sjælland",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4500",
+    "navn": "Nykøbing Sj",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4520",
+    "navn": "Svinninge",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4532",
+    "navn": "Gislinge",
+    "kommune": "Holbæk"
+  },
+  {
+    "nr": "4534",
+    "navn": "Hørve",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4540",
+    "navn": "Fårevejle",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4550",
+    "navn": "Asnæs",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4560",
+    "navn": "Vig",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4571",
+    "navn": "Grevinge",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4572",
+    "navn": "Nørre Asmindrup",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4573",
+    "navn": "Højby",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4581",
+    "navn": "Rørvig",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4583",
+    "navn": "Sjællands Odde",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4591",
+    "navn": "Føllenslev",
+    "kommune": "Odsherred"
+  },
+  {
+    "nr": "4592",
+    "navn": "Sejerø",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4593",
+    "navn": "Eskebjerg",
+    "kommune": "Kalundborg"
+  },
+  {
+    "nr": "4600",
+    "navn": "Køge",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4621",
+    "navn": "Gadstrup",
+    "kommune": "Roskilde"
+  },
+  {
+    "nr": "4622",
+    "navn": "Havdrup",
+    "kommune": "Roskilde"
+  },
+  {
+    "nr": "4623",
+    "navn": "Lille Skensved",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4632",
+    "navn": "Bjæverskov",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4640",
+    "navn": "Faxe",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4652",
+    "navn": "Hårlev",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4653",
+    "navn": "Karise",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4654",
+    "navn": "Faxe Ladeplads",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4660",
+    "navn": "Store Heddinge",
+    "kommune": "Stevns"
+  },
+  {
+    "nr": "4671",
+    "navn": "Strøby",
+    "kommune": "Stevns"
+  },
+  {
+    "nr": "4672",
+    "navn": "Klippinge",
+    "kommune": "Stevns"
+  },
+  {
+    "nr": "4673",
+    "navn": "Rødvig Stevns",
+    "kommune": "Stevns"
+  },
+  {
+    "nr": "4681",
+    "navn": "Herfølge",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4682",
+    "navn": "Tureby",
+    "kommune": "Køge"
+  },
+  {
+    "nr": "4683",
+    "navn": "Rønnede",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4684",
+    "navn": "Holmegaard",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4690",
+    "navn": "Haslev",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4700",
+    "navn": "Næstved",
+    "kommune": "Næstved"
+  },
+  {
+    "nr": "4720",
+    "navn": "Præstø",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4733",
+    "navn": "Tappernøje",
+    "kommune": "Faxe"
+  },
+  {
+    "nr": "4735",
+    "navn": "Mern",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4736",
+    "navn": "Karrebæksminde",
+    "kommune": "Næstved"
+  },
+  {
+    "nr": "4750",
+    "navn": "Lundby",
+    "kommune": "Næstved"
+  },
+  {
+    "nr": "4760",
+    "navn": "Vordingborg",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4771",
+    "navn": "Kalvehave",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4772",
+    "navn": "Langebæk",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4773",
+    "navn": "Stensved",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4780",
+    "navn": "Stege",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4791",
+    "navn": "Borre",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4792",
+    "navn": "Askeby",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4793",
+    "navn": "Bogø By",
+    "kommune": "Vordingborg"
+  },
+  {
+    "nr": "4800",
+    "navn": "Nykøbing F",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4840",
+    "navn": "Nørre Alslev",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4850",
+    "navn": "Stubbekøbing",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4862",
+    "navn": "Guldborg",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4863",
+    "navn": "Eskilstrup",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4871",
+    "navn": "Horbelev",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4872",
+    "navn": "Idestrup",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4873",
+    "navn": "Væggerløse",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4874",
+    "navn": "Gedser",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4880",
+    "navn": "Nysted",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4891",
+    "navn": "Toreby L",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4892",
+    "navn": "Kettinge",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "4894",
+    "navn": "Øster Ulslev",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4895",
+    "navn": "Errindlev",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4900",
+    "navn": "Nakskov",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4912",
+    "navn": "Harpelunde",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4913",
+    "navn": "Horslunde",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4920",
+    "navn": "Søllested",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4930",
+    "navn": "Maribo",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4941",
+    "navn": "Bandholm",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4942",
+    "navn": "Askø",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4943",
+    "navn": "Torrig L",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4944",
+    "navn": "Fejø",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4945",
+    "navn": "Femø",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4951",
+    "navn": "Nørreballe",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4952",
+    "navn": "Stokkemarke",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4953",
+    "navn": "Vesterborg",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4960",
+    "navn": "Holeby",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4970",
+    "navn": "Rødby",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4983",
+    "navn": "Dannemare",
+    "kommune": "Lolland"
+  },
+  {
+    "nr": "4990",
+    "navn": "Sakskøbing",
+    "kommune": "Guldborgsund"
+  },
+  {
+    "nr": "5000",
+    "navn": "Odense C",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5200",
+    "navn": "Odense V",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5210",
+    "navn": "Odense NV",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5220",
+    "navn": "Odense SØ",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5230",
+    "navn": "Odense M",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5240",
+    "navn": "Odense NØ",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5250",
+    "navn": "Odense SV",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5260",
+    "navn": "Odense S",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5270",
+    "navn": "Odense N",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5290",
+    "navn": "Marslev",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5300",
+    "navn": "Kerteminde",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5320",
+    "navn": "Agedrup",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5330",
+    "navn": "Munkebo",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5350",
+    "navn": "Rynkeby",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5370",
+    "navn": "Mesinge",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5380",
+    "navn": "Dalby",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5390",
+    "navn": "Martofte",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5400",
+    "navn": "Bogense",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5450",
+    "navn": "Otterup",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5462",
+    "navn": "Morud",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5463",
+    "navn": "Harndrup",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5464",
+    "navn": "Brenderup Fyn",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5466",
+    "navn": "Asperup",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5471",
+    "navn": "Søndersø",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5474",
+    "navn": "Veflinge",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5485",
+    "navn": "Skamby",
+    "kommune": "Nordfyns"
+  },
+  {
+    "nr": "5491",
+    "navn": "Blommenslyst",
+    "kommune": "Odense"
+  },
+  {
+    "nr": "5492",
+    "navn": "Vissenbjerg",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5500",
+    "navn": "Middelfart",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5540",
+    "navn": "Ullerslev",
+    "kommune": "Kerteminde"
+  },
+  {
+    "nr": "5550",
+    "navn": "Langeskov",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5560",
+    "navn": "Aarup",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5580",
+    "navn": "Nørre Aaby",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5591",
+    "navn": "Gelsted",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5592",
+    "navn": "Ejby",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5600",
+    "navn": "Faaborg",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5601",
+    "navn": "Lyø",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5602",
+    "navn": "Avernakø",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5603",
+    "navn": "Bjørnø",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5610",
+    "navn": "Assens",
+    "kommune": "Middelfart"
+  },
+  {
+    "nr": "5620",
+    "navn": "Glamsbjerg",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5631",
+    "navn": "Ebberup",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5642",
+    "navn": "Millinge",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5672",
+    "navn": "Broby",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5683",
+    "navn": "Haarby",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5690",
+    "navn": "Tommerup",
+    "kommune": "Assens"
+  },
+  {
+    "nr": "5700",
+    "navn": "Svendborg",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5750",
+    "navn": "Ringe",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5762",
+    "navn": "Vester Skerninge",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5771",
+    "navn": "Stenstrup",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5772",
+    "navn": "Kværndrup",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5792",
+    "navn": "Årslev",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5800",
+    "navn": "Nyborg",
+    "kommune": "Nyborg"
+  },
+  {
+    "nr": "5853",
+    "navn": "Ørbæk",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5854",
+    "navn": "Gislev",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5856",
+    "navn": "Ryslinge",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5863",
+    "navn": "Ferritslev Fyn",
+    "kommune": "Faaborg-Midtfyn"
+  },
+  {
+    "nr": "5871",
+    "navn": "Frørup",
+    "kommune": "Nyborg"
+  },
+  {
+    "nr": "5874",
+    "navn": "Hesselager",
+    "kommune": "Nyborg"
+  },
+  {
+    "nr": "5881",
+    "navn": "Skårup Fyn",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5882",
+    "navn": "Vejstrup",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5883",
+    "navn": "Oure",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5884",
+    "navn": "Gudme",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5892",
+    "navn": "Gudbjerg Sydfyn",
+    "kommune": "Svendborg"
+  },
+  {
+    "nr": "5900",
+    "navn": "Rudkøbing",
+    "kommune": "Langeland"
+  },
+  {
+    "nr": "5932",
+    "navn": "Humble",
+    "kommune": "Langeland"
+  },
+  {
+    "nr": "5935",
+    "navn": "Bagenkop",
+    "kommune": "Langeland"
+  },
+  {
+    "nr": "5943",
+    "navn": "Strynø",
+    "kommune": "Langeland"
+  },
+  {
+    "nr": "5953",
+    "navn": "Tranekær",
+    "kommune": "Langeland"
+  },
+  {
+    "nr": "5960",
+    "navn": "Marstal",
+    "kommune": "Ærø"
+  },
+  {
+    "nr": "5965",
+    "navn": "Birkholm",
+    "kommune": "Ærø"
+  },
+  {
+    "nr": "5970",
+    "navn": "Ærøskøbing",
+    "kommune": "Ærø"
+  },
+  {
+    "nr": "5985",
+    "navn": "Søby Ærø",
+    "kommune": "Ærø"
+  },
+  {
+    "nr": "6000",
+    "navn": "Kolding",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6040",
+    "navn": "Egtved",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6051",
+    "navn": "Almind",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6052",
+    "navn": "Viuf",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6064",
+    "navn": "Jordrup",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6070",
+    "navn": "Christiansfeld",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6091",
+    "navn": "Bjert",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6092",
+    "navn": "Sønder Stenderup",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6093",
+    "navn": "Sjølund",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6094",
+    "navn": "Hejls",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6100",
+    "navn": "Haderslev",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6200",
+    "navn": "Aabenraa",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6210",
+    "navn": "Barsø",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6230",
+    "navn": "Rødekro",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6240",
+    "navn": "Løgumkloster",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6261",
+    "navn": "Bredebro",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6270",
+    "navn": "Tønder",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6280",
+    "navn": "Højer",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6300",
+    "navn": "Gråsten",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6310",
+    "navn": "Broager",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6320",
+    "navn": "Egernsund",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6330",
+    "navn": "Padborg",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6340",
+    "navn": "Kruså",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6360",
+    "navn": "Tinglev",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6372",
+    "navn": "Bylderup-Bov",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6392",
+    "navn": "Bolderslev",
+    "kommune": "Aabenraa"
+  },
+  {
+    "nr": "6400",
+    "navn": "Sønderborg",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6430",
+    "navn": "Nordborg",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6440",
+    "navn": "Augustenborg",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6470",
+    "navn": "Sydals",
+    "kommune": "Sønderborg"
+  },
+  {
+    "nr": "6500",
+    "navn": "Vojens",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6510",
+    "navn": "Gram",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6520",
+    "navn": "Toftlund",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6534",
+    "navn": "Agerskov",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6535",
+    "navn": "Branderup J",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6541",
+    "navn": "Bevtoft",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6560",
+    "navn": "Sommersted",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6580",
+    "navn": "Vamdrup",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6600",
+    "navn": "Vejen",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6621",
+    "navn": "Gesten",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6622",
+    "navn": "Bække",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6623",
+    "navn": "Vorbasse",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "6630",
+    "navn": "Rødding",
+    "kommune": "Haderslev"
+  },
+  {
+    "nr": "6640",
+    "navn": "Lunderskov",
+    "kommune": "Kolding"
+  },
+  {
+    "nr": "6650",
+    "navn": "Brørup",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6660",
+    "navn": "Lintrup",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6670",
+    "navn": "Holsted",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6682",
+    "navn": "Hovborg",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "6683",
+    "navn": "Føvling",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6690",
+    "navn": "Gørding",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6700",
+    "navn": "Esbjerg",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6705",
+    "navn": "Esbjerg Ø",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6710",
+    "navn": "Esbjerg V",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6715",
+    "navn": "Esbjerg N",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6720",
+    "navn": "Fanø",
+    "kommune": "Fanø"
+  },
+  {
+    "nr": "6731",
+    "navn": "Tjæreborg",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6740",
+    "navn": "Bramming",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6752",
+    "navn": "Glejbjerg",
+    "kommune": "Vejen"
+  },
+  {
+    "nr": "6753",
+    "navn": "Agerbæk",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6760",
+    "navn": "Ribe",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6771",
+    "navn": "Gredstedbro",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6780",
+    "navn": "Skærbæk",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6792",
+    "navn": "Rømø",
+    "kommune": "Tønder"
+  },
+  {
+    "nr": "6800",
+    "navn": "Varde",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6818",
+    "navn": "Årre",
+    "kommune": "Esbjerg"
+  },
+  {
+    "nr": "6823",
+    "navn": "Ansager",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "6830",
+    "navn": "Nørre Nebel",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6840",
+    "navn": "Oksbøl",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6851",
+    "navn": "Janderup Vestj",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6852",
+    "navn": "Billum",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6853",
+    "navn": "Vejers Strand",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6854",
+    "navn": "Henne",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6855",
+    "navn": "Outrup",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6857",
+    "navn": "Blåvand",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6862",
+    "navn": "Tistrup",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6870",
+    "navn": "Ølgod",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6880",
+    "navn": "Tarm",
+    "kommune": "Varde"
+  },
+  {
+    "nr": "6893",
+    "navn": "Hemmet",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6900",
+    "navn": "Skjern",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6920",
+    "navn": "Videbæk",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6933",
+    "navn": "Kibæk",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "6940",
+    "navn": "Lem St",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6950",
+    "navn": "Ringkøbing",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6960",
+    "navn": "Hvide Sande",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6971",
+    "navn": "Spjald",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6973",
+    "navn": "Ørnhøj",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "6980",
+    "navn": "Tim",
+    "kommune": "Ringkøbing-Skjern"
+  },
+  {
+    "nr": "6990",
+    "navn": "Ulfborg",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7000",
+    "navn": "Fredericia",
+    "kommune": "Fredericia"
+  },
+  {
+    "nr": "7080",
+    "navn": "Børkop",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7100",
+    "navn": "Vejle",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7120",
+    "navn": "Vejle Øst",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7130",
+    "navn": "Juelsminde",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "7140",
+    "navn": "Stouby",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "7150",
+    "navn": "Barrit",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "7160",
+    "navn": "Tørring",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7171",
+    "navn": "Uldum",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "7173",
+    "navn": "Vonge",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7182",
+    "navn": "Bredsten",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7183",
+    "navn": "Randbøl",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7184",
+    "navn": "Vandel",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7190",
+    "navn": "Billund",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "7200",
+    "navn": "Grindsted",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "7250",
+    "navn": "Hejnsvig",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "7260",
+    "navn": "Sønder Omme",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "7270",
+    "navn": "Stakroge",
+    "kommune": "Billund"
+  },
+  {
+    "nr": "7280",
+    "navn": "Sønder Felding",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7300",
+    "navn": "Jelling",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7321",
+    "navn": "Gadbjerg",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7323",
+    "navn": "Give",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7330",
+    "navn": "Brande",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7361",
+    "navn": "Ejstrupholm",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "7362",
+    "navn": "Hampen",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "7400",
+    "navn": "Herning",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7430",
+    "navn": "Ikast",
+    "kommune": "Ikast-Brande"
+  },
+  {
+    "nr": "7441",
+    "navn": "Bording",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "7442",
+    "navn": "Engesvang",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "7451",
+    "navn": "Sunds",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7470",
+    "navn": "Karup J",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7480",
+    "navn": "Vildbjerg",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7490",
+    "navn": "Aulum",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7500",
+    "navn": "Holstebro",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7540",
+    "navn": "Haderup",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7550",
+    "navn": "Sørvad",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7560",
+    "navn": "Hjerm",
+    "kommune": "Holstebro"
+  },
+  {
+    "nr": "7570",
+    "navn": "Vemb",
+    "kommune": "Holstebro"
+  },
+  {
+    "nr": "7600",
+    "navn": "Struer",
+    "kommune": "Holstebro"
+  },
+  {
+    "nr": "7620",
+    "navn": "Lemvig",
+    "kommune": "Lemvig"
+  },
+  {
+    "nr": "7650",
+    "navn": "Bøvlingbjerg",
+    "kommune": "Lemvig"
+  },
+  {
+    "nr": "7660",
+    "navn": "Bækmarksbro",
+    "kommune": "Lemvig"
+  },
+  {
+    "nr": "7673",
+    "navn": "Harboøre",
+    "kommune": "Lemvig"
+  },
+  {
+    "nr": "7680",
+    "navn": "Thyborøn",
+    "kommune": "Lemvig"
+  },
+  {
+    "nr": "7700",
+    "navn": "Thisted",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7730",
+    "navn": "Hanstholm",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7741",
+    "navn": "Frøstrup",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7742",
+    "navn": "Vesløs",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7752",
+    "navn": "Snedsted",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7755",
+    "navn": "Bedsted Thy",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7760",
+    "navn": "Hurup Thy",
+    "kommune": "Struer"
+  },
+  {
+    "nr": "7770",
+    "navn": "Vestervig",
+    "kommune": "Thisted"
+  },
+  {
+    "nr": "7790",
+    "navn": "Thyholm",
+    "kommune": "Struer"
+  },
+  {
+    "nr": "7800",
+    "navn": "Skive",
+    "kommune": "Holstebro"
+  },
+  {
+    "nr": "7830",
+    "navn": "Vinderup",
+    "kommune": "Herning"
+  },
+  {
+    "nr": "7840",
+    "navn": "Højslev",
+    "kommune": "Skive"
+  },
+  {
+    "nr": "7850",
+    "navn": "Stoholm Jyll",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "7860",
+    "navn": "Spøttrup",
+    "kommune": "Skive"
+  },
+  {
+    "nr": "7870",
+    "navn": "Roslev",
+    "kommune": "Skive"
+  },
+  {
+    "nr": "7884",
+    "navn": "Fur",
+    "kommune": "Skive"
+  },
+  {
+    "nr": "7900",
+    "navn": "Nykøbing M",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "7950",
+    "navn": "Erslev",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "7960",
+    "navn": "Karby",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "7970",
+    "navn": "Redsted M",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "7980",
+    "navn": "Vils",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "7990",
+    "navn": "Øster Assels",
+    "kommune": "Morsø"
+  },
+  {
+    "nr": "8000",
+    "navn": "Aarhus C",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8200",
+    "navn": "Aarhus N",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8210",
+    "navn": "Aarhus V",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8220",
+    "navn": "Brabrand",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8230",
+    "navn": "Åbyhøj",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8240",
+    "navn": "Risskov",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8250",
+    "navn": "Egå",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8260",
+    "navn": "Viby J",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8270",
+    "navn": "Højbjerg",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8300",
+    "navn": "Odder",
+    "kommune": "Odder"
+  },
+  {
+    "nr": "8305",
+    "navn": "Samsø",
+    "kommune": "Samsø"
+  },
+  {
+    "nr": "8310",
+    "navn": "Tranbjerg J",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8320",
+    "navn": "Mårslet",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8330",
+    "navn": "Beder",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8340",
+    "navn": "Malling",
+    "kommune": "Odder"
+  },
+  {
+    "nr": "8350",
+    "navn": "Hundslund",
+    "kommune": "Odder"
+  },
+  {
+    "nr": "8355",
+    "navn": "Solbjerg",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8361",
+    "navn": "Hasselager",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8362",
+    "navn": "Hørning",
+    "kommune": "Skanderborg"
+  },
+  {
+    "nr": "8370",
+    "navn": "Hadsten",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8380",
+    "navn": "Trige",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8381",
+    "navn": "Tilst",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8382",
+    "navn": "Hinnerup",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8400",
+    "navn": "Ebeltoft",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8410",
+    "navn": "Rønde",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8420",
+    "navn": "Knebel",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8444",
+    "navn": "Balle",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8450",
+    "navn": "Hammel",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8462",
+    "navn": "Harlev J",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8464",
+    "navn": "Galten",
+    "kommune": "Skanderborg"
+  },
+  {
+    "nr": "8471",
+    "navn": "Sabro",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8472",
+    "navn": "Sporup",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8500",
+    "navn": "Grenaa",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8520",
+    "navn": "Lystrup",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8530",
+    "navn": "Hjortshøj",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8541",
+    "navn": "Skødstrup",
+    "kommune": "Aarhus"
+  },
+  {
+    "nr": "8543",
+    "navn": "Hornslet",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8544",
+    "navn": "Mørke",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8550",
+    "navn": "Ryomgård",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8560",
+    "navn": "Kolind",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8570",
+    "navn": "Trustrup",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8581",
+    "navn": "Nimtofte",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8585",
+    "navn": "Glesborg",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8586",
+    "navn": "Ørum Djurs",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8592",
+    "navn": "Anholt",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8600",
+    "navn": "Silkeborg",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8620",
+    "navn": "Kjellerup",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8632",
+    "navn": "Lemming",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8641",
+    "navn": "Sorring",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8643",
+    "navn": "Ans By",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8653",
+    "navn": "Them",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8654",
+    "navn": "Bryrup",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8660",
+    "navn": "Skanderborg",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8670",
+    "navn": "Låsby",
+    "kommune": "Skanderborg"
+  },
+  {
+    "nr": "8680",
+    "navn": "Ry",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8700",
+    "navn": "Horsens",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8721",
+    "navn": "Daugård",
+    "kommune": "Vejle"
+  },
+  {
+    "nr": "8722",
+    "navn": "Hedensted",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "8723",
+    "navn": "Løsning",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "8732",
+    "navn": "Hovedgård",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8740",
+    "navn": "Brædstrup",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8751",
+    "navn": "Gedved",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8752",
+    "navn": "Østbirk",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8762",
+    "navn": "Flemming",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8763",
+    "navn": "Rask Mølle",
+    "kommune": "Hedensted"
+  },
+  {
+    "nr": "8765",
+    "navn": "Klovborg",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8766",
+    "navn": "Nørre Snede",
+    "kommune": "Ikast-Brande"
+  },
+  {
+    "nr": "8781",
+    "navn": "Stenderup",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8783",
+    "navn": "Hornsyld",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8789",
+    "navn": "Endelave",
+    "kommune": "Horsens"
+  },
+  {
+    "nr": "8799",
+    "navn": "Tunø",
+    "kommune": "Odder"
+  },
+  {
+    "nr": "8800",
+    "navn": "Viborg",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8830",
+    "navn": "Tjele",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "8831",
+    "navn": "Løgstrup",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "8832",
+    "navn": "Skals",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "8840",
+    "navn": "Rødkærsbro",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8850",
+    "navn": "Bjerringbro",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8860",
+    "navn": "Ulstrup",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8870",
+    "navn": "Langå",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8881",
+    "navn": "Thorsø",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8882",
+    "navn": "Fårvang",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8883",
+    "navn": "Gjern",
+    "kommune": "Silkeborg"
+  },
+  {
+    "nr": "8900",
+    "navn": "Randers C",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8920",
+    "navn": "Randers NV",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8930",
+    "navn": "Randers NØ",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8940",
+    "navn": "Randers SV",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8950",
+    "navn": "Ørsted",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8960",
+    "navn": "Randers SØ",
+    "kommune": "Favrskov"
+  },
+  {
+    "nr": "8961",
+    "navn": "Allingåbro",
+    "kommune": "Norddjurs"
+  },
+  {
+    "nr": "8963",
+    "navn": "Auning",
+    "kommune": "Syddjurs"
+  },
+  {
+    "nr": "8970",
+    "navn": "Havndal",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8981",
+    "navn": "Spentrup",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8983",
+    "navn": "Gjerlev J",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "8990",
+    "navn": "Fårup",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "9000",
+    "navn": "Aalborg",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9200",
+    "navn": "Aalborg SV",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9210",
+    "navn": "Aalborg SØ",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9220",
+    "navn": "Aalborg Øst",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9230",
+    "navn": "Svenstrup J",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9240",
+    "navn": "Nibe",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9260",
+    "navn": "Gistrup",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9270",
+    "navn": "Klarup",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9280",
+    "navn": "Storvorde",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9293",
+    "navn": "Kongerslev",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9300",
+    "navn": "Sæby",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9310",
+    "navn": "Vodskov",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9320",
+    "navn": "Hjallerup",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9330",
+    "navn": "Dronninglund",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9340",
+    "navn": "Asaa",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9352",
+    "navn": "Dybvad",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9362",
+    "navn": "Gandrup",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9370",
+    "navn": "Hals",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9380",
+    "navn": "Vestbjerg",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9381",
+    "navn": "Sulsted",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9382",
+    "navn": "Tylstrup",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9400",
+    "navn": "Nørresundby",
+    "kommune": "Aalborg"
+  },
+  {
+    "nr": "9430",
+    "navn": "Vadum",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9440",
+    "navn": "Aabybro",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9460",
+    "navn": "Brovst",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9480",
+    "navn": "Løkken",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9490",
+    "navn": "Pandrup",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9492",
+    "navn": "Blokhus",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9493",
+    "navn": "Saltum",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9500",
+    "navn": "Hobro",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "9510",
+    "navn": "Arden",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9520",
+    "navn": "Skørping",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9530",
+    "navn": "Støvring",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9541",
+    "navn": "Suldrup",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9550",
+    "navn": "Mariager",
+    "kommune": "Randers"
+  },
+  {
+    "nr": "9560",
+    "navn": "Hadsund",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9574",
+    "navn": "Bælum",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9575",
+    "navn": "Terndrup",
+    "kommune": "Rebild"
+  },
+  {
+    "nr": "9600",
+    "navn": "Aars",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9610",
+    "navn": "Nørager",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9620",
+    "navn": "Aalestrup",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "9631",
+    "navn": "Gedsted",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "9632",
+    "navn": "Møldrup",
+    "kommune": "Viborg"
+  },
+  {
+    "nr": "9640",
+    "navn": "Farsø",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9670",
+    "navn": "Løgstør",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9681",
+    "navn": "Ranum",
+    "kommune": "Vesthimmerlands"
+  },
+  {
+    "nr": "9690",
+    "navn": "Fjerritslev",
+    "kommune": "Jammerbugt"
+  },
+  {
+    "nr": "9700",
+    "navn": "Brønderslev",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9740",
+    "navn": "Jerslev J",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9750",
+    "navn": "Østervrå",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9760",
+    "navn": "Vrå",
+    "kommune": "Brønderslev"
+  },
+  {
+    "nr": "9800",
+    "navn": "Hjørring",
+    "kommune": "Hjørring"
+  },
+  {
+    "nr": "9830",
+    "navn": "Tårs",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9850",
+    "navn": "Hirtshals",
+    "kommune": "Hjørring"
+  },
+  {
+    "nr": "9870",
+    "navn": "Sindal",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9881",
+    "navn": "Bindslev",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9900",
+    "navn": "Frederikshavn",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9940",
+    "navn": "Læsø",
+    "kommune": "Læsø"
+  },
+  {
+    "nr": "9970",
+    "navn": "Strandby",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9981",
+    "navn": "Jerup",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9982",
+    "navn": "Ålbæk",
+    "kommune": "Frederikshavn"
+  },
+  {
+    "nr": "9990",
+    "navn": "Skagen",
+    "kommune": "Frederikshavn"
+  }
+]

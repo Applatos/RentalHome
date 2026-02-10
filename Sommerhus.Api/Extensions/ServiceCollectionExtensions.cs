@@ -8,6 +8,7 @@ using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Services.Admin.Calendars;
 using Sommerhus.Core.Services.Admin.Availability;
 using Sommerhus.Core.Services.Admin.Lifecycle;
+using Sommerhus.Core.Data;
 using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Public.Cities;
@@ -45,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEntityLifecycleService, EntityLifecycleService>();
         services.AddScoped<IAdminCalendarService, AdminCalendarService>();
         services.AddScoped<IAdminAvailabilityService, AdminAvailabilityService>();
+        services.AddScoped<IStressDataGenerator, StressDataGenerator>();
 
         return services;
     }

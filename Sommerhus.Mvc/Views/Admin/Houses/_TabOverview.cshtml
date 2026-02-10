@@ -82,6 +82,12 @@
         <textarea class="form-control" name="Description" rows="4">@Model.House.Description</textarea>
     </div>
 
+    <div class="col-md-12">
+        <label class="form-label">Search Keywords</label>
+        <input class="form-control" name="SearchKeywords" value="@Model.House.SearchKeywords" placeholder="e.g. romantic, beach, modern, family-friendly" />
+        <div class="form-text">Comma-separated keywords for free-text search discovery.</div>
+    </div>
+
     <div class="col-12 d-flex gap-2">
         <button class="btn btn-primary">Save</button>
         <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">Back to List</a>

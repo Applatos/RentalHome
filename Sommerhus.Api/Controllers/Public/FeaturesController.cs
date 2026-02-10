@@ -12,4 +12,8 @@ public sealed class FeaturesController(IFeatureQueryService features) : Controll
     [HttpGet]
     public Task<IEnumerable<FeatureDto>> GetAll(CancellationToken ct)
         => features.GetAllAsync(Request.BaseUrl(), ct);
+
+    [HttpGet("searchable")]
+    public Task<Dictionary<string, IReadOnlyList<SearchableFeatureDto>>> GetSearchable(CancellationToken ct)
+        => features.GetSearchableAsync(ct);
 }

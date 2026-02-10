@@ -15,6 +15,13 @@ public class Feature : IAuditable
     [Required]
     public FeatureValueType ValueType { get; set; }
 
+    public FeatureCategory Category { get; set; } = FeatureCategory.Other;
+
+    public bool IsSearchable { get; set; } = true;
+
+    [MaxLength(500)]
+    public string? Options { get; set; }
+
     [MaxLength(20)]
     public string? Unit { get; set; }
 

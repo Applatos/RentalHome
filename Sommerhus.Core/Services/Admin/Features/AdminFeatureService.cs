@@ -37,6 +37,9 @@ public sealed class AdminFeatureService : IAdminFeatureService
                 f.Name,
                 f.Key,
                 f.ValueType,
+                f.Category,
+                f.IsSearchable,
+                f.Options,
                 f.Unit,
                 imageStorage.GetUrl(baseUrl, f.IconUrl)))
             .ToList();
@@ -65,11 +68,16 @@ public sealed class AdminFeatureService : IAdminFeatureService
             });
         }
 
+        var categoryResult = NormalizeCategory(dto.Category);
+
         var feature = new Feature
         {
             Name = NormalizeName(dto.Name),
             Key = keyResult.Value!,
             ValueType = valueTypeResult.Value,
+            Category = categoryResult,
+            IsSearchable = dto.IsSearchable,
+            Options = NormalizeOptions(dto.Options),
             Unit = NormalizeUnit(dto.Unit),
         };
 
@@ -108,9 +116,14 @@ public sealed class AdminFeatureService : IAdminFeatureService
             });
         }
 
+        var categoryResult = NormalizeCategory(dto.Category);
+
         feature.Name = NormalizeName(dto.Name);
         feature.Key = keyResult.Value!;
         feature.ValueType = valueTypeResult.Value;
+        feature.Category = categoryResult;
+        feature.IsSearchable = dto.IsSearchable;
+        feature.Options = NormalizeOptions(dto.Options);
         feature.Unit = NormalizeUnit(dto.Unit);
 
         await db.SaveChangesAsync(ct);
@@ -249,4 +262,16 @@ public sealed class AdminFeatureService : IAdminFeatureService
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
+    private static FeatureCategory NormalizeCategory(string? category)
+    {
+        if (Enum.TryParse<FeatureCategory>(category, true, out var parsed))
+            return parsed;
+        return FeatureCategory.Other;
+    }
+
+    private static string? NormalizeOptions(string? options)
+    {
+        var trimmed = (options ?? string.Empty).Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
 }
