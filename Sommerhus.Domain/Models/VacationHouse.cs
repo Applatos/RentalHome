@@ -34,4 +34,6 @@ public class VacationHouse : IAuditable
 
     public Guid? CalendarOverrideId { get; set; }  // FK → SeasonCalendar (null = use group default)
     public SeasonCalendar? CalendarOverride { get; set; }
+
+    public List<AvailabilityBlock> AvailabilityBlocks { get; set; } = new();
 }

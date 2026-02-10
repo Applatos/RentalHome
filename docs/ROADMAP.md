@@ -1431,14 +1431,14 @@ When booking is implemented later:
 
 ### Tasks
 
-- [ ] **21a** Create `AvailabilityBlock` entity, enums, migration
-- [ ] **21b** Build `IAvailabilityService` (check, list, block, unblock)
-- [ ] **21c** Admin API: CRUD endpoints for availability blocks
-- [ ] **21d** Admin MVC: availability calendar tab on house details (interactive grid)
-- [ ] **21e** Public API: `GET /api/houses/{id}/availability?from=&to=`
-- [ ] **21f** Public MVC: calendar widget on house detail page
-- [ ] **21g** Integrate availability check into quote service (no quote for unavailable dates)
-- [ ] **21h** Tests: overlap detection, block/unblock, availability queries
+- [x] **21a** Create `AvailabilityBlock` entity, enums, migration
+- [x] **21b** Build `IAdminAvailabilityService` + `IAvailabilityQueryService` (check, list, block, unblock)
+- [x] **21c** Admin API: CRUD endpoints for availability blocks (`api/admin/houses/{id}/availability`)
+- [ ] **21d** Admin MVC: availability calendar tab on house details (interactive grid) _(deferred — UI)_
+- [x] **21e** Public API: `GET /api/houses/{id}/availability?from=&to=`
+- [ ] **21f** Public MVC: calendar widget on house detail page _(deferred — UI)_
+- [ ] **21g** Integrate availability check into quote service (no quote for unavailable dates) _(deferred — depends on Phase 20)_
+- [x] **21h** Tests: overlap detection, block/unblock, availability queries (12 integration tests)
 
 **Estimated effort**: 8–12 hours | **Priority**: High
 

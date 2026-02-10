@@ -31,6 +31,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SeasonSpan> SeasonSpans => Set<SeasonSpan>();
     public DbSet<SeasonCalendar> SeasonCalendars => Set<SeasonCalendar>();
 
+    // Availability
+    public DbSet<AvailabilityBlock> AvailabilityBlocks => Set<AvailabilityBlock>();
+
     // Audit
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
@@ -203,6 +206,19 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.StartDate).IsRequired();
             e.Property(x => x.EndDate).IsRequired();
             e.HasIndex(x => new { x.CalendarId, x.StartDate, x.EndDate }).IsUnique();
+        });
+
+        // Availability
+        b.Entity<AvailabilityBlock>(e =>
+        {
+            e.HasOne(x => x.House)
+                .WithMany(h => h.AvailabilityBlocks)
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.StartDate).IsRequired();
+            e.Property(x => x.EndDate).IsRequired();
+            e.Property(x => x.Note).HasMaxLength(500);
+            e.HasIndex(x => new { x.HouseId, x.StartDate, x.EndDate });
         });
 
         // Audit entry

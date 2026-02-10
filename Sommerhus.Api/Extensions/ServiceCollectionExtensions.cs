@@ -6,6 +6,7 @@ using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Services.Admin.Calendars;
+using Sommerhus.Core.Services.Admin.Availability;
 using Sommerhus.Core.Services.Admin.Lifecycle;
 using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Services.Public.Areas;
@@ -14,6 +15,7 @@ using Sommerhus.Core.Services.Public.Features;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Public.Images;
 using Sommerhus.Core.Services.Public.Pricing;
+using Sommerhus.Core.Services.Public.Availability;
 using Sommerhus.Core.Services.Public.ZipCodes;
 using Sommerhus.Core.Services.Pricing.Abstractions;
 using Sommerhus.Core.Services.Pricing.Engine;
@@ -42,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IEntityLifecycleService, EntityLifecycleService>();
         services.AddScoped<IAdminCalendarService, AdminCalendarService>();
+        services.AddScoped<IAdminAvailabilityService, AdminAvailabilityService>();
 
         return services;
     }
@@ -55,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IZipCodeQueryService, ZipCodeQueryService>();
         services.AddScoped<IHouseImageQueryService, HouseImageQueryService>();
         services.AddScoped<IPricingQuoteService, AdminPricingService>();
+        services.AddScoped<IAvailabilityQueryService, AvailabilityQueryService>();
 
         return services;
     }

@@ -1167,11 +1167,11 @@ The following are architectural gaps identified for production readiness. See `R
 
 **Solution**: Phase 20 — `HousePriceSummary` (materialized min/max for search cards) + `PriceQuote` (on-demand cached quote with TTL for detail/booking pages).
 
-### 40. No Availability Model
+### 40. ~~No Availability Model~~ ✅ Resolved
 
 **Problem**: No way to mark dates as blocked/available. No foundation for future booking. Public users cannot see when a house is available.
 
-**Solution**: Phase 21 — `AvailabilityBlock` entity with date-range blocks, availability service, admin calendar grid, public calendar widget. Designed for easy booking integration later.
+**Solution**: Phase 21 (Completed) — `AvailabilityBlock` entity with `AvailabilityStatus` and `AvailabilitySource` enums. `IAdminAvailabilityService` provides CRUD + overlap detection + availability check. `IAvailabilityQueryService` for public read-only access (hides notes/createdBy). Admin API at `api/admin/houses/{id}/availability` with full CRUD + `check` endpoint. Public API at `api/houses/{id}/availability`. 12 new integration tests cover overlap detection, block/unblock, date range queries, adjacent blocks, and public privacy filtering. MVC UI (21d, 21f) and quote service integration (21g) deferred.
 
 ### 41. Search Uses LIKE '%term%'
 
@@ -1188,7 +1188,7 @@ The following are architectural gaps identified for production readiness. See `R
 | #37 No entity lifecycle        | High     | 18    | **Done** |
 | #38 No concurrency control     | Medium   | 19    | Pending  |
 | #39 Price computed per request | High     | 20    | Pending  |
-| #40 No availability model      | High     | 21    | Pending  |
+| #40 No availability model      | High     | 21    | **Done** |
 | #41 LIKE search, no facets     | Medium   | 22    | Pending  |
 
 ---
