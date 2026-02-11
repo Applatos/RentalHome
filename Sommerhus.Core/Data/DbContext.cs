@@ -95,6 +95,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
                 .WithMany()
                 .HasForeignKey(x => x.CalendarOverrideId)
                 .OnDelete(DeleteBehavior.SetNull);
+            e.Property(x => x.OwnerId).HasMaxLength(450);
+            e.HasIndex(x => x.OwnerId);
         });
 
         b.Entity<HouseImage>(e =>

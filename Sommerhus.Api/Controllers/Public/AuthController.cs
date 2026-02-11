@@ -7,32 +7,58 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Sommerhus.Api.Infrastructure.Auth;
-using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Auth;
 using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Core.Identity;
 
-namespace Sommerhus.Api.Controllers.Admin;
+namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
-[Route("api/admin/auth")]
+[Route("api/auth")]
 public sealed class AuthController(
-    SignInManager<ApplicationUser> signInManager,
     UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager,
     IOptions<JwtOptions> jwtOptionsAccessor)
     : ControllerBase
 {
-    private readonly SignInManager<ApplicationUser> signInManager = signInManager;
     private readonly UserManager<ApplicationUser> userManager = userManager;
+    private readonly SignInManager<ApplicationUser> signInManager = signInManager;
     private readonly JwtOptions jwtOptions = jwtOptionsAccessor.Value;
 
     [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<ActionResult<AuthTokenResponse>> Register([FromBody] RegisterRequest request)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = request.Username,
+            Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Phone = request.Phone,
+            EmailConfirmed = true,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        var result = await userManager.CreateAsync(user, request.Password);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.Code, error.Description);
+            return ValidationProblem();
+        }
+
+        await userManager.AddToRoleAsync(user, AppRoles.User);
+
+        return Ok(await CreateTokenAsync(user));
+    }
+
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult<AdminTokenResponse>> Login([FromBody] AdminLoginRequest request)
+    public async Task<ActionResult<AuthTokenResponse>> Login([FromBody] LoginRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-        {
             return Unauthorized();
-        }
 
         var user = await userManager.FindByNameAsync(request.Username);
         if (user is null)
@@ -43,14 +69,7 @@ public sealed class AuthController(
 
         var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
         if (!result.Succeeded)
-        {
             return Unauthorized();
-        }
-
-        if (!await userManager.IsInRoleAsync(user, AdminRoles.Admin))
-        {
-            return Forbid();
-        }
 
         user.LastLoginAtUtc = DateTime.UtcNow;
         await userManager.UpdateAsync(user);
@@ -58,20 +77,24 @@ public sealed class AuthController(
         return Ok(await CreateTokenAsync(user));
     }
 
-    private async Task<AdminTokenResponse> CreateTokenAsync(ApplicationUser user)
+    private async Task<AuthTokenResponse> CreateTokenAsync(ApplicationUser user)
     {
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(jwtOptions.AccessTokenMinutes);
 
         var roles = await userManager.GetRolesAsync(user);
+        var primaryRole = roles.Contains(AppRoles.Admin) ? AppRoles.Admin
+            : roles.Contains(AppRoles.HouseOwner) ? AppRoles.HouseOwner
+            : AppRoles.User;
 
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
             new(ClaimTypes.NameIdentifier, user.Id),
-            new(ClaimTypes.Name, user.UserName ?? string.Empty)
+            new(ClaimTypes.Name, user.UserName ?? string.Empty),
+            new(ClaimTypes.Email, user.Email ?? string.Empty)
         };
 
         foreach (var role in roles)
@@ -85,10 +108,12 @@ public sealed class AuthController(
             expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
 
-        return new AdminTokenResponse
+        return new AuthTokenResponse
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
-            ExpiresAt = expiresAt
+            ExpiresAt = expiresAt,
+            Role = primaryRole,
+            Username = user.UserName ?? string.Empty
         };
     }
 }

@@ -64,6 +64,7 @@ public class Program
         builder.Services
             .AddAdminServices()
             .AddPublicServices()
+            .AddOwnerServices()
             .AddStorageServices(builder.Configuration)
             .AddPricingServices();
 

@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:5183';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:5001';
 const ADMIN_USER = __ENV.ADMIN_USER || 'admin';
 const ADMIN_PASS = __ENV.ADMIN_PASS || 'Sommerhus123!';
 

@@ -16,18 +16,18 @@ Start the API, then seed data via the admin endpoint:
 dotnet run --project Sommerhus.Api
 
 # Login and seed (PowerShell)
-$login = Invoke-RestMethod -Uri "http://localhost:5183/api/admin/auth/login" `
+$login = Invoke-RestMethod -Uri "http://localhost:5001/api/admin/auth/login" `
   -Method POST -ContentType "application/json" `
   -Body '{"username":"admin","password":"Sommerhus123!"}'
 
 $headers = @{ Authorization = "Bearer $($login.token)" }
 
 # Seed 500 houses (default)
-Invoke-RestMethod -Uri "http://localhost:5183/api/admin/stress/seed" `
+Invoke-RestMethod -Uri "http://localhost:5001/api/admin/stress/seed" `
   -Method POST -Headers $headers
 
 # Or seed 5000 houses for full stress test
-Invoke-RestMethod -Uri "http://localhost:5183/api/admin/stress/seed?houses=5000" `
+Invoke-RestMethod -Uri "http://localhost:5001/api/admin/stress/seed?houses=5000" `
   -Method POST -Headers $headers
 ```
 
@@ -50,7 +50,7 @@ k6 run stress-tests/k6/admin-crud.js
 ### Custom API URL
 
 ```powershell
-k6 run -e BASE_URL=http://localhost:5183 stress-tests/k6/public-search.js
+k6 run -e BASE_URL=http://localhost:5001 stress-tests/k6/public-search.js
 ```
 
 ## Save Results
@@ -62,12 +62,12 @@ k6 run --out json=stress-tests/results/baseline-$(Get-Date -Format yyyy-MM-dd).j
 
 ## Test Scenarios
 
-| Script              | Description                              | Target p95 |
-| ------------------- | ---------------------------------------- | ---------- |
-| `public-search.js`  | Search with terms, ramp to 100 VUs       | < 200ms    |
-| `house-detail.js`   | Detail page + availability, ramp to 50   | < 300ms    |
-| `concurrent-browse.js` | 100 VUs browsing for 60s              | < 500ms    |
-| `admin-crud.js`     | Admin list operations, ramp to 20 VUs    | < 500ms    |
+| Script                 | Description                            | Target p95 |
+| ---------------------- | -------------------------------------- | ---------- |
+| `public-search.js`     | Search with terms, ramp to 100 VUs     | < 200ms    |
+| `house-detail.js`      | Detail page + availability, ramp to 50 | < 300ms    |
+| `concurrent-browse.js` | 100 VUs browsing for 60s               | < 500ms    |
+| `admin-crud.js`        | Admin list operations, ramp to 20 VUs  | < 500ms    |
 
 ## Benchmark Protocol
 
@@ -78,6 +78,6 @@ k6 run --out json=stress-tests/results/baseline-$(Get-Date -Format yyyy-MM-dd).j
 ## Clear Stress Data
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:5183/api/admin/stress/clear" `
+Invoke-RestMethod -Uri "http://localhost:5001/api/admin/stress/clear" `
   -Method DELETE -Headers $headers
 ```

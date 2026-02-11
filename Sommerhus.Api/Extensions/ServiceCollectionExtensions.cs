@@ -23,6 +23,7 @@ using Sommerhus.Core.Services.Pricing.Engine;
 using Sommerhus.Core.Services.Pricing.Engine.Rules;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Api.Infrastructure.Storage;
+using Sommerhus.Core.Services.Owner;
 using Sommerhus.Core.Services.Pricing;
 
 namespace Sommerhus.Api.Extensions;
@@ -73,6 +74,14 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
 
         services.AddSingleton<IImageStorage, PhysicalImageStorage>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddOwnerServices(this IServiceCollection services)
+    {
+        services.AddScoped<IOwnerAuthorizationService, OwnerAuthorizationService>();
+        services.AddScoped<IOwnerHouseService, OwnerHouseService>();
 
         return services;
     }

@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:5183';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:5001';
 
 export const options = {
   scenarios: {

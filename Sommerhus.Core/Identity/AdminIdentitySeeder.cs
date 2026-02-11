@@ -21,13 +21,18 @@ public sealed class AdminIdentitySeeder(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        // Ensure all application roles exist
+        foreach (var roleName in AppRoles.All)
+        {
+            await EnsureRoleAsync(roleName);
+        }
+
         if (string.IsNullOrWhiteSpace(adminOptions.UserName) || string.IsNullOrWhiteSpace(adminOptions.Password))
         {
             logger.LogWarning("Default admin credentials are not configured. Skipping admin seeding.");
             return;
         }
 
-        var adminRole = await EnsureAdminRoleAsync();
         var user = await userManager.FindByNameAsync(adminOptions.UserName);
         if (user is null)
         {
@@ -48,9 +53,9 @@ public sealed class AdminIdentitySeeder(
             logger.LogInformation("Created default admin user {UserName}.", adminOptions.UserName);
         }
 
-        if (!await userManager.IsInRoleAsync(user, adminRole.Name!))
+        if (!await userManager.IsInRoleAsync(user, AppRoles.Admin))
         {
-            var addRoleResult = await userManager.AddToRoleAsync(user, adminRole.Name!);
+            var addRoleResult = await userManager.AddToRoleAsync(user, AppRoles.Admin);
             if (!addRoleResult.Succeeded)
             {
                 LogErrors("Failed to add default admin user to Admin role", addRoleResult.Errors);
@@ -58,24 +63,19 @@ public sealed class AdminIdentitySeeder(
         }
     }
 
-    private async Task<IdentityRole> EnsureAdminRoleAsync()
+    private async Task EnsureRoleAsync(string roleName)
     {
-        var role = await roleManager.FindByNameAsync(AdminRoles.Admin);
-        if (role is not null)
-        {
-            return role;
-        }
+        var role = await roleManager.FindByNameAsync(roleName);
+        if (role is not null) return;
 
-        role = new IdentityRole(AdminRoles.Admin);
-        var result = await roleManager.CreateAsync(role);
+        var result = await roleManager.CreateAsync(new IdentityRole(roleName));
         if (!result.Succeeded)
         {
-            LogErrors("Failed to create Admin role", result.Errors);
-            throw new InvalidOperationException("Unable to create Admin role for default seeding.");
+            LogErrors($"Failed to create {roleName} role", result.Errors);
+            throw new InvalidOperationException($"Unable to create {roleName} role for default seeding.");
         }
 
-        logger.LogInformation("Created {Role} role for admin access.", AdminRoles.Admin);
-        return role;
+        logger.LogInformation("Created {Role} role.", roleName);
     }
 
     private void LogErrors(string message, IEnumerable<IdentityError> errors)

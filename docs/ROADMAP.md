@@ -1199,7 +1199,9 @@ The service validates preconditions before allowing transitions and writes an au
 
 ---
 
-## Phase 19: Optimistic Concurrency Control
+## Phase 19: Optimistic Concurrency Control ⏸️ ON HOLD
+
+**Status**: On hold — not needed for current development priorities.
 
 **Goal**: Prevent admins from silently overwriting each other's changes.
 
@@ -1907,6 +1909,387 @@ Protected by admin auth. Only available in `Development` / `Testing` environment
 
 ---
 
+## Phase 26: Multi-Role Authorization & User Management
+
+**Goal**: Expand the single-role (Admin) system into a four-tier role model: **Guest** (anonymous), **User** (registered guest), **HouseOwner**, and **Admin**. This is the foundation for bookings, favorites, and owner self-service.
+
+**Dependencies**: Phase 18 (Entity Status) ✅ — uses `EntityStatus` for house visibility. Phase 17 (Audit) ✅ — all mutations are auditable.
+
+### Current State
+
+- Only one role exists: `Admin` (seeded via `AdminIdentitySeeder`)
+- `ApplicationUser` extends `IdentityUser` with no additional fields
+- Auth is JWT-based, admin-only — no public registration or login
+- All API endpoints are either `[AllowAnonymous]` (public read) or `[Authorize(Roles = "Admin")]`
+- No concept of house ownership — houses are managed exclusively by admins
+- MVC frontend has no user-facing auth (no register, login, or profile pages)
+
+### Design
+
+#### Role Definitions
+
+| Role           | Description                          | Can Register? |
+| -------------- | ------------------------------------ | ------------- |
+| **Guest**      | Anonymous visitor, no account needed | N/A           |
+| **User**       | Registered guest with an account     | Yes (public)  |
+| **HouseOwner** | Owns one or more vacation houses     | Admin assigns |
+| **Admin**      | Full system access                   | Seeded only   |
+
+#### Permission Matrix
+
+| Action                                  | Guest | User | Owner | Admin |
+| --------------------------------------- | ----- | ---- | ----- | ----- |
+| Browse/search houses                    | ✅    | ✅   | ✅    | ✅    |
+| View house details                      | ✅    | ✅   | ✅    | ✅    |
+| View availability                       | ✅    | ✅   | ✅    | ✅    |
+| Calculate price quote                   | ✅    | ✅   | ✅    | ✅    |
+| Start booking flow                      | ✅    | ✅   | ✅    | ✅    |
+| Complete booking (confirm)              | ❌    | ✅   | ✅    | ✅    |
+| View own bookings / history             | ❌    | ✅   | ✅    | ✅    |
+| Save to favorites                       | ❌    | ✅   | ✅    | ✅    |
+| Manage personal profile                 | ❌    | ✅   | ✅    | ✅    |
+| View own houses                         | ❌    | ❌   | ✅    | ✅    |
+| Edit own house (desc, images, features) | ❌    | ❌   | ✅    | ✅    |
+| View own house bookings                 | ❌    | ❌   | ✅    | ✅    |
+| View own house calendar                 | ❌    | ❌   | ✅    | ✅    |
+| Edit calendar / pricing                 | ❌    | ❌   | ❌    | ✅    |
+| Create/edit areas, cities               | ❌    | ❌   | ❌    | ✅    |
+| Create/edit global features             | ❌    | ❌   | ❌    | ✅    |
+| Manage all houses                       | ❌    | ❌   | ❌    | ✅    |
+| Manage all bookings                     | ❌    | ❌   | ❌    | ✅    |
+| Assign house owners                     | ❌    | ❌   | ❌    | ✅    |
+| Stress test / system admin              | ❌    | ❌   | ❌    | ✅    |
+
+#### ApplicationUser Extension
+
+```csharp
+public sealed class ApplicationUser : IdentityUser
+{
+    [MaxLength(100)] public string? FirstName { get; set; }
+    [MaxLength(100)] public string? LastName { get; set; }
+    [MaxLength(20)]  public string? Phone { get; set; }
+    [MaxLength(500)] public string? Address { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime? LastLoginAtUtc { get; set; }
+}
+```
+
+#### House Ownership Model
+
+Add `OwnerId` to `VacationHouse`:
+
+```
+VacationHouse (modified)
+├── OwnerId: string?          (FK → ApplicationUser.Id, nullable for legacy/admin-created houses)
+├── Owner: ApplicationUser?
+```
+
+Admin assigns ownership via `PUT /api/admin/houses/{id}/owner`. Owners see only their houses via `GET /api/owner/houses`.
+
+#### API Structure
+
+```
+Public (anonymous):
+  POST /api/auth/register           → register new User account
+  POST /api/auth/login              → login (returns JWT with role claims)
+  POST /api/auth/refresh            → refresh token (optional, future)
+
+User-scoped:
+  GET    /api/me/profile            → get own profile
+  PUT    /api/me/profile            → update own profile
+  DELETE /api/me/account            → deactivate account
+
+Owner-scoped:
+  GET    /api/owner/houses                          → list own houses
+  GET    /api/owner/houses/{id}                     → view own house details
+  PUT    /api/owner/houses/{id}                     → edit description, images, features
+  GET    /api/owner/houses/{id}/bookings            → view bookings for own house
+  GET    /api/owner/houses/{id}/availability        → view availability for own house
+  GET    /api/owner/houses/{id}/calendar            → view calendar for own house
+
+Admin (existing + new):
+  PUT    /api/admin/houses/{id}/owner               → assign/remove owner
+  GET    /api/admin/users                           → list all users with roles
+  PUT    /api/admin/users/{id}/role                 → change user role
+```
+
+#### Authorization Policies
+
+```csharp
+public static class AppRoles
+{
+    public const string Admin = "Admin";
+    public const string HouseOwner = "HouseOwner";
+    public const string User = "User";
+}
+
+// Policies
+options.AddPolicy("RequireUser", p => p.RequireAuthenticatedUser());
+options.AddPolicy("RequireOwner", p => p.RequireRole(AppRoles.HouseOwner, AppRoles.Admin));
+options.AddPolicy("RequireAdmin", p => p.RequireRole(AppRoles.Admin));
+```
+
+#### Owner Authorization Guard
+
+Owner endpoints use a custom `IOwnerAuthorizationService` to verify the requesting user owns the house:
+
+```csharp
+public interface IOwnerAuthorizationService
+{
+    Task<bool> IsOwnerAsync(string userId, Guid houseId, CancellationToken ct);
+}
+```
+
+This prevents owners from accessing other owners' houses via direct URL manipulation.
+
+#### MVC Auth Views
+
+- `/account/register` — registration form
+- `/account/login` — login form (redirects to home after success)
+- `/account/profile` — edit personal info
+- `/owner/houses` — owner dashboard (list own houses)
+- `/owner/houses/{id}` — owner house detail/edit
+
+### Tasks
+
+- [x] **26a** Expand `AppRoles` constants (`Admin`, `HouseOwner`, `User`), update `AdminIdentitySeeder` to seed all three roles
+- [x] **26b** Extend `ApplicationUser` with profile fields (`FirstName`, `LastName`, `Phone`, `Address`, `CreatedAtUtc`, `LastLoginAtUtc`), migration
+- [x] **26c** Add `OwnerId` (string, nullable) FK to `VacationHouse`, update DbContext, migration
+- [x] **26d** Create public `AuthController` with `POST /api/auth/register` and `POST /api/auth/login` (multi-role JWT)
+- [x] **26e** Create `UserProfileController` (`GET/PUT /api/me/profile`)
+- [x] **26f** Create `IOwnerAuthorizationService` + `OwnerAuthorizationService` (verify house ownership)
+- [x] **26g** Create `OwnerHouseController` — owner CRUD on own houses (description, view details with calendar/pricing)
+- [x] **26h** Admin: `PUT /api/admin/houses/{id}/owner` to assign ownership, `GET /api/admin/users` to list users, `PUT /api/admin/users/{id}/role` to change role
+- [x] **26i** Update authorization attributes across all existing controllers (backward compatible via `AdminRoles` alias)
+- [x] **26j** MVC: registration, login pages with multi-role support (public-facing)
+- [ ] **26k** MVC: owner dashboard with house list and edit views _(deferred to Phase 28)_
+- [x] **26l** Tests: 12 new integration tests — registration, login, role-based access, owner isolation, admin user management (77 total, all passing)
+
+**Estimated effort**: 15–20 hours | **Priority**: High | **Status**: ✅ Completed
+
+---
+
+## Phase 27: Booking System
+
+**Goal**: Implement a complete booking flow — from price quote to confirmed reservation — with proper lifecycle management, availability integration, and role-based visibility.
+
+**Dependencies**: Phase 26 (Multi-Role Auth) — requires User and Owner roles. Phase 21 (Availability) ✅ — booking creates availability blocks. Phase 16 (Calendar/Pricing) ✅ — price calculation for quotes.
+
+### Current State
+
+- No booking entity or concept exists in the system
+- Availability blocks exist (Phase 21) but are only created manually by admins
+- Price calculation exists (pricing pipeline) but isn't tied to a booking flow
+- Users can browse and see prices, but cannot reserve or confirm anything
+
+### Design
+
+#### Booking Entity
+
+```csharp
+public class Booking : IAuditable
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    [Required] public Guid HouseId { get; set; }
+    public VacationHouse House { get; set; } = null!;
+
+    [Required] public string UserId { get; set; } = "";
+    public ApplicationUser User { get; set; } = null!;
+
+    public DateOnly CheckIn { get; set; }
+    public DateOnly CheckOut { get; set; }
+    public int Guests { get; set; }
+
+    public decimal TotalPrice { get; set; }
+    public string Currency { get; set; } = "DKK";
+
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public DateTime? ConfirmedAtUtc { get; set; }
+    public DateTime? CancelledAtUtc { get; set; }
+    [MaxLength(500)] public string? CancellationReason { get; set; }
+
+    [MaxLength(500)] public string? GuestNotes { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    [MaxLength(256)] public string? CreatedBy { get; set; }
+    public DateTime? UpdatedAtUtc { get; set; }
+    [MaxLength(256)] public string? UpdatedBy { get; set; }
+}
+
+public enum BookingStatus
+{
+    Pending = 0,
+    Confirmed = 1,
+    Completed = 2,
+    Cancelled = 3
+}
+```
+
+#### Booking Lifecycle
+
+```
+Pending → Confirmed → Completed
+   │          │
+   └──→ Cancelled ←──┘
+```
+
+- **Pending**: User submitted booking, awaiting confirmation
+- **Confirmed**: Admin or owner confirmed the booking → auto-creates `AvailabilityBlock` (Blocked)
+- **Completed**: Check-out date has passed (can be auto-transitioned or manual)
+- **Cancelled**: User, owner, or admin cancelled → removes linked availability block
+
+#### Availability Integration
+
+When a booking is confirmed:
+
+1. Create an `AvailabilityBlock` with `Status = Blocked`, `Source = Booking`
+2. Store `BookingId` reference on the block (or in the `Note` field)
+3. On cancellation, remove or mark the linked availability block as available
+
+#### API Structure
+
+```
+Public (guest can start, user must be logged in to confirm):
+  POST /api/houses/{id}/quote       → calculate price for dates + guests (anonymous)
+  POST /api/houses/{id}/book        → create pending booking (requires User role)
+
+User-scoped:
+  GET    /api/me/bookings           → list own bookings (with filters: status, date range)
+  GET    /api/me/bookings/{id}      → booking detail
+  POST   /api/me/bookings/{id}/cancel → cancel own booking (if Pending or Confirmed)
+
+Owner-scoped:
+  GET    /api/owner/houses/{id}/bookings          → bookings for own house
+  POST   /api/owner/bookings/{id}/confirm         → confirm a pending booking
+  POST   /api/owner/bookings/{id}/cancel          → cancel a booking
+
+Admin:
+  GET    /api/admin/bookings                      → list all bookings (filters, pagination)
+  GET    /api/admin/bookings/{id}                 → booking detail
+  PUT    /api/admin/bookings/{id}/status           → change booking status
+  POST   /api/admin/bookings/{id}/cancel           → cancel any booking
+```
+
+#### Overlap Validation
+
+Before creating a booking, the service checks:
+
+1. House is `Published`
+2. Dates don't overlap with existing `AvailabilityBlock` (Blocked status)
+3. Dates don't overlap with another `Confirmed` booking
+4. Check-in is before check-out, both in the future
+5. Guest count is within `max_guests` feature value
+
+#### DTOs
+
+```csharp
+public sealed record QuoteRequestDto(DateOnly CheckIn, DateOnly CheckOut, int Guests);
+public sealed record QuoteResponseDto(decimal TotalPrice, string Currency, decimal NightlyAverage, int Nights);
+public sealed record CreateBookingDto(DateOnly CheckIn, DateOnly CheckOut, int Guests, string? GuestNotes);
+public sealed record BookingSummaryDto(Guid Id, Guid HouseId, string HouseTitle, DateOnly CheckIn, DateOnly CheckOut, int Guests, decimal TotalPrice, string Currency, BookingStatus Status, DateTime CreatedAtUtc);
+public sealed record BookingDetailDto(Guid Id, Guid HouseId, string HouseTitle, string? HouseAddress, DateOnly CheckIn, DateOnly CheckOut, int Guests, decimal TotalPrice, string Currency, BookingStatus Status, string? GuestNotes, DateTime CreatedAtUtc, DateTime? ConfirmedAtUtc, DateTime? CancelledAtUtc, string? CancellationReason);
+```
+
+### Tasks
+
+- [ ] **27a** Create `Booking` entity, `BookingStatus` enum in Domain
+- [ ] **27b** Add `DbSet<Booking>`, configure relationships and indexes in DbContext, migration
+- [ ] **27c** Create `IBookingService` + `BookingService` — create booking, validate dates/overlap/availability
+- [ ] **27d** Price quote endpoint: `POST /api/houses/{id}/quote` (anonymous, uses existing pricing pipeline)
+- [ ] **27e** User booking: `POST /api/houses/{id}/book`, `GET/POST /api/me/bookings` (cancel, list, detail)
+- [ ] **27f** Availability integration: auto-create `AvailabilityBlock` on confirm, remove on cancel
+- [ ] **27g** Owner booking view: `GET /api/owner/houses/{id}/bookings`, confirm/cancel actions
+- [ ] **27h** Admin booking management: list, detail, status change, cancel
+- [ ] **27i** MVC: booking flow UI (select dates → quote → confirm), user booking history page
+- [ ] **27j** MVC: owner booking list, admin booking management views
+- [ ] **27k** Seed data: add sample bookings to `DbSeeder` and `StressDataGenerator`
+- [ ] **27l** Tests: booking CRUD, overlap validation, lifecycle transitions, availability integration, role isolation
+
+**Estimated effort**: 15–20 hours | **Priority**: High
+
+---
+
+## Phase 28: Favorites & User Dashboard
+
+**Goal**: Allow registered users to save houses to a favorites list, and provide role-specific dashboards for users and owners.
+
+**Dependencies**: Phase 26 (Multi-Role Auth) — requires User role. Phase 27 (Booking System) — dashboard shows bookings.
+
+### Current State
+
+- No favorites concept exists
+- No user-facing dashboard
+- Owner dashboard doesn't exist (owners are a new concept from Phase 26)
+
+### Design
+
+#### FavoriteHouse Entity
+
+```csharp
+public class FavoriteHouse
+{
+    public string UserId { get; set; } = "";
+    public ApplicationUser User { get; set; } = null!;
+
+    public Guid HouseId { get; set; }
+    public VacationHouse House { get; set; } = null!;
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+}
+```
+
+Composite PK: `(UserId, HouseId)`. Simple join table, no extra metadata needed.
+
+#### API Structure
+
+```
+User-scoped:
+  GET    /api/me/favorites          → list favorite houses (with summary data)
+  POST   /api/me/favorites/{houseId} → add house to favorites
+  DELETE /api/me/favorites/{houseId} → remove from favorites
+  GET    /api/houses/{id}           → include "isFavorite" flag when user is authenticated
+```
+
+#### Dashboard Views
+
+**User Dashboard** (`/account/dashboard`):
+
+- **Upcoming bookings** — next 3 confirmed bookings with house image and dates
+- **Favorites** — saved houses grid with quick-view links
+- **Booking history** — paginated list of past bookings
+- **Profile summary** — name, email, phone with edit link
+
+**Owner Dashboard** (`/owner/dashboard`):
+
+- **My houses** — list of owned houses with status badge and occupancy indicator
+- **Upcoming bookings** — aggregated across all owned houses
+- **Calendar overview** — mini-calendar showing availability across houses
+- **Quick actions** — edit house, view bookings, view calendar
+
+#### House Card Enhancement
+
+When a logged-in user browses houses, each house card shows a heart icon (♡/♥) for favorites toggle. This requires:
+
+- Public house list API includes `isFavorite` per house when `Authorization` header is present
+- Toggle is a simple `POST`/`DELETE` to `/api/me/favorites/{houseId}`
+
+### Tasks
+
+- [ ] **28a** Create `FavoriteHouse` entity, configure composite PK in DbContext, migration
+- [ ] **28b** Create `IFavoriteService` + `FavoriteService` — add, remove, list, check if favorited
+- [ ] **28c** API: `GET/POST/DELETE /api/me/favorites` endpoints
+- [ ] **28d** Extend public house list/detail API to include `isFavorite` flag for authenticated users
+- [ ] **28e** MVC: user dashboard page (upcoming bookings, favorites grid, booking history, profile summary)
+- [ ] **28f** MVC: owner dashboard page (my houses, upcoming bookings, calendar overview)
+- [ ] **28g** MVC: favorite toggle (heart icon) on house cards and detail page
+- [ ] **28h** Tests: favorite CRUD, duplicate handling, unauthenticated access, dashboard data
+
+**Estimated effort**: 8–12 hours | **Priority**: Medium
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -1916,24 +2299,29 @@ Phase 17 (Audit) ✅      │                                 │
                          │                                 ├──→ Phase 22 (Search)
 Phase 18 (Status) ✅ ────┤──→ Phase 21 (Availability) ────┘         ↑
                          │                                           │
-Phase 19 (Concurrency)  ─┘                                          │
+Phase 19 (Concurrency) ⏸ ON HOLD                                    │
                                                                      │
-Phase 23 (Feature Categories) ──────────────────────────────────────┘
+Phase 23 (Feature Categories) ✅ ───────────────────────────────────┘
 
 Phase 24 (i18n) ──────── independent, can start anytime after Phase 15
 
-Phase 25 (Stress Test) ── before Phase 20 (baseline) → after Phase 20 (comparison)
+Phase 25 (Stress Test) ✅ partial ── before Phase 20 (baseline) → after Phase 20 (comparison)
+
+Phase 17 (Audit) ✅ ─────┐
+Phase 18 (Status) ✅ ─────┤──→ Phase 26 (Multi-Role Auth) ──→ Phase 27 (Booking) ──→ Phase 28 (Favorites)
+Phase 21 (Availability) ──┘                                          │
+Phase 16 (Calendar/Pricing) ✅ ──────────────────────────────────────┘
 ```
 
-**Recommended order**: ~~17 → 19 → 18 → 16~~ (done) → **23 → 25 → 19 → 20 → 22 → 24 → 21-UI**
+**Recommended order**: ~~17 → 19 → 18 → 16~~ (done) → ~~23 → 25~~ (done) → **26 → 27 → 28 → 20 → 22 → 24**
 
-- **23 (Feature Categories)** first: prerequisite for search engine, low-risk domain change
-- **25 (Stress Test)** early: establishes baseline before pricing optimization
-- **19 (Concurrency)** next: prevents data loss as admin usage grows
+- **26 (Multi-Role Auth)** next: foundation for user-facing features, enables bookings and ownership
+- **27 (Booking System)** after 26: core business value — users can book, owners can manage
+- **28 (Favorites & Dashboard)** after 27: user/owner experience polish
 - **20 (Price Snapshots)** after 25 baseline: then re-run stress test to measure improvement
 - **22 (Search)** after 20 + 23: aggregates price summaries and categorized features
 - **24 (i18n)** anytime: independent, can be parallelized with other work
-- **21 UI** (deferred tasks 21d/21f/21g): after Phase 20 and 22 are done
+- **19 (Concurrency)** on hold: revisit when multi-admin editing becomes a real concern
 
 ---
 
@@ -1978,16 +2366,20 @@ After completing all phases:
 | Phase 16  | 8-12 hours       | High     | **Completed** |
 | Phase 17  | 6-10 hours       | High     | **Completed** |
 | Phase 18  | 5-8 hours        | High     | **Completed** |
-| Phase 19  | 5-7 hours        | Medium   | Pending       |
+| Phase 19  | 5-7 hours        | Medium   | **On Hold**   |
 | Phase 20  | 8-12 hours       | High     | Pending       |
 | Phase 21  | 8-12 hours       | High     | **Partial**   |
 | Phase 22  | 10-15 hours      | Medium   | Pending       |
 | Phase 23  | 5-8 hours        | High     | **Completed** |
 | Phase 24  | 10-15 hours      | Medium   | Pending       |
 | Phase 25  | 10-15 hours      | High     | **Partial**   |
+| Phase 26  | 15-20 hours      | High     | **Completed** |
+| Phase 27  | 15-20 hours      | High     | Pending       |
+| Phase 28  | 8-12 hours       | Medium   | Pending       |
 
 **Remaining (refactoring)**: ~23-33 hours
 **Remaining (enterprise)**: ~75-114 hours
+**Remaining (user features)**: ~38-52 hours
 
 ---
 

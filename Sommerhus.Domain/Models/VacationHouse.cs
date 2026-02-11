@@ -39,4 +39,6 @@ public class VacationHouse : IAuditable
     public SeasonCalendar? CalendarOverride { get; set; }
 
     public List<AvailabilityBlock> AvailabilityBlocks { get; set; } = new();
+
+    [MaxLength(450)] public string? OwnerId { get; set; }  // FK → ApplicationUser.Id
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Auth;
+using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Core;
 using Sommerhus.Core.Identity;
 
@@ -133,6 +136,77 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
         return client;
+    }
+
+    public HttpClient CreateUserClient(string username = "testuser", string password = "TestUser123!")
+    {
+        var client = CreateClient();
+
+        // Register via public API
+        var regResponse = client.PostAsJsonAsync("api/auth/register", new RegisterRequest
+        {
+            Username = username,
+            Email = $"{username}@test.local",
+            Password = password,
+            FirstName = "Test",
+            LastName = "User"
+        }).GetAwaiter().GetResult();
+        regResponse.EnsureSuccessStatusCode();
+
+        var token = regResponse.Content.ReadFromJsonAsync<AuthTokenResponse>().GetAwaiter().GetResult()
+            ?? throw new InvalidOperationException("Unable to deserialize register response.");
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        return client;
+    }
+
+    public HttpClient CreateOwnerClient(string username = "testowner", string password = "TestOwner123!")
+    {
+        var client = CreateClient();
+
+        // Register via public API
+        var regResponse = client.PostAsJsonAsync("api/auth/register", new RegisterRequest
+        {
+            Username = username,
+            Email = $"{username}@test.local",
+            Password = password,
+            FirstName = "Test",
+            LastName = "Owner"
+        }).GetAwaiter().GetResult();
+        regResponse.EnsureSuccessStatusCode();
+
+        var token = regResponse.Content.ReadFromJsonAsync<AuthTokenResponse>().GetAwaiter().GetResult()
+            ?? throw new InvalidOperationException("Unable to deserialize register response.");
+
+        // Promote to HouseOwner via admin
+        var adminClient = CreateAuthenticatedClient();
+        var userId = GetUserIdFromToken(token.Token);
+
+        adminClient.PutAsJsonAsync($"api/admin/users/{userId}/role",
+            new ChangeUserRoleRequest { Role = AppRoles.HouseOwner })
+            .GetAwaiter().GetResult().EnsureSuccessStatusCode();
+
+        // Re-login to get updated token with HouseOwner role
+        var loginResponse = client.PostAsJsonAsync("api/auth/login", new LoginRequest
+        {
+            Username = username,
+            Password = password
+        }).GetAwaiter().GetResult();
+        loginResponse.EnsureSuccessStatusCode();
+
+        var ownerToken = loginResponse.Content.ReadFromJsonAsync<AuthTokenResponse>().GetAwaiter().GetResult()
+            ?? throw new InvalidOperationException("Unable to deserialize login response.");
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerToken.Token);
+        return client;
+    }
+
+    private static string GetUserIdFromToken(string token)
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+        return jwt.Claims.First(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier
+            || c.Type == "sub").Value;
     }
 
     protected override void Dispose(bool disposing)

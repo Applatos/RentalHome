@@ -1199,18 +1199,41 @@ The following are architectural gaps identified for production readiness. See `R
 
 ### Enterprise Tracking
 
-| Issue                          | Priority | Phase | Status      |
-| ------------------------------ | -------- | ----- | ----------- |
-| #35 Calendar tied to group     | High     | 16    | **Done**    |
-| #36 No audit trail             | High     | 17    | **Done**    |
-| #37 No entity lifecycle        | High     | 18    | **Done**    |
-| #38 No concurrency control     | Medium   | 19    | Pending     |
-| #39 Price computed per request | High     | 20    | Pending     |
-| #40 No availability model      | High     | 21    | **Done**    |
-| #41 LIKE search, no facets     | Medium   | 22    | Pending     |
-| #42 No feature categorization  | High     | 23    | **Done**    |
-| #43 No i18n framework          | Medium   | 24    | Pending     |
-| #44 No stress test / seed data | High     | 25    | **Partial** |
+| Issue                             | Priority | Phase | Status      |
+| --------------------------------- | -------- | ----- | ----------- |
+| #35 Calendar tied to group        | High     | 16    | **Done**    |
+| #36 No audit trail                | High     | 17    | **Done**    |
+| #37 No entity lifecycle           | High     | 18    | **Done**    |
+| #38 No concurrency control        | Medium   | 19    | **On Hold** |
+| #39 Price computed per request    | High     | 20    | Pending     |
+| #40 No availability model         | High     | 21    | **Done**    |
+| #41 LIKE search, no facets        | Medium   | 22    | Pending     |
+| #42 No feature categorization     | High     | 23    | **Done**    |
+| #43 No i18n framework             | Medium   | 24    | Pending     |
+| #44 No stress test / seed data    | High     | 25    | **Partial** |
+| #45 Single-role auth (Admin only) | High     | 26    | **Done**    |
+| #46 No booking system             | High     | 27    | Pending     |
+| #47 No favorites / user dashboard | Medium   | 28    | Pending     |
+
+---
+
+### 45. Single-Role Authorization (Admin Only)
+
+**Problem**: The system only has one role (`Admin`). There is no concept of a registered guest (User), no house ownership model (HouseOwner), and no public registration or login. All API endpoints are either fully anonymous or require admin access. Users cannot create accounts, book houses, save favorites, or manage personal profiles. House owners cannot self-service their own listings.
+
+**Solution**: Phase 26 — Expand to four roles (Guest, User, HouseOwner, Admin) with ASP.NET Core Identity. Extend `ApplicationUser` with profile fields. Add `OwnerId` FK to `VacationHouse`. Public registration + login API. Owner-scoped endpoints with isolation guard. Admin user/role management.
+
+### 46. No Booking System
+
+**Problem**: Users can browse houses and calculate prices, but there is no way to make a reservation. No booking entity, no booking lifecycle, no integration between bookings and availability blocks. The platform cannot fulfill its core business purpose of renting vacation houses.
+
+**Solution**: Phase 27 — `Booking` entity with lifecycle (Pending → Confirmed → Completed / Cancelled). Price quote → booking creation flow. Auto-create `AvailabilityBlock` on confirmation, remove on cancellation. User, owner, and admin booking management endpoints and MVC views.
+
+### 47. No Favorites or User Dashboard
+
+**Problem**: Registered users have no way to save houses for later, view their booking history in a dashboard, or manage their profile. House owners have no dashboard to see their listings and incoming bookings.
+
+**Solution**: Phase 28 — `FavoriteHouse` entity with composite PK. User dashboard (favorites, bookings, profile). Owner dashboard (houses, bookings, calendar). Favorite toggle on house cards.
 
 ---
 

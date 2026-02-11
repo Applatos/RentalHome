@@ -31,6 +31,11 @@ builder.Services.AddHttpClient<AdminAuthClient>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
 });
 
+builder.Services.AddHttpClient<PublicAuthClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
 builder.Services.AddHttpClient<AdminApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);

@@ -1,13 +1,13 @@
 @model Sommerhus.Mvc.ViewModels.Account.LoginViewModel
 @{
-    ViewData["Title"] = "Admin login";
+    ViewData["Title"] = "Login";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h1 class="h4 mb-3">Log ind</h1>
+                <h1 class="h4 mb-3">Login</h1>
                 <form asp-action="Login" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="ReturnUrl" />
@@ -25,8 +25,12 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Log ind</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
                 </form>
+                <hr />
+                <p class="text-center mb-0">
+                    Don't have an account? <a asp-action="Register">Register here</a>
+                </p>
             </div>
         </div>
     </div>
