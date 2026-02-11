@@ -24,7 +24,10 @@
                     <p class="muted small mb-0">@Model.Summary</p>
                 }
             </div>
-            <a class="btn btn-dark btn-sm" href="@Url.Action("Details", "Houses", new { id = Model.Id })">Læs mere ▸</a>
+            <a class="btn btn-dark btn-sm"
+               href="~/houses/@Model.Id">
+                Læs mere ▸
+            </a>
         </div>
     </div>
 

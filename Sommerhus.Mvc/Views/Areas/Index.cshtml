@@ -40,7 +40,7 @@
                             <h2 class="h4">@area.Name</h2>
                             <p class="text-muted">@area.HouseCount @(area.HouseCount == 1 ? "sommerhus" : "sommerhuse")</p>
                             <div class="mt-auto">
-                                <a class="btn btn-outline-dark" asp-action="Details" asp-route-id="@area.Id">Læs mere</a>
+                                <a class="btn btn-outline-dark" href="areas/@area.Id">Læs mere</a>
                             </div>
                         </div>
                     </div>

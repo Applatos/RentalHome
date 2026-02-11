@@ -52,9 +52,9 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
         if (!res.Ok)
         {
             SetError(res.Message ?? "Could not find house.");
-            return View();
+            return View("~/Views/Houses/Houses.cshtml");
         }
-        return View(res.Data);
+        return View("~/Views/Houses/details.cshtml", res.Data);
     }
 
     [HttpPost("/houses/{id:guid}/quote")]

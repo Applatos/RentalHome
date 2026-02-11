@@ -36,6 +36,6 @@ public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
             return RedirectToAction(nameof(Index));
         }
 
-        return View(result.Data);
+        return View("~/Views/Areas/details.cshtml", result.Data);
     }
 }

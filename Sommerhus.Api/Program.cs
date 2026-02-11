@@ -8,7 +8,6 @@ using Sommerhus.Api.Infrastructure.Auth;
 using Sommerhus.Core.Dtos.Security;
 using Sommerhus.Core;
 
-
 namespace Sommerhus.Api;
 
 public class Program
@@ -60,6 +59,7 @@ public class Program
         {
             options.AddPolicy(AdminRoles.Admin, policy => policy.RequireRole(AdminRoles.Admin));
         });
+
 
         builder.Services
             .AddAdminServices()
