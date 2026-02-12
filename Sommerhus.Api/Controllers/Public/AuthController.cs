@@ -15,12 +15,7 @@ namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(
-    UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager,
-    IOptions<JwtOptions> jwtOptionsAccessor)
-    : ControllerBase
-{
+public sealed class AuthController(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager,IOptions<JwtOptions> jwtOptionsAccessor) : ControllerBase{
     private readonly UserManager<ApplicationUser> userManager = userManager;
     private readonly SignInManager<ApplicationUser> signInManager = signInManager;
     private readonly JwtOptions jwtOptions = jwtOptionsAccessor.Value;
