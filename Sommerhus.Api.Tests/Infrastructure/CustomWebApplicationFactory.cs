@@ -209,6 +209,19 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             || c.Type == "sub").Value;
     }
 
+    public void EnsureHousePublished(Guid houseId)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var house = db.Houses.FirstOrDefault(h => h.Id == houseId);
+        if (house is not null && house.Status != Sommerhus.Domain.Models.EntityStatus.Published)
+        {
+            house.Status = Sommerhus.Domain.Models.EntityStatus.Published;
+            house.PublishedAtUtc = DateTime.UtcNow;
+            db.SaveChanges();
+        }
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

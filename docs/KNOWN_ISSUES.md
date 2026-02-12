@@ -1212,7 +1212,7 @@ The following are architectural gaps identified for production readiness. See `R
 | #43 No i18n framework             | Medium   | 24    | Pending     |
 | #44 No stress test / seed data    | High     | 25    | **Partial** |
 | #45 Single-role auth (Admin only) | High     | 26    | **Done**    |
-| #46 No booking system             | High     | 27    | Pending     |
+| #46 No booking system             | High     | 27    | **Done**    |
 | #47 No favorites / user dashboard | Medium   | 28    | Pending     |
 
 ---
@@ -1223,11 +1223,21 @@ The following are architectural gaps identified for production readiness. See `R
 
 **Solution**: Phase 26 — Expand to four roles (Guest, User, HouseOwner, Admin) with ASP.NET Core Identity. Extend `ApplicationUser` with profile fields. Add `OwnerId` FK to `VacationHouse`. Public registration + login API. Owner-scoped endpoints with isolation guard. Admin user/role management.
 
-### 46. No Booking System
+### 46. ~~No Booking System~~ ✅ Resolved
 
 **Problem**: Users can browse houses and calculate prices, but there is no way to make a reservation. No booking entity, no booking lifecycle, no integration between bookings and availability blocks. The platform cannot fulfill its core business purpose of renting vacation houses.
 
-**Solution**: Phase 27 — `Booking` entity with lifecycle (Pending → Confirmed → Completed / Cancelled). Price quote → booking creation flow. Auto-create `AvailabilityBlock` on confirmation, remove on cancellation. User, owner, and admin booking management endpoints and MVC views.
+**Solution**: Phase 27 (Completed) — Full booking system with lifecycle management across all three roles:
+
+- **Domain**: `Booking` entity with `BookingStatus` enum (Pending → Confirmed → Completed / Cancelled). Links to `VacationHouse`, `ApplicationUser`, and optional `AvailabilityBlock`. Implements `IAuditable`.
+- **User endpoints** (`api/bookings`): Create booking (validates house published, date availability, calculates price via pricing pipeline), list own bookings, get booking details, cancel pending/confirmed bookings.
+- **Owner endpoints** (`api/owner/bookings`): List bookings for owned houses, get booking details, confirm (auto-creates `AvailabilityBlock` with `Source=Booking`), reject pending bookings.
+- **Admin endpoints** (`api/admin/bookings`): List all bookings with filters (houseId, userId, status), get any booking, update status with validated transitions. Confirm creates availability block; cancel removes it.
+- **Availability integration**: Confirming a booking creates an `AvailabilityBlock` (status=Booked, source=Booking). Cancelling removes it. Booking creation checks availability before allowing.
+- **Price integration**: Booking creation calls `IPricingQuoteService.QuoteAsync` to calculate and store the total price.
+- 11 new integration tests (88 total, all passing).
+
+---
 
 ### 47. No Favorites or User Dashboard
 

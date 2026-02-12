@@ -41,6 +41,9 @@ Models/
 ├── HouseFeatureValue.cs  # Feature values per house
 ├── HouseImage.cs         # Image metadata
 ├── HouseGroup.cs         # Grouping for pricing
+├── Booking.cs            # Reservation entity with lifecycle (Phase 27)
+├── BookingStatus.cs      # Pending/Confirmed/Completed/Cancelled enum
+├── AvailabilityBlock.cs  # Date blocking for houses (Phase 21)
 └── Pricing/              # Pricing-related entities
     ├── PricePlan.cs
     ├── SeasonPrice.cs
@@ -90,12 +93,18 @@ Core/
 │   │   │   ├── IAdminHouseService.cs
 │   │   │   └── AdminHouseService.cs
 │   │   ├── Areas/
+│   │   ├── Bookings/         # Admin booking management (Phase 27)
 │   │   ├── Cities/
 │   │   └── Features/
 │   ├── Public/               # Public service interfaces + implementations
-│   │   └── Houses/
-│   │       ├── IHouseQueryService.cs
-│   │       └── HouseQueryService.cs
+│   │   ├── Houses/
+│   │   │   ├── IHouseQueryService.cs
+│   │   │   └── HouseQueryService.cs
+│   │   └── Bookings/         # User booking creation/listing (Phase 27)
+│   ├── Owner/                # Owner-scoped services (Phase 26-27)
+│   │   ├── IOwnerHouseService.cs
+│   │   ├── IOwnerBookingService.cs
+│   │   └── OwnerBookingService.cs
 │   ├── Pricing/              # Pricing engine
 │   │   ├── Abstractions/
 │   │   └── Engine/
@@ -136,9 +145,14 @@ Api/
 │   ├── Admin/            # Protected endpoints (require Admin role)
 │   │   ├── HousesController.cs
 │   │   ├── AreasController.cs
+│   │   ├── BookingsController.cs  # Admin booking management (Phase 27)
 │   │   └── AuthController.cs
-│   └── Public/           # Open endpoints
+│   ├── Owner/            # Owner-scoped endpoints (Phase 26-27)
+│   │   ├── OwnerHouseController.cs
+│   │   └── OwnerBookingsController.cs
+│   └── Public/           # Open/authenticated endpoints
 │       ├── HousesController.cs
+│       ├── BookingsController.cs  # User booking CRUD (Phase 27)
 │       └── PricingController.cs
 ├── Infrastructure/
 │   ├── Auth/
@@ -308,6 +322,17 @@ Area
 ├── Name
 ├── Cities (M:N via AreaCities)
 └── Houses (M:N via HouseAreas)
+
+Booking (Phase 27)
+├── Id (PK)
+├── HouseId (FK → VacationHouse)
+├── UserId (FK → ApplicationUser)
+├── CheckIn, CheckOut (DateOnly)
+├── Guests, Currency, TotalPrice
+├── Status (Pending/Confirmed/Completed/Cancelled)
+├── AvailabilityBlockId (FK → AvailabilityBlock, nullable)
+├── GuestNote, OwnerNote
+└── IAuditable fields
 
 PricePlan
 ├── Id (PK)

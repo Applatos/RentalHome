@@ -34,6 +34,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     // Availability
     public DbSet<AvailabilityBlock> AvailabilityBlocks => Set<AvailabilityBlock>();
 
+    // Bookings
+    public DbSet<Booking> Bookings => Set<Booking>();
+
     // Audit
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
@@ -224,6 +227,28 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.EndDate).IsRequired();
             e.Property(x => x.Note).HasMaxLength(500);
             e.HasIndex(x => new { x.HouseId, x.StartDate, x.EndDate });
+        });
+
+        // Booking
+        b.Entity<Booking>(e =>
+        {
+            e.HasOne(x => x.House)
+                .WithMany()
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
+            e.HasIndex(x => x.UserId);
+            e.HasIndex(x => x.HouseId);
+            e.HasIndex(x => x.Status);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(10);
+            e.Property(x => x.TotalPrice).HasPrecision(18, 2);
+            e.Property(x => x.GuestNote).HasMaxLength(500);
+            e.Property(x => x.OwnerNote).HasMaxLength(500);
+            e.Property(x => x.CancelledBy).HasMaxLength(256);
+            e.HasOne(x => x.AvailabilityBlock)
+                .WithMany()
+                .HasForeignKey(x => x.AvailabilityBlockId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Audit entry
