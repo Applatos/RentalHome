@@ -6,16 +6,8 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Images;
 
-public sealed class HouseImageQueryService : IHouseImageQueryService
+public sealed class HouseImageQueryService(AppDbContext db, IImageStorage storage) : IHouseImageQueryService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage storage;
-
-    public HouseImageQueryService(AppDbContext db, IImageStorage storage)
-    {
-        this.db = db;
-        this.storage = storage;
-    }
 
     public async Task<IEnumerable<ImageDto>> GetAsync(Guid houseId, string baseUrl, CancellationToken ct)
     {

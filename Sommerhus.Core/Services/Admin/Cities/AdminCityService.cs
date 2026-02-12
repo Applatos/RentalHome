@@ -10,14 +10,8 @@ using Sommerhus.Core;
 
 namespace Sommerhus.Core.Services.Admin.Cities;
 
-public sealed class AdminCityService : IAdminCityService
+public sealed class AdminCityService(AppDbContext db) : IAdminCityService
 {
-    private readonly AppDbContext db;
-
-    public AdminCityService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<IReadOnlyList<CityDto>> GetAllAsync(CancellationToken ct)
         => await db.Cities.AsNoTracking()

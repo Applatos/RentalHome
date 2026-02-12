@@ -5,7 +5,7 @@ using Microsoft.OpenApi.Models;
 using Sommerhus.Api.Extensions;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Api.Infrastructure.Auth;
-using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Identity;
 using Sommerhus.Core;
 
 namespace Sommerhus.Api;
@@ -57,7 +57,7 @@ public class Program
 
         builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy(AdminRoles.Admin, policy => policy.RequireRole(AdminRoles.Admin));
+            options.AddPolicy(AppRoles.Admin, policy => policy.RequireRole(AppRoles.Admin));
         });
 
 
@@ -66,7 +66,8 @@ public class Program
             .AddPublicServices()
             .AddOwnerServices()
             .AddStorageServices(builder.Configuration)
-            .AddPricingServices();
+            .AddPricingServices()
+            .AddDevServices();
 
         // Swagger
         builder.Services.AddEndpointsApiExplorer();

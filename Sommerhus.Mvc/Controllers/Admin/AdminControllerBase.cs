@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-[Authorize]
+[Authorize(Roles = AppRoles.Admin)]
 public abstract class AdminControllerBase : SommerhusControllerBase
 {
     protected void SetAdminTab(string tab) => ViewData["AdminTab"] = tab;

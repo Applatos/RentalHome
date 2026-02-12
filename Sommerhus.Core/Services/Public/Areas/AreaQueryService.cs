@@ -6,16 +6,8 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Areas;
 
-public sealed class AreaQueryService : IAreaQueryService
+public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : IAreaQueryService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage storage;
-
-    public AreaQueryService(AppDbContext db, IImageStorage storage)
-    {
-        this.db = db;
-        this.storage = storage;
-    }
 
     public async Task<IEnumerable<AreaListItemDto>> SearchAsync(string? query, CancellationToken ct)
     {

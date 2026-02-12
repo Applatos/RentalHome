@@ -4,7 +4,7 @@ using Bogus;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Identity;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;

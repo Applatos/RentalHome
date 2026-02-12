@@ -11,16 +11,8 @@ using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Admin.Areas;
 
-public sealed class AdminAreaService : IAdminAreaService
+public sealed class AdminAreaService(AppDbContext db, IImageStorage imageStorage) : IAdminAreaService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage imageStorage;
-
-    public AdminAreaService(AppDbContext db, IImageStorage imageStorage)
-    {
-        this.db = db;
-        this.imageStorage = imageStorage;
-    }
 
     public async Task<IReadOnlyList<AreaListItemDto>> GetAllAsync(CancellationToken ct)
         => await db.Areas.AsNoTracking()

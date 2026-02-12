@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sommerhus.Core.Dtos.Admin;
 
-public record UpsertAreaDto
+public sealed class UpsertAreaDto
 {
     [Required(ErrorMessage = "Name is required")]
     public string Name { get; set; } = string.Empty;

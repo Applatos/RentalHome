@@ -8,14 +8,8 @@ using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.HouseGroups;
 
-public sealed class AdminHouseGroupService : IAdminHouseGroupService
+public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupService
 {
-    private readonly AppDbContext db;
-
-    public AdminHouseGroupService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<IReadOnlyList<LookupItem>> GetAllAsync(CancellationToken ct)
         => await db.HouseGroups.AsNoTracking()

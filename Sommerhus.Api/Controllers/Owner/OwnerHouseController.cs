@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Dtos.Owner;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Owner;
 

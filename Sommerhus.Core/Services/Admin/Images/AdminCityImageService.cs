@@ -14,12 +14,9 @@ namespace Sommerhus.Core.Services.Admin.Images;
 /// <summary>
 /// Manages images for City entities.
 /// </summary>
-public sealed class AdminCityImageService : AdminImageServiceBase, IAdminCityImageService
+public sealed class AdminCityImageService(AppDbContext db, IImageStorage storage)
+    : AdminImageServiceBase(db, storage), IAdminCityImageService
 {
-    public AdminCityImageService(AppDbContext db, IImageStorage storage)
-        : base(db, storage)
-    {
-    }
 
     public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid cityId, string baseUrl, CancellationToken ct)
     {

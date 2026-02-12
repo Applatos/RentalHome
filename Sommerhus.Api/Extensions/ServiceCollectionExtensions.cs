@@ -47,6 +47,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEntityLifecycleService, EntityLifecycleService>();
         services.AddScoped<IAdminCalendarService, AdminCalendarService>();
         services.AddScoped<IAdminAvailabilityService, AdminAvailabilityService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddDevServices(this IServiceCollection services)
+    {
         services.AddScoped<IStressDataGenerator, StressDataGenerator>();
 
         return services;

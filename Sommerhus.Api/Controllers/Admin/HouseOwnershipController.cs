@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Api.Controllers.Admin;

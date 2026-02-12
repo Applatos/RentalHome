@@ -6,12 +6,12 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Security;
+
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/features")]
 public sealed class FeaturesController(IAdminFeatureService service) : ControllerBase
 {

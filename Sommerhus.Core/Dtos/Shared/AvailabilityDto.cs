@@ -13,16 +13,16 @@ public sealed record AvailabilityBlockDto(
     DateTime CreatedAtUtc,
     string? CreatedBy);
 
-public sealed record UpsertAvailabilityBlockDto
+public sealed class UpsertAvailabilityBlockDto
 {
-    public DateOnly StartDate { get; init; }
-    public DateOnly EndDate { get; init; }
-    public AvailabilityStatus Status { get; init; } = AvailabilityStatus.Blocked;
-    public string? Note { get; init; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+    public AvailabilityStatus Status { get; set; } = AvailabilityStatus.Blocked;
+    public string? Note { get; set; }
 }
 
-public sealed record AvailabilityQueryDto
+public sealed class AvailabilityQueryDto
 {
-    public DateOnly From { get; init; }
-    public DateOnly To { get; init; }
+    public DateOnly From { get; set; }
+    public DateOnly To { get; set; }
 }

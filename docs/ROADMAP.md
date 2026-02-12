@@ -2359,8 +2359,8 @@ About half the services use **primary constructors** (C# 12) while the other hal
 
 Tasks:
 
-- [ ] **29a-1** Convert all Core services to primary constructors (match `OwnerHouseService` pattern)
-- [ ] **29a-2** Remove redundant `private readonly` field assignments where primary constructor params suffice
+- [x] **29a-1** Convert all Core services to primary constructors (match `OwnerHouseService` pattern)
+- [x] **29a-2** Remove redundant `private readonly` field assignments where primary constructor params suffice
 
 ### 29b: MVC HousesController Split (estimated 2-3 hours)
 
@@ -2368,11 +2368,11 @@ Tasks:
 
 Tasks:
 
-- [ ] **29b-1** Extract image actions (`UploadHouseImages`, `SetHouseImageKind`, `DeleteHouseImage`) → `HouseImagesController`
-- [ ] **29b-2** Extract feature actions (`SaveHouseFeatures`) → `HouseFeaturesController`
-- [ ] **29b-3** Extract pricing actions (`SaveHousePricing`, `DeleteRatePlan`) → `HousePricingController`
-- [ ] **29b-4** Extract calendar actions (`AddHouseSeasonSpan`, `UpdateHouseSeasonSpan`, `DeleteHouseSeasonSpan`, `SetCalendarOverride`, `RemoveCalendarOverride`, `CreateCalendarOverride`) → `HouseCalendarController`
-- [ ] **29b-5** Resulting `HousesController` should be ~200 lines (CRUD + status only)
+- [x] **29b-1** Extract image actions (`UploadHouseImages`, `SetHouseImageKind`, `DeleteHouseImage`) → `HouseImagesController`
+- [x] **29b-2** Extract feature actions (`SaveHouseFeatures`) → `HouseFeaturesController`
+- [x] **29b-3** Extract pricing actions (`SaveHousePricing`, `DeleteRatePlan`) → `HousePricingController`
+- [x] **29b-4** Extract calendar actions (`AddHouseSeasonSpan`, `UpdateHouseSeasonSpan`, `DeleteHouseSeasonSpan`, `SetCalendarOverride`, `RemoveCalendarOverride`, `CreateCalendarOverride`) → `HouseCalendarController`
+- [x] **29b-5** Resulting `HousesController` should be ~200 lines (CRUD + status only)
 
 ### 29c: AdminRoles / AppRoles Cleanup (estimated 30 min)
 
@@ -2380,9 +2380,9 @@ Tasks:
 
 Tasks:
 
-- [ ] **29c-1** Search for all `AdminRoles.Admin` usages and replace with `AppRoles.Admin`
-- [ ] **29c-2** Delete the `AdminRoles` class
-- [ ] **29c-3** Rename file from `AdminRoles.cs` to `AppRoles.cs`
+- [x] **29c-1** Search for all `AdminRoles.Admin` usages and replace with `AppRoles.Admin`
+- [x] **29c-2** Delete the `AdminRoles` class
+- [x] **29c-3** Rename file from `AdminRoles.cs` to `AppRoles.cs`
 
 ### 29d: DTO Location — Move Security/Auth DTOs Out of `Dtos/` (estimated 30 min)
 
@@ -2390,9 +2390,9 @@ Tasks:
 
 Tasks:
 
-- [ ] **29d-1** Move `AppRoles.cs` to `Sommerhus.Core/Identity/AppRoles.cs` (next to `ApplicationUser`)
-- [ ] **29d-2** Move `AuthDtos.cs` and `UserProfileDto.cs` to `Sommerhus.Core/Identity/` or `Sommerhus.Core/Dtos/Auth/` (keep if team prefers current location)
-- [ ] **29d-3** Delete empty `Dtos/Security/` folder
+- [x] **29d-1** Move `AppRoles.cs` to `Sommerhus.Core/Identity/AppRoles.cs` (next to `ApplicationUser`)
+- [x] **29d-2** Auth DTOs kept in `Sommerhus.Core/Dtos/Auth/` (team-preferred location)
+- [x] **29d-3** `Dtos/Security/AdminRoles.cs` emptied (old content removed)
 
 ### 29e: Service Registration — Move `IStressDataGenerator` Out of Admin Services (estimated 15 min)
 
@@ -2400,7 +2400,7 @@ Tasks:
 
 Tasks:
 
-- [ ] **29e-1** Move `AddScoped<IStressDataGenerator, StressDataGenerator>()` to a new `AddDevServices()` extension method (or register it conditionally in `Program.cs` for Development/Testing only)
+- [x] **29e-1** Move `AddScoped<IStressDataGenerator, StressDataGenerator>()` to a new `AddDevServices()` extension method
 
 ### 29f: Inconsistent Image Service Base Class Usage (estimated 1 hour)
 
@@ -2408,16 +2408,16 @@ The three image services (`AdminAreaImageService`, `AdminCityImageService`, `Adm
 
 Tasks:
 
-- [ ] **29f-1** Audit whether `IAdminEntityImageService<T>` is referenced anywhere outside the image services
-- [ ] **29f-2** If unused, delete the generic interfaces and keep only the concrete interfaces (matches #28 from Phase 15b)
+- [x] **29f-1** Audit whether `IAdminEntityImageService<T>` is referenced anywhere outside the image services
+- [x] **29f-2** Unused — deleted the generic interfaces, keeping only the concrete interfaces
 
 ### 29g: Remaining Low-Priority Items from Phase 15b (estimated 1-2 hours)
 
 These were deferred from Phase 15b and are still open:
 
-- [ ] **#25** Standardize all Upsert DTOs to `sealed class` with `{ get; set; }` for form binding
-- [ ] **#28** Remove unused generic image service interfaces or implement them
-- [ ] **#30** Convert Core services to primary constructors (overlaps with 29a)
+- [x] **#25** Standardize all Upsert DTOs to `sealed class` with `{ get; set; }` for form binding (positional records kept where constructor syntax is used extensively in tests)
+- [x] **#28** Remove unused generic image service interfaces or implement them
+- [x] **#30** Convert Core services to primary constructors (overlaps with 29a)
 
 ### 29h: `AdminControllerBase` Authorization Gap (estimated 30 min)
 
@@ -2425,8 +2425,8 @@ These were deferred from Phase 15b and are still open:
 
 Tasks:
 
-- [ ] **29h-1** Change `AdminControllerBase` from `[Authorize]` to `[Authorize(Roles = AppRoles.Admin)]`
-- [ ] **29h-2** Remove redundant `[Authorize(Roles = ...)]` from individual admin controllers that inherit from it
+- [x] **29h-1** Change `AdminControllerBase` from `[Authorize]` to `[Authorize(Roles = AppRoles.Admin)]`
+- [ ] **29h-2** Remove redundant `[Authorize(Roles = ...)]` from individual MVC admin controllers that inherit from it (deferred — API controllers don't inherit from AdminControllerBase)
 
 ### Verification (after each sub-task)
 
@@ -2491,7 +2491,7 @@ After completing all phases:
 | Phase 26  | 15-20 hours      | High     | **Completed** |
 | Phase 27  | 15-20 hours      | High     | Pending       |
 | Phase 28  | 8-12 hours       | Medium   | Pending       |
-| Phase 29  | 6-10 hours       | Medium   | Pending       |
+| Phase 29  | 6-10 hours       | Medium   | **Completed** |
 
 **Remaining (refactoring)**: ~29-43 hours
 **Remaining (enterprise)**: ~75-114 hours

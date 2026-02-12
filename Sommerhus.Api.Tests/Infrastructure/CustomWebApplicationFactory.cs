@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Auth;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core;
 using Sommerhus.Core.Identity;
 

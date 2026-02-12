@@ -11,18 +11,8 @@ using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Pricing;
 
-public sealed class AdminPricingService : IAdminPricingService, IPricingQuoteService
+public sealed class AdminPricingService(AppDbContext db, IConfiguration configuration, IPricingPipeline pipeline) : IAdminPricingService, IPricingQuoteService
 {
-    private readonly AppDbContext db;
-    private readonly IConfiguration configuration;
-    private readonly IPricingPipeline pipeline;
-
-    public AdminPricingService(AppDbContext db, IConfiguration configuration, IPricingPipeline pipeline)
-    {
-        this.db = db;
-        this.configuration = configuration;
-        this.pipeline = pipeline;
-    }
 
     public async Task<ServiceResult<PriceQuoteResponseDto>> QuoteAsync(PriceQuoteRequestDto request, CancellationToken ct)
     {

@@ -16,16 +16,16 @@ public sealed record SeasonSpanDto(
 /// <summary>
 /// Season span create/update DTO.
 /// </summary>
-public sealed record UpsertSeasonSpanDto
+public sealed class UpsertSeasonSpanDto
 {
     [Required]
-    public DateOnly StartDate { get; init; }
+    public DateOnly StartDate { get; set; }
 
     [Required]
-    public DateOnly EndDate { get; init; }
+    public DateOnly EndDate { get; set; }
 
     [Required, MaxLength(10)]
-    public string Code { get; init; } = "";
+    public string Code { get; set; } = "";
 }
 
 /// <summary>

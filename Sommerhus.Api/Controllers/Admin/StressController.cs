@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Data;
-using Sommerhus.Core.Dtos.Security;
+
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/stress")]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 public sealed class StressController(IStressDataGenerator generator, IHostEnvironment env) : ControllerBase
 {
     [HttpPost("seed")]

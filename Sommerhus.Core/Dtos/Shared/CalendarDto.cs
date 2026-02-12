@@ -9,23 +9,23 @@ public sealed record CalendarDto(
     bool IsTemplate,
     int SpanCount);
 
-public sealed record UpsertCalendarDto
+public sealed class UpsertCalendarDto
 {
     [Required, MaxLength(150)]
-    public string Name { get; init; } = "";
+    public string Name { get; set; } = "";
 
-    public int? Year { get; init; }
+    public int? Year { get; set; }
 
-    public bool IsTemplate { get; init; }
+    public bool IsTemplate { get; set; }
 }
 
-public sealed record SetCalendarOverrideDto
+public sealed class SetCalendarOverrideDto
 {
     [Required]
-    public Guid CalendarId { get; init; }
+    public Guid CalendarId { get; set; }
 }
 
-public sealed record CreateCalendarOverrideDto
+public sealed class CreateCalendarOverrideDto
 {
-    public string Name { get; init; } = "";
+    public string Name { get; set; } = "";
 }

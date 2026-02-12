@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Admin.Calendars;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/calendars")]
 public sealed class CalendarsController(IAdminCalendarService calendarService) : ControllerBase
 {

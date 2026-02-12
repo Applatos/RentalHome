@@ -4,13 +4,13 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Services.Admin.Lifecycle;
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/areas")]
 public sealed class AreasController(IAdminAreaService service, IEntityLifecycleService lifecycleService) : ControllerBase
 {

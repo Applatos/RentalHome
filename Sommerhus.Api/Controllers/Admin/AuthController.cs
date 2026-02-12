@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Sommerhus.Api.Infrastructure.Auth;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Api.Controllers.Admin;
@@ -47,7 +47,7 @@ public sealed class AuthController(
             return Unauthorized();
         }
 
-        if (!await userManager.IsInRoleAsync(user, AdminRoles.Admin))
+        if (!await userManager.IsInRoleAsync(user, AppRoles.Admin))
         {
             return Forbid();
         }

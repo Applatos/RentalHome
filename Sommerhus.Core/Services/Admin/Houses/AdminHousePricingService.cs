@@ -8,14 +8,8 @@ using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHousePricingService : IAdminHousePricingService
+public sealed class AdminHousePricingService(AppDbContext db) : IAdminHousePricingService
 {
-    private readonly AppDbContext db;
-
-    public AdminHousePricingService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<ServiceResult<PricePlanDetailsDto>> UpsertPricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
     {

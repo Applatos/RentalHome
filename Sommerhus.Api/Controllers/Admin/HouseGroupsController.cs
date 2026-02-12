@@ -5,12 +5,12 @@ using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Security;
+
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/house-groups")]
 public sealed class HouseGroupsController(IAdminHouseGroupService service) : ControllerBase
 {

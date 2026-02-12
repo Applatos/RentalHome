@@ -5,14 +5,8 @@ using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHouseFeatureService : IAdminHouseFeatureService
+public sealed class AdminHouseFeatureService(AppDbContext db) : IAdminHouseFeatureService
 {
-    private readonly AppDbContext db;
-
-    public AdminHouseFeatureService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<ServiceResult> UpsertFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
     {

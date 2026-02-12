@@ -12,17 +12,11 @@ namespace Sommerhus.Core.Services.Admin.Images;
 /// <summary>
 /// Base class for admin image services providing common functionality.
 /// </summary>
-public abstract class AdminImageServiceBase
+public abstract class AdminImageServiceBase(AppDbContext db, IImageStorage storage)
 {
-    protected AdminImageServiceBase(AppDbContext db, IImageStorage storage)
-    {
-        Db = db;
-        Storage = storage;
-    }
+    protected AppDbContext Db { get; } = db;
 
-    protected AppDbContext Db { get; }
-
-    protected IImageStorage Storage { get; }
+    protected IImageStorage Storage { get; } = storage;
 
     /// <summary>
     /// Validates that the file is a valid image file.

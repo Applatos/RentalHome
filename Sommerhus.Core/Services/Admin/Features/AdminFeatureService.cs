@@ -14,16 +14,8 @@ using Sommerhus.Core;
 
 namespace Sommerhus.Core.Services.Admin.Features;
 
-public sealed class AdminFeatureService : IAdminFeatureService
+public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStorage) : IAdminFeatureService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage imageStorage;
-
-    public AdminFeatureService(AppDbContext db, IImageStorage imageStorage)
-    {
-        this.db = db;
-        this.imageStorage = imageStorage;
-    }
 
     public async Task<IReadOnlyList<FeatureDto>> GetAllAsync(string baseUrl, CancellationToken ct)
     {

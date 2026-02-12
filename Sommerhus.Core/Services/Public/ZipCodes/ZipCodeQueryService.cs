@@ -3,14 +3,8 @@ using Sommerhus.Core.Services.Public.ZipCodes;
 
 namespace Sommerhus.Core.Services.Public.ZipCodes;
 
-public sealed class ZipCodeQueryService : IZipCodeQueryService
+public sealed class ZipCodeQueryService(AppDbContext db) : IZipCodeQueryService
 {
-    private readonly AppDbContext db;
-
-    public ZipCodeQueryService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<IEnumerable<string>> FindAsync(string query, CancellationToken ct)
     {

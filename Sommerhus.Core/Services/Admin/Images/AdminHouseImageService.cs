@@ -14,12 +14,9 @@ namespace Sommerhus.Core.Services.Admin.Images;
 /// <summary>
 /// Manages images for VacationHouse entities.
 /// </summary>
-public sealed class AdminHouseImageService : AdminImageServiceBase, IAdminHouseImageService
+public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storage)
+    : AdminImageServiceBase(db, storage), IAdminHouseImageService
 {
-    public AdminHouseImageService(AppDbContext db, IImageStorage storage)
-        : base(db, storage)
-    {
-    }
 
     public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid houseId, string baseUrl, CancellationToken ct)
     {

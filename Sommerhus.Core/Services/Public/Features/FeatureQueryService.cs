@@ -5,16 +5,8 @@ using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Public.Features;
 
-public sealed class FeatureQueryService : IFeatureQueryService
+public sealed class FeatureQueryService(AppDbContext db, IImageStorage storage) : IFeatureQueryService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage storage;
-
-    public FeatureQueryService(AppDbContext db, IImageStorage storage)
-    {
-        this.db = db;
-        this.storage = storage;
-    }
 
     public async Task<IEnumerable<FeatureDto>> GetAllAsync(string baseUrl, CancellationToken ct)
     {

@@ -13,16 +13,8 @@ using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHouseService : IAdminHouseService
+public sealed class AdminHouseService(AppDbContext db, IImageStorage imageStorage) : IAdminHouseService
 {
-    private readonly AppDbContext db;
-    private readonly IImageStorage imageStorage;
-
-    public AdminHouseService(AppDbContext db, IImageStorage imageStorage)
-    {
-        this.db = db;
-        this.imageStorage = imageStorage;
-    }
 
     public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, EntityStatus? status, int page, int pageSize, CancellationToken ct)
     {

@@ -16,8 +16,8 @@ public sealed record HouseGroupDto(
 /// <summary>
 /// HouseGroup create/update DTO.
 /// </summary>
-public sealed record UpsertHouseGroupDto
+public sealed class UpsertHouseGroupDto
 {
     [Required, MaxLength(100)]
-    public string Name { get; init; } = "";
+    public string Name { get; set; } = "";
 }

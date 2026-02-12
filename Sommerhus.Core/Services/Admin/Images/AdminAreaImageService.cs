@@ -14,12 +14,9 @@ namespace Sommerhus.Core.Services.Admin.Images;
 /// <summary>
 /// Manages images for Area entities.
 /// </summary>
-public sealed class AdminAreaImageService : AdminImageServiceBase, IAdminAreaImageService
+public sealed class AdminAreaImageService(AppDbContext db, IImageStorage storage)
+    : AdminImageServiceBase(db, storage), IAdminAreaImageService
 {
-    public AdminAreaImageService(AppDbContext db, IImageStorage storage)
-        : base(db, storage)
-    {
-    }
 
     public async Task<ServiceResult<IReadOnlyList<ImageDto>>> ListAsync(Guid areaId, string baseUrl, CancellationToken ct)
     {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Auth;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Identity;
 
 namespace Sommerhus.Api.Controllers.Public;

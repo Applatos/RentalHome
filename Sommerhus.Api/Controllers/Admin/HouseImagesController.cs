@@ -4,12 +4,12 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
-using Sommerhus.Core.Dtos.Security;
+
 
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/houses/{houseId:guid}/images")]
 public sealed class HouseImagesController(IAdminHouseImageService service) : ControllerBase
 {

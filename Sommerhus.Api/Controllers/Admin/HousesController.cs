@@ -6,7 +6,7 @@ using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
-using Sommerhus.Core.Dtos.Security;
+
 using Sommerhus.Core.Services.Admin.Calendars;
 using Sommerhus.Core.Services.Admin.Lifecycle;
 using Sommerhus.Domain.Models;
@@ -14,7 +14,7 @@ using Sommerhus.Domain.Models;
 namespace Sommerhus.Api.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = AdminRoles.Admin)]
+[Authorize(Roles = AppRoles.Admin)]
 [Route("api/admin/houses")]
 public sealed class HousesController(
     IAdminHouseService houseService,

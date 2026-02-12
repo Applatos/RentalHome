@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Auth;
-using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Identity;
 using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Account;

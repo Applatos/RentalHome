@@ -4,14 +4,8 @@ using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Core.Services.Public.Cities;
 
-public sealed class CityQueryService : ICityQueryService
+public sealed class CityQueryService(AppDbContext db) : ICityQueryService
 {
-    private readonly AppDbContext db;
-
-    public CityQueryService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<IEnumerable<CityDto>> GetAsync(CancellationToken ct)
         => await db.Cities.AsNoTracking()

@@ -4,14 +4,8 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Lifecycle;
 
-public sealed class EntityLifecycleService : IEntityLifecycleService
+public sealed class EntityLifecycleService(AppDbContext db) : IEntityLifecycleService
 {
-    private readonly AppDbContext db;
-
-    public EntityLifecycleService(AppDbContext db)
-    {
-        this.db = db;
-    }
 
     public async Task<ServiceResult> TransitionHouseAsync(Guid houseId, EntityStatus target, CancellationToken ct)
     {

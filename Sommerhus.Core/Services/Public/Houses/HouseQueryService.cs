@@ -7,19 +7,10 @@ using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Houses;
 
-public sealed class HouseQueryService : IHouseQueryService
+public sealed class HouseQueryService(AppDbContext db, IImageStorage storage) : IHouseQueryService
 {
     private static readonly Regex HtmlTagRegex = new("<[^>]+>", RegexOptions.Compiled);
     private static readonly Regex WhitespaceRegex = new("\\s+", RegexOptions.Compiled);
-
-    private readonly AppDbContext db;
-    private readonly IImageStorage storage;
-
-    public HouseQueryService(AppDbContext db, IImageStorage storage)
-    {
-        this.db = db;
-        this.storage = storage;
-    }
 
     public async Task<PageResult<PublicHouseListItemDto>> SearchAsync(string? city, string? zip, string? query, Guid? areaId, int page, int pageSize, string baseUrl, CancellationToken ct)
     {

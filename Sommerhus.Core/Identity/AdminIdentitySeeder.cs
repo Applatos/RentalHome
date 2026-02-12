@@ -2,7 +2,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Sommerhus.Core.Dtos.Security;
+
 
 namespace Sommerhus.Core.Identity;
 
