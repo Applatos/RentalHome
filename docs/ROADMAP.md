@@ -1904,6 +1904,14 @@ Protected by admin auth. Only available in `Development` / `Testing` environment
 - [ ] **25h** Run baseline benchmark (before Phase 20), save results to `stress-tests/results/` _(deferred — run when ready for Phase 20)_
 - [ ] **25i** After Phase 20: run comparison benchmark, document improvement in results report _(deferred — depends on Phase 20)_
 - [x] **25j** Tests: verify data generator produces valid, queryable data with correct relationships (5 integration tests)
+- [x] **25k** Seed owners (`HouseOwner` role) and users (`User` role) with realistic profile data (Feb 12, 2026)
+  - `StressDataOptions`: added `OwnerCount` (default 20) and `UserCount` (default 50)
+  - Owners get `FirstName`, `LastName`, `Phone`, `Address` via Bogus
+  - Users get `FirstName`, `LastName`, `Phone` via Bogus
+  - ~80% of houses assigned to a random owner via `OwnerId`
+  - `ClearAsync` deletes all `stress_*` users via `UserManager`
+  - API endpoint accepts `?owners=` and `?users=` query parameters
+  - Tests verify: owner/user creation, role assignment, house ownership, cleanup
 
 **Estimated effort**: 10–15 hours | **Priority**: High
 
@@ -2325,6 +2333,113 @@ Phase 16 (Calendar/Pricing) ✅ ────────────────
 
 ---
 
+## Phase 29: Codebase Hygiene & Predictability
+
+**Goal**: Make the codebase consistent and predictable so colleagues can navigate it without surprises. Every entity, service, and controller should follow the same patterns.
+
+**Dependencies**: None (can start anytime)
+
+### 29a: Constructor Style Consistency (estimated 1-2 hours)
+
+About half the services use **primary constructors** (C# 12) while the other half use traditional constructor + field assignment. This inconsistency makes it harder to scan code quickly.
+
+**Services using traditional constructors** (should migrate to primary constructors):
+
+- `AdminHouseService`, `AdminHouseFeatureService`, `AdminHousePricingService`
+- `AdminAreaService`, `AdminCityService`, `AdminFeatureService`
+- `AdminHouseGroupService`, `AdminPricingService`, `EntityLifecycleService`
+- `HouseQueryService`, `AreaQueryService`, `FeatureQueryService`
+- `CityQueryService`, `ZipCodeQueryService`, `HouseImageQueryService`
+
+**Services already using primary constructors** (good):
+
+- `OwnerHouseService`, `OwnerAuthorizationService`
+- `AdminAvailabilityService`, `AdminCalendarService`, `AuditService`
+- `AvailabilityQueryService`, `StressDataGenerator`
+
+Tasks:
+
+- [ ] **29a-1** Convert all Core services to primary constructors (match `OwnerHouseService` pattern)
+- [ ] **29a-2** Remove redundant `private readonly` field assignments where primary constructor params suffice
+
+### 29b: MVC HousesController Split (estimated 2-3 hours)
+
+`Sommerhus.Mvc/Controllers/Admin/HousesController.cs` is **677 lines** with 20+ actions covering CRUD, images, features, pricing, calendar, and calendar overrides. This violates the "keep services under 300 lines" rule and makes it hard to find specific functionality.
+
+Tasks:
+
+- [ ] **29b-1** Extract image actions (`UploadHouseImages`, `SetHouseImageKind`, `DeleteHouseImage`) → `HouseImagesController`
+- [ ] **29b-2** Extract feature actions (`SaveHouseFeatures`) → `HouseFeaturesController`
+- [ ] **29b-3** Extract pricing actions (`SaveHousePricing`, `DeleteRatePlan`) → `HousePricingController`
+- [ ] **29b-4** Extract calendar actions (`AddHouseSeasonSpan`, `UpdateHouseSeasonSpan`, `DeleteHouseSeasonSpan`, `SetCalendarOverride`, `RemoveCalendarOverride`, `CreateCalendarOverride`) → `HouseCalendarController`
+- [ ] **29b-5** Resulting `HousesController` should be ~200 lines (CRUD + status only)
+
+### 29c: AdminRoles / AppRoles Cleanup (estimated 30 min)
+
+`AdminRoles.cs` contains both `AppRoles` and a backward-compatible `AdminRoles` alias. Now that Phase 26 is complete and all controllers use the new role system, the alias adds confusion.
+
+Tasks:
+
+- [ ] **29c-1** Search for all `AdminRoles.Admin` usages and replace with `AppRoles.Admin`
+- [ ] **29c-2** Delete the `AdminRoles` class
+- [ ] **29c-3** Rename file from `AdminRoles.cs` to `AppRoles.cs`
+
+### 29d: DTO Location — Move Security/Auth DTOs Out of `Dtos/` (estimated 30 min)
+
+`AppRoles` lives in `Dtos/Security/` which is misleading — it's not a DTO. Auth DTOs (`RegisterRequest`, `LoginRequest`, `AuthTokenResponse`) are in `Dtos/Auth/` but are really request/response models.
+
+Tasks:
+
+- [ ] **29d-1** Move `AppRoles.cs` to `Sommerhus.Core/Identity/AppRoles.cs` (next to `ApplicationUser`)
+- [ ] **29d-2** Move `AuthDtos.cs` and `UserProfileDto.cs` to `Sommerhus.Core/Identity/` or `Sommerhus.Core/Dtos/Auth/` (keep if team prefers current location)
+- [ ] **29d-3** Delete empty `Dtos/Security/` folder
+
+### 29e: Service Registration — Move `IStressDataGenerator` Out of Admin Services (estimated 15 min)
+
+`IStressDataGenerator` is registered in `AddAdminServices()` but it's a dev/test utility, not an admin business service. This is misleading.
+
+Tasks:
+
+- [ ] **29e-1** Move `AddScoped<IStressDataGenerator, StressDataGenerator>()` to a new `AddDevServices()` extension method (or register it conditionally in `Program.cs` for Development/Testing only)
+
+### 29f: Inconsistent Image Service Base Class Usage (estimated 1 hour)
+
+The three image services (`AdminAreaImageService`, `AdminCityImageService`, `AdminHouseImageService`) inherit from `AdminImageServiceBase` but the generic interfaces `IAdminEntityImageService<T>` created in Phase 4 are not actually used by any consumer. They add cognitive overhead without benefit.
+
+Tasks:
+
+- [ ] **29f-1** Audit whether `IAdminEntityImageService<T>` is referenced anywhere outside the image services
+- [ ] **29f-2** If unused, delete the generic interfaces and keep only the concrete interfaces (matches #28 from Phase 15b)
+
+### 29g: Remaining Low-Priority Items from Phase 15b (estimated 1-2 hours)
+
+These were deferred from Phase 15b and are still open:
+
+- [ ] **#25** Standardize all Upsert DTOs to `sealed class` with `{ get; set; }` for form binding
+- [ ] **#28** Remove unused generic image service interfaces or implement them
+- [ ] **#30** Convert Core services to primary constructors (overlaps with 29a)
+
+### 29h: `AdminControllerBase` Authorization Gap (estimated 30 min)
+
+`AdminControllerBase` uses `[Authorize]` (any authenticated user) instead of `[Authorize(Roles = "Admin")]`. Each admin controller adds its own role attribute, but if one forgets, any logged-in User or HouseOwner could access admin pages.
+
+Tasks:
+
+- [ ] **29h-1** Change `AdminControllerBase` from `[Authorize]` to `[Authorize(Roles = AppRoles.Admin)]`
+- [ ] **29h-2** Remove redundant `[Authorize(Roles = ...)]` from individual admin controllers that inherit from it
+
+### Verification (after each sub-task)
+
+```powershell
+dotnet format Sommerhus_project.sln
+dotnet build Sommerhus_project.sln --warnaserror
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
+```
+
+**Estimated total effort**: 6-10 hours | **Priority**: Medium
+
+---
+
 ## Post-Refactor Checklist
 
 After completing all phases:
@@ -2376,8 +2491,9 @@ After completing all phases:
 | Phase 26  | 15-20 hours      | High     | **Completed** |
 | Phase 27  | 15-20 hours      | High     | Pending       |
 | Phase 28  | 8-12 hours       | Medium   | Pending       |
+| Phase 29  | 6-10 hours       | Medium   | Pending       |
 
-**Remaining (refactoring)**: ~23-33 hours
+**Remaining (refactoring)**: ~29-43 hours
 **Remaining (enterprise)**: ~75-114 hours
 **Remaining (user features)**: ~38-52 hours
 

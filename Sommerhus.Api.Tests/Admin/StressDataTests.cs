@@ -3,11 +3,13 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
 using Sommerhus.Core;
 using Sommerhus.Core.Data;
+using Sommerhus.Core.Identity;
 using Sommerhus.Domain.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -34,7 +36,7 @@ public sealed class StressDataTests : IClassFixture<CustomWebApplicationFactory>
         var generator = scope.ServiceProvider.GetRequiredService<IStressDataGenerator>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var options = new StressDataOptions { HouseCount = 20, AreaCount = 5, CalendarCount = 2 };
+        var options = new StressDataOptions { HouseCount = 20, AreaCount = 5, CalendarCount = 2, OwnerCount = 3, UserCount = 5 };
         var result = await generator.SeedAsync(options, CancellationToken.None);
 
         result.Success.Should().BeTrue(result.Message);
@@ -80,6 +82,33 @@ public sealed class StressDataTests : IClassFixture<CustomWebApplicationFactory>
         // Verify calendars created
         var stressCals = await db.SeasonCalendars.Where(c => c.CreatedBy == "__stress__").ToListAsync();
         stressCals.Should().HaveCount(2);
+
+        // Verify owners created with HouseOwner role
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var stressOwners = await db.Users.Where(u => u.UserName != null && u.UserName.StartsWith("stress_owner_")).ToListAsync();
+        stressOwners.Should().HaveCount(3);
+        foreach (var owner in stressOwners)
+        {
+            var roles = await userManager.GetRolesAsync(owner);
+            roles.Should().Contain("HouseOwner");
+            owner.FirstName.Should().NotBeNullOrEmpty();
+            owner.LastName.Should().NotBeNullOrEmpty();
+        }
+
+        // Verify users created with User role
+        var stressUsers = await db.Users.Where(u => u.UserName != null && u.UserName.StartsWith("stress_user_")).ToListAsync();
+        stressUsers.Should().HaveCount(5);
+        foreach (var user in stressUsers)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+            roles.Should().Contain("User");
+        }
+
+        // Verify some houses are assigned to owners
+        var ownedHouses = stressHouses.Where(h => h.OwnerId != null).ToList();
+        ownedHouses.Should().NotBeEmpty("~80% of houses should be assigned to owners");
+        var ownerIds = stressOwners.Select(o => o.Id).ToHashSet();
+        ownedHouses.Should().OnlyContain(h => ownerIds.Contains(h.OwnerId!));
     }
 
     [Fact]
@@ -105,7 +134,7 @@ public sealed class StressDataTests : IClassFixture<CustomWebApplicationFactory>
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         // Ensure stress data exists
-        var seedResult = await generator.SeedAsync(new StressDataOptions { HouseCount = 10, AreaCount = 3, CalendarCount = 1 }, CancellationToken.None);
+        var seedResult = await generator.SeedAsync(new StressDataOptions { HouseCount = 10, AreaCount = 3, CalendarCount = 1, OwnerCount = 2, UserCount = 3 }, CancellationToken.None);
         if (!seedResult.Success)
         {
             // Already seeded from previous test, that's fine
@@ -123,6 +152,10 @@ public sealed class StressDataTests : IClassFixture<CustomWebApplicationFactory>
 
         var stressCals = await db.SeasonCalendars.CountAsync(c => c.CreatedBy == "__stress__");
         stressCals.Should().Be(0);
+
+        // Verify stress users are gone
+        var stressUsers = await db.Users.CountAsync(u => u.UserName != null && u.UserName.StartsWith("stress_"));
+        stressUsers.Should().Be(0);
 
         // Verify original seed data still exists
         var originalHouse = await db.Houses.AnyAsync(h => h.Id == new Guid("5fb7097c-335c-4d07-b4fd-000004e2d28c"));

@@ -1,8 +1,11 @@
 using System.Reflection;
 using System.Text.Json;
 using Bogus;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Sommerhus.Core.Dtos.Security;
+using Sommerhus.Core.Identity;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -13,6 +16,8 @@ public sealed class StressDataOptions
     public int HouseCount { get; set; } = 500;
     public int AreaCount { get; set; } = 50;
     public int CalendarCount { get; set; } = 10;
+    public int OwnerCount { get; set; } = 20;
+    public int UserCount { get; set; } = 50;
 }
 
 public interface IStressDataGenerator
@@ -23,9 +28,14 @@ public interface IStressDataGenerator
 
 public sealed record StressDataResult(bool Success, string Message, int EntitiesAffected = 0);
 
-public sealed class StressDataGenerator(AppDbContext db, ILogger<StressDataGenerator> logger) : IStressDataGenerator
+public sealed class StressDataGenerator(
+    AppDbContext db,
+    UserManager<ApplicationUser> userManager,
+    ILogger<StressDataGenerator> logger) : IStressDataGenerator
 {
     private const string StressTag = "__stress__";
+    private const string StressUserPrefix = "stress_";
+    private const string StressPassword = "Stress1234!";
 
     public async Task<StressDataResult> SeedAsync(StressDataOptions options, CancellationToken ct)
     {
@@ -205,7 +215,58 @@ public sealed class StressDataGenerator(AppDbContext db, ILogger<StressDataGener
         await db.SaveChangesAsync(ct);
         totalEntities += groups.Count;
 
-        // 8. Generate houses in batches
+        // 8. Create owners and users
+        var owners = new List<ApplicationUser>();
+        var users = new List<ApplicationUser>();
+
+        var nameFaker = new Faker();
+
+        for (int i = 0; i < options.OwnerCount; i++)
+        {
+            var owner = new ApplicationUser
+            {
+                UserName = $"{StressUserPrefix}owner_{i + 1}",
+                Email = $"owner{i + 1}@stress.test",
+                EmailConfirmed = true,
+                FirstName = nameFaker.Name.FirstName(),
+                LastName = nameFaker.Name.LastName(),
+                Phone = nameFaker.Phone.PhoneNumber("########"),
+                Address = nameFaker.Address.StreetAddress()
+            };
+
+            var result = await userManager.CreateAsync(owner, StressPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(owner, AppRoles.HouseOwner);
+                owners.Add(owner);
+            }
+        }
+        totalEntities += owners.Count;
+        logger.LogInformation("Created {Count} owners", owners.Count);
+
+        for (int i = 0; i < options.UserCount; i++)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = $"{StressUserPrefix}user_{i + 1}",
+                Email = $"user{i + 1}@stress.test",
+                EmailConfirmed = true,
+                FirstName = nameFaker.Name.FirstName(),
+                LastName = nameFaker.Name.LastName(),
+                Phone = nameFaker.Phone.PhoneNumber("########")
+            };
+
+            var result = await userManager.CreateAsync(user, StressPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, AppRoles.User);
+                users.Add(user);
+            }
+        }
+        totalEntities += users.Count;
+        logger.LogInformation("Created {Count} users", users.Count);
+
+        // 9. Generate houses in batches
         var houseFaker = new Faker<VacationHouse>()
             .RuleFor(h => h.Id, f => Guid.NewGuid())
             .RuleFor(h => h.Title, (f, h) => f.Address.StreetName() + " " + f.Random.Number(1, 200))
@@ -237,6 +298,12 @@ public sealed class StressDataGenerator(AppDbContext db, ILogger<StressDataGener
                 var city = allCities[rng.Next(allCities.Count)];
                 house.CityId = city.Id;
                 house.GroupId = groups[rng.Next(groups.Count)].Id;
+
+                // Assign ~80% of houses to an owner
+                if (owners.Count > 0 && rng.NextDouble() < 0.80)
+                {
+                    house.OwnerId = owners[rng.Next(owners.Count)].Id;
+                }
 
                 // Assign to 1-2 areas
                 var areaIdx = rng.Next(areas.Count);
@@ -390,6 +457,16 @@ public sealed class StressDataGenerator(AppDbContext db, ILogger<StressDataGener
         total += await db.HouseGroups.Where(g => g.CreatedBy == StressTag).ExecuteDeleteAsync(ct);
         total += await db.Areas.Where(a => a.CreatedBy == StressTag).ExecuteDeleteAsync(ct);
         total += await db.Cities.Where(c => c.CreatedBy == StressTag).ExecuteDeleteAsync(ct);
+
+        // Delete stress users (owners and users)
+        var stressUsers = await db.Users
+            .Where(u => u.UserName != null && u.UserName.StartsWith(StressUserPrefix))
+            .ToListAsync(ct);
+        foreach (var user in stressUsers)
+        {
+            await userManager.DeleteAsync(user);
+            total++;
+        }
 
         sw.Stop();
         var msg = $"Stress data cleared: {total:N0} entities removed in {sw.Elapsed.TotalSeconds:F1}s";

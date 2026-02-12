@@ -11,12 +11,21 @@ namespace Sommerhus.Api.Controllers.Admin;
 public sealed class StressController(IStressDataGenerator generator, IHostEnvironment env) : ControllerBase
 {
     [HttpPost("seed")]
-    public async Task<IActionResult> Seed([FromQuery] int houses = 500, CancellationToken ct = default)
+    public async Task<IActionResult> Seed(
+        [FromQuery] int houses = 500,
+        [FromQuery] int owners = 20,
+        [FromQuery] int users = 50,
+        CancellationToken ct = default)
     {
         if (!env.IsDevelopment() && !env.IsEnvironment("Testing"))
             return BadRequest("Stress seeding is only available in Development/Testing environments.");
 
-        var options = new StressDataOptions { HouseCount = Math.Clamp(houses, 10, 10_000) };
+        var options = new StressDataOptions
+        {
+            HouseCount = Math.Clamp(houses, 10, 10_000),
+            OwnerCount = Math.Clamp(owners, 0, 500),
+            UserCount = Math.Clamp(users, 0, 1_000)
+        };
         var result = await generator.SeedAsync(options, ct);
 
         return result.Success ? Ok(result) : Conflict(result);
