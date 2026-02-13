@@ -7,12 +7,12 @@
     <div class="alert alert-warning">@Model.FeaturesError</div>
 }
 
-<form method="post" asp-controller="Houses" asp-action="SaveHouseFeatures" asp-route-id="@Model.House.Id">
+<form method="post" asp-controller="HouseFeatures" asp-action="SaveHouseFeatures" asp-route-id="@Model.House.Id">
     @Html.AntiForgeryToken()
 
     @if (Model.AllFeatures.Count == 0)
     {
-        <p class="text-muted">No features defined. <a asp-controller="Features" asp-action="Index">Create features first</a>.</p>
+        <p class="text-muted">No features defined. <a asp-controller="HouseFeatures" asp-action="Index">Create features first</a>.</p>
     }
     else
     {

@@ -10,13 +10,13 @@ public abstract class AdminControllerBase : SommerhusControllerBase
     protected void SetAdminTab(string tab) => ViewData["AdminTab"] = tab;
 
     protected IActionResult RedirectToIndex()
-        => RedirectToAction("Index");
+        => RedirectToAction("Index", "Houses");
 
     protected IActionResult RedirectToDetails(Guid id, string? tab = null)
         => tab is null
-            ? RedirectToAction("Details", new { id })
-            : RedirectToAction("Details", new { id, tab });
+            ? RedirectToAction("Details", "Houses", new { id })
+            : RedirectToAction("Details", "Houses", new { id, tab });
 
     protected IActionResult RedirectToEdit(Guid id)
-        => RedirectToAction("Edit", new { id });
+        => RedirectToAction("Edit", "Houses", new { id });
 }

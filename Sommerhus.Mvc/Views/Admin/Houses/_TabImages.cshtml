@@ -3,7 +3,7 @@
 
 <div class="mb-4">
     <h5>Upload Images</h5>
-    <form method="post" asp-controller="Houses" asp-action="UploadHouseImages" asp-route-id="@Model.House.Id" enctype="multipart/form-data" class="row g-2 align-items-end">
+    <form method="post" asp-area="Admin" asp-controller="HouseImages" asp-action="UploadHouseImages" asp-route-id="@Model.House.Id" enctype="multipart/form-data" class="row g-2 align-items-end">
         @Html.AntiForgeryToken()
         <div class="col-md-8">
             <input type="file" name="files" class="form-control" multiple accept="image/*" />
@@ -29,7 +29,7 @@
                             @foreach (var kind in new[] { "Cover", "Gallery", "Floorplan" })
                             {
                                 var isActive = string.Equals(img.Kind, kind, StringComparison.OrdinalIgnoreCase);
-                                <form method="post" asp-controller="Houses" asp-action="SetHouseImageKind" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline">
+                                <form method="post" asp-area="Admin" asp-controller="HouseImages" asp-action="SetHouseImageKind" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="kind" value="@kind" />
                                     <button type="submit" class="btn btn-sm @(isActive ? "btn-secondary" : "btn-outline-secondary")" title="Set as @kind">@kind</button>
@@ -37,7 +37,7 @@
                             }
                         </div>
                         <div class="mt-1">
-                            <form method="post" asp-controller="Houses" asp-action="DeleteHouseImage" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('Delete this image?');">
+                            <form method="post" asp-area="Admin" asp-controller="HouseImages" asp-action="DeleteHouseImage" asp-route-id="@Model.House.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('Delete this image?');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete">Delete</button>
                             </form>
