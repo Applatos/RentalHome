@@ -1213,7 +1213,7 @@ The following are architectural gaps identified for production readiness. See `R
 | #44 No stress test / seed data    | High     | 25    | **Partial** |
 | #45 Single-role auth (Admin only) | High     | 26    | **Done**    |
 | #46 No booking system             | High     | 27    | **Done**    |
-| #47 No favorites / user dashboard | Medium   | 28    | Pending     |
+| #47 No favorites / user dashboard | Medium   | 28    | **Done**    |
 
 ---
 
@@ -1239,11 +1239,22 @@ The following are architectural gaps identified for production readiness. See `R
 
 ---
 
-### 47. No Favorites or User Dashboard
+### 47. ~~No Favorites or User Dashboard~~ ✅ Resolved
 
 **Problem**: Registered users have no way to save houses for later, view their booking history in a dashboard, or manage their profile. House owners have no dashboard to see their listings and incoming bookings.
 
-**Solution**: Phase 28 — `FavoriteHouse` entity with composite PK. User dashboard (favorites, bookings, profile). Owner dashboard (houses, bookings, calendar). Favorite toggle on house cards.
+**Solution**: Phase 28 (Completed) — Full favorites and dashboard system:
+
+- **Domain**: `FavoriteHouse` entity with composite PK `(UserId, HouseId)`, EF migration.
+- **Favorites API** (`api/me/favorites`): Add, remove, list favorites. Idempotent add/remove. Only published houses.
+- **House detail enrichment**: `PublicHouseDetailsDto.IsFavorite` flag for authenticated users.
+- **User dashboard** (`/account/dashboard`): Upcoming bookings, favorites grid, booking history, quick links.
+- **Owner dashboard** (`/owner/dashboard`): My houses table, upcoming bookings with confirm/reject actions.
+- **MVC booking flow** (`/bookings`, `/houses/{id}/book`): Create, list, details, cancel bookings.
+- **Favorite toggle**: Heart icon (♡/♥) on house detail page for authenticated users.
+- **Navbar**: Dashboard, Bookings, Owner links for authenticated users.
+- **Stress data**: `StressDataGenerator` seeds bookings and favorites.
+- 10 new integration tests (98 total, all passing).
 
 ---
 

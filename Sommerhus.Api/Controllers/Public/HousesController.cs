@@ -1,13 +1,15 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Public.Houses;
+using Sommerhus.Core.Services.Public.Favorites;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class HousesController(IHouseQueryService houses) : ControllerBase
+public sealed class HousesController(IHouseQueryService houses, IFavoriteService favoriteService) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<PublicHouseListItemDto>> Search(
@@ -27,6 +29,13 @@ public sealed class HousesController(IHouseQueryService houses) : ControllerBase
         if (house is null)
         {
             return NotFound();
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is not null)
+        {
+            var isFav = await favoriteService.IsFavoritedAsync(userId, id, ct);
+            house = house with { IsFavorite = isFav };
         }
 
         return house;

@@ -51,7 +51,33 @@
                 </p>
             }
         </div>
-        <a class="btn btn-primary" href="#booking-card">Book</a>
+        <div class="d-flex gap-2 align-items-center">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                @if (Model.IsFavorite == true)
+                {
+                    <form method="post" action="/account/favorites/@Model.Id/remove" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from favorites">&#9829;</button>
+                    </form>
+                }
+                else
+                {
+                    <form method="post" action="/account/favorites/@Model.Id/add" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" title="Add to favorites">&#9825;</button>
+                    </form>
+                }
+                <a class="btn btn-dark" href="/houses/@Model.Id/book">Book Now</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-dark" href="/account/login?returnUrl=/houses/@Model.Id">Log in to book</a>
+            }
+            <a class="btn btn-primary" href="#booking-card">Calculate Price</a>
+        </div>
     </div>
 
     <!-- TOP: 2 kolonner med billeder -->

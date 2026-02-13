@@ -1,0 +1,130 @@
+@model Sommerhus.Mvc.ViewModels.Public.Dashboard.OwnerDashboardVm
+@{
+    ViewData["Title"] = "Owner Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Owner Dashboard</h1>
+    <span class="badge bg-dark">@Model.UserName</span>
+</div>
+
+<div class="row g-4">
+    <!-- My Houses -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">My Houses</h2>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Houses.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>City</th>
+                                    <th>Status</th>
+                                    <th>Images</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var h in Model.Houses)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="/houses/@h.Id" class="text-decoration-none">@h.Title</a>
+                                        </td>
+                                        <td>@h.CityName</td>
+                                        <td>
+                                            @{
+                                                var sClass = h.Status switch
+                                                {
+                                                    Sommerhus.Domain.Models.EntityStatus.Published => "bg-success",
+                                                    Sommerhus.Domain.Models.EntityStatus.Draft => "bg-warning text-dark",
+                                                    Sommerhus.Domain.Models.EntityStatus.Archived => "bg-secondary",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @sClass">@h.Status</span>
+                                        </td>
+                                        <td>@h.ImageCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        No houses assigned to your account yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Bookings -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Upcoming Bookings</h2>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.UpcomingBookings.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var b in Model.UpcomingBookings)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">@b.HouseTitle</h6>
+                                        <small class="text-muted">
+                                            @b.CheckIn.ToString("d MMM") – @b.CheckOut.ToString("d MMM yyyy")
+                                            · @b.Guests guests
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        @{
+                                            var bClass = b.Status switch
+                                            {
+                                                Sommerhus.Domain.Models.BookingStatus.Pending => "bg-warning text-dark",
+                                                Sommerhus.Domain.Models.BookingStatus.Confirmed => "bg-success",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @bClass">@b.Status</span>
+                                        <div class="small mt-1">@b.TotalPrice.ToString("N0") @b.Currency</div>
+                                    </div>
+                                </div>
+                                @if (b.Status == Sommerhus.Domain.Models.BookingStatus.Pending)
+                                {
+                                    <div class="mt-2 d-flex gap-2">
+                                        <form method="post" asp-action="ConfirmBooking" asp-controller="OwnerBookings"
+                                              asp-route-id="@b.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                                        </form>
+                                        <form method="post" asp-action="RejectBooking" asp-controller="OwnerBookings"
+                                              asp-route-id="@b.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        No upcoming bookings for your houses.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

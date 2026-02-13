@@ -1,0 +1,124 @@
+@model BookingDto
+@{
+    ViewData["Title"] = $"Booking – {Model.HouseTitle}";
+    var canCancel = Model.Status is Sommerhus.Domain.Models.BookingStatus.Pending or Sommerhus.Domain.Models.BookingStatus.Confirmed;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Booking Details</h1>
+    <a href="/bookings" class="btn btn-outline-dark btn-sm">Back to Bookings</a>
+</div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show">@success <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger alert-dismissible fade show">@error <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">
+                    <a href="/houses/@Model.HouseId" class="text-decoration-none">@Model.HouseTitle</a>
+                </h2>
+                @if (!string.IsNullOrWhiteSpace(Model.HouseAddress))
+                {
+                    <p class="text-muted mb-3">@Model.HouseAddress</p>
+                }
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3">
+                            <small class="text-muted d-block">Check-in</small>
+                            <strong>@Model.CheckIn.ToString("d MMMM yyyy")</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3">
+                            <small class="text-muted d-block">Check-out</small>
+                            <strong>@Model.CheckOut.ToString("d MMMM yyyy")</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3">
+                            <small class="text-muted d-block">Guests</small>
+                            <strong>@Model.Guests</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3">
+                            <small class="text-muted d-block">Nights</small>
+                            <strong>@(Model.CheckOut.DayNumber - Model.CheckIn.DayNumber)</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3">
+                            <small class="text-muted d-block">Total Price</small>
+                            <strong>@Model.TotalPrice.ToString("N0") @Model.Currency</strong>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.GuestNote))
+                {
+                    <div class="mt-3">
+                        <small class="text-muted d-block">Your Note</small>
+                        <p class="mb-0">@Model.GuestNote</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="h6 mb-3">Status</h3>
+                @{
+                    var statusClass = Model.Status switch
+                    {
+                        Sommerhus.Domain.Models.BookingStatus.Pending => "bg-warning text-dark",
+                        Sommerhus.Domain.Models.BookingStatus.Confirmed => "bg-success",
+                        Sommerhus.Domain.Models.BookingStatus.Completed => "bg-info",
+                        Sommerhus.Domain.Models.BookingStatus.Cancelled => "bg-danger",
+                        _ => "bg-secondary"
+                    };
+                }
+                <span class="badge @statusClass fs-6">@Model.Status</span>
+
+                <hr />
+
+                <dl class="mb-0">
+                    <dt class="small text-muted">Created</dt>
+                    <dd>@Model.CreatedAtUtc.ToString("d MMM yyyy HH:mm")</dd>
+
+                    @if (Model.ConfirmedAtUtc.HasValue)
+                    {
+                        <dt class="small text-muted">Confirmed</dt>
+                        <dd>@Model.ConfirmedAtUtc.Value.ToString("d MMM yyyy HH:mm")</dd>
+                    }
+
+                    @if (Model.CancelledAtUtc.HasValue)
+                    {
+                        <dt class="small text-muted">Cancelled</dt>
+                        <dd>@Model.CancelledAtUtc.Value.ToString("d MMM yyyy HH:mm")</dd>
+                    }
+                </dl>
+
+                @if (canCancel)
+                {
+                    <hr />
+                    <form method="post" action="/bookings/@Model.Id/cancel"
+                          onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger w-100">Cancel Booking</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

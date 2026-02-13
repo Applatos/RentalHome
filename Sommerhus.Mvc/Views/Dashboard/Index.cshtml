@@ -1,0 +1,189 @@
+@model Sommerhus.Mvc.ViewModels.Public.Dashboard.UserDashboardVm
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Welcome, @Model.UserName</h1>
+    <span class="badge bg-secondary">@Model.Role</span>
+</div>
+
+<div class="row g-4">
+    <!-- Upcoming Bookings -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Upcoming Bookings</h2>
+                <a href="/bookings" class="btn btn-outline-dark btn-sm">View all</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.UpcomingBookings.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>House</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Guests</th>
+                                    <th>Status</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var b in Model.UpcomingBookings)
+                                {
+                                    <tr class="cursor-pointer" onclick="location.href='/bookings/@b.Id'">
+                                        <td>@b.HouseTitle</td>
+                                        <td>@b.CheckIn.ToString("d MMM yyyy")</td>
+                                        <td>@b.CheckOut.ToString("d MMM yyyy")</td>
+                                        <td>@b.Guests</td>
+                                        <td>
+                                            @{
+                                                var statusClass = b.Status switch
+                                                {
+                                                    Sommerhus.Domain.Models.BookingStatus.Pending => "bg-warning text-dark",
+                                                    Sommerhus.Domain.Models.BookingStatus.Confirmed => "bg-success",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@b.Status</span>
+                                        </td>
+                                        <td>@b.TotalPrice.ToString("N0") @b.Currency</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-2">No upcoming bookings</p>
+                        <a href="/houses" class="btn btn-dark btn-sm">Browse houses</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Quick Links</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="/bookings" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    My Bookings
+                    <span class="badge bg-dark rounded-pill">@(Model.UpcomingBookings.Count + Model.PastBookings.Count)</span>
+                </a>
+                <a href="/houses" class="list-group-item list-group-item-action">Browse Houses</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Favorites -->
+<div class="mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="h5 mb-0">My Favorites</h2>
+        </div>
+        <div class="card-body">
+            @if (Model.Favorites.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var fav in Model.Favorites)
+                    {
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <a href="/houses/@fav.HouseId" class="text-decoration-none text-dark">
+                                <div class="card h-100 shadow-sm">
+                                    @if (!string.IsNullOrWhiteSpace(fav.CoverUrl))
+                                    {
+                                        <img src="@fav.CoverUrl" class="card-img-top" alt="@fav.HouseTitle"
+                                             style="height:140px;object-fit:cover;" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                                             style="height:140px;">
+                                            <span class="text-muted">No image</span>
+                                        </div>
+                                    }
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1 text-truncate">@fav.HouseTitle</h6>
+                                        @if (!string.IsNullOrWhiteSpace(fav.City))
+                                        {
+                                            <small class="text-muted">@fav.City</small>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center mb-0">No favorites yet. Browse houses and click the heart icon to save your favorites.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Booking History -->
+@if (Model.PastBookings.Any())
+{
+    <div class="mt-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Booking History</h2>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>House</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model.PastBookings)
+                            {
+                                <tr class="cursor-pointer" onclick="location.href='/bookings/@b.Id'">
+                                    <td>@b.HouseTitle</td>
+                                    <td>@b.CheckIn.ToString("d MMM yyyy")</td>
+                                    <td>@b.CheckOut.ToString("d MMM yyyy")</td>
+                                    <td>
+                                        @{
+                                            var histClass = b.Status switch
+                                            {
+                                                Sommerhus.Domain.Models.BookingStatus.Completed => "bg-info",
+                                                Sommerhus.Domain.Models.BookingStatus.Cancelled => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @histClass">@b.Status</span>
+                                    </td>
+                                    <td>@b.TotalPrice.ToString("N0") @b.Currency</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <style>
+        .cursor-pointer { cursor: pointer; }
+    </style>
+}

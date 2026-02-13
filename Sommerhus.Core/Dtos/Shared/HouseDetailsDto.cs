@@ -40,4 +40,5 @@ public sealed record PublicHouseDetailsDto(
     string? Address,
     string? Description,
     IReadOnlyList<ImageDto> Images,
-    IReadOnlyList<FeatureValueDto> Features);
+    IReadOnlyList<FeatureValueDto> Features,
+    bool? IsFavorite = null);

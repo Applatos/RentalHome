@@ -19,6 +19,7 @@ using Sommerhus.Core.Services.Public.Images;
 using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Core.Services.Public.Availability;
 using Sommerhus.Core.Services.Public.Bookings;
+using Sommerhus.Core.Services.Public.Favorites;
 using Sommerhus.Core.Services.Public.ZipCodes;
 using Sommerhus.Core.Services.Pricing.Abstractions;
 using Sommerhus.Core.Services.Pricing.Engine;
@@ -72,6 +73,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPricingQuoteService, AdminPricingService>();
         services.AddScoped<IAvailabilityQueryService, AvailabilityQueryService>();
         services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<IFavoriteService, FavoriteService>();
 
         return services;
     }

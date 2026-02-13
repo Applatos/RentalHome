@@ -37,6 +37,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     // Bookings
     public DbSet<Booking> Bookings => Set<Booking>();
 
+    // Favorites
+    public DbSet<FavoriteHouse> FavoriteHouses => Set<FavoriteHouse>();
+
     // Audit
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
@@ -249,6 +252,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
                 .WithMany()
                 .HasForeignKey(x => x.AvailabilityBlockId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // FavoriteHouse
+        b.Entity<FavoriteHouse>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.HouseId });
+            e.HasOne(x => x.House)
+                .WithMany()
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
+            e.HasIndex(x => x.UserId);
         });
 
         // Audit entry

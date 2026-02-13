@@ -25,6 +25,12 @@
             <div class="navbar-nav ms-auto">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
+                    <a class="nav-link" href="/account/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/bookings">Bookings</a>
+                    @if (User.IsInRole("HouseOwner") || User.IsInRole("Admin"))
+                    {
+                        <a class="nav-link" href="/owner/dashboard">Owner</a>
+                    }
                     <span class="navbar-text me-2">@User.Identity?.Name</span>
                     <form class="d-inline" asp-controller="Account" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()

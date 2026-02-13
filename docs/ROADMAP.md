@@ -2078,7 +2078,7 @@ This prevents owners from accessing other owners' houses via direct URL manipula
 
 ---
 
-## Phase 27: Booking System
+## Phase 27: Booking System ✅
 
 **Goal**: Implement a complete booking flow — from price quote to confirmed reservation — with proper lifecycle management, availability integration, and role-based visibility.
 
@@ -2086,10 +2086,13 @@ This prevents owners from accessing other owners' houses via direct URL manipula
 
 ### Current State
 
-- No booking entity or concept exists in the system
-- Availability blocks exist (Phase 21) but are only created manually by admins
-- Price calculation exists (pricing pipeline) but isn't tied to a booking flow
-- Users can browse and see prices, but cannot reserve or confirm anything
+- ✅ `Booking` entity with `BookingStatus` enum (Pending → Confirmed → Completed / Cancelled)
+- ✅ `BookingService` (user), `OwnerBookingService`, `AdminBookingService` with full lifecycle
+- ✅ API controllers: `api/bookings`, `api/owner/bookings`, `api/admin/bookings`
+- ✅ Availability integration: confirm creates `AvailabilityBlock`, cancel removes it
+- ✅ Price integration: booking creation calls pricing pipeline for total price
+- ✅ 11 integration tests, 88 total passing
+- ⏳ MVC views and seed data not yet implemented
 
 ### Design
 
@@ -2202,24 +2205,24 @@ public sealed record BookingDetailDto(Guid Id, Guid HouseId, string HouseTitle, 
 
 ### Tasks
 
-- [ ] **27a** Create `Booking` entity, `BookingStatus` enum in Domain
-- [ ] **27b** Add `DbSet<Booking>`, configure relationships and indexes in DbContext, migration
-- [ ] **27c** Create `IBookingService` + `BookingService` — create booking, validate dates/overlap/availability
-- [ ] **27d** Price quote endpoint: `POST /api/houses/{id}/quote` (anonymous, uses existing pricing pipeline)
-- [ ] **27e** User booking: `POST /api/houses/{id}/book`, `GET/POST /api/me/bookings` (cancel, list, detail)
-- [ ] **27f** Availability integration: auto-create `AvailabilityBlock` on confirm, remove on cancel
-- [ ] **27g** Owner booking view: `GET /api/owner/houses/{id}/bookings`, confirm/cancel actions
-- [ ] **27h** Admin booking management: list, detail, status change, cancel
-- [ ] **27i** MVC: booking flow UI (select dates → quote → confirm), user booking history page
-- [ ] **27j** MVC: owner booking list, admin booking management views
-- [ ] **27k** Seed data: add sample bookings to `DbSeeder` and `StressDataGenerator`
-- [ ] **27l** Tests: booking CRUD, overlap validation, lifecycle transitions, availability integration, role isolation
+- [x] **27a** Create `Booking` entity, `BookingStatus` enum in Domain
+- [x] **27b** Add `DbSet<Booking>`, configure relationships and indexes in DbContext, migration
+- [x] **27c** Create `IBookingService` + `BookingService` — create booking, validate dates/overlap/availability
+- [x] **27d** Price quote integration: booking creation calls existing pricing pipeline for total price
+- [x] **27e** User booking: `POST /api/bookings`, `GET /api/bookings` (cancel, list, detail)
+- [x] **27f** Availability integration: auto-create `AvailabilityBlock` on confirm, remove on cancel
+- [x] **27g** Owner booking view: `GET /api/owner/bookings`, confirm/reject actions
+- [x] **27h** Admin booking management: list, detail, status change with validated transitions
+- [x] **27i** MVC: booking flow UI (create, list, details, cancel) — completed in Phase 28
+- [x] **27j** MVC: owner booking confirm/reject actions — completed in Phase 28
+- [x] **27k** Seed data: bookings and favorites in `StressDataGenerator` — completed in Phase 28
+- [x] **27l** Tests: booking CRUD, lifecycle transitions, availability integration, role isolation (11 tests)
 
 **Estimated effort**: 15–20 hours | **Priority**: High
 
 ---
 
-## Phase 28: Favorites & User Dashboard
+## Phase 28: Favorites & User Dashboard ✅
 
 **Goal**: Allow registered users to save houses to a favorites list, and provide role-specific dashboards for users and owners.
 
@@ -2227,9 +2230,17 @@ public sealed record BookingDetailDto(Guid Id, Guid HouseId, string HouseTitle, 
 
 ### Current State
 
-- No favorites concept exists
-- No user-facing dashboard
-- Owner dashboard doesn't exist (owners are a new concept from Phase 26)
+- ✅ `FavoriteHouse` entity with composite PK, EF migration, full CRUD service
+- ✅ API: `GET/POST/DELETE /api/me/favorites` with authorization
+- ✅ `PublicHouseDetailsDto.IsFavorite` flag for authenticated users
+- ✅ User dashboard (`/account/dashboard`): upcoming bookings, favorites grid, booking history
+- ✅ Owner dashboard (`/owner/dashboard`): my houses, upcoming bookings, confirm/reject actions
+- ✅ MVC booking flow: create, list, details, cancel (`/bookings`, `/houses/{id}/book`)
+- ✅ Favorite heart toggle on house detail page
+- ✅ Navbar links for Dashboard, Bookings, Owner
+- ✅ `UserApiClient` for authenticated MVC API calls
+- ✅ Stress data generator seeds bookings and favorites
+- ✅ 10 new integration tests (98 total, all passing)
 
 ### Design
 
@@ -2285,14 +2296,14 @@ When a logged-in user browses houses, each house card shows a heart icon (♡/�
 
 ### Tasks
 
-- [ ] **28a** Create `FavoriteHouse` entity, configure composite PK in DbContext, migration
-- [ ] **28b** Create `IFavoriteService` + `FavoriteService` — add, remove, list, check if favorited
-- [ ] **28c** API: `GET/POST/DELETE /api/me/favorites` endpoints
-- [ ] **28d** Extend public house list/detail API to include `isFavorite` flag for authenticated users
-- [ ] **28e** MVC: user dashboard page (upcoming bookings, favorites grid, booking history, profile summary)
-- [ ] **28f** MVC: owner dashboard page (my houses, upcoming bookings, calendar overview)
-- [ ] **28g** MVC: favorite toggle (heart icon) on house cards and detail page
-- [ ] **28h** Tests: favorite CRUD, duplicate handling, unauthenticated access, dashboard data
+- [x] **28a** Create `FavoriteHouse` entity, configure composite PK in DbContext, migration
+- [x] **28b** Create `IFavoriteService` + `FavoriteService` — add, remove, list, check if favorited
+- [x] **28c** API: `GET/POST/DELETE /api/me/favorites` endpoints
+- [x] **28d** Extend public house detail API to include `isFavorite` flag for authenticated users
+- [x] **28e** MVC: user dashboard page (upcoming bookings, favorites grid, booking history)
+- [x] **28f** MVC: owner dashboard page (my houses, upcoming bookings, confirm/reject)
+- [x] **28g** MVC: favorite toggle (heart icon) on house detail page, navbar dashboard links
+- [x] **28h** Tests: 10 integration tests — favorite CRUD, duplicate handling, auth, isolation, isFavorite flag
 
 **Estimated effort**: 8–12 hours | **Priority**: Medium
 
@@ -2316,16 +2327,16 @@ Phase 24 (i18n) ──────── independent, can start anytime after Ph
 Phase 25 (Stress Test) ✅ partial ── before Phase 20 (baseline) → after Phase 20 (comparison)
 
 Phase 17 (Audit) ✅ ─────┐
-Phase 18 (Status) ✅ ─────┤──→ Phase 26 (Multi-Role Auth) ──→ Phase 27 (Booking) ──→ Phase 28 (Favorites)
-Phase 21 (Availability) ──┘                                          │
-Phase 16 (Calendar/Pricing) ✅ ──────────────────────────────────────┘
+Phase 18 (Status) ✅ ─────┤──→ Phase 26 (Auth) ✅ ──→ Phase 27 (Booking) ✅ ──→ Phase 28 (Favorites) ✅
+Phase 21 (Availability) ──┘                                              │
+Phase 16 (Calendar/Pricing) ✅ ──────────────────────────────────────────┘
 ```
 
-**Recommended order**: ~~17 → 19 → 18 → 16~~ (done) → ~~23 → 25~~ (done) → **26 → 27 → 28 → 20 → 22 → 24**
+**Recommended order**: ~~17 → 19 → 18 → 16~~ (done) → ~~23 → 25~~ (done) → ~~26 → 27 → 28~~ (done) → **20 → 22 → 24**
 
-- **26 (Multi-Role Auth)** next: foundation for user-facing features, enables bookings and ownership
-- **27 (Booking System)** after 26: core business value — users can book, owners can manage
-- **28 (Favorites & Dashboard)** after 27: user/owner experience polish
+- ~~**26 (Multi-Role Auth)**~~ ✅ done
+- ~~**27 (Booking System)**~~ ✅ done (all tasks including deferred MVC/seed)
+- ~~**28 (Favorites & Dashboard)**~~ ✅ done
 - **20 (Price Snapshots)** after 25 baseline: then re-run stress test to measure improvement
 - **22 (Search)** after 20 + 23: aggregates price summaries and categorized features
 - **24 (i18n)** anytime: independent, can be parallelized with other work

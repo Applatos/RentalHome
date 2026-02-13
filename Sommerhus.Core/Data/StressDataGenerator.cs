@@ -427,6 +427,74 @@ public sealed class StressDataGenerator(
         totalEntities += allImages.Count;
         logger.LogInformation("Created {Count} image records", allImages.Count);
 
+        // 10. Generate bookings for published houses
+        if (users.Count > 0)
+        {
+            var publishedHouseIds = await db.Houses
+                .Where(h => h.CreatedBy == StressTag && h.Status == EntityStatus.Published)
+                .Select(h => h.Id)
+                .Take(200)
+                .ToListAsync(ct);
+
+            var allBookings = new List<Booking>();
+            var bookingStatuses = new[] { BookingStatus.Pending, BookingStatus.Confirmed, BookingStatus.Completed, BookingStatus.Cancelled };
+            var statusWeights = new[] { 0.25f, 0.35f, 0.25f, 0.15f };
+
+            foreach (var hId in publishedHouseIds)
+            {
+                var bookingCount = rng.Next(1, 5);
+                for (int b = 0; b < bookingCount; b++)
+                {
+                    var user = users[rng.Next(users.Count)];
+                    var checkIn = new DateOnly(currentYear, 1, 1).AddDays(rng.Next(0, 700));
+                    var nights = rng.Next(3, 15);
+                    var status = new Faker().Random.WeightedRandom(bookingStatuses, statusWeights);
+
+                    allBookings.Add(new Booking
+                    {
+                        Id = Guid.NewGuid(),
+                        HouseId = hId,
+                        UserId = user.Id,
+                        CheckIn = checkIn,
+                        CheckOut = checkIn.AddDays(nights),
+                        Guests = rng.Next(1, 10),
+                        TotalPrice = rng.Next(2000, 15000),
+                        Currency = "DKK",
+                        Status = status,
+                        ConfirmedAtUtc = status >= BookingStatus.Confirmed ? DateTime.UtcNow.AddDays(-rng.Next(1, 30)) : null,
+                        CancelledAtUtc = status == BookingStatus.Cancelled ? DateTime.UtcNow.AddDays(-rng.Next(1, 15)) : null,
+                        CreatedBy = StressTag
+                    });
+                }
+            }
+
+            await SaveInBatchesAsync(db.Bookings, allBookings, ct);
+            totalEntities += allBookings.Count;
+            logger.LogInformation("Created {Count} bookings", allBookings.Count);
+
+            // 11. Generate favorites
+            var allFavorites = new List<FavoriteHouse>();
+            var favHouseIds = publishedHouseIds.Take(100).ToList();
+            foreach (var user in users)
+            {
+                var favCount = rng.Next(0, 8);
+                var picked = favHouseIds.OrderBy(_ => rng.Next()).Take(favCount).ToList();
+                foreach (var hId in picked)
+                {
+                    allFavorites.Add(new FavoriteHouse
+                    {
+                        UserId = user.Id,
+                        HouseId = hId,
+                        CreatedAtUtc = DateTime.UtcNow.AddDays(-rng.Next(1, 60))
+                    });
+                }
+            }
+
+            await SaveInBatchesAsync(db.FavoriteHouses, allFavorites, ct);
+            totalEntities += allFavorites.Count;
+            logger.LogInformation("Created {Count} favorites", allFavorites.Count);
+        }
+
         sw.Stop();
         var msg = $"Stress data seeded: {totalEntities:N0} entities in {sw.Elapsed.TotalSeconds:F1}s";
         logger.LogInformation("{Msg}", msg);
@@ -439,6 +507,8 @@ public sealed class StressDataGenerator(
         var total = 0;
 
         // Delete in dependency order
+        total += await db.FavoriteHouses.Where(f => db.Houses.Where(h => h.CreatedBy == StressTag).Select(h => h.Id).Contains(f.HouseId)).ExecuteDeleteAsync(ct);
+        total += await db.Bookings.Where(b => b.CreatedBy == StressTag).ExecuteDeleteAsync(ct);
         total += await db.AvailabilityBlocks.Where(a => a.CreatedBy == StressTag).ExecuteDeleteAsync(ct);
         total += await db.Images.Where(i => i.FileName.StartsWith("stress/")).ExecuteDeleteAsync(ct);
         total += await db.HouseFeatures.Where(hf => db.Houses.Where(h => h.CreatedBy == StressTag).Select(h => h.Id).Contains(hf.HouseId)).ExecuteDeleteAsync(ct);

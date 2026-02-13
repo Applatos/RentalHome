@@ -44,6 +44,7 @@ Models/
 ├── Booking.cs            # Reservation entity with lifecycle (Phase 27)
 ├── BookingStatus.cs      # Pending/Confirmed/Completed/Cancelled enum
 ├── AvailabilityBlock.cs  # Date blocking for houses (Phase 21)
+├── FavoriteHouse.cs      # User favorites with composite PK (Phase 28)
 └── Pricing/              # Pricing-related entities
     ├── PricePlan.cs
     ├── SeasonPrice.cs
@@ -100,7 +101,8 @@ Core/
 │   │   ├── Houses/
 │   │   │   ├── IHouseQueryService.cs
 │   │   │   └── HouseQueryService.cs
-│   │   └── Bookings/         # User booking creation/listing (Phase 27)
+│   │   ├── Bookings/         # User booking creation/listing (Phase 27)
+│   │   └── Favorites/        # User favorites CRUD (Phase 28)
 │   ├── Owner/                # Owner-scoped services (Phase 26-27)
 │   │   ├── IOwnerHouseService.cs
 │   │   ├── IOwnerBookingService.cs
@@ -153,6 +155,7 @@ Api/
 │   └── Public/           # Open/authenticated endpoints
 │       ├── HousesController.cs
 │       ├── BookingsController.cs  # User booking CRUD (Phase 27)
+│       ├── FavoritesController.cs # User favorites (Phase 28)
 │       └── PricingController.cs
 ├── Infrastructure/
 │   ├── Auth/
@@ -333,6 +336,11 @@ Booking (Phase 27)
 ├── AvailabilityBlockId (FK → AvailabilityBlock, nullable)
 ├── GuestNote, OwnerNote
 └── IAuditable fields
+
+FavoriteHouse (Phase 28)
+├── UserId (PK, FK → ApplicationUser)
+├── HouseId (PK, FK → VacationHouse)
+└── CreatedAtUtc
 
 PricePlan
 ├── Id (PK)

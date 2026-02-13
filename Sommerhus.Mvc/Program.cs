@@ -41,6 +41,11 @@ builder.Services.AddHttpClient<AdminApiClient>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler<AdminApiAuthHandler>();
 
+builder.Services.AddHttpClient<UserApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AdminApiAuthHandler>();
+
 
 var app = builder.Build();
 
