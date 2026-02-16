@@ -1,0 +1,215 @@
+@using System.Globalization
+@using Sommerhus.Domain.Models
+@using Sommerhus.Mvc.ViewModels.Admin.Houses
+@model HouseDetailsVm
+
+@{
+    var blocks = Model.AvailabilityBlocks ?? Array.Empty<Sommerhus.Core.Dtos.Shared.AvailabilityBlockDto>();
+
+    string BadgeClass(AvailabilityStatus status) => status switch
+    {
+        AvailabilityStatus.Available => "bg-success",
+        AvailabilityStatus.Blocked => "bg-danger",
+        AvailabilityStatus.Tentative => "bg-warning text-dark",
+        AvailabilityStatus.Booked => "bg-secondary",
+        _ => "bg-secondary"
+    };
+}
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-1">Availability</h5>
+            <p class="mb-0 text-muted small">
+                Showing blocks from @Model.AvailabilityFrom.ToString("d", CultureInfo.CurrentCulture)
+                to @Model.AvailabilityTo.ToString("d", CultureInfo.CurrentCulture)
+            </p>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAvailabilityBlockModal">
+            <i class="bi bi-plus-lg"></i> Add Block
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.AvailabilityError))
+    {
+        <div class="alert alert-warning">@Model.AvailabilityError</div>
+    }
+
+    @if (!blocks.Any())
+    {
+        <p class="text-muted mb-0">No availability blocks found in the selected period.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Source</th>
+                        <th>Note</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var block in blocks.OrderBy(b => b.StartDate))
+                    {
+                        <tr>
+                            <td><span class="badge @BadgeClass(block.Status)">@block.Status</span></td>
+                            <td>@block.StartDate.ToString("d", CultureInfo.CurrentCulture)</td>
+                            <td>@block.EndDate.ToString("d", CultureInfo.CurrentCulture)</td>
+                            <td>@block.Source</td>
+                            <td>@(string.IsNullOrWhiteSpace(block.Note) ? "-" : block.Note)</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editAvailabilityBlockModal"
+                                            data-block-id="@block.Id"
+                                            data-start-date="@block.StartDate.ToString("yyyy-MM-dd")"
+                                            data-end-date="@block.EndDate.ToString("yyyy-MM-dd")"
+                                            data-status="@((int)block.Status)"
+                                            data-note="@block.Note">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <form method="post"
+                                          action="/admin/houses/@Model.House.Id/availability/@block.Id/delete"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Delete this availability block?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<div class="modal fade" id="addAvailabilityBlockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Availability Block</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/admin/houses/@Model.House.Id/availability">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label" for="AvailabilityStartDate">Start Date *</label>
+                        <input type="date"
+                               id="AvailabilityStartDate"
+                               name="StartDate"
+                               class="form-control"
+                               value="@Model.AvailabilityFrom.ToString("yyyy-MM-dd")"
+                               required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="AvailabilityEndDate">End Date *</label>
+                        <input type="date"
+                               id="AvailabilityEndDate"
+                               name="EndDate"
+                               class="form-control"
+                               value="@Model.AvailabilityFrom.AddDays(2).ToString("yyyy-MM-dd")"
+                               required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="AvailabilityStatus">Status *</label>
+                        <select name="Status" id="AvailabilityStatus" class="form-select" required>
+                            <option value="@((int)AvailabilityStatus.Blocked)">Blocked</option>
+                            <option value="@((int)AvailabilityStatus.Tentative)">Tentative</option>
+                            <option value="@((int)AvailabilityStatus.Booked)">Booked</option>
+                            <option value="@((int)AvailabilityStatus.Available)">Available</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="AvailabilityNote">Note</label>
+                        <textarea name="Note" id="AvailabilityNote" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editAvailabilityBlockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Availability Block</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="editAvailabilityBlockForm">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label" for="EditAvailabilityStartDate">Start Date *</label>
+                        <input type="date" name="StartDate" id="EditAvailabilityStartDate" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="EditAvailabilityEndDate">End Date *</label>
+                        <input type="date" name="EndDate" id="EditAvailabilityEndDate" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="EditAvailabilityStatus">Status *</label>
+                        <select name="Status" id="EditAvailabilityStatus" class="form-select" required>
+                            <option value="@((int)AvailabilityStatus.Blocked)">Blocked</option>
+                            <option value="@((int)AvailabilityStatus.Tentative)">Tentative</option>
+                            <option value="@((int)AvailabilityStatus.Booked)">Booked</option>
+                            <option value="@((int)AvailabilityStatus.Available)">Available</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="EditAvailabilityNote">Note</label>
+                        <textarea name="Note" id="EditAvailabilityNote" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editModal = document.getElementById('editAvailabilityBlockModal');
+        if (!editModal) {
+            return;
+        }
+
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const blockId = button.getAttribute('data-block-id');
+            const startDate = button.getAttribute('data-start-date');
+            const endDate = button.getAttribute('data-end-date');
+            const status = button.getAttribute('data-status');
+            const note = button.getAttribute('data-note');
+
+            document.getElementById('EditAvailabilityStartDate').value = startDate;
+            document.getElementById('EditAvailabilityEndDate').value = endDate;
+            document.getElementById('EditAvailabilityStatus').value = status;
+            document.getElementById('EditAvailabilityNote').value = note || '';
+
+            const form = document.getElementById('editAvailabilityBlockForm');
+            form.action = `/admin/houses/@Model.House.Id/availability/${blockId}`;
+        });
+    });
+</script>

@@ -63,6 +63,8 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         var cities = await LoadCitiesSelectListAsync(house.CityId, ct);
         var areas = await LoadAreasSelectListAsync(house.AreaIds, ct);
         var houseGroups = await LoadHouseGroupsSelectListAsync(house.GroupId, ct);
+        var availabilityFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var availabilityTo = availabilityFrom.AddMonths(6);
 
         var allFeatures = Array.Empty<FeatureDto>() as IReadOnlyList<FeatureDto>;
         string? featuresError = null;
@@ -118,6 +120,21 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
                 availableCalendars = calRes.Data;
         }
 
+        var availabilityBlocks = Array.Empty<AvailabilityBlockDto>() as IReadOnlyList<AvailabilityBlockDto>;
+        string? availabilityError = null;
+        if (string.Equals(tab, "availability", StringComparison.OrdinalIgnoreCase))
+        {
+            var availabilityRes = await api.GetHouseAvailabilityAsync(house.Id, availabilityFrom, availabilityTo, ct);
+            if (availabilityRes.Ok && availabilityRes.Data is not null)
+            {
+                availabilityBlocks = availabilityRes.Data;
+            }
+            else
+            {
+                availabilityError = availabilityRes.Message ?? "Could not load availability blocks.";
+            }
+        }
+
         var pricingAuditEntries = Array.Empty<AuditEntryDto>() as IReadOnlyList<AuditEntryDto>;
         string? pricingAuditError = null;
         if (string.Equals(tab, "pricing", StringComparison.OrdinalIgnoreCase))
@@ -148,6 +165,10 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             FeaturesError = featuresError,
             SeasonCodes = seasonCodes,
             SeasonCodesError = seasonCodesError,
+            AvailabilityBlocks = availabilityBlocks,
+            AvailabilityError = availabilityError,
+            AvailabilityFrom = availabilityFrom,
+            AvailabilityTo = availabilityTo,
             AuditEntries = auditEntries,
             AuditError = auditError,
             PricingAuditEntries = pricingAuditEntries,

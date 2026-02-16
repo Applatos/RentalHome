@@ -29,6 +29,16 @@ public sealed class SommerhusApi
             $"api/houses/{request.HouseId}/quote?checkIn={request.Arrival:yyyy-MM-dd}&checkOut={request.Departure:yyyy-MM-dd}&guests={request.Guests}",
             ct);
 
+    public Task<ApiResponse<IReadOnlyList<AvailabilityBlockDto>?>> GetHouseAvailabilityAsync(
+        Guid houseId,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken ct = default)
+        => ApiHttp.GetAsync<IReadOnlyList<AvailabilityBlockDto>?>(
+            http,
+            $"api/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}",
+            ct);
+
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
     {
         var url = string.IsNullOrWhiteSpace(q)

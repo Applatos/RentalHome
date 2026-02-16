@@ -1436,9 +1436,9 @@ When booking is implemented later:
 - [x] **21a** Create `AvailabilityBlock` entity, enums, migration
 - [x] **21b** Build `IAdminAvailabilityService` + `IAvailabilityQueryService` (check, list, block, unblock)
 - [x] **21c** Admin API: CRUD endpoints for availability blocks (`api/admin/houses/{id}/availability`)
-- [ ] **21d** Admin MVC: availability calendar tab on house details (interactive grid) _(deferred — UI)_
+- [x] **21d** Admin MVC: availability calendar tab on house details (interactive grid)
 - [x] **21e** Public API: `GET /api/houses/{id}/availability?from=&to=`
-- [ ] **21f** Public MVC: calendar widget on house detail page _(deferred — UI)_
+- [x] **21f** Public MVC: calendar widget on house detail page
 - [x] **21g** Integrate availability check into quote service (no quote for unavailable dates)
 - [x] **21h** Tests: overlap detection, block/unblock, availability queries (12 integration tests)
 
@@ -2071,7 +2071,7 @@ This prevents owners from accessing other owners' houses via direct URL manipula
 - [x] **26h** Admin: `PUT /api/admin/houses/{id}/owner` to assign ownership, `GET /api/admin/users` to list users, `PUT /api/admin/users/{id}/role` to change role
 - [x] **26i** Update authorization attributes across all existing controllers (backward compatible via `AdminRoles` alias)
 - [x] **26j** MVC: registration, login pages with multi-role support (public-facing)
-- [ ] **26k** MVC: owner dashboard with house list and edit views _(deferred to Phase 28)_
+- [x] **26k** MVC: owner dashboard with house list and edit views _(completed in Phase 28)_
 - [x] **26l** Tests: 12 new integration tests — registration, login, role-based access, owner isolation, admin user management (77 total, all passing)
 
 **Estimated effort**: 15–20 hours | **Priority**: High | **Status**: ✅ Completed

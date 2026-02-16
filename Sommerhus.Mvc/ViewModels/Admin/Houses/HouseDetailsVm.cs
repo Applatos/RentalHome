@@ -20,6 +20,11 @@ public sealed class HouseDetailsVm
     public IReadOnlyList<SeasonCodeDto> SeasonCodes { get; init; } = [];
     public string? SeasonCodesError { get; init; }
 
+    public IReadOnlyList<AvailabilityBlockDto> AvailabilityBlocks { get; init; } = [];
+    public string? AvailabilityError { get; init; }
+    public DateOnly AvailabilityFrom { get; init; }
+    public DateOnly AvailabilityTo { get; init; }
+
     public IReadOnlyList<AuditEntryDto> AuditEntries { get; init; } = [];
     public string? AuditError { get; init; }
 

@@ -82,4 +82,28 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
         return StatusCode(status, new { message = res.Message ?? "Could not get price quote" });
     }
 
+    [HttpGet("/houses/{id:guid}/availability")]
+    public async Task<IActionResult> Availability(
+        Guid id,
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to,
+        CancellationToken ct)
+    {
+        if (to <= from)
+        {
+            return BadRequest(new { message = "End date must be after start date." });
+        }
+
+        var res = await api.GetHouseAvailabilityAsync(id, from, to, ct);
+        if (!res.Ok)
+        {
+            var status = (int)(res.StatusCode ?? HttpStatusCode.BadGateway);
+            return StatusCode(status, new { message = res.Message ?? "Could not load availability." });
+        }
+
+        var blocks = res.Data ?? [];
+        var hasConflict = blocks.Any(b => b.Status != Sommerhus.Domain.Models.AvailabilityStatus.Available);
+        return Json(new { available = !hasConflict, blocks });
+    }
+
 }

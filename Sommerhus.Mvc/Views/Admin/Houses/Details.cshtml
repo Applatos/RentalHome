@@ -34,6 +34,10 @@
                asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">Season Calendar</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link @(Model.ActiveTab == "availability" ? "active" : "")"
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="availability">Availability</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "audit" ? "active" : "")"
                asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="audit">Audit History</a>
         </li>
@@ -59,6 +63,10 @@
         else if (Model.ActiveTab == "calendar")
         {
             @await Html.PartialAsync("_TabCalendar.cshtml", Model)
+        }
+        else if (Model.ActiveTab == "availability")
+        {
+            @await Html.PartialAsync("_TabAvailability.cshtml", Model)
         }
         else if (Model.ActiveTab == "audit")
         {

@@ -55,6 +55,41 @@ public sealed class AdminApiClient(HttpClient http)
     public Task<ApiResponse<object?>> UpsertHouseFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto> values, CancellationToken ct)
         => ApiHttp.PostAsync<IEnumerable<PostFeatureValueDto>, object?>(http, $"api/admin/houses/{houseId}/features", values?.ToList() ?? new List<PostFeatureValueDto>(), ct);
 
+    // Availability
+    public Task<ApiResponse<IReadOnlyList<AvailabilityBlockDto>?>> GetHouseAvailabilityAsync(
+        Guid houseId,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken ct)
+        => ApiHttp.GetAsync<IReadOnlyList<AvailabilityBlockDto>?>(
+            http,
+            $"api/admin/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}",
+            ct);
+
+    public Task<ApiResponse<AvailabilityBlockDto?>> CreateHouseAvailabilityBlockAsync(
+        Guid houseId,
+        UpsertAvailabilityBlockDto dto,
+        CancellationToken ct)
+        => ApiHttp.PostAsync<UpsertAvailabilityBlockDto, AvailabilityBlockDto?>(
+            http,
+            $"api/admin/houses/{houseId}/availability",
+            dto,
+            ct);
+
+    public Task<ApiResponse<AvailabilityBlockDto?>> UpdateHouseAvailabilityBlockAsync(
+        Guid houseId,
+        Guid blockId,
+        UpsertAvailabilityBlockDto dto,
+        CancellationToken ct)
+        => ApiHttp.PutAsync<UpsertAvailabilityBlockDto, AvailabilityBlockDto?>(
+            http,
+            $"api/admin/houses/{houseId}/availability/{blockId}",
+            dto,
+            ct);
+
+    public Task<ApiResponse<object?>> DeleteHouseAvailabilityBlockAsync(Guid houseId, Guid blockId, CancellationToken ct)
+        => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/availability/{blockId}", ct);
+
     // Features
     public Task<ApiResponse<IReadOnlyList<FeatureDto>?>> GetFeaturesAsync(CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<FeatureDto>?>(http, "api/admin/features", ct);
