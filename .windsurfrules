@@ -86,7 +86,7 @@ Feature/
 
 ### DO:
 
-- ✅ Keep changes minimal and focused
+- ✅ Keep changes focused, however if i say to do something else, do it
 - ✅ Maintain backward compatibility with existing API contracts
 - ✅ Add/update tests for any logic changes
 - ✅ Use existing patterns found in codebase
@@ -95,7 +95,6 @@ Feature/
 
 ### DON'T:
 
-- ❌ Change multiple unrelated things in one commit
 - ❌ Remove existing functionality without explicit request
 - ❌ Add new NuGet packages without justification
 - ❌ Break existing tests
@@ -106,26 +105,7 @@ Feature/
 
 ## Known Issues to Address
 
-### High Priority
-
-1. **Service Registration Bloat**: `Program.cs` has 20+ manual `AddScoped` calls
-   - Solution: Create extension methods per feature area
-2. **Services in Wrong Layer**: Implementations live in Repository but should be organized by feature
-3. **Large Service Classes**: `AdminHouseService` is 400+ lines
-   - Solution: Extract specialized services (pricing, features, images)
-
-### Medium Priority
-
-4. **DTO Consolidation**: Some DTOs duplicate fields across Admin/Public
-5. **Missing Validation**: DTOs lack `[Required]`, `[MaxLength]` attributes
-6. **Empty Project**: `Sommerhus.Pricing/` project is empty, unused
-
-### Low Priority
-
-7. **Danish in Code**: Some error messages and comments in Danish
-8. **Inconsistent Image Handling**: Different patterns for House/Area/City images
-
----
+Look for the known_issues in docs/KNOWN_ISSUES.md.
 
 ## Testing Guidelines
 
@@ -243,7 +223,7 @@ dotnet format Sommerhus_project.sln
 
 ### Response Format:
 
-- Be concise, avoid lengthy explanations
+- Be concise
 - Show code changes with file paths
 - Provide test commands to verify
 - Summarize what was changed

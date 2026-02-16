@@ -2309,6 +2309,53 @@ When a logged-in user browses houses, each house card shows a heart icon (♡/�
 
 ---
 
+## Phase 30: Search Engine & Seeding Bug Fixes ✅ COMPLETED
+
+**Goal**: Fix multiple bugs in the public search engine, admin feature management, and seed data that prevented the platform from working correctly out of the box.
+
+### Issues Fixed
+
+1. **Public area search returns no houses** ✅ FIXED
+   - **Root Cause**: `DbSeeder.SeedMinimal()` created the house with `Status = Draft` (default). The search service filters by `Status == Published`, so no houses appeared.
+   - **Also**: No `HouseSearchDocument` was created for the seeded house, so even if status was correct, the search index was empty.
+   - **Fix**: Set `Status = EntityStatus.Published` and `PublishedAtUtc` on seeded house and area. Added `HouseSearchDocument` entry in seeder.
+
+2. **Feature Options displayed as broken JSON** ✅ FIXED
+   - **Root Cause**: `Options` field stored as JSON array (`["1","2","3","4+"]`) but the search view split by comma, producing `["1"`, `"2"`, `"3"`, `"4+"]` in dropdowns.
+   - **Fix**: Changed seed data to use simple comma-separated format (`1,2,3,4+`). Updated `NormalizeOptions()` in `AdminFeatureService` to auto-convert JSON arrays to comma-separated if pasted. Updated admin form placeholder.
+
+3. **Boolean features rendered as text fields** ✅ FIXED
+   - **Root Cause**: Boolean features (pool, wifi, etc.) with no `Options` string fell through to a generic `<input>` text field instead of toggle switches.
+   - **Fix**: Rewrote search form to separate boolean features from non-boolean. Booleans now render as Bootstrap `form-switch` toggle inputs.
+
+4. **Search UI cluttered** ✅ FIXED
+   - **Fix**: Moved all filters except keyword search and area dropdown behind a collapsible "Advanced Search" panel (Bootstrap collapse). Panel auto-opens when advanced filters are active.
+
+5. **Advanced search features not grouped** ✅ FIXED
+   - **Fix**: Features are now grouped by category (Property, Facility, Distance, Other) with section headings. Within each category, non-boolean features appear as dropdowns/inputs, and boolean features appear as a row of toggle switches.
+
+6. **No seeded User or Owner accounts** ✅ FIXED
+   - **Fix**: `AdminIdentitySeeder.SeedAsync()` now creates two additional test accounts:
+     - **Owner**: username `owner`, password `Owner123!`, role `HouseOwner`
+     - **User**: username `user`, password `User123!`, role `User`
+
+### Files Modified
+
+- `Sommerhus.Core/Data/DbSeeder.cs` — Set house/area status to Published, changed Options from JSON to comma-separated, added HouseSearchDocument
+- `Sommerhus.Core/Identity/AdminIdentitySeeder.cs` — Added `EnsureUserAsync()` helper, seeds Owner and User accounts
+- `Sommerhus.Core/Services/Admin/Features/AdminFeatureService.cs` — `NormalizeOptions()` now auto-converts JSON arrays to comma-separated
+- `Sommerhus.Mvc/Views/Houses/Houses.cshtml` — Complete search form rewrite with advanced search panel, boolean toggles, category grouping
+- `Sommerhus.Mvc/Views/Admin/Features/Index.cshtml` — Updated Options placeholder from JSON to comma-separated
+
+### Verification
+
+```powershell
+dotnet build Sommerhus_project.sln
+dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj --logger "console;verbosity=detailed"
+```
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -2503,6 +2550,7 @@ After completing all phases:
 | Phase 27  | 15-20 hours      | High     | **Completed** |
 | Phase 28  | 8-12 hours       | Medium   | **Completed** |
 | Phase 29  | 6-10 hours       | Medium   | **Completed** |
+| Phase 30  | 2-3 hours        | High     | **Completed** |
 
 **Remaining (refactoring)**: ~29-43 hours
 **Remaining (enterprise)**: ~75-114 hours

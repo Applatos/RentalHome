@@ -12,9 +12,9 @@ public static class Seeder
         if (db.Features.Any()) return;
 
         // Property features
-        var bedroomsF = new Feature { Id = Guid.NewGuid(), Name = "Bedrooms", Key = "bedrooms", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "[\"1\",\"2\",\"3\",\"4\",\"5\",\"6+\"]", SortOrder = 10 };
-        var bathroomsF = new Feature { Id = Guid.NewGuid(), Name = "Bathrooms", Key = "bathrooms", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "[\"1\",\"2\",\"3\",\"4+\"]", SortOrder = 20 };
-        var maxGuestsF = new Feature { Id = Guid.NewGuid(), Name = "Max guests", Key = "max_guests", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "[\"1-2\",\"3-4\",\"5-6\",\"7-8\",\"9+\"]", SortOrder = 30 };
+        var bedroomsF = new Feature { Id = Guid.NewGuid(), Name = "Bedrooms", Key = "bedrooms", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "1,2,3,4,5,6+", SortOrder = 10 };
+        var bathroomsF = new Feature { Id = Guid.NewGuid(), Name = "Bathrooms", Key = "bathrooms", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "1,2,3,4+", SortOrder = 20 };
+        var maxGuestsF = new Feature { Id = Guid.NewGuid(), Name = "Max guests", Key = "max_guests", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Options = "1-2,3-4,5-6,7-8,9+", SortOrder = 30 };
         var sizeF = new Feature { Id = Guid.NewGuid(), Name = "Size (m²)", Key = "size_m2", ValueType = FeatureValueType.Int, Category = FeatureCategory.Property, Unit = "m²", SortOrder = 40 };
 
         // Facility features
@@ -33,8 +33,8 @@ public static class Seeder
         var handicapF = new Feature { Id = Guid.NewGuid(), Name = "Handicap accessible", Key = "handicap", ValueType = FeatureValueType.Bool, Category = FeatureCategory.Facility, SortOrder = 220 };
 
         // Distance features
-        var distShopF = new Feature { Id = Guid.NewGuid(), Name = "Distance to shop", Key = "distance_shop", ValueType = FeatureValueType.Int, Category = FeatureCategory.Distance, Unit = "m", Options = "[\"< 500m\",\"< 1 km\",\"< 2 km\",\"< 5 km\"]", SortOrder = 300 };
-        var distWaterF = new Feature { Id = Guid.NewGuid(), Name = "Distance to water", Key = "distance_water", ValueType = FeatureValueType.Int, Category = FeatureCategory.Distance, Unit = "m", Options = "[\"< 100m\",\"< 500m\",\"< 1 km\",\"< 5 km\"]", SortOrder = 310 };
+        var distShopF = new Feature { Id = Guid.NewGuid(), Name = "Distance to shop", Key = "distance_shop", ValueType = FeatureValueType.Int, Category = FeatureCategory.Distance, Unit = "m", Options = "< 500m,< 1 km,< 2 km,< 5 km", SortOrder = 300 };
+        var distWaterF = new Feature { Id = Guid.NewGuid(), Name = "Distance to water", Key = "distance_water", ValueType = FeatureValueType.Int, Category = FeatureCategory.Distance, Unit = "m", Options = "< 100m,< 500m,< 1 km,< 5 km", SortOrder = 310 };
         var waterViewF = new Feature { Id = Guid.NewGuid(), Name = "Water view", Key = "water_view", ValueType = FeatureValueType.Bool, Category = FeatureCategory.Distance, SortOrder = 320 };
 
         var allFeatures = new Feature[] { bedroomsF, bathroomsF, maxGuestsF, sizeF, poolF, saunaF, spaF, wifiF, dishwasherF, washingF, dryerF, petF, fireplaceF, acF, evF, nonsmokingF, handicapF, distShopF, distWaterF, waterViewF };
@@ -53,6 +53,7 @@ public static class Seeder
             Id = Guid.NewGuid(),
             Name = "Blåvand",
             Description = "Hyggeligt område.",
+            Status = EntityStatus.Published,
             Cities = new List<City> { city }
         };
 
@@ -64,6 +65,8 @@ public static class Seeder
             Address = "Strandvej 4",
             Description = "Super dejligt poolhus ...",
             SearchKeywords = "pool, beach, family-friendly, modern",
+            Status = EntityStatus.Published,
+            PublishedAtUtc = DateTime.UtcNow,
             Areas = new List<Area> { area },
             Group = groupA
         };
@@ -180,6 +183,28 @@ public static class Seeder
             MaxNightlyPrice = seasonRates.Max(r => r.NightlyPrice),
             Currency = plan.Currency,
             ComputedAtUtc = DateTime.UtcNow
+        });
+
+        db.Set<HouseSearchDocument>().Add(new HouseSearchDocument
+        {
+            HouseId = house.Id,
+            Title = house.Title,
+            Description = house.Description,
+            CityName = city.Name,
+            CityZip = city.Zip,
+            Address = house.Address,
+            AreaNames = area.Name,
+            SearchKeywords = house.SearchKeywords,
+            Status = EntityStatus.Published,
+            MinNightlyPrice = seasonRates.Min(r => r.NightlyPrice),
+            MaxNightlyPrice = seasonRates.Max(r => r.NightlyPrice),
+            Currency = plan.Currency,
+            Bedrooms = 3,
+            MaxGuests = 6,
+            HasPool = true,
+            PetFriendly = false,
+            SearchVector = $"{house.Title} {house.Description} {city.Name} {city.Zip} {house.Address} {area.Name} {house.SearchKeywords}",
+            UpdatedAtUtc = DateTime.UtcNow
         });
 
         db.SaveChanges();

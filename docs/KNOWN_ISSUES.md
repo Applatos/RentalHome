@@ -1258,6 +1258,50 @@ The following are architectural gaps identified for production readiness. See `R
 
 ---
 
+## Phase 30: Search Engine & Seeding Bug Fixes (Feb 16, 2026) ✅
+
+### 48. Seeded House Has Status=Draft — Public Search Returns No Houses ✅ FIXED
+
+**Location**: `Sommerhus.Core/Data/DbSeeder.cs`
+
+**Problem**: `VacationHouse.Status` defaults to `Draft`. The seeder never set it to `Published`. The search service (`HouseSearchService`) filters by `Status == Published`, so no houses appeared in public search. Additionally, no `HouseSearchDocument` was created for the seeded house.
+
+**Fix**: Set `Status = EntityStatus.Published` and `PublishedAtUtc` on seeded house and area. Added `HouseSearchDocument` entry in seeder.
+
+### 49. Feature Options Stored as JSON Array — Broken Dropdown Display ✅ FIXED
+
+**Location**: `Sommerhus.Core/Data/DbSeeder.cs`, `Sommerhus.Mvc/Views/Houses/Houses.cshtml`
+
+**Problem**: `Feature.Options` was stored as a JSON array (`["1","2","3","4+"]`). The search view split by comma, producing broken entries like `["1"`, `"2"`, `"4+"]` in dropdown menus.
+
+**Fix**: Changed seed data to comma-separated format (`1,2,3,4+`). Updated `NormalizeOptions()` to auto-convert JSON arrays to comma-separated. Updated admin form placeholder.
+
+### 50. Boolean Features Rendered as Text Fields in Search ✅ FIXED
+
+**Location**: `Sommerhus.Mvc/Views/Houses/Houses.cshtml`
+
+**Problem**: Boolean features (pool, wifi, sauna, etc.) with no `Options` string fell through to a generic text `<input>` instead of toggle switches.
+
+**Fix**: Rewrote search form to separate boolean from non-boolean features. Booleans now render as Bootstrap `form-switch` toggle inputs.
+
+### 51. Search UI Cluttered — No Advanced Search ✅ FIXED
+
+**Location**: `Sommerhus.Mvc/Views/Houses/Houses.cshtml`
+
+**Problem**: All search filters were visible at once, making the UI overwhelming. No grouping of related features.
+
+**Fix**: Primary search bar shows only keyword + area + search button. All other filters are behind a collapsible "Advanced Search" panel. Features grouped by category (Property, Facility, Distance, Other) with section headings.
+
+### 52. No Seeded User or Owner Accounts ✅ FIXED
+
+**Location**: `Sommerhus.Core/Identity/AdminIdentitySeeder.cs`
+
+**Problem**: Only the Admin account was seeded. Developers could not test booking, dashboard, or owner flows without manually creating accounts.
+
+**Fix**: `AdminIdentitySeeder.SeedAsync()` now seeds: Owner (`owner` / `Owner123!`, role HouseOwner) and User (`user` / `User123!`, role User).
+
+---
+
 ## How to Add New Issues
 
 When discovering new issues during development:

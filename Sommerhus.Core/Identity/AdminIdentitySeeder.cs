@@ -61,6 +61,61 @@ public sealed class AdminIdentitySeeder(
                 LogErrors("Failed to add default admin user to Admin role", addRoleResult.Errors);
             }
         }
+
+        // Seed a test Owner account
+        await EnsureUserAsync(
+            userName: "owner",
+            email: "owner@sommerhus.dk",
+            password: "Owner123!",
+            role: AppRoles.HouseOwner,
+            firstName: "Ole",
+            lastName: "Jensen");
+
+        // Seed a test User account
+        await EnsureUserAsync(
+            userName: "user",
+            email: "user@sommerhus.dk",
+            password: "User123!",
+            role: AppRoles.User,
+            firstName: "Karen",
+            lastName: "Nielsen");
+    }
+
+    private async Task EnsureUserAsync(
+        string userName,
+        string email,
+        string password,
+        string role,
+        string? firstName = null,
+        string? lastName = null)
+    {
+        var existing = await userManager.FindByNameAsync(userName);
+        if (existing is not null) return;
+
+        var newUser = new ApplicationUser
+        {
+            UserName = userName,
+            Email = email,
+            EmailConfirmed = true,
+            FirstName = firstName,
+            LastName = lastName
+        };
+
+        var result = await userManager.CreateAsync(newUser, password);
+        if (!result.Succeeded)
+        {
+            LogErrors($"Failed to create seed user '{userName}'", result.Errors);
+            return;
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(newUser, role);
+        if (!roleResult.Succeeded)
+        {
+            LogErrors($"Failed to add '{userName}' to {role} role", roleResult.Errors);
+            return;
+        }
+
+        logger.LogInformation("Created seed user {UserName} with role {Role}.", userName, role);
     }
 
     private async Task EnsureRoleAsync(string roleName)

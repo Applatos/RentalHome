@@ -293,6 +293,23 @@ public sealed class AdminFeatureService(
     private static string? NormalizeOptions(string? options)
     {
         var trimmed = (options ?? string.Empty).Trim();
-        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+        if (string.IsNullOrWhiteSpace(trimmed)) return null;
+
+        // If input looks like a JSON array, convert to comma-separated
+        if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+        {
+            try
+            {
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<string>>(trimmed);
+                if (items is { Count: > 0 })
+                    return string.Join(",", items);
+            }
+            catch
+            {
+                // Not valid JSON — fall through to return as-is
+            }
+        }
+
+        return trimmed;
     }
 }

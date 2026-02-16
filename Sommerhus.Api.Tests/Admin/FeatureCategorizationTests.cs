@@ -55,7 +55,7 @@ public sealed class FeatureCategorizationTests : IClassFixture<CustomWebApplicat
         var stored = await db.Features.SingleAsync(f => f.Id == result.Value);
         stored.Category.Should().Be(FeatureCategory.Property);
         stored.IsSearchable.Should().BeTrue();
-        stored.Options.Should().Be("[\"1\",\"2\",\"3\",\"4+\"]");
+        stored.Options.Should().Be("1,2,3,4+");
     }
 
     [Fact]
