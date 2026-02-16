@@ -54,6 +54,7 @@ public sealed class AdminAreaService(AppDbContext db, IImageStorage imageStorage
         var area = new Area
         {
             Name = nameResult.Value!,
+            NameEn = NormalizeOptionalName(dto.NameEn),
             Description = NormalizeDescription(dto.Description)
         };
 
@@ -95,6 +96,7 @@ public sealed class AdminAreaService(AppDbContext db, IImageStorage imageStorage
         }
 
         area.Name = nameResult.Value!;
+        area.NameEn = NormalizeOptionalName(dto.NameEn);
         area.Description = NormalizeDescription(dto.Description);
 
         area.Cities.Clear();
@@ -197,6 +199,9 @@ public sealed class AdminAreaService(AppDbContext db, IImageStorage imageStorage
 
     private static string? NormalizeDescription(string? description)
         => string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+
+    private static string? NormalizeOptionalName(string? name)
+        => string.IsNullOrWhiteSpace(name) ? null : name.Trim();
 
     private static IEnumerable<AreaImage> NormalizeImages(IReadOnlyList<string>? images)
     {

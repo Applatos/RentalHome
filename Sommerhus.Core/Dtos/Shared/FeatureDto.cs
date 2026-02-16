@@ -23,6 +23,7 @@ public sealed record FeatureDto(
 /// </summary>
 public sealed record UpsertFeatureDto(
     [Required, MaxLength(100)] string Name,
+    [MaxLength(100)] string? NameEn,
     [Required, MaxLength(50)] string Key,
     [Required] string ValueType,
     string? Category = null,

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Site.Brand" xml:space="preserve"><value>Sommerhuse</value></data>
+  <data name="Nav.Home" xml:space="preserve"><value>Forside</value></data>
+  <data name="Nav.Areas" xml:space="preserve"><value>Omraader</value></data>
+  <data name="Nav.Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Nav.Language" xml:space="preserve"><value>Sprog</value></data>
+  <data name="Nav.Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Nav.Bookings" xml:space="preserve"><value>Bookinger</value></data>
+  <data name="Nav.Owner" xml:space="preserve"><value>Ejer</value></data>
+  <data name="Nav.Login" xml:space="preserve"><value>Log ind</value></data>
+  <data name="Nav.Logout" xml:space="preserve"><value>Log ud</value></data>
+
+  <data name="Shared.Search" xml:space="preserve"><value>Soeg</value></data>
+  <data name="Shared.Reset" xml:space="preserve"><value>Nulstil</value></data>
+  <data name="Shared.SearchPlaceholder" xml:space="preserve"><value>Soeg...</value></data>
+
+  <data name="Home.Title" xml:space="preserve"><value>Luksus Sommerhuse i Danmark</value></data>
+  <data name="Home.Heading" xml:space="preserve"><value>Sommerhusudlejning - Enkelt og sikkert</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Find det helt rigtige sommerhus. Filtrer paa omraade/by og soeg i titler/beskrivelser.</value></data>
+
+  <data name="Houses.List.Title" xml:space="preserve"><value>Luksus Sommerhuse i Danmark</value></data>
+  <data name="Houses.List.Heading" xml:space="preserve"><value>Sommerhusudlejning - Enkelt og sikkert</value></data>
+  <data name="Houses.List.Subtitle" xml:space="preserve"><value>Find det helt rigtige sommerhus. Filtrer paa omraade/by og soeg i titler/beskrivelser.</value></data>
+  <data name="Houses.List.AllAreas" xml:space="preserve"><value>Alle omraader</value></data>
+  <data name="Houses.List.Empty" xml:space="preserve"><value>Ingen sommerhuse fundet.</value></data>
+
+  <data name="Areas.List.Title" xml:space="preserve"><value>Omraader</value></data>
+  <data name="Areas.List.Heading" xml:space="preserve"><value>Omraader og oplevelser</value></data>
+  <data name="Areas.List.Subtitle" xml:space="preserve"><value>Find inspiration og laes mere om de danske omraader, hvor vi udlejer sommerhuse.</value></data>
+  <data name="Areas.List.SearchPlaceholder" xml:space="preserve"><value>Soeg efter omraade</value></data>
+  <data name="Areas.List.Empty" xml:space="preserve"><value>Der blev ikke fundet nogen omraader.</value></data>
+  <data name="Areas.List.HouseSingular" xml:space="preserve"><value>sommerhus</value></data>
+  <data name="Areas.List.HousePlural" xml:space="preserve"><value>sommerhuse</value></data>
+  <data name="Areas.List.ReadMore" xml:space="preserve"><value>Laes mere</value></data>
+
+  <data name="Areas.Details.Subtitle" xml:space="preserve"><value>Et kig paa omraadet og de tilknyttede sommerhuse.</value></data>
+  <data name="Areas.Details.BackToList" xml:space="preserve"><value>Tilbage til oversigten</value></data>
+  <data name="Areas.Details.NoDescription" xml:space="preserve"><value>Der er endnu ingen beskrivelse af dette omraade.</value></data>
+  <data name="Areas.Details.ImagesHeading" xml:space="preserve"><value>Stemningsbilleder</value></data>
+  <data name="Areas.Details.HousesInArea" xml:space="preserve"><value>Sommerhuse i {0}</value></data>
+  <data name="Areas.Details.ViewHouse" xml:space="preserve"><value>Se sommerhus</value></data>
+  <data name="Areas.Details.NoHouses" xml:space="preserve"><value>Der er endnu ingen sommerhuse tilknyttet dette omraade.</value></data>
+
+  <data name="Houses.Details.BookNow" xml:space="preserve"><value>Book nu</value></data>
+  <data name="Houses.Details.LoginToBook" xml:space="preserve"><value>Log ind for at booke</value></data>
+  <data name="Houses.Details.CalculatePrice" xml:space="preserve"><value>Beregn pris</value></data>
+  <data name="Houses.Details.Description" xml:space="preserve"><value>Beskrivelse</value></data>
+  <data name="Houses.Details.NoDescription" xml:space="preserve"><value>Der er endnu ingen beskrivelse for dette sommerhus.</value></data>
+  <data name="Houses.Details.Arrival" xml:space="preserve"><value>Ankomst</value></data>
+  <data name="Houses.Details.Departure" xml:space="preserve"><value>Afrejse</value></data>
+  <data name="Houses.Details.Guests" xml:space="preserve"><value>Gaester</value></data>
+  <data name="Houses.Details.Availability" xml:space="preserve"><value>Tilgaengelighed</value></data>
+  <data name="Houses.Details.AvailabilityWaiting" xml:space="preserve"><value>Venter paa datoer</value></data>
+  <data name="Houses.Details.AvailabilitySelectDates" xml:space="preserve"><value>Vaelg ankomst og afrejse for at tjekke tilgaengelighed.</value></data>
+  <data name="Houses.Details.SelectDatesForPrice" xml:space="preserve"><value>Vaelg ankomst og afrejse for at se prisen.</value></data>
+  <data name="Houses.Details.LoadingPrice" xml:space="preserve"><value>Henter pris...</value></data>
+  <data name="Houses.Details.Nights" xml:space="preserve"><value>Naetter</value></data>
+  <data name="Houses.Details.Subtotal" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="Houses.Details.Tax" xml:space="preserve"><value>Moms</value></data>
+  <data name="Houses.Details.Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Houses.Details.PriceDisclaimer" xml:space="preserve"><value>Prisen er vejledende og kan justeres ved endelig booking.</value></data>
+  <data name="Houses.Details.Facilities" xml:space="preserve"><value>Faciliteter</value></data>
+  <data name="Houses.Details.Floorplan" xml:space="preserve"><value>Plantegning</value></data>
+  <data name="Houses.Details.StatusAvailable" xml:space="preserve"><value>Ledig</value></data>
+  <data name="Houses.Details.StatusUnavailable" xml:space="preserve"><value>Ikke ledig</value></data>
+  <data name="Houses.Details.StatusUnknown" xml:space="preserve"><value>Ukendt</value></data>
+  <data name="Houses.Details.AvailabilityInvalidDates" xml:space="preserve"><value>Vaelg gyldige datoer for at tjekke tilgaengelighed.</value></data>
+  <data name="Houses.Details.AvailabilityChecking" xml:space="preserve"><value>Tjekker tilgaengelighed...</value></data>
+  <data name="Houses.Details.AvailabilityLoadError" xml:space="preserve"><value>Kunne ikke hente tilgaengelighed lige nu.</value></data>
+  <data name="Houses.Details.AvailabilityAvailableMessage" xml:space="preserve"><value>De valgte datoer ser ledige ud.</value></data>
+  <data name="Houses.Details.AvailabilityUnavailableMessage" xml:space="preserve"><value>De valgte datoer er ikke ledige</value></data>
+  <data name="Houses.Details.BlockingSingular" xml:space="preserve"><value>blokering</value></data>
+  <data name="Houses.Details.BlockingPlural" xml:space="preserve"><value>blokeringer</value></data>
+</root>

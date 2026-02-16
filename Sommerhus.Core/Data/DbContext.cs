@@ -53,6 +53,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<Feature>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.NameEn).HasMaxLength(100);
             e.Property(x => x.Key).IsRequired().HasMaxLength(60);
             e.HasIndex(x => x.Key).IsUnique();
             e.Property(x => x.Options).HasMaxLength(500);
@@ -141,6 +142,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<Area>(e =>
         {
             e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.NameEn).HasMaxLength(100);
             e.Property(x => x.Status).HasDefaultValue(Sommerhus.Domain.Models.EntityStatus.Draft);
             e.HasIndex(x => x.Status);
 

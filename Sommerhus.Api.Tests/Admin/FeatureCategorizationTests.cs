@@ -41,6 +41,7 @@ public sealed class FeatureCategorizationTests : IClassFixture<CustomWebApplicat
 
         var dto = new UpsertFeatureDto(
             "Test Bedrooms",
+            null,
             "test_bedrooms_cat",
             "Int",
             Category: "Property",
@@ -64,7 +65,7 @@ public sealed class FeatureCategorizationTests : IClassFixture<CustomWebApplicat
         var service = scope.ServiceProvider.GetRequiredService<IAdminFeatureService>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var dto = new UpsertFeatureDto("Test Default Cat", "test_default_cat", "Bool");
+        var dto = new UpsertFeatureDto("Test Default Cat", null, "test_default_cat", "Bool");
 
         var result = await service.CreateAsync(dto, CancellationToken.None);
 
@@ -97,6 +98,7 @@ public sealed class FeatureCategorizationTests : IClassFixture<CustomWebApplicat
 
         var dto = new UpsertFeatureDto(
             "Test Update Cat",
+            null,
             "test_update_cat",
             "Bool",
             Category: "Facility",

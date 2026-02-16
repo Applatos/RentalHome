@@ -9,6 +9,9 @@ public class Feature : IAuditable
     [Required, MaxLength(100)]
     public string Name { get; set; } = "";
 
+    [MaxLength(100)]
+    public string? NameEn { get; set; }
+
     [Required, MaxLength(60)]
     public string Key { get; set; } = "";
 

@@ -65,6 +65,7 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
         var feature = new Feature
         {
             Name = NormalizeName(dto.Name),
+            NameEn = NormalizeOptionalName(dto.NameEn),
             Key = keyResult.Value!,
             ValueType = valueTypeResult.Value,
             Category = categoryResult,
@@ -111,6 +112,7 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
         var categoryResult = NormalizeCategory(dto.Category);
 
         feature.Name = NormalizeName(dto.Name);
+        feature.NameEn = NormalizeOptionalName(dto.NameEn);
         feature.Key = keyResult.Value!;
         feature.ValueType = valueTypeResult.Value;
         feature.Category = categoryResult;
@@ -247,6 +249,12 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
 
     private static string NormalizeName(string? name)
         => (name ?? string.Empty).Trim();
+
+    private static string? NormalizeOptionalName(string? name)
+    {
+        var trimmed = (name ?? string.Empty).Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
 
     private static string? NormalizeUnit(string? unit)
     {

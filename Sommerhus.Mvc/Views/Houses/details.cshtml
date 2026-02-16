@@ -1,6 +1,7 @@
 @using System.Globalization
 @using System.Linq
 @using Sommerhus.Core.Dtos.Shared
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @model PublicHouseDetailsDto
 
 @{
@@ -70,13 +71,13 @@
                         <button type="submit" class="btn btn-outline-secondary btn-sm" title="Add to favorites">&#9825;</button>
                     </form>
                 }
-                <a class="btn btn-dark" href="/houses/@Model.Id/book">Book Now</a>
+                <a class="btn btn-dark" href="/houses/@Model.Id/book">@L["Houses.Details.BookNow"]</a>
             }
             else
             {
-                <a class="btn btn-outline-dark" href="/account/login?returnUrl=/houses/@Model.Id">Log in to book</a>
+                <a class="btn btn-outline-dark" href="/account/login?returnUrl=/houses/@Model.Id">@L["Houses.Details.LoginToBook"]</a>
             }
-            <a class="btn btn-primary" href="#booking-card">Calculate Price</a>
+            <a class="btn btn-primary" href="#booking-card">@L["Houses.Details.CalculatePrice"]</a>
         </div>
     </div>
 
@@ -149,7 +150,7 @@
     <!-- BUND: 2 kolonner igen -->
     <div class="row g-4">
         <div class="col-lg-7">
-            <h2 class="h5">Beskrivelse</h2>
+            <h2 class="h5">@L["Houses.Details.Description"]</h2>
             <div>
                 @if (!string.IsNullOrWhiteSpace(Model.Description))
                 {
@@ -157,7 +158,7 @@
                 }
                 else
                 {
-                    <p class="text-body-secondary">Der er endnu ingen beskrivelse for dette sommerhus.</p>
+                    <p class="text-body-secondary">@L["Houses.Details.NoDescription"]</p>
                 }
             </div>
         </div>
@@ -165,14 +166,14 @@
         <div class="col-lg-5">
             <div id="booking-card" class="card shadow-sm mb-4" data-pricing-root>
                 <div class="card-body">
-                    <h2 class="h5 mb-3">Beregn pris</h2>
+                    <h2 class="h5 mb-3">@L["Houses.Details.CalculatePrice"]</h2>
                     <form data-pricing-form
                           data-house-id="@Model.Id"
                           data-area-id=""
                           data-quote-url="@Url.Action("Quote", "Houses", new { id = Model.Id })">
                         <div class="row g-2">
                             <div class="col-6">
-                                <label for="arrival" class="form-label">Ankomst</label>
+                                <label for="arrival" class="form-label">@L["Houses.Details.Arrival"]</label>
                                 <input type="date"
                                        class="form-control"
                                        id="arrival"
@@ -182,7 +183,7 @@
                                        data-pricing-arrival />
                             </div>
                             <div class="col-6">
-                                <label for="departure" class="form-label">Afrejse</label>
+                                <label for="departure" class="form-label">@L["Houses.Details.Departure"]</label>
                                 <input type="date"
                                        class="form-control"
                                        id="departure"
@@ -193,7 +194,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label for="guests" class="form-label">Gæster</label>
+                            <label for="guests" class="form-label">@L["Houses.Details.Guests"]</label>
                             <input type="number"
                                    class="form-control"
                                    id="guests"
@@ -206,45 +207,45 @@
                     </form>
                     <div class="mt-3 p-3 border rounded bg-light" data-availability-widget data-url="@Url.Action("Availability", "Houses", new { id = Model.Id })">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="small fw-semibold">Tilgængelighed</span>
-                            <span class="badge text-bg-secondary" data-availability-status>Venter på datoer</span>
+                            <span class="small fw-semibold">@L["Houses.Details.Availability"]</span>
+                            <span class="badge text-bg-secondary" data-availability-status>@L["Houses.Details.AvailabilityWaiting"]</span>
                         </div>
                         <p class="small text-body-secondary mb-0 mt-2" data-availability-message>
-                            Vælg ankomst og afrejse for at tjekke tilgængelighed.
+                            @L["Houses.Details.AvailabilitySelectDates"]
                         </p>
                     </div>
                     <div class="mt-3 small text-body-secondary" data-pricing-empty>
-                        Vælg ankomst og afrejse for at se prisen.
+                        @L["Houses.Details.SelectDatesForPrice"]
                     </div>
                     <div class="mt-3 d-none" data-pricing-loading>
                         <div class="d-flex align-items-center gap-2">
                             <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                            <span>Henter pris...</span>
+                            <span>@L["Houses.Details.LoadingPrice"]</span>
                         </div>
                     </div>
                     <div class="mt-3 alert alert-warning d-none" role="alert" data-pricing-error></div>
                     <div class="mt-3 d-none" data-pricing-summary>
-                        <p class="mb-2 small text-body-secondary">Nætter: <span data-pricing-nights></span></p>
+                        <p class="mb-2 small text-body-secondary">@L["Houses.Details.Nights"]: <span data-pricing-nights></span></p>
                         <ul class="list-unstyled mb-2 small" data-pricing-breakdown></ul>
                         <div class="d-flex justify-content-between mb-1 small text-body-secondary">
-                            <span>Subtotal</span>
+                            <span>@L["Houses.Details.Subtotal"]</span>
                             <span data-pricing-subtotal></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1 small text-body-secondary d-none" data-pricing-tax-row>
-                            <span>Moms</span>
+                            <span>@L["Houses.Details.Tax"]</span>
                             <span data-pricing-tax></span>
                         </div>
                         <hr class="my-2" />
                         <div class="d-flex justify-content-between">
-                            <span class="fw-semibold">Total</span>
+                            <span class="fw-semibold">@L["Houses.Details.Total"]</span>
                             <span class="fw-semibold" data-pricing-total></span>
                         </div>
-                        <p class="mt-2 mb-0 small text-body-secondary">Prisen er vejledende og kan justeres ved endelig booking.</p>
+                        <p class="mt-2 mb-0 small text-body-secondary">@L["Houses.Details.PriceDisclaimer"]</p>
                     </div>
                 </div>
             </div>
 
-            <h2 class="h5">Faciliteter</h2>
+            <h2 class="h5">@L["Houses.Details.Facilities"]</h2>
             @if (Model.Features?.Any() == true)
             {
                 <div class="row row-cols-2 g-2 mb-3">
@@ -265,7 +266,7 @@
 
             @if (floorplans.Any())
             {
-                <h3 class="h6">Plantegning</h3>
+                <h3 class="h6">@L["Houses.Details.Floorplan"]</h3>
                 <div class="row g-2">
                     @foreach (var fp in floorplans)
                     {
@@ -296,21 +297,34 @@
             const statusEl = root.querySelector('[data-availability-status]');
             const messageEl = root.querySelector('[data-availability-message]');
             const endpoint = root.getAttribute('data-url');
+            const texts = {
+                available: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusAvailable"].Value)),
+                unavailable: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusUnavailable"].Value)),
+                unknown: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusUnknown"].Value)),
+                waiting: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityWaiting"].Value)),
+                invalidDates: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityInvalidDates"].Value)),
+                checking: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityChecking"].Value)),
+                loadError: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityLoadError"].Value)),
+                availableMessage: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityAvailableMessage"].Value)),
+                unavailableMessage: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityUnavailableMessage"].Value)),
+                blockingSingular: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.BlockingSingular"].Value)),
+                blockingPlural: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.BlockingPlural"].Value))
+            };
 
             const setState = function (kind, message) {
                 statusEl.className = 'badge';
                 if (kind === 'ok') {
                     statusEl.classList.add('text-bg-success');
-                    statusEl.textContent = 'Ledig';
+                    statusEl.textContent = texts.available;
                 } else if (kind === 'blocked') {
                     statusEl.classList.add('text-bg-danger');
-                    statusEl.textContent = 'Ikke ledig';
+                    statusEl.textContent = texts.unavailable;
                 } else if (kind === 'error') {
                     statusEl.classList.add('text-bg-warning');
-                    statusEl.textContent = 'Ukendt';
+                    statusEl.textContent = texts.unknown;
                 } else {
                     statusEl.classList.add('text-bg-secondary');
-                    statusEl.textContent = 'Venter på datoer';
+                    statusEl.textContent = texts.waiting;
                 }
 
                 messageEl.textContent = message;
@@ -321,11 +335,11 @@
                 const to = departure.value;
 
                 if (!from || !to || to <= from) {
-                    setState('idle', 'Vælg gyldige datoer for at tjekke tilgængelighed.');
+                    setState('idle', texts.invalidDates);
                     return;
                 }
 
-                setState('idle', 'Tjekker tilgængelighed...');
+                setState('idle', texts.checking);
 
                 try {
                     const response = await fetch(`${endpoint}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
@@ -333,22 +347,24 @@
                     });
 
                     if (!response.ok) {
-                        setState('error', 'Kunne ikke hente tilgængelighed lige nu.');
+                        setState('error', texts.loadError);
                         return;
                     }
 
                     const payload = await response.json();
                     if (payload.available === true) {
-                        setState('ok', 'De valgte datoer ser ledige ud.');
+                        setState('ok', texts.availableMessage);
                     } else {
                         const blockedCount = Array.isArray(payload.blocks)
                             ? payload.blocks.filter(function (b) { return b.status !== 0; }).length
                             : 0;
-                        const suffix = blockedCount > 0 ? ` (${blockedCount} blokering${blockedCount > 1 ? 'er' : ''})` : '';
-                        setState('blocked', `De valgte datoer er ikke ledige${suffix}.`);
+                        const suffix = blockedCount > 0
+                            ? ` (${blockedCount} ${blockedCount > 1 ? texts.blockingPlural : texts.blockingSingular})`
+                            : '';
+                        setState('blocked', `${texts.unavailableMessage}${suffix}.`);
                     }
                 } catch {
-                    setState('error', 'Kunne ikke hente tilgængelighed lige nu.');
+                    setState('error', texts.loadError);
                 }
             };
 

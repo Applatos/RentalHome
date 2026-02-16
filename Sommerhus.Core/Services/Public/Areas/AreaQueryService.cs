@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Public.Areas;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
@@ -18,12 +19,14 @@ public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : I
         if (!string.IsNullOrWhiteSpace(query))
         {
             var term = query.Trim();
-            areaQuery = areaQuery.Where(a => EF.Functions.Like(a.Name, $"%{term}%"));
+            areaQuery = areaQuery.Where(a =>
+                EF.Functions.Like(a.Name, $"%{term}%") ||
+                (a.NameEn != null && EF.Functions.Like(a.NameEn, $"%{term}%")));
         }
 
         return await areaQuery
             .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
+            .Select(a => new AreaListItemDto(a.Id, LocalizationNameResolver.Resolve(a.Name, a.NameEn), a.Houses.Count))
             .ToListAsync(ct);
     }
 
@@ -61,7 +64,7 @@ public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : I
 
         return new AreaDetailsDto(
             area.Id,
-            area.Name,
+            LocalizationNameResolver.Resolve(area.Name, area.NameEn),
             area.Description,
             images,
             

@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sommerhus.Api.Extensions;
@@ -7,6 +8,7 @@ using Sommerhus.Api.Infrastructure;
 using Sommerhus.Api.Infrastructure.Auth;
 using Sommerhus.Core.Identity;
 using Sommerhus.Core;
+using System.Globalization;
 
 namespace Sommerhus.Api;
 
@@ -113,8 +115,29 @@ public class Program
         });
         var app = builder.Build();
 
+        var supportedCultures = new[]
+        {
+            new CultureInfo("da-DK"),
+            new CultureInfo("en-GB")
+        };
+
+        var localizationOptions = new RequestLocalizationOptions
+        {
+            DefaultRequestCulture = new RequestCulture("da-DK"),
+            SupportedCultures = supportedCultures,
+            SupportedUICultures = supportedCultures
+        };
+
+        localizationOptions.RequestCultureProviders =
+        [
+            new QueryStringRequestCultureProvider(),
+            new CookieRequestCultureProvider(),
+            new AcceptLanguageHeaderRequestCultureProvider()
+        ];
+
 
         app.UseStaticFiles();
+        app.UseRequestLocalization(localizationOptions);
         app.UseCors("mvc");
 
         app.UseMiddleware<ProblemDetailsMiddleware>();

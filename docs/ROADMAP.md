@@ -1779,18 +1779,18 @@ If more languages are needed later, migrate to a `Translation` table with `(Enti
 
 ### Tasks
 
-- [ ] **24a** Configure ASP.NET Core localization in `Sommerhus.Mvc/Program.cs` (supported cultures, cookie provider, request localization middleware)
-- [ ] **24b** Create `SharedResource.resx` (DA) and `SharedResource.en.resx` (EN) with common strings (nav, buttons, labels, error messages)
-- [ ] **24c** Add language switcher to `_Layout.cshtml` with `CultureController.SetCulture` action to set cookie
-- [ ] **24d** Localize shared layout: navigation labels, footer, flash message text
-- [ ] **24e** Localize public views: Houses (list, details, search), Areas (list, details), Home page
-- [ ] **24f** Add `NameEn` to `Feature` and `Area` entities, migration
-- [ ] **24g** Update DTOs and services to return localized names based on `CultureInfo.CurrentCulture`
-- [ ] **24h** Localize admin views (optional — admin is typically internal, can stay Danish initially)
-- [ ] **24i** Localize validation error messages via DataAnnotations localization
-- [ ] **24j** Tests: culture switching, localized API responses, fallback behavior
+- [x] **24a** Configure ASP.NET Core localization in `Sommerhus.Mvc/Program.cs` (supported cultures, cookie provider, request localization middleware)
+- [x] **24b** Create `SharedResource.resx` (DA) and `SharedResource.en.resx` (EN) with common strings (nav, buttons, labels, error messages)
+- [x] **24c** Add language switcher to `_Layout.cshtml` with `CultureController.SetCulture` action to set cookie
+- [x] **24d** Localize shared layout: navigation labels, footer, flash message text
+- [x] **24e** Localize public views: Houses (list, details, search), Areas (list, details), Home page
+- [x] **24f** Add `NameEn` to `Feature` and `Area` entities, migration
+- [x] **24g** Update DTOs and services to return localized names based on `CultureInfo.CurrentCulture`
+- [ ] **24h** Localize admin views (optional — admin is internal; deferred for now)
+- [x] **24i** Localize validation error messages via DataAnnotations localization
+- [x] **24j** Tests: culture switching, localized API responses, fallback behavior
 
-**Estimated effort**: 10–15 hours | **Priority**: Medium
+**Estimated effort**: 10–15 hours | **Priority**: Medium | **Status**: ✅ Completed (24h optional deferred)
 
 ---
 

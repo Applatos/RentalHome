@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Core.Services.Storage;
@@ -132,7 +133,7 @@ public sealed class HouseQueryService(AppDbContext db, IImageStorage storage, IP
                 var icon = storage.GetUrl(baseUrl, f?.IconUrl);
                 return new FeatureValueDto(
                     Id: hf.FeatureId,
-                    Name: f?.Name ?? string.Empty,
+                    Name: f is null ? string.Empty : LocalizationNameResolver.Resolve(f.Name, f.NameEn),
                     ValueType: f?.ValueType ?? FeatureValueType.Text,
                     Unit: f?.Unit,
                     IconUrl: icon,

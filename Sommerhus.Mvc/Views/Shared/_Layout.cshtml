@@ -1,8 +1,12 @@
+@using Microsoft.AspNetCore.Localization
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    var title = (ViewData["Title"] as string) ?? "Sommerhuse";
+    var title = (ViewData["Title"] as string) ?? L["Site.Brand"];
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "da-DK";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 <!doctype html>
-<html lang="da">
+<html lang="@currentCulture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,30 +20,45 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container container-main">
-            <a class="navbar-brand" href="~/houses">Sommerhuse</a>
+            <a class="navbar-brand" href="~/houses">@L["Site.Brand"]</a>
             <div class="navbar-nav me-auto">
-                <a class="nav-link" href="~/houses">Forside</a>
-                <a class="nav-link" href="~/areas">Områder</a>
-                <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
+                <a class="nav-link" href="~/houses">@L["Nav.Home"]</a>
+                <a class="nav-link" href="~/areas">@L["Nav.Areas"]</a>
+                <a class="nav-link" asp-controller="Admin" asp-action="Index">@L["Nav.Admin"]</a>
+            </div>
+            <div class="navbar-nav me-3">
+                <form method="post" action="/culture/set" class="d-inline-flex align-items-center gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <label class="text-white-50 small mb-0" for="cultureSelect">@L["Nav.Language"]</label>
+                    <select id="cultureSelect"
+                            name="culture"
+                            class="form-select form-select-sm"
+                            onchange="this.form.submit()"
+                            aria-label="@L["Nav.Language"]">
+                        <option value="da-DK" selected="@(currentCulture == "da-DK")">Dansk</option>
+                        <option value="en-GB" selected="@(currentCulture == "en-GB")">English</option>
+                    </select>
+                </form>
             </div>
             <div class="navbar-nav ms-auto">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a class="nav-link" href="/account/dashboard">Dashboard</a>
-                    <a class="nav-link" href="/bookings">Bookings</a>
+                    <a class="nav-link" href="/account/dashboard">@L["Nav.Dashboard"]</a>
+                    <a class="nav-link" href="/bookings">@L["Nav.Bookings"]</a>
                     @if (User.IsInRole("HouseOwner") || User.IsInRole("Admin"))
                     {
-                        <a class="nav-link" href="/owner/dashboard">Owner</a>
+                        <a class="nav-link" href="/owner/dashboard">@L["Nav.Owner"]</a>
                     }
                     <span class="navbar-text me-2">@User.Identity?.Name</span>
                     <form class="d-inline" asp-controller="Account" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-outline-light btn-sm">Log ud</button>
+                        <button type="submit" class="btn btn-outline-light btn-sm">@L["Nav.Logout"]</button>
                     </form>
                 }
                 else
                 {
-                    <a class="nav-link" asp-controller="Account" asp-action="Login">Log ind</a>
+                    <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Nav.Login"]</a>
                 }
             </div>
         </div>

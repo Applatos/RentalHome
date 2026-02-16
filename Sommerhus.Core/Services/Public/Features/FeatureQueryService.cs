@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Common;
 using Sommerhus.Core.Services.Public.Features;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
@@ -17,7 +18,16 @@ public sealed class FeatureQueryService(AppDbContext db, IImageStorage storage) 
         return rows.Select(f =>
         {
             var icon = storage.GetUrl(baseUrl, f.IconUrl);
-            return new FeatureDto(f.Id, f.Name, f.Key, f.ValueType, f.Category, f.IsSearchable, f.Options, f.Unit, icon);
+            return new FeatureDto(
+                f.Id,
+                LocalizationNameResolver.Resolve(f.Name, f.NameEn),
+                f.Key,
+                f.ValueType,
+                f.Category,
+                f.IsSearchable,
+                f.Options,
+                f.Unit,
+                icon);
         }).ToList();
     }
 
@@ -35,7 +45,12 @@ public sealed class FeatureQueryService(AppDbContext db, IImageStorage storage) 
             .ToDictionary(
                 g => g.Key,
                 g => (IReadOnlyList<SearchableFeatureDto>)g
-                    .Select(f => new SearchableFeatureDto(f.Key, f.Name, f.ValueType, f.Unit, f.Options))
+                    .Select(f => new SearchableFeatureDto(
+                        f.Key,
+                        LocalizationNameResolver.Resolve(f.Name, f.NameEn),
+                        f.ValueType,
+                        f.Unit,
+                        f.Options))
                     .ToList());
     }
 }
