@@ -42,6 +42,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     // Favorites
     public DbSet<FavoriteHouse> FavoriteHouses => Set<FavoriteHouse>();
 
+    // Search
+    public DbSet<HouseSearchDocument> HouseSearchDocuments => Set<HouseSearchDocument>();
+
     // Audit
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
@@ -296,6 +299,31 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
                 .OnDelete(DeleteBehavior.Cascade);
             e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
             e.HasIndex(x => x.UserId);
+        });
+
+        // Search document
+        b.Entity<HouseSearchDocument>(e =>
+        {
+            e.HasKey(x => x.HouseId);
+            e.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Description).HasMaxLength(4000);
+            e.Property(x => x.Summary).HasMaxLength(1000);
+            e.Property(x => x.CityName).HasMaxLength(100);
+            e.Property(x => x.CityZip).HasMaxLength(20);
+            e.Property(x => x.Address).HasMaxLength(200);
+            e.Property(x => x.AreaNames).HasMaxLength(500);
+            e.Property(x => x.SearchKeywords).HasMaxLength(500);
+            e.Property(x => x.FeatureJson).HasMaxLength(8000);
+            e.Property(x => x.CoverImageUrl).HasMaxLength(500);
+            e.Property(x => x.Currency).HasMaxLength(4);
+            e.Property(x => x.MinNightlyPrice).HasPrecision(18, 2);
+            e.Property(x => x.MaxNightlyPrice).HasPrecision(18, 2);
+            e.Property(x => x.SearchVector).IsRequired().HasMaxLength(8000);
+            e.HasIndex(x => x.Status);
+            e.HasIndex(x => x.CityName);
+            e.HasIndex(x => x.UpdatedAtUtc);
+            e.HasIndex(x => x.MinNightlyPrice);
+            e.HasIndex(x => x.MaxNightlyPrice);
         });
 
         // Audit entry

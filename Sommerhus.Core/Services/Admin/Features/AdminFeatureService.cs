@@ -11,10 +11,14 @@ using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Core;
+using Sommerhus.Core.Services.Public.Houses;
 
 namespace Sommerhus.Core.Services.Admin.Features;
 
-public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStorage) : IAdminFeatureService
+public sealed class AdminFeatureService(
+    AppDbContext db,
+    IImageStorage imageStorage,
+    ISearchIndexer searchIndexer) : IAdminFeatureService
 {
 
     public async Task<IReadOnlyList<FeatureDto>> GetAllAsync(string baseUrl, CancellationToken ct)
@@ -121,6 +125,7 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
         feature.Unit = NormalizeUnit(dto.Unit);
 
         await db.SaveChangesAsync(ct);
+        await ReindexFeatureHousesAsync(feature.Id, ct);
         return ServiceResult.Success();
     }
 
@@ -142,6 +147,7 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
         try
         {
             await db.SaveChangesAsync(ct);
+            await ReindexFeatureHousesAsync(id, ct);
         }
         catch (DbUpdateException)
         {
@@ -188,6 +194,21 @@ public sealed class AdminFeatureService(AppDbContext db, IImageStorage imageStor
         await db.SaveChangesAsync(ct);
 
         return ServiceResult.Success();
+    }
+
+    private async Task ReindexFeatureHousesAsync(Guid featureId, CancellationToken ct)
+    {
+        var houseIds = await db.HouseFeatures
+            .AsNoTracking()
+            .Where(hf => hf.FeatureId == featureId)
+            .Select(hf => hf.HouseId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        foreach (var houseId in houseIds)
+        {
+            await searchIndexer.UpdateHouseAsync(houseId, ct);
+        }
     }
 
     private static ServiceResult<FeatureValueType> NormalizeValueType(string? valueType)

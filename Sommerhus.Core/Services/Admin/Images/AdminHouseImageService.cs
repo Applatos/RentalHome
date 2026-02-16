@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Images;
 using Sommerhus.Core.Common;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
@@ -14,7 +15,7 @@ namespace Sommerhus.Core.Services.Admin.Images;
 /// <summary>
 /// Manages images for VacationHouse entities.
 /// </summary>
-public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storage)
+public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storage, ISearchIndexer searchIndexer)
     : AdminImageServiceBase(db, storage), IAdminHouseImageService
 {
 
@@ -89,6 +90,7 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
             .Select(img => ToDto(img.Id, baseUrl, ImageCategory.House, houseId, img.FileName, img.Alt, img.Kind.ToString()))
             .ToList();
 
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
         return ServiceResult<IReadOnlyList<ImageDto>>.Success(dtos);
     }
 
@@ -104,6 +106,7 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
         await Db.SaveChangesAsync(ct);
 
         await DeleteFromStorageAsync(ImageCategory.House, houseId, image.FileName, ct);
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
         return ServiceResult.Success();
     }
 
@@ -133,6 +136,7 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
         target.Kind = kind;
         await Db.SaveChangesAsync(ct);
 
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
         return ServiceResult.Success();
     }
 }

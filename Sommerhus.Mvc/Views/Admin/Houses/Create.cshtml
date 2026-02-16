@@ -1,52 +1,53 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @model HouseCreateVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Create House";
+    ViewData["Title"] = L["Admin.Houses.Create.PageTitle"];
 }
 
 <section class="container my-3">
     @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
     @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
 
-    <h2 class="mb-3">Create New House</h2>
+    <h2 class="mb-3">@L["Admin.Houses.Create.Title"]</h2>
 
     <form method="post" asp-controller="Houses" asp-action="Create" class="row g-3">
         @Html.AntiForgeryToken()
 
         <div class="col-md-8">
-            <label class="form-label">Title</label>
+            <label class="form-label">@L["Admin.Houses.Form.Title"]</label>
             <input class="form-control" asp-for="House.Title" />
             <span class="text-danger" asp-validation-for="House.Title"></span>
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Address</label>
+            <label class="form-label">@L["Admin.Houses.Form.Address"]</label>
             <input class="form-control" asp-for="House.Address" />
             <span class="text-danger" asp-validation-for="House.Address"></span>
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">City</label>
+            <label class="form-label">@L["Admin.Houses.Form.City"]</label>
             <select class="form-select" asp-for="House.CityId" asp-items="Model.Cities"></select>
             <span class="text-danger" asp-validation-for="House.CityId"></span>
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Areas</label>
+            <label class="form-label">@L["Admin.Houses.Form.Areas"]</label>
             <select class="form-select" asp-for="House.AreaIds" asp-items="Model.Areas" multiple></select>
             <span class="text-danger" asp-validation-for="House.AreaIds"></span>
-            <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+            <div class="form-text">@L["Admin.Shared.MultiSelectHint"]</div>
         </div>
 
         <div class="col-md-12">
-            <label class="form-label">Description</label>
+            <label class="form-label">@L["Admin.Shared.Description"]</label>
             <textarea class="form-control" asp-for="House.Description" rows="4"></textarea>
             <span class="text-danger" asp-validation-for="House.Description"></span>
         </div>
 
         <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary">Create</button>
-            <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">Back to List</a>
+            <button class="btn btn-primary">@L["Admin.Shared.Create"]</button>
+            <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">@L["Admin.Shared.BackToList"]</a>
         </div>
     </form>
 </section>

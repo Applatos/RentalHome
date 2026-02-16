@@ -1,21 +1,22 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     var active = (string?)(ViewData["AdminTab"] ?? "");
     string Active(string key) => string.Equals(active, key, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 }
 <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-        <a class="nav-link @Active("houses")" asp-controller="Houses" asp-action="Index" >Houses</a>
+        <a class="nav-link @Active("houses")" asp-controller="Houses" asp-action="Index" >@L["Admin.Tabs.Houses"]</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @Active("areas")" asp-controller="Areas" asp-action="Index" >Areas</a>
+        <a class="nav-link @Active("areas")" asp-controller="Areas" asp-action="Index" >@L["Admin.Tabs.Areas"]</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @Active("features")" asp-controller="Features" asp-action="Index" >Features</a>
+        <a class="nav-link @Active("features")" asp-controller="Features" asp-action="Index" >@L["Admin.Tabs.Features"]</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @Active("prices")" asp-controller="Prices" asp-action="Index" >Prices</a>
+        <a class="nav-link @Active("prices")" asp-controller="Prices" asp-action="Index" >@L["Admin.Tabs.Prices"]</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @Active("house-groups")" asp-controller="HouseGroups" asp-action="Index" >House Groups</a>
+        <a class="nav-link @Active("house-groups")" asp-controller="HouseGroups" asp-action="Index" >@L["Admin.Tabs.HouseGroups"]</a>
     </li>
 </ul>

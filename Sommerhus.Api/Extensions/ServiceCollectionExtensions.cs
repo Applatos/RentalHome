@@ -64,6 +64,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddPublicServices(this IServiceCollection services)
     {
+        services.AddScoped<ISearchIndexer, SearchIndexer>();
+        services.AddScoped<IHouseSearchService, HouseSearchService>();
         services.AddScoped<IHouseQueryService, HouseQueryService>();
         services.AddScoped<IAreaQueryService, AreaQueryService>();
         services.AddScoped<IFeatureQueryService, FeatureQueryService>();

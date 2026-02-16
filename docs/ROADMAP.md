@@ -1545,15 +1545,15 @@ The search document is refreshed:
 
 ### Tasks
 
-- [ ] **22a** Create `HouseSearchDocument` entity, migration, DB indexes
-- [ ] **22b** Build `ISearchIndexer` to populate/refresh documents from source entities
-- [ ] **22c** Build `IHouseSearchService` with filter, sort, and pagination
-- [ ] **22d** Create `HouseSearchFilter` and `HouseSearchResultDto`
-- [ ] **22e** Hook indexer into house/feature/price/image save operations
-- [ ] **22f** Admin API: `POST /api/admin/search/rebuild` endpoint
-- [ ] **22g** Public API: replace `HouseQueryService.SearchAsync` with new search service
-- [ ] **22h** Public MVC: faceted search UI (price range filter, feature checkboxes/dropdowns from Phase 23 categories, keyword search)
-- [ ] **22i** Tests: search relevance, filter combinations, index rebuild
+- [x] **22a** Create `HouseSearchDocument` entity, migration, DB indexes
+- [x] **22b** Build `ISearchIndexer` to populate/refresh documents from source entities
+- [x] **22c** Build `IHouseSearchService` with filter, sort, and pagination
+- [x] **22d** Create `HouseSearchFilter` and `HouseSearchResultDto`
+- [x] **22e** Hook indexer into house/feature/price/image save operations
+- [x] **22f** Admin API: `POST /api/admin/search/rebuild` endpoint
+- [x] **22g** Public API: replace `HouseQueryService.SearchAsync` with new search service
+- [x] **22h** Public MVC: faceted search UI (price range filter, feature checkboxes/dropdowns from Phase 23 categories, keyword search)
+- [x] **22i** Tests: search relevance, filter combinations, index rebuild
 
 **Estimated effort**: 10–15 hours | **Priority**: Medium
 
@@ -1786,11 +1786,11 @@ If more languages are needed later, migrate to a `Translation` table with `(Enti
 - [x] **24e** Localize public views: Houses (list, details, search), Areas (list, details), Home page
 - [x] **24f** Add `NameEn` to `Feature` and `Area` entities, migration
 - [x] **24g** Update DTOs and services to return localized names based on `CultureInfo.CurrentCulture`
-- [ ] **24h** Localize admin views (optional — admin is internal; deferred for now)
+- [x] **24h** Localize admin views (completed)
 - [x] **24i** Localize validation error messages via DataAnnotations localization
 - [x] **24j** Tests: culture switching, localized API responses, fallback behavior
 
-**Estimated effort**: 10–15 hours | **Priority**: Medium | **Status**: ✅ Completed (24h optional deferred)
+**Estimated effort**: 10–15 hours | **Priority**: Medium | **Status**: ✅ Completed
 
 ---
 
@@ -2437,7 +2437,7 @@ These were deferred from Phase 15b and are still open:
 Tasks:
 
 - [x] **29h-1** Change `AdminControllerBase` from `[Authorize]` to `[Authorize(Roles = AppRoles.Admin)]`
-- [ ] **29h-2** Remove redundant `[Authorize(Roles = ...)]` from individual MVC admin controllers that inherit from it (deferred — API controllers don't inherit from AdminControllerBase)
+- [x] **29h-2** Remove redundant `[Authorize(Roles = ...)]` from individual MVC admin controllers that inherit from it (no redundant MVC controller-level role attributes remain)
 
 ### Verification (after each sub-task)
 
@@ -2495,13 +2495,13 @@ After completing all phases:
 | Phase 19  | 5-7 hours        | Medium   | **On Hold**   |
 | Phase 20  | 8-12 hours       | High     | **Completed** |
 | Phase 21  | 8-12 hours       | High     | **Partial**   |
-| Phase 22  | 10-15 hours      | Medium   | Pending       |
+| Phase 22  | 10-15 hours      | Medium   | **Completed** |
 | Phase 23  | 5-8 hours        | High     | **Completed** |
-| Phase 24  | 10-15 hours      | Medium   | Pending       |
-| Phase 25  | 10-15 hours      | High     | **Partial**   |
+| Phase 24  | 10-15 hours      | Medium   | **Completed** |
+| Phase 25  | 10-15 hours      | High     | **Completed** |
 | Phase 26  | 15-20 hours      | High     | **Completed** |
-| Phase 27  | 15-20 hours      | High     | Pending       |
-| Phase 28  | 8-12 hours       | Medium   | Pending       |
+| Phase 27  | 15-20 hours      | High     | **Completed** |
+| Phase 28  | 8-12 hours       | Medium   | **Completed** |
 | Phase 29  | 6-10 hours       | Medium   | **Completed** |
 
 **Remaining (refactoring)**: ~29-43 hours

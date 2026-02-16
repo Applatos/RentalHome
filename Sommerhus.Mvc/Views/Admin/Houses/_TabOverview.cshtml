@@ -1,9 +1,10 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @using Sommerhus.Domain.Models
 @model HouseDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 <div class="d-flex align-items-center gap-2 mb-3">
-    <span class="fw-semibold">Status:</span>
+    <span class="fw-semibold">@L["Admin.Shared.Status"]:</span>
     @{
         var statusBadge = Model.House.Status switch
         {
@@ -19,7 +20,7 @@
         <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
             @Html.AntiForgeryToken()
             <input type="hidden" name="target" value="@EntityStatus.Published" />
-            <button type="submit" class="btn btn-success btn-sm">Publish</button>
+            <button type="submit" class="btn btn-success btn-sm">@L["Admin.Houses.Overview.Publish"]</button>
         </form>
     }
     else if (Model.House.Status == EntityStatus.Published)
@@ -27,12 +28,12 @@
         <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
             @Html.AntiForgeryToken()
             <input type="hidden" name="target" value="@EntityStatus.Archived" />
-            <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+            <button type="submit" class="btn btn-secondary btn-sm">@L["Admin.Houses.Overview.Archive"]</button>
         </form>
         <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
             @Html.AntiForgeryToken()
             <input type="hidden" name="target" value="@EntityStatus.Draft" />
-            <button type="submit" class="btn btn-outline-warning btn-sm">Unpublish</button>
+            <button type="submit" class="btn btn-outline-warning btn-sm">@L["Admin.Houses.Overview.Unpublish"]</button>
         </form>
     }
     else if (Model.House.Status == EntityStatus.Archived)
@@ -40,7 +41,7 @@
         <form method="post" asp-controller="Houses" asp-action="ChangeStatus" asp-route-id="@Model.House.Id" class="d-inline">
             @Html.AntiForgeryToken()
             <input type="hidden" name="target" value="@EntityStatus.Draft" />
-            <button type="submit" class="btn btn-outline-warning btn-sm">Re-open as Draft</button>
+            <button type="submit" class="btn btn-outline-warning btn-sm">@L["Admin.Houses.Overview.ReopenDraft"]</button>
         </form>
     }
 </div>
@@ -49,48 +50,48 @@
     @Html.AntiForgeryToken()
 
     <div class="col-md-8">
-        <label class="form-label">Title</label>
+        <label class="form-label">@L["Admin.Houses.Form.Title"]</label>
         <input class="form-control" name="Title" value="@Model.House.Title" />
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Address</label>
+        <label class="form-label">@L["Admin.Houses.Form.Address"]</label>
         <input class="form-control" name="Address" value="@Model.House.Address" />
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">City</label>
+        <label class="form-label">@L["Admin.Houses.Form.City"]</label>
         <select class="form-select" name="CityId" asp-items="Model.Cities"></select>
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Areas</label>
+        <label class="form-label">@L["Admin.Houses.Form.Areas"]</label>
         <select class="form-select" name="AreaIds" asp-items="Model.Areas" multiple></select>
-        <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+        <div class="form-text">@L["Admin.Shared.MultiSelectHint"]</div>
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">House Group</label>
+        <label class="form-label">@L["Admin.Houses.Form.HouseGroup"]</label>
         <select class="form-select" name="GroupId" asp-items="Model.HouseGroups">
-            <option value="">No group</option>
+            <option value="">@L["Admin.Houses.Form.NoGroup"]</option>
         </select>
-        <div class="form-text">Select a group to share season calendar.</div>
+        <div class="form-text">@L["Admin.Houses.Form.GroupHint"]</div>
     </div>
 
     <div class="col-md-12">
-        <label class="form-label">Description</label>
+        <label class="form-label">@L["Admin.Shared.Description"]</label>
         <textarea class="form-control" name="Description" rows="4">@Model.House.Description</textarea>
     </div>
 
     <div class="col-md-12">
-        <label class="form-label">Search Keywords</label>
-        <input class="form-control" name="SearchKeywords" value="@Model.House.SearchKeywords" placeholder="e.g. romantic, beach, modern, family-friendly" />
-        <div class="form-text">Comma-separated keywords for free-text search discovery.</div>
+        <label class="form-label">@L["Admin.Houses.Form.SearchKeywords"]</label>
+        <input class="form-control" name="SearchKeywords" value="@Model.House.SearchKeywords" placeholder="@L["Admin.Houses.Form.SearchKeywordsPlaceholder"]" />
+        <div class="form-text">@L["Admin.Houses.Form.SearchKeywordsHint"]</div>
     </div>
 
     <div class="col-12 d-flex gap-2">
-        <button class="btn btn-primary">Save</button>
-        <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">Back to List</a>
+        <button class="btn btn-primary">@L["Admin.Shared.Save"]</button>
+        <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">@L["Admin.Shared.BackToList"]</a>
     </div>
 </form>
 

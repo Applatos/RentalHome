@@ -1,5 +1,6 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @model HouseDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     ViewData["Title"] = Model.House.Title;
 }
@@ -9,37 +10,37 @@
 
     <div class="d-flex justify-content-between">
         <h2 class="mb-2">@Model.House.Title</h2>
-        <small class="text-muted">Created @Model.House.CreatedAtUtc.ToLocalTime().ToString("g")</small>
+        <small class="text-muted">@L["Admin.Shared.Created"] @Model.House.CreatedAtUtc.ToLocalTime().ToString("g")</small>
     </div>
 
     <ul class="nav nav-tabs mt-2">
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "overview" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="overview">Overview</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="overview">@L["Admin.Tabs.Overview"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "images" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="images">Images</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="images">@L["Admin.Tabs.Images"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "features" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="features">Features</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="features">@L["Admin.Tabs.Features"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "pricing" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="pricing">Pricing</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="pricing">@L["Admin.Tabs.Pricing"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "calendar" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">Season Calendar</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">@L["Admin.Tabs.SeasonCalendar"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "availability" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="availability">Availability</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="availability">@L["Admin.Tabs.Availability"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "audit" ? "active" : "")"
-               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="audit">Audit History</a>
+               asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="audit">@L["Admin.Tabs.AuditHistory"]</a>
         </li>
     </ul>
 

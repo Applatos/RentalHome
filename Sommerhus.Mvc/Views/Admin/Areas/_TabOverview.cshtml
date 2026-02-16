@@ -1,35 +1,36 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
 @model AreaDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 <form method="post" asp-controller="Areas" asp-action="Update" asp-route-id="@Model.Area.Id" class="row g-3">
     @Html.AntiForgeryToken()
 
     <div class="col-md-8">
-        <label class="form-label">Name</label>
+        <label class="form-label">@L["Admin.Shared.Name"]</label>
         <input class="form-control" name="Area.Name" value="@Model.Area.Name" required maxlength="100" />
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Associated Cities</label>
+        <label class="form-label">@L["Admin.Areas.Form.AssociatedCities"]</label>
         <select class="form-select" name="Area.CityIds" asp-items="Model.Cities" multiple></select>
-        <div class="form-text">Hold Ctrl/Cmd to select multiple (empty = none).</div>
+        <div class="form-text">@L["Admin.Shared.MultiSelectHint"]</div>
     </div>
 
     <div class="col-md-12">
-        <label class="form-label">Description</label>
+        <label class="form-label">@L["Admin.Shared.Description"]</label>
         <textarea class="form-control" name="Area.Description" rows="4">@Model.Area.Description</textarea>
-        <div class="form-text">HTML allowed.</div>
+        <div class="form-text">@L["Admin.Shared.HtmlAllowed"]</div>
     </div>
 
     <div class="col-12 d-flex gap-2">
-        <button class="btn btn-primary">Save</button>
-        <a class="btn btn-outline-secondary" asp-controller="Areas" asp-action="Index">Back to List</a>
+        <button class="btn btn-primary">@L["Admin.Shared.Save"]</button>
+        <a class="btn btn-outline-secondary" asp-controller="Areas" asp-action="Index">@L["Admin.Shared.BackToList"]</a>
     </div>
 </form>
 
 @if (Model.Area.Houses?.Any() == true)
 {
-    <h5 class="mt-4">Houses in this area</h5>
+    <h5 class="mt-4">@L["Admin.Areas.Overview.HousesInArea"]</h5>
     <ul>
         @foreach (var house in Model.Area.Houses)
         {

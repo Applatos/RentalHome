@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Owner;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Domain.Models;
 
@@ -10,11 +11,13 @@ namespace Sommerhus.Core.Services.Owner;
 public sealed class OwnerHouseService(
     AppDbContext db,
     IOwnerAuthorizationService ownerAuth,
-    IImageStorage imageStorage) : IOwnerHouseService
+    IImageStorage imageStorage,
+    ISearchIndexer searchIndexer) : IOwnerHouseService
 {
     private readonly AppDbContext db = db;
     private readonly IOwnerAuthorizationService ownerAuth = ownerAuth;
     private readonly IImageStorage imageStorage = imageStorage;
+    private readonly ISearchIndexer searchIndexer = searchIndexer;
 
     public async Task<IReadOnlyList<OwnerHouseListItemDto>> ListAsync(string ownerId, CancellationToken ct)
     {
@@ -91,6 +94,7 @@ public sealed class OwnerHouseService(
         house.UpdatedBy = ownerId;
 
         await db.SaveChangesAsync(ct);
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
         return ServiceResult.Success();
     }
 

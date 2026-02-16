@@ -84,4 +84,138 @@
   <data name="Houses.Details.AvailabilityUnavailableMessage" xml:space="preserve"><value>The selected dates are not available</value></data>
   <data name="Houses.Details.BlockingSingular" xml:space="preserve"><value>blocking</value></data>
   <data name="Houses.Details.BlockingPlural" xml:space="preserve"><value>blockings</value></data>
+  <data name="Admin.Tabs.Houses" xml:space="preserve"><value>Houses</value></data>
+  <data name="Admin.Tabs.Areas" xml:space="preserve"><value>Areas</value></data>
+  <data name="Admin.Tabs.Features" xml:space="preserve"><value>Features</value></data>
+  <data name="Admin.Tabs.Prices" xml:space="preserve"><value>Prices</value></data>
+  <data name="Admin.Tabs.HouseGroups" xml:space="preserve"><value>House groups</value></data>
+  <data name="Admin.Tabs.Overview" xml:space="preserve"><value>Overview</value></data>
+  <data name="Admin.Tabs.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Admin.Tabs.Pricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Admin.Tabs.SeasonCalendar" xml:space="preserve"><value>Season calendar</value></data>
+  <data name="Admin.Tabs.Availability" xml:space="preserve"><value>Availability</value></data>
+  <data name="Admin.Tabs.AuditHistory" xml:space="preserve"><value>Audit history</value></data>
+  <data name="Admin.Pagination.Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Admin.Pagination.Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Admin.Pagination.PageOf" xml:space="preserve"><value>Page {0} of {1}</value></data>
+  <data name="Admin.Audit.Empty" xml:space="preserve"><value>No audit history recorded yet.</value></data>
+  <data name="Admin.Audit.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Admin.Audit.Action" xml:space="preserve"><value>Action</value></data>
+  <data name="Admin.Audit.ChangedBy" xml:space="preserve"><value>Changed by</value></data>
+  <data name="Admin.Audit.Changes" xml:space="preserve"><value>Changes</value></data>
+  <data name="Admin.Audit.ViewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="Admin.Shared.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Admin.Shared.NameEn" xml:space="preserve"><value>Name (English)</value></data>
+  <data name="Admin.Shared.Houses" xml:space="preserve"><value>Houses</value></data>
+  <data name="Admin.Shared.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Admin.Shared.Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Admin.Shared.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Admin.Shared.Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Admin.Shared.BackToList" xml:space="preserve"><value>Back to list</value></data>
+  <data name="Admin.Shared.BackToOverview" xml:space="preserve"><value>Back to overview</value></data>
+  <data name="Admin.Shared.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Admin.Shared.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Admin.Shared.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Admin.Shared.SaveChanges" xml:space="preserve"><value>Save changes</value></data>
+  <data name="Admin.Shared.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Admin.Shared.Upload" xml:space="preserve"><value>Upload</value></data>
+  <data name="Admin.Shared.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Admin.Shared.MultiSelectHint" xml:space="preserve"><value>Hold Ctrl/Cmd to select multiple (empty = none).</value></data>
+  <data name="Admin.Shared.HtmlAllowed" xml:space="preserve"><value>HTML allowed.</value></data>
+  <data name="Admin.Shared.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Admin.Shared.Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Admin.Shared.Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Admin.Shared.No" xml:space="preserve"><value>No</value></data>
+  <data name="Admin.Shared.None" xml:space="preserve"><value>(none)</value></data>
+  <data name="Admin.Areas.Index.Title" xml:space="preserve"><value>Areas</value></data>
+  <data name="Admin.Areas.Index.Create" xml:space="preserve"><value>Create area</value></data>
+  <data name="Admin.Areas.Index.Empty" xml:space="preserve"><value>No areas found yet.</value></data>
+  <data name="Admin.Areas.Index.DeleteConfirm" xml:space="preserve"><value>Delete area &quot;{0}&quot;?</value></data>
+  <data name="Admin.Areas.Create.PageTitle" xml:space="preserve"><value>Create area</value></data>
+  <data name="Admin.Areas.Create.Title" xml:space="preserve"><value>Create new area</value></data>
+  <data name="Admin.Areas.Form.AssociatedCities" xml:space="preserve"><value>Associated cities</value></data>
+  <data name="Admin.Areas.Details.EditTitle" xml:space="preserve"><value>Edit: {0}</value></data>
+  <data name="Admin.Areas.Overview.HousesInArea" xml:space="preserve"><value>Houses in this area</value></data>
+  <data name="Admin.Areas.Images.AreaImageAlt" xml:space="preserve"><value>Area image</value></data>
+  <data name="Admin.Images.UploadTitle" xml:space="preserve"><value>Upload images</value></data>
+  <data name="Admin.Images.Empty" xml:space="preserve"><value>No images uploaded yet.</value></data>
+  <data name="Admin.Images.CurrentTitle" xml:space="preserve"><value>Current images</value></data>
+  <data name="Admin.Images.GalleryKind" xml:space="preserve"><value>gallery</value></data>
+  <data name="Admin.Images.DeleteConfirm" xml:space="preserve"><value>Delete this image?</value></data>
+  <data name="Admin.Houses.Index.PageTitle" xml:space="preserve"><value>Admin - Houses</value></data>
+  <data name="Admin.Houses.Index.Title" xml:space="preserve"><value>Houses</value></data>
+  <data name="Admin.Houses.Index.Create" xml:space="preserve"><value>Create house</value></data>
+  <data name="Admin.Houses.Index.AllStatuses" xml:space="preserve"><value>All statuses</value></data>
+  <data name="Admin.Houses.Index.PerPage" xml:space="preserve"><value>{0} per page</value></data>
+  <data name="Admin.Houses.Index.DeleteConfirm" xml:space="preserve"><value>Delete house &quot;{0}&quot;?</value></data>
+  <data name="Admin.Houses.Create.PageTitle" xml:space="preserve"><value>Create house</value></data>
+  <data name="Admin.Houses.Create.Title" xml:space="preserve"><value>Create new house</value></data>
+  <data name="Admin.Houses.Form.Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Admin.Houses.Form.Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Admin.Houses.Form.City" xml:space="preserve"><value>City</value></data>
+  <data name="Admin.Houses.Form.Areas" xml:space="preserve"><value>Areas</value></data>
+  <data name="Admin.Houses.Form.HouseGroup" xml:space="preserve"><value>House group</value></data>
+  <data name="Admin.Houses.Form.NoGroup" xml:space="preserve"><value>No group</value></data>
+  <data name="Admin.Houses.Form.GroupHint" xml:space="preserve"><value>Select a group to share season calendar.</value></data>
+  <data name="Admin.Houses.Form.SearchKeywords" xml:space="preserve"><value>Search keywords</value></data>
+  <data name="Admin.Houses.Form.SearchKeywordsPlaceholder" xml:space="preserve"><value>e.g. romantic, beach, modern, family-friendly</value></data>
+  <data name="Admin.Houses.Form.SearchKeywordsHint" xml:space="preserve"><value>Comma-separated keywords for free-text search discovery.</value></data>
+  <data name="Admin.Houses.Overview.Publish" xml:space="preserve"><value>Publish</value></data>
+  <data name="Admin.Houses.Overview.Archive" xml:space="preserve"><value>Archive</value></data>
+  <data name="Admin.Houses.Overview.Unpublish" xml:space="preserve"><value>Unpublish</value></data>
+  <data name="Admin.Houses.Overview.ReopenDraft" xml:space="preserve"><value>Re-open as draft</value></data>
+  <data name="Admin.Houses.Images.HouseImageAlt" xml:space="preserve"><value>House image</value></data>
+  <data name="Admin.Houses.Images.SetAs" xml:space="preserve"><value>Set as {0}</value></data>
+  <data name="Admin.Houses.Features.Empty" xml:space="preserve"><value>No features defined.</value></data>
+  <data name="Admin.Houses.Features.CreateFirst" xml:space="preserve"><value>Create features first</value></data>
+  <data name="Admin.Houses.Features.Save" xml:space="preserve"><value>Save features</value></data>
+  <data name="Admin.Features.Index.Title" xml:space="preserve"><value>Features</value></data>
+  <data name="Admin.Features.Index.Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Admin.Features.Index.Icon" xml:space="preserve"><value>Icon</value></data>
+  <data name="Admin.Features.Index.IconAlt" xml:space="preserve"><value>Icon</value></data>
+  <data name="Admin.Features.Index.NoIcon" xml:space="preserve"><value>no icon</value></data>
+  <data name="Admin.Features.Index.DropzoneTitle" xml:space="preserve"><value>Drag image here or click</value></data>
+  <data name="Admin.Features.Index.DropzoneText" xml:space="preserve"><value>Drag image here or</value></data>
+  <data name="Admin.Features.Index.ChooseFile" xml:space="preserve"><value>choose file</value></data>
+  <data name="Admin.Features.Create.Title" xml:space="preserve"><value>Create new feature</value></data>
+  <data name="Admin.Features.Create.Key" xml:space="preserve"><value>Key</value></data>
+  <data name="Admin.Features.Create.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Admin.Features.Create.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Admin.Features.Create.Unit" xml:space="preserve"><value>Unit</value></data>
+  <data name="Admin.Features.Create.Options" xml:space="preserve"><value>Options (JSON)</value></data>
+  <data name="Admin.Features.Create.Searchable" xml:space="preserve"><value>Searchable</value></data>
+  <data name="Admin.Prices.PageTitle" xml:space="preserve"><value>Admin - Prices</value></data>
+  <data name="Admin.Prices.Title" xml:space="preserve"><value>Pricing setup</value></data>
+  <data name="Admin.Prices.SeasonCodes.Title" xml:space="preserve"><value>Season codes</value></data>
+  <data name="Admin.Prices.SeasonCodes.Help" xml:space="preserve"><value>Season codes define color and name for periods used in price plans.</value></data>
+  <data name="Admin.Prices.SeasonCodes.Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Admin.Prices.SeasonCodes.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Admin.Prices.SeasonCodes.SortOrder" xml:space="preserve"><value>Sort order</value></data>
+  <data name="Admin.Prices.SeasonCodes.Create" xml:space="preserve"><value>Create season code</value></data>
+  <data name="Admin.Prices.SeasonCodes.Existing" xml:space="preserve"><value>Existing codes</value></data>
+  <data name="Admin.Prices.SeasonCodes.Empty" xml:space="preserve"><value>No season codes yet.</value></data>
+  <data name="Admin.HouseGroups.Index.PageTitle" xml:space="preserve"><value>Admin - House groups</value></data>
+  <data name="Admin.HouseGroups.Index.Title" xml:space="preserve"><value>House groups</value></data>
+  <data name="Admin.HouseGroups.Index.Create" xml:space="preserve"><value>Create new group</value></data>
+  <data name="Admin.HouseGroups.Index.EmptyTitle" xml:space="preserve"><value>No house groups created yet</value></data>
+  <data name="Admin.HouseGroups.Index.EmptyHelp" xml:space="preserve"><value>House groups are used to share season calendars across multiple houses.</value></data>
+  <data name="Admin.HouseGroups.Index.HouseCount" xml:space="preserve"><value>{0} {1} linked</value></data>
+  <data name="Admin.HouseGroups.Index.HouseSingular" xml:space="preserve"><value>house</value></data>
+  <data name="Admin.HouseGroups.Index.HousePlural" xml:space="preserve"><value>houses</value></data>
+  <data name="Admin.HouseGroups.Index.Calendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="Admin.HouseGroups.Index.DeleteConfirm" xml:space="preserve"><value>Are you sure you want to delete this house group?</value></data>
+  <data name="Admin.HouseGroups.Create.PageTitle" xml:space="preserve"><value>Admin - Create house group</value></data>
+  <data name="Admin.HouseGroups.Create.Title" xml:space="preserve"><value>Create house group</value></data>
+  <data name="Admin.HouseGroups.Create.Submit" xml:space="preserve"><value>Create group</value></data>
+  <data name="Admin.HouseGroups.Edit.PageTitle" xml:space="preserve"><value>Admin - Edit house group</value></data>
+  <data name="Admin.HouseGroups.Edit.Title" xml:space="preserve"><value>Edit house group</value></data>
+  <data name="Admin.HouseGroups.Form.Name" xml:space="preserve"><value>Group name</value></data>
+  <data name="Admin.HouseGroups.Form.NamePlaceholder" xml:space="preserve"><value>e.g. West Coast, Summerland, etc.</value></data>
+  <data name="Admin.HouseGroups.Form.NameHint" xml:space="preserve"><value>Choose a descriptive group name (max 100 chars).</value></data>
+  <data name="Admin.HouseGroups.Shared.AboutTitle" xml:space="preserve"><value>About house groups</value></data>
+  <data name="Admin.HouseGroups.Shared.AboutIntro" xml:space="preserve"><value>House groups help organize houses and share season calendars across them.</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet1" xml:space="preserve"><value>Create a group for houses with similar location</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet2" xml:space="preserve"><value>Share one season calendar across houses in the group</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet3" xml:space="preserve"><value>Simplify price management for multiple houses</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet4" xml:space="preserve"><value>Groups can be assigned and removed from houses at any time</value></data>
 </root>

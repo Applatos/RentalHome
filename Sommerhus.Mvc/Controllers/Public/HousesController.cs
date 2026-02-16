@@ -17,14 +17,53 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
 
     // HOUSES (master + pagination)
     [HttpGet("/houses")]
-    public async Task<IActionResult> Houses([FromQuery] string? q, [FromQuery] Guid? area, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    public async Task<IActionResult> Houses(
+        [FromQuery(Name = "q")] string? query,
+        [FromQuery] string? city,
+        [FromQuery] Guid? area,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] int? minBedrooms,
+        [FromQuery] int? minGuests,
+        [FromQuery] bool? hasPool,
+        [FromQuery] bool? petFriendly,
+        [FromQuery] HouseSearchSort sort = HouseSearchSort.Relevance,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken ct = default)
     {
-        var areasTask = api.GetAreasAsync(null, ct);
-        var housesTask = api.GetHousesAsync(q, area, page, pageSize, ct);
+        var featureFilters = Request.Query
+            .Where(kvp => kvp.Key.StartsWith("f_", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(
+                kvp => kvp.Key[2..],
+                kvp => kvp.Value.ToString(),
+                StringComparer.OrdinalIgnoreCase);
 
-        await Task.WhenAll(areasTask, housesTask);
+        var filter = new HouseSearchFilter
+        {
+            Query = query,
+            City = city,
+            AreaId = area,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            MinBedrooms = minBedrooms,
+            MinGuests = minGuests,
+            HasPool = hasPool,
+            PetFriendly = petFriendly,
+            FeatureFilters = featureFilters.Count == 0 ? null : featureFilters,
+            Sort = sort,
+            Page = page,
+            PageSize = pageSize
+        };
+
+        var areasTask = api.GetAreasAsync(null, ct);
+        var featuresTask = api.GetSearchableFeaturesAsync(ct);
+        var housesTask = api.GetHousesAsync(filter, ct);
+
+        await Task.WhenAll(areasTask, featuresTask, housesTask);
 
         var areasRes = areasTask.Result;
+        var featuresRes = featuresTask.Result;
         var housesRes = housesTask.Result;
 
         if (!housesRes.Ok || housesRes.Data is null)
@@ -36,8 +75,11 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
         {
             Houses = housesRes.Data?.Items ?? [],
             Areas = areasRes.Ok ? areasRes.Data ?? [] : [],
-            Query = q ?? string.Empty,
-            SelectedArea = area?.ToString() ?? string.Empty
+            SearchableFeatures = featuresRes.Ok ? featuresRes.Data ?? [] : [],
+            Filter = filter,
+            Total = housesRes.Data?.Total ?? 0,
+            Page = housesRes.Data?.Page ?? page,
+            PageSize = housesRes.Data?.PageSize ?? pageSize
         };
 
         return View(vm);

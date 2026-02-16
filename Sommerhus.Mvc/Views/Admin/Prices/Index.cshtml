@@ -2,9 +2,10 @@
 @using Sommerhus.Core.Dtos.Shared
 @using Sommerhus.Mvc.ViewModels.Admin.Prices
 @model PricingAdminVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 @{
-    ViewData["Title"] = "Admin - Priser";
+    ViewData["Title"] = L["Admin.Prices.PageTitle"];
 }
 
 <section class="container my-3">
@@ -12,42 +13,42 @@
     @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
     @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
 
-    <h2 class="mb-4">Prisopsætning</h2>
+    <h2 class="mb-4">@L["Admin.Prices.Title"]</h2>
 
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card h-100">
                 <div class="card-header bg-body-secondary">
-                    <strong>Sæsonkoder</strong>
+                    <strong>@L["Admin.Prices.SeasonCodes.Title"]</strong>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Sæsonkoder definerer farve og navn på de perioder der bruges i prisplaner.</p>
+                    <p class="text-muted">@L["Admin.Prices.SeasonCodes.Help"]</p>
                     <form method="post" asp-action="CreateSeasonCode" asp-controller="Prices">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label asp-for="SeasonCodeForm.Code" class="form-label">Kode</label>
+                                <label asp-for="SeasonCodeForm.Code" class="form-label">@L["Admin.Prices.SeasonCodes.Code"]</label>
                                 <input asp-for="SeasonCodeForm.Code" class="form-control text-uppercase" maxlength="10" placeholder="A" />
                                 <span asp-validation-for="SeasonCodeForm.Code" class="text-danger"></span>
                             </div>
                             <div class="col-md-8">
-                                <label asp-for="SeasonCodeForm.Label" class="form-label">Navn</label>
+                                <label asp-for="SeasonCodeForm.Label" class="form-label">@L["Admin.Shared.Name"]</label>
                                 <input asp-for="SeasonCodeForm.Label" class="form-control" placeholder="Højsæson" />
                                 <span asp-validation-for="SeasonCodeForm.Label" class="text-danger"></span>
                             </div>
                             <div class="col-md-5">
-                                <label asp-for="SeasonCodeForm.Color" class="form-label">Farve</label>
+                                <label asp-for="SeasonCodeForm.Color" class="form-label">@L["Admin.Prices.SeasonCodes.Color"]</label>
                                 <input asp-for="SeasonCodeForm.Color" class="form-control text-uppercase" placeholder="#FF5733" />
                                 <span asp-validation-for="SeasonCodeForm.Color" class="text-danger"></span>
                             </div>
                             <div class="col-md-4">
-                                <label asp-for="SeasonCodeForm.SortOrder" class="form-label">Sortering</label>
+                                <label asp-for="SeasonCodeForm.SortOrder" class="form-label">@L["Admin.Prices.SeasonCodes.SortOrder"]</label>
                                 <input asp-for="SeasonCodeForm.SortOrder" class="form-control" type="number" min="0" />
                                 <span asp-validation-for="SeasonCodeForm.SortOrder" class="text-danger"></span>
                             </div>
                         </div>
-                        <button class="btn btn-primary mt-3">Opret sæsonkode</button>
+                        <button class="btn btn-primary mt-3">@L["Admin.Prices.SeasonCodes.Create"]</button>
                     </form>
 
                     @if (!string.IsNullOrWhiteSpace(Model.SeasonError))
@@ -57,10 +58,10 @@
 
                     <hr />
 
-                    <h6 class="text-uppercase text-muted">Eksisterende koder</h6>
+                    <h6 class="text-uppercase text-muted">@L["Admin.Prices.SeasonCodes.Existing"]</h6>
                     @if (Model.SeasonCodes.Count == 0)
                     {
-                        <p class="text-muted">Ingen sæsonkoder endnu.</p>
+                        <p class="text-muted">@L["Admin.Prices.SeasonCodes.Empty"]</p>
                     }
                     else
                     {
@@ -68,10 +69,10 @@
                             <table class="table table-sm align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Kode</th>
-                                        <th>Navn</th>
-                                        <th>Farve</th>
-                                        <th class="text-end">Sortering</th>
+                                        <th>@L["Admin.Prices.SeasonCodes.Code"]</th>
+                                        <th>@L["Admin.Shared.Name"]</th>
+                                        <th>@L["Admin.Prices.SeasonCodes.Color"]</th>
+                                        <th class="text-end">@L["Admin.Prices.SeasonCodes.SortOrder"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -81,7 +82,7 @@
                                             <td>
                                                 <span class="badge rounded-pill" style="background-color:@(string.IsNullOrWhiteSpace(code.Color) ? "#6c757d" : code.Color)">@code.Code</span>
                                             </td>
-                                            <td>@(string.IsNullOrWhiteSpace(code.Label) ? "(ingen)" : code.Label)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(code.Label) ? L["Admin.Shared.None"] : code.Label)</td>
                                             <td>
                                                 @if (!string.IsNullOrWhiteSpace(code.Color))
                                                 {

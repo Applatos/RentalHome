@@ -14,14 +14,46 @@ public sealed class HousesController(IHouseQueryService houses, IFavoriteService
 {
     [HttpGet]
     public Task<PageResult<PublicHouseListItemDto>> Search(
-        [FromQuery] string? city,
-        [FromQuery] string? zip,
         [FromQuery(Name = "q")] string? query,
+        [FromQuery] string? city,
         [FromQuery] Guid? area,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] int? minBedrooms,
+        [FromQuery] int? minGuests,
+        [FromQuery] bool? hasPool,
+        [FromQuery] bool? petFriendly,
+        [FromQuery] HouseSearchSort sort = HouseSearchSort.Relevance,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
-        => houses.SearchAsync(city, zip, query, area, page, pageSize, Request.BaseUrl(), ct);
+    {
+        var featureFilters = Request.Query
+            .Where(kvp => kvp.Key.StartsWith("f_", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(
+                kvp => kvp.Key[2..],
+                kvp => kvp.Value.ToString(),
+                StringComparer.OrdinalIgnoreCase);
+
+        var filter = new HouseSearchFilter
+        {
+            Query = query,
+            City = city,
+            AreaId = area,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            MinBedrooms = minBedrooms,
+            MinGuests = minGuests,
+            HasPool = hasPool,
+            PetFriendly = petFriendly,
+            FeatureFilters = featureFilters.Count == 0 ? null : featureFilters,
+            Sort = sort,
+            Page = page,
+            PageSize = pageSize
+        };
+
+        return houses.SearchAsync(filter, Request.BaseUrl(), ct);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<PublicHouseDetailsDto>> Get(Guid id, CancellationToken ct)

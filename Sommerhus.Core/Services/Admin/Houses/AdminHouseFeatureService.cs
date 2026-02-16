@@ -2,10 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Houses;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHouseFeatureService(AppDbContext db) : IAdminHouseFeatureService
+public sealed class AdminHouseFeatureService(AppDbContext db, ISearchIndexer searchIndexer) : IAdminHouseFeatureService
 {
 
     public async Task<ServiceResult> UpsertFeaturesAsync(Guid houseId, IEnumerable<PostFeatureValueDto>? values, CancellationToken ct)
@@ -44,6 +45,7 @@ public sealed class AdminHouseFeatureService(AppDbContext db) : IAdminHouseFeatu
         }
 
         await tx.CommitAsync(ct);
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
         return ServiceResult.Success();
     }
 }

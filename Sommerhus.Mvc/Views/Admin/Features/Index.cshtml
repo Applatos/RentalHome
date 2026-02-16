@@ -1,28 +1,29 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Features
 @model FeatureListVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 <section class="container my-3">
     @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
-    <h2 class="mb-3">Features</h2>
+    <h2 class="mb-3">@L["Admin.Features.Index.Title"]</h2>
 
     <partial name="~/Views/Admin/Shared/_FlashMessages.cshtml" />
 
     <!-- Create new feature -->
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Create New Feature</h5>
+            <h5 class="card-title">@L["Admin.Features.Create.Title"]</h5>
             <form method="post" asp-action="Create" asp-controller="Features" class="row g-2">
                 @Html.AntiForgeryToken()
                 <div class="col-md-3">
-                    <label class="form-label">Name *</label>
+                    <label class="form-label">@L["Admin.Shared.Name"] *</label>
                     <input name="Name" class="form-control" required />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Key *</label>
+                    <label class="form-label">@L["Admin.Features.Create.Key"] *</label>
                     <input name="Key" class="form-control" placeholder="e.g. sauna" required />
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Type *</label>
+                    <label class="form-label">@L["Admin.Features.Create.Type"] *</label>
                     <select name="ValueType" class="form-select" required>
                         <option value="Bool">Bool</option>
                         <option value="Int">Int</option>
@@ -31,7 +32,7 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Category</label>
+                    <label class="form-label">@L["Admin.Features.Create.Category"]</label>
                     <select name="Category" class="form-select">
                         <option value="Property">Property</option>
                         <option value="Facility">Facility</option>
@@ -40,21 +41,21 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Unit</label>
+                    <label class="form-label">@L["Admin.Features.Create.Unit"]</label>
                     <input name="Unit" class="form-control" placeholder="e.g. m2, km" />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Options (JSON)</label>
+                    <label class="form-label">@L["Admin.Features.Create.Options"]</label>
                     <input name="Options" class="form-control" placeholder='e.g. ["1","2","3","4+"]' />
                 </div>
                 <div class="col-md-1 d-flex align-items-end">
                     <div class="form-check">
                         <input name="IsSearchable" type="checkbox" class="form-check-input" value="true" checked />
-                        <label class="form-check-label">Searchable</label>
+                        <label class="form-check-label">@L["Admin.Features.Create.Searchable"]</label>
                     </div>
                 </div>
                 <div class="col-md-12 mt-2">
-                    <button class="btn btn-dark">Create</button>
+                    <button class="btn btn-dark">@L["Admin.Shared.Create"]</button>
                 </div>
             </form>
         </div>
@@ -64,14 +65,14 @@
     <table class="table table-sm align-middle">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Key</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Unit</th>
-                <th>Options</th>
-                <th>Search</th>
-                <th style="width:220px;">Icon</th>
+                <th>@L["Admin.Shared.Name"]</th>
+                <th>@L["Admin.Features.Create.Key"]</th>
+                <th>@L["Admin.Features.Create.Type"]</th>
+                <th>@L["Admin.Features.Create.Category"]</th>
+                <th>@L["Admin.Features.Create.Unit"]</th>
+                <th>@L["Admin.Features.Create.Options"]</th>
+                <th>@L["Admin.Features.Index.Search"]</th>
+                <th style="width:220px;">@L["Admin.Features.Index.Icon"]</th>
                 <th style="width:140px;"></th>
             </tr>
         </thead>
@@ -86,17 +87,17 @@
                 <td>@f.Category</td>
                 <td>@f.Unit</td>
                 <td class="small text-muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="@f.Options">@f.Options</td>
-                <td>@(f.IsSearchable ? "Yes" : "No")</td>
+                <td>@(f.IsSearchable ? L["Admin.Shared.Yes"] : L["Admin.Shared.No"])</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <div>
                             @if (!string.IsNullOrWhiteSpace(f.IconUrl))
                             {
-                                <img src="@f.IconUrl" alt="icon" style="height:24px;width:auto" />
+                                <img src="@f.IconUrl" alt="@L["Admin.Features.Index.IconAlt"]" style="height:24px;width:auto" />
                             }
                             else
                             {
-                                <span>no icon</span>
+                                <span>@L["Admin.Features.Index.NoIcon"]</span>
                             }
                         </div>
 
@@ -105,8 +106,8 @@
                               asp-route-id="@f.Id" enctype="multipart/form-data" class="feature-upload-form">
                             @Html.AntiForgeryToken()
                             <input id="@inputId" type="file" name="file" class="d-none feature-file-input" accept="image/*" />
-                            <div class="dropzone small" data-input="#@inputId" title="Drag image here or click">
-                                Drag image here or <u>choose file</u>
+                            <div class="dropzone small" data-input="#@inputId" title="@L["Admin.Features.Index.DropzoneTitle"]">
+                                @L["Admin.Features.Index.DropzoneText"] <u>@L["Admin.Features.Index.ChooseFile"]</u>
                             </div>
                         </form>
                     </div>
@@ -114,7 +115,7 @@
                 <td class="text-end">
                     <form method="post" asp-action="Delete" asp-controller="Features" asp-route-id="@f.Id">
                         @Html.AntiForgeryToken()
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        <button class="btn btn-sm btn-outline-danger">@L["Admin.Shared.Delete"]</button>
                     </form>
                 </td>
             </tr>

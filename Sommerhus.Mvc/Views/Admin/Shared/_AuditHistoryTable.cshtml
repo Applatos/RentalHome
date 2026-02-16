@@ -1,9 +1,10 @@
 @using Sommerhus.Core.Dtos.Admin
 @model IReadOnlyList<AuditEntryDto>
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 @if (Model.Count == 0)
 {
-    <p class="text-muted">No audit history recorded yet.</p>
+    <p class="text-muted">@L["Admin.Audit.Empty"]</p>
 }
 else
 {
@@ -11,10 +12,10 @@ else
         <table class="table table-sm table-striped align-middle">
             <thead>
                 <tr>
-                    <th style="width:160px">Date</th>
-                    <th style="width:100px">Action</th>
-                    <th style="width:140px">Changed By</th>
-                    <th>Changes</th>
+                    <th style="width:160px">@L["Admin.Audit.Date"]</th>
+                    <th style="width:100px">@L["Admin.Audit.Action"]</th>
+                    <th style="width:140px">@L["Admin.Audit.ChangedBy"]</th>
+                    <th>@L["Admin.Audit.Changes"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,7 +42,7 @@ else
                             @if (!string.IsNullOrWhiteSpace(entry.Changes))
                             {
                                 <details>
-                                    <summary class="text-muted" style="cursor:pointer"><small>View details</small></summary>
+                                    <summary class="text-muted" style="cursor:pointer"><small>@L["Admin.Audit.ViewDetails"]</small></summary>
                                     <pre class="bg-light p-2 mt-1 rounded" style="max-height:200px;overflow:auto;font-size:0.8rem">@entry.Changes</pre>
                                 </details>
                             }

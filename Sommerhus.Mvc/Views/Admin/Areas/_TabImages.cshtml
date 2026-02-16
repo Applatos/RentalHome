@@ -1,38 +1,39 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
 @model AreaDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 <div class="mb-4">
-    <h5>Upload Images</h5>
+    <h5>@L["Admin.Images.UploadTitle"]</h5>
     <form method="post" asp-controller="Areas" asp-action="UploadAreaImages" asp-route-id="@Model.Area.Id" enctype="multipart/form-data" class="row g-2 align-items-end">
         @Html.AntiForgeryToken()
         <div class="col-md-8">
             <input type="file" name="files" class="form-control" multiple accept="image/*" />
         </div>
         <div class="col-md-4">
-            <button class="btn btn-primary w-100">Upload</button>
+            <button class="btn btn-primary w-100">@L["Admin.Shared.Upload"]</button>
         </div>
     </form>
 </div>
 
 @if (Model.Area.Images.Count == 0)
 {
-    <p class="text-muted">No images uploaded yet.</p>
+    <p class="text-muted">@L["Admin.Images.Empty"]</p>
 }
 else
 {
-    <h5>Current Images</h5>
+    <h5>@L["Admin.Images.CurrentTitle"]</h5>
     <div class="row">
         @foreach (var img in Model.Area.Images)
         {
             <div class="col-md-4 col-lg-3 mb-3">
                 <div class="card h-100">
-                    <img src="@img.Url" class="card-img-top" alt="Area image" style="height:150px;object-fit:cover;" />
+                    <img src="@img.Url" class="card-img-top" alt="@L["Admin.Areas.Images.AreaImageAlt"]" style="height:150px;object-fit:cover;" />
                     <div class="card-body p-2">
-                        <small class="text-muted">@(img.Kind ?? "gallery")</small>
+                        <small class="text-muted">@(img.Kind ?? L["Admin.Images.GalleryKind"])</small>
                         <div class="mt-2">
-                            <form method="post" asp-controller="Areas" asp-action="DeleteAreaImage" asp-route-id="@Model.Area.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('Delete this image?');">
+                            <form method="post" asp-controller="Areas" asp-action="DeleteAreaImage" asp-route-id="@Model.Area.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('@L["Admin.Images.DeleteConfirm"]');">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="@L["Admin.Shared.Delete"]">@L["Admin.Shared.Delete"]</button>
                             </form>
                         </div>
                     </div>

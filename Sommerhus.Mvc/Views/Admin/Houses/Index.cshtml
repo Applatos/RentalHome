@@ -1,8 +1,9 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @using Sommerhus.Domain.Models
 @model HouseListVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Admin - Houses";
+    ViewData["Title"] = L["Admin.Houses.Index.PageTitle"];
     var totalPages = (int)Math.Ceiling((double)Model.Houses.Total / Math.Max(1, Model.Houses.PageSize));
 }
 <section class="container my-3">
@@ -10,17 +11,17 @@
     @await Html.PartialAsync("~/Views/Admin/Shared/_FlashMessages.cshtml")
 
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <h2 class="mb-0">Houses</h2>
-        <a class="btn btn-primary" asp-controller="Houses" asp-action="New">+ Create House</a>
+        <h2 class="mb-0">@L["Admin.Houses.Index.Title"]</h2>
+        <a class="btn btn-primary" asp-controller="Houses" asp-action="New">+ @L["Admin.Houses.Index.Create"]</a>
     </div>
 
     <form method="get" class="row gy-2 gx-2 mb-3" asp-controller="Houses" asp-action="Index">
         <div class="col-md-4">
-            <input class="form-control" name="q" value="@Model.SearchQuery" placeholder="Search..." />
+            <input class="form-control" name="q" value="@Model.SearchQuery" placeholder="@L["Shared.SearchPlaceholder"]" />
         </div>
         <div class="col-md-2">
             <select class="form-select" name="status">
-                <option value="">All statuses</option>
+                <option value="">@L["Admin.Houses.Index.AllStatuses"]</option>
                 @foreach (var s in Enum.GetValues<EntityStatus>())
                 {
                     <option value="@s" selected="@(Model.StatusFilter == s)">@s</option>
@@ -31,24 +32,24 @@
             <select class="form-select" name="pageSize">
                 @foreach (var size in new[] { 10, 20, 30, 50 })
                 {
-                    <option value="@size" selected="@(size == Model.Houses.PageSize)">@size per page</option>
+                    <option value="@size" selected="@(size == Model.Houses.PageSize)">@L["Admin.Houses.Index.PerPage", size]</option>
                 }
             </select>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-dark w-100">Search</button>
+            <button class="btn btn-dark w-100">@L["Shared.Search"]</button>
         </div>
     </form>
 
     <table class="table table-sm align-middle">
         <thead>
             <tr>
-                <th>Title</th>
-                <th>City</th>
-                <th>Areas</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th class="text-end">Actions</th>
+                <th>@L["Admin.Houses.Form.Title"]</th>
+                <th>@L["Admin.Houses.Form.City"]</th>
+                <th>@L["Admin.Houses.Form.Areas"]</th>
+                <th>@L["Admin.Shared.Status"]</th>
+                <th>@L["Admin.Shared.Created"]</th>
+                <th class="text-end">@L["Admin.Shared.Actions"]</th>
             </tr>
         </thead>
         <tbody>
@@ -80,10 +81,10 @@
                     </td>
                     <td>@h.CreatedAtUtc.ToLocalTime().ToString("g")</td>
                     <td class="text-end">
-                        <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">Details</a>
-                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("Delete house \"@h.Title\"?");'>
+                        <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">@L["Admin.Shared.Details"]</a>
+                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("@string.Format(L["Admin.Houses.Index.DeleteConfirm"], h.Title)");'>
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm">@L["Admin.Shared.Delete"]</button>
                         </form>
                     </td>
                 </tr>

@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Lifecycle;
 
-public sealed class EntityLifecycleService(AppDbContext db) : IEntityLifecycleService
+public sealed class EntityLifecycleService(AppDbContext db, ISearchIndexer searchIndexer) : IEntityLifecycleService
 {
 
     public async Task<ServiceResult> TransitionHouseAsync(Guid houseId, EntityStatus target, CancellationToken ct)
@@ -22,6 +23,7 @@ public sealed class EntityLifecycleService(AppDbContext db) : IEntityLifecycleSe
 
         ApplyHouseTransition(house, target);
         await db.SaveChangesAsync(ct);
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
 
         return ServiceResult.Success();
     }

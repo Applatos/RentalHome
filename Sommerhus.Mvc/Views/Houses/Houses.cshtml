@@ -3,6 +3,10 @@
 @model HouseListVm
 @{
     ViewData["Title"] = L["Houses.List.Title"];
+    var totalPages = Model.PageSize > 0
+        ? (int)Math.Ceiling(Model.Total / (double)Model.PageSize)
+        : 1;
+    var currentPage = Math.Max(1, Model.Page);
 }
 <section class="container">
     <header class="my-4 text-center">
@@ -14,20 +18,104 @@
 
     <form method="get" class="row g-2 mb-4">
         <div class="col-md-4">
-            <input name="q" value="@Model.Query" class="form-control" placeholder="@L["Shared.SearchPlaceholder"]" />
+            <input name="q" value="@Model.Filter.Query" class="form-control" placeholder="@L["Shared.SearchPlaceholder"]" />
+        </div>
+        <div class="col-md-3">
+            <input name="city" value="@Model.Filter.City" class="form-control" placeholder="City or ZIP" />
         </div>
         <div class="col-md-4">
             <select name="area" class="form-select">
                 <option value="">@L["Houses.List.AllAreas"]</option>
                 @foreach (var a in Model.Areas.OrderBy(a => a.Name))
                 {
-                    <option value="@a.Id" selected="@(a.Id.ToString() == Model.SelectedArea)">@a.Name</option>
+                    <option value="@a.Id" selected="@(Model.Filter.AreaId.HasValue && a.Id == Model.Filter.AreaId.Value)">@a.Name</option>
                 }
             </select>
         </div>
-        <div class="col-md-2"><button class="btn btn-dark w-100">@L["Shared.Search"]</button></div>
-        <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/">@L["Shared.Reset"]</a></div>
+        <div class="col-md-1"><button class="btn btn-dark w-100">@L["Shared.Search"]</button></div>
+
+        <div class="col-md-2">
+            <input name="minPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinPrice" placeholder="Min price" />
+        </div>
+        <div class="col-md-2">
+            <input name="maxPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MaxPrice" placeholder="Max price" />
+        </div>
+        <div class="col-md-2">
+            <input name="minBedrooms" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinBedrooms" placeholder="Min bedrooms" />
+        </div>
+        <div class="col-md-2">
+            <input name="minGuests" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinGuests" placeholder="Min guests" />
+        </div>
+
+        <div class="col-md-2">
+            <select name="hasPool" class="form-select">
+                <option value="">Pool (any)</option>
+                <option value="true" selected="@(Model.Filter.HasPool == true)">Pool: yes</option>
+                <option value="false" selected="@(Model.Filter.HasPool == false)">Pool: no</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="petFriendly" class="form-select">
+                <option value="">Pets (any)</option>
+                <option value="true" selected="@(Model.Filter.PetFriendly == true)">Pets: yes</option>
+                <option value="false" selected="@(Model.Filter.PetFriendly == false)">Pets: no</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sort" class="form-select">
+                <option value="Relevance" selected="@(Model.Filter.Sort == HouseSearchSort.Relevance)">Relevance</option>
+                <option value="Newest" selected="@(Model.Filter.Sort == HouseSearchSort.Newest)">Newest</option>
+                <option value="PriceAsc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceAsc)">Price ascending</option>
+                <option value="PriceDesc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceDesc)">Price descending</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="pageSize" class="form-select">
+                <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                <option value="30" selected="@(Model.PageSize == 30)">30</option>
+            </select>
+        </div>
+
+        @if (Model.SearchableFeatures.Count > 0)
+        {
+            @foreach (var category in Model.SearchableFeatures.OrderBy(k => k.Key))
+            {
+                foreach (var feature in category.Value)
+                {
+                    var fieldName = $"f_{feature.Key}";
+                    var selectedValue = Model.Filter.FeatureFilters is not null && Model.Filter.FeatureFilters.TryGetValue(feature.Key, out var value)
+                        ? value
+                        : string.Empty;
+
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">@feature.Name</label>
+                        @if (!string.IsNullOrWhiteSpace(feature.Options))
+                        {
+                            var options = feature.Options.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                            <select name="@fieldName" class="form-select">
+                                <option value="">Any</option>
+                                @foreach (var option in options)
+                                {
+                                    <option value="@option" selected="@(string.Equals(option, selectedValue, StringComparison.OrdinalIgnoreCase))">@option</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <input name="@fieldName" value="@selectedValue" class="form-control" placeholder="@feature.Name" />
+                        }
+                    </div>
+                }
+            }
+        }
+
+        <input type="hidden" name="page" value="1" />
+        <div class="col-md-2"><a class="btn btn-outline-secondary w-100" href="/houses">@L["Shared.Reset"]</a></div>
     </form>
+
+    <p class="text-muted small">@Model.Total result(s)</p>
 
     <div class="row row-cols-1 row-cols-md-2 g-4">
         @if (Model.Houses.Count > 0)
@@ -46,4 +134,32 @@
             </div>
         }
     </div>
+
+    @if (totalPages > 1)
+    {
+        <nav class="mt-4" aria-label="House search pagination">
+            <ul class="pagination justify-content-center">
+                @for (var p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : null)">
+                        <a class="page-link" href="@Url.Action("Houses", new
+                        {
+                            q = Model.Filter.Query,
+                            city = Model.Filter.City,
+                            area = Model.Filter.AreaId,
+                            minPrice = Model.Filter.MinPrice,
+                            maxPrice = Model.Filter.MaxPrice,
+                            minBedrooms = Model.Filter.MinBedrooms,
+                            minGuests = Model.Filter.MinGuests,
+                            hasPool = Model.Filter.HasPool,
+                            petFriendly = Model.Filter.PetFriendly,
+                            sort = Model.Filter.Sort,
+                            page = p,
+                            pageSize = Model.PageSize
+                        })">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </section>

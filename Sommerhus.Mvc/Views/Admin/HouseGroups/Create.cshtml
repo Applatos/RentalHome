@@ -1,7 +1,8 @@
 @using Sommerhus.Core.Dtos.Shared
 @model UpsertHouseGroupDto
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Admin - Opret husgruppe";
+    ViewData["Title"] = L["Admin.HouseGroups.Create.PageTitle"];
 }
 
 <section class="container my-3">
@@ -9,9 +10,9 @@
     @await Html.PartialAsync("~/Views/Admin/Shared/_AdminTabs.cshtml")
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Opret husgruppe</h2>
+        <h2>@L["Admin.HouseGroups.Create.Title"]</h2>
         <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Tilbage til oversigt
+            <i class="bi bi-arrow-left"></i> @L["Admin.Shared.BackToOverview"]
         </a>
     </div>
 
@@ -27,17 +28,17 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Gruppenavn *</label>
-                            <input asp-for="Name" class="form-control" placeholder="fx. Vestkysten, Sommerland, etc." />
+                            <label asp-for="Name" class="form-label">@L["Admin.HouseGroups.Form.Name"] *</label>
+                            <input asp-for="Name" class="form-control" placeholder="@L["Admin.HouseGroups.Form.NamePlaceholder"]" />
                             <span asp-validation-for="Name" class="text-danger"></span>
-                            <div class="form-text">Vælg et beskrivende navn til husgruppen (maks. 100 tegn).</div>
+                            <div class="form-text">@L["Admin.HouseGroups.Form.NameHint"]</div>
                         </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-lg"></i> Opret gruppe
+                                <i class="bi bi-plus-lg"></i> @L["Admin.HouseGroups.Create.Submit"]
                             </button>
-                            <a asp-action="Index" class="btn btn-outline-secondary">Annullér</a>
+                            <a asp-action="Index" class="btn btn-outline-secondary">@L["Admin.Shared.Cancel"]</a>
                         </div>
                     </form>
                 </div>
@@ -46,15 +47,15 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-body-secondary">
-                    <strong>Om husgrupper</strong>
+                    <strong>@L["Admin.HouseGroups.Shared.AboutTitle"]</strong>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Husgrupper bruges til at organisere huse og dele sæsonkalendere mellem dem.</p>
+                    <p class="text-muted">@L["Admin.HouseGroups.Shared.AboutIntro"]</p>
                     <ul class="text-muted small">
-                        <li>Opret en gruppe for huse med lignende beliggenhed</li>
-                        <li>Del en fælles sæsonkalender mellem alle huse i gruppen</li>
-                        <li>Gør det nemmere at administrere priser for flere huse</li>
-                        <li>Grupper kan tildeles og fjernes fra huse når som helst</li>
+                        <li>@L["Admin.HouseGroups.Shared.Bullet1"]</li>
+                        <li>@L["Admin.HouseGroups.Shared.Bullet2"]</li>
+                        <li>@L["Admin.HouseGroups.Shared.Bullet3"]</li>
+                        <li>@L["Admin.HouseGroups.Shared.Bullet4"]</li>
                     </ul>
                 </div>
             </div>

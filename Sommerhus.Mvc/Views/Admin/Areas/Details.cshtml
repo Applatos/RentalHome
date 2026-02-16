@@ -1,25 +1,26 @@
 @using Sommerhus.Mvc.ViewModels.Admin.Areas
 @model AreaDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 <section class="container my-3">
 
-    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">← Back</a>
+    <a class="btn btn-link" asp-controller="Areas" asp-action="Index">← @L["Admin.Shared.Back"]</a>
     <partial name="~/Views/Admin/Shared/_FlashMessages.cshtml" />
 
-    <h3 class="mb-3">@(Model.IsNew ? "Create Area" : $"Edit: {Model.Area.Name}")</h3>
+    <h3 class="mb-3">@(Model.IsNew ? L["Admin.Areas.Create.Title"] : string.Format(L["Admin.Areas.Details.EditTitle"], Model.Area.Name))</h3>
 
     <ul class="nav nav-tabs mt-2">
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "overview" ? "active" : string.Empty)"
-               asp-controller="Areas"asp-action="Details"  asp-route-id="@Model.Area.Id" asp-route-tab="overview"> Overview</a>
+               asp-controller="Areas"asp-action="Details"  asp-route-id="@Model.Area.Id" asp-route-tab="overview"> @L["Admin.Tabs.Overview"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "images" ? "active" : string.Empty)"
-                asp-controller="Areas" asp-action="Details" asp-route-id="@Model.Area.Id" asp-route-tab="images"> Images</a>
+                asp-controller="Areas" asp-action="Details" asp-route-id="@Model.Area.Id" asp-route-tab="images"> @L["Admin.Tabs.Images"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "audit" ? "active" : string.Empty)"
-                asp-controller="Areas" asp-action="Details" asp-route-id="@Model.Area.Id" asp-route-tab="audit">Audit History</a>
+                asp-controller="Areas" asp-action="Details" asp-route-id="@Model.Area.Id" asp-route-tab="audit">@L["Admin.Tabs.AuditHistory"]</a>
         </li>
     </ul>
 

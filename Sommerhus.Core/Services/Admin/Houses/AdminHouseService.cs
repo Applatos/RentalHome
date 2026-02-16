@@ -8,12 +8,16 @@ using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Services.Admin.Pricing;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHouseService(AppDbContext db, IImageStorage imageStorage) : IAdminHouseService
+public sealed class AdminHouseService(
+    AppDbContext db,
+    IImageStorage imageStorage,
+    ISearchIndexer searchIndexer) : IAdminHouseService
 {
 
     public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, EntityStatus? status, int page, int pageSize, CancellationToken ct)
@@ -133,6 +137,7 @@ public sealed class AdminHouseService(AppDbContext db, IImageStorage imageStorag
 
         db.Houses.Add(house);
         await db.SaveChangesAsync(ct);
+        await searchIndexer.UpdateHouseAsync(house.Id, ct);
 
         return ServiceResult<Guid>.Success(house.Id);
     }
@@ -167,6 +172,7 @@ public sealed class AdminHouseService(AppDbContext db, IImageStorage imageStorag
         }
 
         await db.SaveChangesAsync(ct);
+        await searchIndexer.UpdateHouseAsync(id, ct);
         return ServiceResult.Success();
     }
 
@@ -180,6 +186,7 @@ public sealed class AdminHouseService(AppDbContext db, IImageStorage imageStorag
 
         db.Houses.Remove(house);
         await db.SaveChangesAsync(ct);
+        await searchIndexer.RemoveHouseAsync(id, ct);
         return ServiceResult.Success();
     }
 

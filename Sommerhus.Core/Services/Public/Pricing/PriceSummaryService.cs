@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Public.Pricing;
 
-public sealed class PriceSummaryService(AppDbContext db) : IPriceSummaryService
+public sealed class PriceSummaryService(AppDbContext db, ISearchIndexer searchIndexer) : IPriceSummaryService
 {
     public async Task<Dictionary<Guid, (decimal? Min, decimal? Max, string? Currency)>> GetSummariesAsync(
         IEnumerable<Guid> houseIds,
@@ -54,6 +55,8 @@ public sealed class PriceSummaryService(AppDbContext db) : IPriceSummaryService
                 .Where(q => q.HouseId == houseId)
                 .ExecuteDeleteAsync(ct);
 
+            await searchIndexer.UpdateHouseAsync(houseId, ct);
+
             return;
         }
 
@@ -80,6 +83,8 @@ public sealed class PriceSummaryService(AppDbContext db) : IPriceSummaryService
         await db.Set<PriceQuote>()
             .Where(q => q.HouseId == houseId)
             .ExecuteDeleteAsync(ct);
+
+        await searchIndexer.UpdateHouseAsync(houseId, ct);
     }
 
     public async Task RecomputeSummariesForGroupAsync(Guid groupId, CancellationToken ct)

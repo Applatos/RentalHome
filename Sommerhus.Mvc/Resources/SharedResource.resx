@@ -84,4 +84,138 @@
   <data name="Houses.Details.AvailabilityUnavailableMessage" xml:space="preserve"><value>De valgte datoer er ikke ledige</value></data>
   <data name="Houses.Details.BlockingSingular" xml:space="preserve"><value>blokering</value></data>
   <data name="Houses.Details.BlockingPlural" xml:space="preserve"><value>blokeringer</value></data>
+  <data name="Admin.Tabs.Houses" xml:space="preserve"><value>Huse</value></data>
+  <data name="Admin.Tabs.Areas" xml:space="preserve"><value>Omraader</value></data>
+  <data name="Admin.Tabs.Features" xml:space="preserve"><value>Faciliteter</value></data>
+  <data name="Admin.Tabs.Prices" xml:space="preserve"><value>Priser</value></data>
+  <data name="Admin.Tabs.HouseGroups" xml:space="preserve"><value>Husgrupper</value></data>
+  <data name="Admin.Tabs.Overview" xml:space="preserve"><value>Oversigt</value></data>
+  <data name="Admin.Tabs.Images" xml:space="preserve"><value>Billeder</value></data>
+  <data name="Admin.Tabs.Pricing" xml:space="preserve"><value>Pris</value></data>
+  <data name="Admin.Tabs.SeasonCalendar" xml:space="preserve"><value>Saesonkalender</value></data>
+  <data name="Admin.Tabs.Availability" xml:space="preserve"><value>Tilgaengelighed</value></data>
+  <data name="Admin.Tabs.AuditHistory" xml:space="preserve"><value>Historik</value></data>
+  <data name="Admin.Pagination.Previous" xml:space="preserve"><value>Forrige</value></data>
+  <data name="Admin.Pagination.Next" xml:space="preserve"><value>Naeste</value></data>
+  <data name="Admin.Pagination.PageOf" xml:space="preserve"><value>Side {0} af {1}</value></data>
+  <data name="Admin.Audit.Empty" xml:space="preserve"><value>Ingen historik registreret endnu.</value></data>
+  <data name="Admin.Audit.Date" xml:space="preserve"><value>Dato</value></data>
+  <data name="Admin.Audit.Action" xml:space="preserve"><value>Handling</value></data>
+  <data name="Admin.Audit.ChangedBy" xml:space="preserve"><value>Aendret af</value></data>
+  <data name="Admin.Audit.Changes" xml:space="preserve"><value>Aendringer</value></data>
+  <data name="Admin.Audit.ViewDetails" xml:space="preserve"><value>Vis detaljer</value></data>
+  <data name="Admin.Shared.Name" xml:space="preserve"><value>Navn</value></data>
+  <data name="Admin.Shared.NameEn" xml:space="preserve"><value>Navn (engelsk)</value></data>
+  <data name="Admin.Shared.Houses" xml:space="preserve"><value>Huse</value></data>
+  <data name="Admin.Shared.Actions" xml:space="preserve"><value>Handlinger</value></data>
+  <data name="Admin.Shared.Details" xml:space="preserve"><value>Detaljer</value></data>
+  <data name="Admin.Shared.Delete" xml:space="preserve"><value>Slet</value></data>
+  <data name="Admin.Shared.Back" xml:space="preserve"><value>Tilbage</value></data>
+  <data name="Admin.Shared.BackToList" xml:space="preserve"><value>Tilbage til liste</value></data>
+  <data name="Admin.Shared.BackToOverview" xml:space="preserve"><value>Tilbage til oversigt</value></data>
+  <data name="Admin.Shared.Cancel" xml:space="preserve"><value>Annuller</value></data>
+  <data name="Admin.Shared.Edit" xml:space="preserve"><value>Rediger</value></data>
+  <data name="Admin.Shared.Save" xml:space="preserve"><value>Gem</value></data>
+  <data name="Admin.Shared.SaveChanges" xml:space="preserve"><value>Gem aendringer</value></data>
+  <data name="Admin.Shared.Create" xml:space="preserve"><value>Opret</value></data>
+  <data name="Admin.Shared.Upload" xml:space="preserve"><value>Upload</value></data>
+  <data name="Admin.Shared.Description" xml:space="preserve"><value>Beskrivelse</value></data>
+  <data name="Admin.Shared.MultiSelectHint" xml:space="preserve"><value>Hold Ctrl/Cmd for at vaelge flere (tom = ingen).</value></data>
+  <data name="Admin.Shared.HtmlAllowed" xml:space="preserve"><value>HTML er tilladt.</value></data>
+  <data name="Admin.Shared.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Admin.Shared.Created" xml:space="preserve"><value>Oprettet</value></data>
+  <data name="Admin.Shared.Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Admin.Shared.No" xml:space="preserve"><value>Nej</value></data>
+  <data name="Admin.Shared.None" xml:space="preserve"><value>(ingen)</value></data>
+  <data name="Admin.Areas.Index.Title" xml:space="preserve"><value>Omraader</value></data>
+  <data name="Admin.Areas.Index.Create" xml:space="preserve"><value>Opret omraade</value></data>
+  <data name="Admin.Areas.Index.Empty" xml:space="preserve"><value>Ingen omraader fundet endnu.</value></data>
+  <data name="Admin.Areas.Index.DeleteConfirm" xml:space="preserve"><value>Slet omraadet &quot;{0}&quot;?</value></data>
+  <data name="Admin.Areas.Create.PageTitle" xml:space="preserve"><value>Opret omraade</value></data>
+  <data name="Admin.Areas.Create.Title" xml:space="preserve"><value>Opret nyt omraade</value></data>
+  <data name="Admin.Areas.Form.AssociatedCities" xml:space="preserve"><value>Tilknyttede byer</value></data>
+  <data name="Admin.Areas.Details.EditTitle" xml:space="preserve"><value>Rediger: {0}</value></data>
+  <data name="Admin.Areas.Overview.HousesInArea" xml:space="preserve"><value>Huse i dette omraade</value></data>
+  <data name="Admin.Areas.Images.AreaImageAlt" xml:space="preserve"><value>Omraadebillede</value></data>
+  <data name="Admin.Images.UploadTitle" xml:space="preserve"><value>Upload billeder</value></data>
+  <data name="Admin.Images.Empty" xml:space="preserve"><value>Ingen billeder uploadet endnu.</value></data>
+  <data name="Admin.Images.CurrentTitle" xml:space="preserve"><value>Aktuelle billeder</value></data>
+  <data name="Admin.Images.GalleryKind" xml:space="preserve"><value>galleri</value></data>
+  <data name="Admin.Images.DeleteConfirm" xml:space="preserve"><value>Vil du slette dette billede?</value></data>
+  <data name="Admin.Houses.Index.PageTitle" xml:space="preserve"><value>Admin - Huse</value></data>
+  <data name="Admin.Houses.Index.Title" xml:space="preserve"><value>Huse</value></data>
+  <data name="Admin.Houses.Index.Create" xml:space="preserve"><value>Opret hus</value></data>
+  <data name="Admin.Houses.Index.AllStatuses" xml:space="preserve"><value>Alle statuser</value></data>
+  <data name="Admin.Houses.Index.PerPage" xml:space="preserve"><value>{0} pr. side</value></data>
+  <data name="Admin.Houses.Index.DeleteConfirm" xml:space="preserve"><value>Slet huset &quot;{0}&quot;?</value></data>
+  <data name="Admin.Houses.Create.PageTitle" xml:space="preserve"><value>Opret hus</value></data>
+  <data name="Admin.Houses.Create.Title" xml:space="preserve"><value>Opret nyt hus</value></data>
+  <data name="Admin.Houses.Form.Title" xml:space="preserve"><value>Titel</value></data>
+  <data name="Admin.Houses.Form.Address" xml:space="preserve"><value>Adresse</value></data>
+  <data name="Admin.Houses.Form.City" xml:space="preserve"><value>By</value></data>
+  <data name="Admin.Houses.Form.Areas" xml:space="preserve"><value>Omraader</value></data>
+  <data name="Admin.Houses.Form.HouseGroup" xml:space="preserve"><value>Husgruppe</value></data>
+  <data name="Admin.Houses.Form.NoGroup" xml:space="preserve"><value>Ingen gruppe</value></data>
+  <data name="Admin.Houses.Form.GroupHint" xml:space="preserve"><value>Vaelg en gruppe for at dele saesonkalender.</value></data>
+  <data name="Admin.Houses.Form.SearchKeywords" xml:space="preserve"><value>Soegeord</value></data>
+  <data name="Admin.Houses.Form.SearchKeywordsPlaceholder" xml:space="preserve"><value>fx. romantisk, strand, moderne, familievenlig</value></data>
+  <data name="Admin.Houses.Form.SearchKeywordsHint" xml:space="preserve"><value>Kommaseparerede ord til fri tekst-soegning.</value></data>
+  <data name="Admin.Houses.Overview.Publish" xml:space="preserve"><value>Publicer</value></data>
+  <data name="Admin.Houses.Overview.Archive" xml:space="preserve"><value>Arkiver</value></data>
+  <data name="Admin.Houses.Overview.Unpublish" xml:space="preserve"><value>Afpublicer</value></data>
+  <data name="Admin.Houses.Overview.ReopenDraft" xml:space="preserve"><value>Genabn som kladde</value></data>
+  <data name="Admin.Houses.Images.HouseImageAlt" xml:space="preserve"><value>Husbillede</value></data>
+  <data name="Admin.Houses.Images.SetAs" xml:space="preserve"><value>Saet som {0}</value></data>
+  <data name="Admin.Houses.Features.Empty" xml:space="preserve"><value>Ingen faciliteter defineret.</value></data>
+  <data name="Admin.Houses.Features.CreateFirst" xml:space="preserve"><value>Opret faciliteter foerst</value></data>
+  <data name="Admin.Houses.Features.Save" xml:space="preserve"><value>Gem faciliteter</value></data>
+  <data name="Admin.Features.Index.Title" xml:space="preserve"><value>Faciliteter</value></data>
+  <data name="Admin.Features.Index.Search" xml:space="preserve"><value>Soegbar</value></data>
+  <data name="Admin.Features.Index.Icon" xml:space="preserve"><value>Ikon</value></data>
+  <data name="Admin.Features.Index.IconAlt" xml:space="preserve"><value>Ikon</value></data>
+  <data name="Admin.Features.Index.NoIcon" xml:space="preserve"><value>intet ikon</value></data>
+  <data name="Admin.Features.Index.DropzoneTitle" xml:space="preserve"><value>Traek billede hertil eller klik</value></data>
+  <data name="Admin.Features.Index.DropzoneText" xml:space="preserve"><value>Traek billede hertil eller</value></data>
+  <data name="Admin.Features.Index.ChooseFile" xml:space="preserve"><value>vaelg fil</value></data>
+  <data name="Admin.Features.Create.Title" xml:space="preserve"><value>Opret ny facilitet</value></data>
+  <data name="Admin.Features.Create.Key" xml:space="preserve"><value>Noegle</value></data>
+  <data name="Admin.Features.Create.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Admin.Features.Create.Category" xml:space="preserve"><value>Kategori</value></data>
+  <data name="Admin.Features.Create.Unit" xml:space="preserve"><value>Enhed</value></data>
+  <data name="Admin.Features.Create.Options" xml:space="preserve"><value>Valgmuligheder (JSON)</value></data>
+  <data name="Admin.Features.Create.Searchable" xml:space="preserve"><value>Soegbar</value></data>
+  <data name="Admin.Prices.PageTitle" xml:space="preserve"><value>Admin - Priser</value></data>
+  <data name="Admin.Prices.Title" xml:space="preserve"><value>Prisopsaetning</value></data>
+  <data name="Admin.Prices.SeasonCodes.Title" xml:space="preserve"><value>Saesonkoder</value></data>
+  <data name="Admin.Prices.SeasonCodes.Help" xml:space="preserve"><value>Saesonkoder definerer farve og navn paa perioder i prisplaner.</value></data>
+  <data name="Admin.Prices.SeasonCodes.Code" xml:space="preserve"><value>Kode</value></data>
+  <data name="Admin.Prices.SeasonCodes.Color" xml:space="preserve"><value>Farve</value></data>
+  <data name="Admin.Prices.SeasonCodes.SortOrder" xml:space="preserve"><value>Sortering</value></data>
+  <data name="Admin.Prices.SeasonCodes.Create" xml:space="preserve"><value>Opret saesonkode</value></data>
+  <data name="Admin.Prices.SeasonCodes.Existing" xml:space="preserve"><value>Eksisterende koder</value></data>
+  <data name="Admin.Prices.SeasonCodes.Empty" xml:space="preserve"><value>Ingen saesonkoder endnu.</value></data>
+  <data name="Admin.HouseGroups.Index.PageTitle" xml:space="preserve"><value>Admin - Husgrupper</value></data>
+  <data name="Admin.HouseGroups.Index.Title" xml:space="preserve"><value>Husgrupper</value></data>
+  <data name="Admin.HouseGroups.Index.Create" xml:space="preserve"><value>Opret ny gruppe</value></data>
+  <data name="Admin.HouseGroups.Index.EmptyTitle" xml:space="preserve"><value>Ingen husgrupper oprettet endnu</value></data>
+  <data name="Admin.HouseGroups.Index.EmptyHelp" xml:space="preserve"><value>Husgrupper bruges til at dele saesonkalendere mellem flere huse.</value></data>
+  <data name="Admin.HouseGroups.Index.HouseCount" xml:space="preserve"><value>{0} {1} tilknyttet</value></data>
+  <data name="Admin.HouseGroups.Index.HouseSingular" xml:space="preserve"><value>hus</value></data>
+  <data name="Admin.HouseGroups.Index.HousePlural" xml:space="preserve"><value>huse</value></data>
+  <data name="Admin.HouseGroups.Index.Calendar" xml:space="preserve"><value>Kalender</value></data>
+  <data name="Admin.HouseGroups.Index.DeleteConfirm" xml:space="preserve"><value>Er du sikker paa at du vil slette denne husgruppe?</value></data>
+  <data name="Admin.HouseGroups.Create.PageTitle" xml:space="preserve"><value>Admin - Opret husgruppe</value></data>
+  <data name="Admin.HouseGroups.Create.Title" xml:space="preserve"><value>Opret husgruppe</value></data>
+  <data name="Admin.HouseGroups.Create.Submit" xml:space="preserve"><value>Opret gruppe</value></data>
+  <data name="Admin.HouseGroups.Edit.PageTitle" xml:space="preserve"><value>Admin - Rediger husgruppe</value></data>
+  <data name="Admin.HouseGroups.Edit.Title" xml:space="preserve"><value>Rediger husgruppe</value></data>
+  <data name="Admin.HouseGroups.Form.Name" xml:space="preserve"><value>Gruppenavn</value></data>
+  <data name="Admin.HouseGroups.Form.NamePlaceholder" xml:space="preserve"><value>fx. Vestkysten, Sommerland, etc.</value></data>
+  <data name="Admin.HouseGroups.Form.NameHint" xml:space="preserve"><value>Vaelg et beskrivende navn til husgruppen (maks. 100 tegn).</value></data>
+  <data name="Admin.HouseGroups.Shared.AboutTitle" xml:space="preserve"><value>Om husgrupper</value></data>
+  <data name="Admin.HouseGroups.Shared.AboutIntro" xml:space="preserve"><value>Husgrupper bruges til at organisere huse og dele saesonkalendere mellem dem.</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet1" xml:space="preserve"><value>Opret en gruppe for huse med lignende beliggenhed</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet2" xml:space="preserve"><value>Del en faelles saesonkalender mellem alle huse i gruppen</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet3" xml:space="preserve"><value>Goer det nemmere at administrere priser for flere huse</value></data>
+  <data name="Admin.HouseGroups.Shared.Bullet4" xml:space="preserve"><value>Grupper kan tildeles og fjernes fra huse naar som helst</value></data>
 </root>
