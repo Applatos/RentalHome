@@ -1,13 +1,14 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Services.Public.Houses;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Public.Houses;
 
-public sealed class HouseQueryService(AppDbContext db, IImageStorage storage) : IHouseQueryService
+public sealed class HouseQueryService(AppDbContext db, IImageStorage storage, IPriceSummaryService priceSummaryService) : IHouseQueryService
 {
     private static readonly Regex HtmlTagRegex = new("<[^>]+>", RegexOptions.Compiled);
     private static readonly Regex WhitespaceRegex = new("\\s+", RegexOptions.Compiled);
@@ -58,6 +59,7 @@ public sealed class HouseQueryService(AppDbContext db, IImageStorage storage) : 
         var total = await houseQuery.CountAsync(ct);
 
         var houses = await houseQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        var summaries = await priceSummaryService.GetSummariesAsync(houses.Select(h => h.Id), ct);
 
         var items = houses.Select(h =>
         {
@@ -89,6 +91,8 @@ public sealed class HouseQueryService(AppDbContext db, IImageStorage storage) : 
                 h.Description,
                 gallery,
                 new List<FeatureValueDto>(),
+                summaries.TryGetValue(h.Id, out var summary) ? summary.Min : null,
+                summaries.TryGetValue(h.Id, out summary) ? summary.Currency : null,
                 coverUrl,
                 BuildSummary(h),
                 gallery);

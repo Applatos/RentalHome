@@ -1341,14 +1341,14 @@ public interface IPriceQuoteService
 
 ### Tasks
 
-- [ ] **20a** Create `HousePriceSummary` entity, migration, seed from existing price plans
-- [ ] **20b** Create `PriceQuote` entity (or in-memory model), migration
-- [ ] **20c** Build `IPriceQuoteService` with summary computation and quote calculation
-- [ ] **20d** Hook summary recomputation into price plan and calendar save operations
-- [ ] **20e** Public API: `GET /api/houses/{id}/quote?checkIn=&checkOut=`
-- [ ] **20f** Public search: include `MinNightlyPrice` in list DTOs from summary table
-- [ ] **20g** MVC: price display on search cards, quote widget on detail page
-- [ ] **20h** Tests: quote accuracy, cache invalidation, summary recomputation
+- [x] **20a** Create `HousePriceSummary` entity, migration, seed from existing price plans
+- [x] **20b** Create `PriceQuote` entity (or in-memory model), migration
+- [x] **20c** Build `IPriceQuoteService` with summary computation and quote calculation
+- [x] **20d** Hook summary recomputation into price plan and calendar save operations
+- [x] **20e** Public API: `GET /api/houses/{id}/quote?checkIn=&checkOut=`
+- [x] **20f** Public search: include `MinNightlyPrice` in list DTOs from summary table
+- [x] **20g** MVC: price display on search cards, quote widget on detail page
+- [x] **20h** Tests: quote accuracy, cache invalidation, summary recomputation
 
 **Estimated effort**: 8–12 hours | **Priority**: High
 
@@ -1439,7 +1439,7 @@ When booking is implemented later:
 - [ ] **21d** Admin MVC: availability calendar tab on house details (interactive grid) _(deferred — UI)_
 - [x] **21e** Public API: `GET /api/houses/{id}/availability?from=&to=`
 - [ ] **21f** Public MVC: calendar widget on house detail page _(deferred — UI)_
-- [ ] **21g** Integrate availability check into quote service (no quote for unavailable dates) _(deferred — depends on Phase 20)_
+- [x] **21g** Integrate availability check into quote service (no quote for unavailable dates)
 - [x] **21h** Tests: overlap detection, block/unblock, availability queries (12 integration tests)
 
 **Estimated effort**: 8–12 hours | **Priority**: High
@@ -1901,8 +1901,8 @@ Protected by admin auth. Only available in `Development` / `Testing` environment
 - [x] **25e** Generate realistic availability blocks (available/booked/blocked distribution)
 - [x] **25f** Admin API: `POST /api/admin/stress/seed` + `DELETE /api/admin/stress/clear` (dev/test only)
 - [x] **25g** Write k6 load test scripts for all scenarios (search, detail, concurrent, admin)
-- [ ] **25h** Run baseline benchmark (before Phase 20), save results to `stress-tests/results/` _(deferred — run when ready for Phase 20)_
-- [ ] **25i** After Phase 20: run comparison benchmark, document improvement in results report _(deferred — depends on Phase 20)_
+- [x] **25h** Run baseline benchmark, save results to `stress-tests/results/`
+- [x] **25i** After Phase 20: run comparison benchmark, document improvement in results report
 - [x] **25j** Tests: verify data generator produces valid, queryable data with correct relationships (5 integration tests)
 - [x] **25k** Seed owners (`HouseOwner` role) and users (`User` role) with realistic profile data (Feb 12, 2026)
   - `StressDataOptions`: added `OwnerCount` (default 20) and `UserCount` (default 50)
@@ -2493,7 +2493,7 @@ After completing all phases:
 | Phase 17  | 6-10 hours       | High     | **Completed** |
 | Phase 18  | 5-8 hours        | High     | **Completed** |
 | Phase 19  | 5-7 hours        | Medium   | **On Hold**   |
-| Phase 20  | 8-12 hours       | High     | Pending       |
+| Phase 20  | 8-12 hours       | High     | **Completed** |
 | Phase 21  | 8-12 hours       | High     | **Partial**   |
 | Phase 22  | 10-15 hours      | Medium   | Pending       |
 | Phase 23  | 5-8 hours        | High     | **Completed** |

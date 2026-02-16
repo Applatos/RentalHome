@@ -173,6 +173,14 @@ public static class Seeder
 
         db.PricePlans.Add(plan);
         db.SeasonSpans.AddRange(calendarSegments);
+        db.HousePriceSummaries.Add(new HousePriceSummary
+        {
+            HouseId = house.Id,
+            MinNightlyPrice = seasonRates.Min(r => r.NightlyPrice),
+            MaxNightlyPrice = seasonRates.Max(r => r.NightlyPrice),
+            Currency = plan.Currency,
+            ComputedAtUtc = DateTime.UtcNow
+        });
 
         db.SaveChanges();
     }

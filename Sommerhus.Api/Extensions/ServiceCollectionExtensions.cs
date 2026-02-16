@@ -70,7 +70,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICityQueryService, CityQueryService>();
         services.AddScoped<IZipCodeQueryService, ZipCodeQueryService>();
         services.AddScoped<IHouseImageQueryService, HouseImageQueryService>();
-        services.AddScoped<IPricingQuoteService, AdminPricingService>();
+        services.AddScoped<IPriceSummaryService, PriceSummaryService>();
+        services.AddScoped<IPricingQuoteService, PricingQuoteService>();
         services.AddScoped<IAvailabilityQueryService, AvailabilityQueryService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IFavoriteService, FavoriteService>();

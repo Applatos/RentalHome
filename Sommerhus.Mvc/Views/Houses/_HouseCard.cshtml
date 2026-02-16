@@ -19,6 +19,10 @@
         <div class="header-row">
             <div>
                 <h3 class="h5 mb-1">@headline</h3>
+                @if (Model.MinNightlyPrice.HasValue)
+                {
+                    <p class="small fw-semibold mb-1">From @Model.MinNightlyPrice.Value.ToString("0.##") @Model.Currency/night</p>
+                }
                 @if (!string.IsNullOrWhiteSpace(Model.Summary))
                 {
                     <p class="muted small mb-0">@Model.Summary</p>

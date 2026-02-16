@@ -29,6 +29,8 @@ public sealed record PublicHouseListItemDto(
     string? Description,
     IReadOnlyList<ImageDto> Images,
     IReadOnlyList<FeatureValueDto> Features,
+    decimal? MinNightlyPrice,
+    string? Currency,
     string? CoverUrl,
     string? Summary,
     IReadOnlyList<ImageDto> Gallery);

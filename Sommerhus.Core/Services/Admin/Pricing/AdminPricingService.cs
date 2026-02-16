@@ -11,7 +11,11 @@ using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Pricing;
 
-public sealed class AdminPricingService(AppDbContext db, IConfiguration configuration, IPricingPipeline pipeline) : IAdminPricingService, IPricingQuoteService
+public sealed class AdminPricingService(
+    AppDbContext db,
+    IConfiguration configuration,
+    IPricingPipeline pipeline,
+    IPriceSummaryService priceSummaryService) : IAdminPricingService, IPricingQuoteService
 {
 
     public async Task<ServiceResult<PriceQuoteResponseDto>> QuoteAsync(PriceQuoteRequestDto request, CancellationToken ct)
@@ -147,6 +151,8 @@ public sealed class AdminPricingService(AppDbContext db, IConfiguration configur
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
 
+            await priceSummaryService.RecomputeSummariesForGroupAsync(groupId, ct);
+
             IReadOnlyList<SeasonSpanDto> result = entities.Select(MapSpan).ToList();
             return ServiceResult<IReadOnlyList<SeasonSpanDto>>.Success(result);
         }
@@ -192,6 +198,8 @@ public sealed class AdminPricingService(AppDbContext db, IConfiguration configur
                 await db.SaveChangesAsync(ct);
             }
 
+            await priceSummaryService.RecomputeSummaryAsync(plan.HouseId, ct);
+
             await tx.CommitAsync(ct);
             return ServiceResult.Success();
         }
@@ -217,6 +225,7 @@ public sealed class AdminPricingService(AppDbContext db, IConfiguration configur
 
         db.PricePlans.Remove(plan);
         await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummaryAsync(houseId, ct);
         return ServiceResult.Success();
     }
 

@@ -30,6 +30,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SeasonCode> SeasonCodes => Set<SeasonCode>();
     public DbSet<SeasonSpan> SeasonSpans => Set<SeasonSpan>();
     public DbSet<SeasonCalendar> SeasonCalendars => Set<SeasonCalendar>();
+    public DbSet<HousePriceSummary> HousePriceSummaries => Set<HousePriceSummary>();
+    public DbSet<PriceQuote> PriceQuotes => Set<PriceQuote>();
 
     // Availability
     public DbSet<AvailabilityBlock> AvailabilityBlocks => Set<AvailabilityBlock>();
@@ -217,6 +219,34 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.StartDate).IsRequired();
             e.Property(x => x.EndDate).IsRequired();
             e.HasIndex(x => new { x.CalendarId, x.StartDate, x.EndDate }).IsUnique();
+        });
+
+        b.Entity<HousePriceSummary>(e =>
+        {
+            e.HasKey(x => x.HouseId);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(4);
+            e.Property(x => x.MinNightlyPrice).HasPrecision(18, 2);
+            e.Property(x => x.MaxNightlyPrice).HasPrecision(18, 2);
+            e.HasOne<VacationHouse>()
+                .WithMany()
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<PriceQuote>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(4);
+            e.Property(x => x.NightlyBreakdown).HasMaxLength(2000);
+            e.Property(x => x.Modifiers).HasMaxLength(2000);
+            e.Property(x => x.Subtotal).HasPrecision(18, 2);
+            e.Property(x => x.Tax).HasPrecision(18, 2);
+            e.Property(x => x.Total).HasPrecision(18, 2);
+            e.HasIndex(x => new { x.HouseId, x.CheckIn, x.CheckOut, x.Guests, x.ExpiresAtUtc });
+            e.HasOne<VacationHouse>()
+                .WithMany()
+                .HasForeignKey(x => x.HouseId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Availability

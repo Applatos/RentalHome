@@ -24,7 +24,10 @@ public sealed class SommerhusApi
         => ApiHttp.GetAsync<PublicHouseDetailsDto?>(http, $"api/houses/{id}", ct);
 
     public Task<ApiResponse<PriceQuoteResponseDto?>> GetPriceQuoteAsync(PriceQuoteRequestDto request, CancellationToken ct = default)
-        => ApiHttp.PostAsync<PriceQuoteRequestDto, PriceQuoteResponseDto?>(http, "api/pricing/quote", request, ct);
+        => ApiHttp.GetAsync<PriceQuoteResponseDto?>(
+            http,
+            $"api/houses/{request.HouseId}/quote?checkIn={request.Arrival:yyyy-MM-dd}&checkOut={request.Departure:yyyy-MM-dd}&guests={request.Guests}",
+            ct);
 
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)
     {

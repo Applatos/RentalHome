@@ -4,11 +4,12 @@ using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Admin.Pricing;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Houses;
 
-public sealed class AdminHousePricingService(AppDbContext db) : IAdminHousePricingService
+public sealed class AdminHousePricingService(AppDbContext db, IPriceSummaryService priceSummaryService) : IAdminHousePricingService
 {
 
     public async Task<ServiceResult<PricePlanDetailsDto>> UpsertPricingAsync(Guid houseId, PricePlanDetailsDto dto, CancellationToken ct)
@@ -63,6 +64,8 @@ public sealed class AdminHousePricingService(AppDbContext db) : IAdminHousePrici
 
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
+
+        await priceSummaryService.RecomputeSummaryAsync(houseId, ct);
 
         var refreshed = await db.PricePlans
             .AsNoTracking()

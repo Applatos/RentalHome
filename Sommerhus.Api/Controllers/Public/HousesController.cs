@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Api.Infrastructure;
 using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Core.Services.Public.Favorites;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Api.Controllers.Public;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class HousesController(IHouseQueryService houses, IFavoriteService favoriteService) : ControllerBase
+public sealed class HousesController(IHouseQueryService houses, IFavoriteService favoriteService, IPricingQuoteService pricingQuoteService) : ControllerBase
 {
     [HttpGet]
     public Task<PageResult<PublicHouseListItemDto>> Search(
@@ -39,5 +40,18 @@ public sealed class HousesController(IHouseQueryService houses, IFavoriteService
         }
 
         return house;
+    }
+
+    [HttpGet("{id:guid}/quote")]
+    public async Task<ActionResult<PriceQuoteResponseDto>> Quote(
+        Guid id,
+        [FromQuery] DateOnly checkIn,
+        [FromQuery] DateOnly checkOut,
+        [FromQuery] int guests = 2,
+        CancellationToken ct = default)
+    {
+        var request = new PriceQuoteRequestDto(id, checkIn, checkOut, guests, null);
+        var result = await pricingQuoteService.QuoteAsync(request, ct);
+        return this.FromResult(result);
     }
 }
