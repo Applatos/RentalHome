@@ -105,7 +105,11 @@ public sealed class OwnerHouseService(
     {
         var images = house.Images
             .OrderBy(i => i.Kind)
-            .Select(i => new ImageDto(i.Id, imageStorage.GetUrl(baseUrl, i.FileName), i.Alt, i.Kind.ToString()))
+            .Select(i => new ImageDto(
+                i.Id,
+                imageStorage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName),
+                i.Alt,
+                i.Kind.ToString()))
             .ToList();
 
         var features = house.HouseFeatures
