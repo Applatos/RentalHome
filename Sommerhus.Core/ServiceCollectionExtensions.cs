@@ -13,7 +13,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSommerhusPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Default") ?? "Data Source=sommerhus.db";
+        // Environment variables are expanded so a checked-in connection string can name a
+        // machine-independent location (e.g. "%LOCALAPPDATA%\Sommerhus\sommerhus.db") without
+        // committing an absolute path containing a user name. A string with no variables is
+        // returned unchanged.
+        var connectionString = Environment.ExpandEnvironmentVariables(
+            configuration.GetConnectionString("Default") ?? "Data Source=sommerhus.db");
         var provider = ResolveProvider(configuration["DatabaseProvider"], connectionString);
 
         services.AddScoped<AuditSaveChangesInterceptor>();
