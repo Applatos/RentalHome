@@ -29,9 +29,6 @@ dotnet run --project Sommerhus.Mvc    # http://localhost:7202
 The MVC app finds the API through `Api:BaseUrl`, defaulting to `http://localhost:5001/`. If you
 move the API, set that key.
 
-One wrinkle in `launchSettings.json`: the MVC profile *named* `https` actually serves
-`http://localhost:5015`. Not a typo introduced here — just be aware.
-
 ## Authentication
 
 JWT, issued by the API and used by MVC behind its own cookie.
@@ -76,27 +73,22 @@ string is inspected.
 
 ### Looking inside it
 
-Use DB Browser for SQLite or the `sqlite3` CLI — both apply the write-ahead log automatically.
+Use DB Browser for SQLite, applies the write-ahead log automatically.
 
 Two things bite people here:
 
-- **The file is in WAL mode.** Recent changes live in `applatos.db-wal` until a checkpoint, and
-  the main file's timestamp does not move. If you copy the database anywhere, take `-wal` and
+- **The file is in WAL mode.** Recent changes live in `applatos.db-wal` until a checkpoint, and the main file's timestamp does not move. If you copy the database anywhere, take `-wal` and
   `-shm` with it or you will leave the newest rows behind.
-- **A viewer with *unsaved changes* blocks both applications.** DB Browser keeps a write
-  transaction open until you press *Write Changes*, and while it does, logging in fails with
-  `SQLite Error 5: 'database is locked'` — login writes, because Identity updates the user.
-  Press Write Changes, or close it. A viewer that is only *reading* is fine and blocks nothing:
-  WAL mode lets readers and writers run at the same time.
+- **A viewer with *unsaved changes* blocks both applications.** DB Browser keeps a write transaction open until you press *Write Changes*, and while it does, logging in fails with
+  `SQLite Error 5: 'database is locked'`, login writes, because Identity updates the user. Press Write Changes, or close it. A viewer that is only *reading* is fine and blocks nothing: WAL mode lets readers and writers run at the same time.
 
 ### Startup applies migrations
 
-`MigrationHostedService` in `Sommerhus.Core/ServiceCollectionExtensions.cs` runs before the API
-serves anything, on **every** start:
+`MigrationHostedService` in `Sommerhus.Core/ServiceCollectionExtensions.cs` runs before the API serves anything, on **every** start:
 
-1. `db.Database.MigrateAsync()` — applies any pending migration.
-2. `AdminIdentitySeeder.SeedAsync()` — ensures the admin, owner and user accounts exist.
-3. In `Development` only, `Seeder.SeedMinimal(db)` — reference data (the 20 features, a city, a
+1. `db.Database.MigrateAsync()` - applies any pending migration.
+2. `AdminIdentitySeeder.SeedAsync()` - ensures the admin, owner and user accounts exist.
+3. In `Development` only, `Seeder.SeedMinimal(db)`, reference data (the 20 features, a city, a
    house, a price calendar). It returns immediately if the `Features` table is non-empty, so it
    fills an empty database once and never touches a populated one.
 
