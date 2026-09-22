@@ -42,6 +42,8 @@ _ReSharper*/
 
 ## Database files
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 
@@ -51,7 +53,7 @@ project.fragment.lock.json
 artifacts/
 
 ## Publish output
-wwwroot/
+# wwwroot/ is source (css, images, favicon) and is tracked; only publish/ output is ignored.
 dist/
 node_modules/
 publish/

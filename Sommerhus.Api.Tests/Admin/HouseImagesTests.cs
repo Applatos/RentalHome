@@ -105,6 +105,28 @@ public class HouseImagesTests : IDisposable
         return page.Items.First().Id;
     }
 
+    [Theory]
+    [InlineData("page.html", "image/png")]
+    [InlineData("script.svg", "image/svg+xml")]
+    [InlineData("noext", "image/jpeg")]
+    public async Task Upload_NonImageExtension_IsRejected(string fileName, string contentType)
+    {
+        // The file keeps its client-supplied extension and is served back as a static file,
+        // so an image content type alone must not be enough to get it stored.
+        var houseId = await GetExistingHouseIdAsync();
+
+        using var content = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(new byte[] { 1, 2, 3, 4, 5 });
+        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+        content.Add(fileContent, "files", fileName);
+
+        var response = await client.PostAsync($"/api/admin/houses/{houseId}/images", content);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var images = await GetImagesAsync(houseId);
+        images.Should().NotContain(i => i.Url.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+    }
+
     private async Task<List<ImageDto>> UploadAsync(Guid houseId, params (string FileName, string ContentType)[] files)
     {
         using var content = new MultipartFormDataContent();

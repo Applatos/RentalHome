@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.Availability;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Owner;
 
-public sealed class OwnerBookingService(AppDbContext db) : IOwnerBookingService
+public sealed class OwnerBookingService(AppDbContext db, IAdminAvailabilityService availability) : IOwnerBookingService
 {
     public async Task<IReadOnlyList<BookingListItemDto>> ListByOwnerAsync(
         string ownerId, CancellationToken ct)
@@ -63,6 +64,11 @@ public sealed class OwnerBookingService(AppDbContext db) : IOwnerBookingService
 
         if (booking.Status != BookingStatus.Pending)
             return ServiceResult.Invalid("status", "Only pending bookings can be confirmed.");
+
+        // A pending booking holds no availability block, so another booking for the same
+        // dates may have been confirmed since this one was created. Re-check before we block.
+        if (!await availability.IsAvailableAsync(booking.HouseId, booking.CheckIn, booking.CheckOut, ct))
+            return ServiceResult.Conflict("dates", "The dates are no longer available; another booking already occupies them.");
 
         booking.Status = BookingStatus.Confirmed;
         booking.ConfirmedAtUtc = DateTime.UtcNow;

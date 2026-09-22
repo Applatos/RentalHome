@@ -275,6 +275,79 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         bookings!.Should().OnlyContain(b => b.Status == BookingStatus.Pending);
     }
 
+    [Fact]
+    public async Task AdminUpdateStatus_ConfirmOverlappingBooking_ReturnsConflict()
+    {
+        // Two guests book overlapping dates while both are still pending: neither holds an
+        // availability block yet, so both requests are accepted. Confirming the second one
+        // must be refused, otherwise the house is double-booked.
+        var houseId = await GetPublishedHouseIdAsync();
+        var first = await CreatePendingBookingAsync("overlap-admin-1", houseId, new DateOnly(2050, 7, 1), new DateOnly(2050, 7, 8));
+        var second = await CreatePendingBookingAsync("overlap-admin-2", houseId, new DateOnly(2050, 7, 5), new DateOnly(2050, 7, 12));
+
+        var confirmFirst = await _adminClient.PutAsJsonAsync($"api/admin/bookings/{first.Id}/status",
+            new UpdateBookingStatusDto { Status = BookingStatus.Confirmed });
+        confirmFirst.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var confirmSecond = await _adminClient.PutAsJsonAsync($"api/admin/bookings/{second.Id}/status",
+            new UpdateBookingStatusDto { Status = BookingStatus.Confirmed });
+        confirmSecond.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        var getRes = await _adminClient.GetAsync($"api/admin/bookings/{second.Id}");
+        var stillPending = await getRes.Content.ReadFromJsonAsync<BookingDto>();
+        stillPending!.Status.Should().Be(BookingStatus.Pending);
+        stillPending.AvailabilityBlockId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task OwnerConfirm_OverlappingBooking_ReturnsConflict()
+    {
+        // Same scenario through the owner's own confirm endpoint, which has its own code path.
+        var houseId = await GetPublishedHouseIdAsync();
+        var ownerClient = _factory.CreateOwnerClient("overlap-owner");
+        var ownerId = ReadUserId(ownerClient);
+
+        var assign = await _adminClient.PutAsJsonAsync($"api/admin/houses/{houseId}/owner",
+            new AssignOwnerRequest { OwnerId = ownerId });
+        assign.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var first = await CreatePendingBookingAsync("overlap-guest-1", houseId, new DateOnly(2051, 3, 1), new DateOnly(2051, 3, 8));
+        var second = await CreatePendingBookingAsync("overlap-guest-2", houseId, new DateOnly(2051, 3, 4), new DateOnly(2051, 3, 10));
+
+        var confirmFirst = await ownerClient.PostAsJsonAsync($"api/owner/bookings/{first.Id}/confirm", new { note = "ok" });
+        confirmFirst.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var confirmSecond = await ownerClient.PostAsJsonAsync($"api/owner/bookings/{second.Id}/confirm", new { note = "ok" });
+        confirmSecond.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        var getRes = await _adminClient.GetAsync($"api/admin/bookings/{second.Id}");
+        var stillPending = await getRes.Content.ReadFromJsonAsync<BookingDto>();
+        stillPending!.Status.Should().Be(BookingStatus.Pending);
+    }
+
+    private async Task<BookingDto> CreatePendingBookingAsync(string username, Guid houseId, DateOnly checkIn, DateOnly checkOut)
+    {
+        var userClient = _factory.CreateUserClient(username);
+        var res = await userClient.PostAsJsonAsync("api/bookings", new CreateBookingDto
+        {
+            HouseId = houseId,
+            CheckIn = checkIn,
+            CheckOut = checkOut,
+            Guests = 2
+        });
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        var booking = await res.Content.ReadFromJsonAsync<BookingDto>();
+        booking!.Status.Should().Be(BookingStatus.Pending);
+        return booking;
+    }
+
+    private static string ReadUserId(HttpClient client)
+    {
+        var token = client.DefaultRequestHeaders.Authorization!.Parameter!;
+        var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(token);
+        return jwt.Claims.First(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier || c.Type == "sub").Value;
+    }
+
     private async Task<Guid> GetPublishedHouseIdAsync()
     {
         var houses = await _adminClient.GetFromJsonAsync<PageResult<AdminHouseListItemDto>>("api/admin/houses?pageSize=1");

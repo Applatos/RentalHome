@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,6 +11,7 @@ public sealed class AdminIdentitySeeder(
     UserManager<ApplicationUser> userManager,
     RoleManager<IdentityRole> roleManager,
     IOptions<DefaultAdminOptions> options,
+    IHostEnvironment environment,
     ILogger<AdminIdentitySeeder> logger)
 {
     private readonly UserManager<ApplicationUser> userManager = userManager;
@@ -62,7 +64,11 @@ public sealed class AdminIdentitySeeder(
             }
         }
 
-        // Seed a test Owner account
+        // Demo accounts with well-known passwords. Development only: this repository is
+        // public, so seeding them anywhere reachable hands out a working owner login.
+        if (!environment.IsDevelopment())
+            return;
+
         await EnsureUserAsync(
             userName: "owner",
             email: "owner@sommerhus.dk",
@@ -71,7 +77,6 @@ public sealed class AdminIdentitySeeder(
             firstName: "Ole",
             lastName: "Jensen");
 
-        // Seed a test User account
         await EnsureUserAsync(
             userName: "user",
             email: "user@sommerhus.dk",

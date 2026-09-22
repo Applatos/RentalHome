@@ -30,7 +30,12 @@ builder.Services.AddTransient<AdminApiAuthHandler>();
 builder.Services.AddTransient<CulturePropagationHandler>();
 
 // API clients
+// HttpClient.BaseAddress drops its last path segment when it has no trailing slash:
+// "https://host/api" + "api/houses" becomes "https://host/api/houses" instead of
+// "https://host/api/api/houses". Normalising here means the setting works either way.
 var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5001/";
+if (!apiBaseUrl.EndsWith('/'))
+    apiBaseUrl += "/";
 
 builder.Services.AddHttpClient<SommerhusApi>(http =>
 {

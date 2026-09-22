@@ -23,9 +23,9 @@ A practical guide for running the project locally and deploying to production. W
 
 | What                  | Development                     | Production                           |
 | --------------------- | ------------------------------- | ------------------------------------ |
-| **API URL**           | `http://localhost:5183`         | `https://mikkel.smedt.dk`            |
-| **MVC URL**           | `http://localhost:5015`         | `https://mikkel.smedt.dk` (MVC site) |
-| **Swagger**           | `http://localhost:5183/swagger` | N/A                                  |
+| **API URL**           | `http://localhost:5001`         | `https://mikkel.smedt.dk`            |
+| **MVC URL**           | `http://localhost:7202`         | `https://mikkel.smedt.dk` (MVC site) |
+| **Swagger**           | `http://localhost:5001/swagger` | N/A                                  |
 | **Database**          | SQLite file (local)             | SQLite file on server                |
 | **Database location** | `Sommerhus.Api/app_data/`       | `C:\Data\Sommerhus\api\db\`          |
 | **Image uploads**     | `wwwroot/images/` (local disk)  | `C:\WebServer\...\publish\wwwroot\`  |
@@ -70,7 +70,7 @@ You need **two terminals** — one for the API and one for the MVC frontend:
 dotnet run --project Sommerhus.Api
 ```
 
-The API starts at `http://localhost:5183`. You can test it by opening `http://localhost:5183/swagger` in your browser.
+The API starts at `http://localhost:5001`. You can test it by opening `http://localhost:5001/swagger` in your browser.
 
 **Terminal 2 — Start the MVC frontend:**
 
@@ -78,7 +78,7 @@ The API starts at `http://localhost:5183`. You can test it by opening `http://lo
 dotnet run --project Sommerhus.Mvc
 ```
 
-The website starts at `http://localhost:5015`. Open it in your browser to see the frontend.
+The website starts at `http://localhost:7202`. Open it in your browser to see the frontend.
 
 > **Tip:** The MVC frontend talks to the API. The API must be running first, or the website will show errors.
 
@@ -327,6 +327,7 @@ Set these on the server (via IIS `web.config` or Windows Environment Variables):
 | `ASPNETCORE_ENVIRONMENT`     | Tells the app it's in prod | `Production`                                        |
 | `ConnectionStrings__Default` | Database connection string | `Data Source=C:\Data\Sommerhus\api\db\sommerhus.db` |
 | `Jwt__Key`                   | Secret key for auth tokens | A random string, 32+ characters                     |
+| `DefaultAdmin__Password`     | Password of the seeded admin | A strong password; the API refuses to start without it |
 | `Jwt__Issuer`                | Who issues the token       | `Sommerhus.Api`                                     |
 | `Jwt__Audience`              | Who the token is for       | `Sommerhus.Admin`                                   |
 
@@ -428,7 +429,7 @@ robocopy "C:\WebServer\api_c1_vh_mms.smedt.dk\1.0.0\publish\wwwroot" "C:\Backups
 
 ```powershell
 # Check if the API is responding
-Invoke-RestMethod -Uri "http://localhost:5183/api/public/cities"
+Invoke-RestMethod -Uri "http://localhost:5001/api/public/cities"
 
 # Check IIS app pool status (on server)
 Import-Module WebAdministration

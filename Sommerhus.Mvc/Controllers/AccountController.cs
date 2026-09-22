@@ -138,7 +138,15 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        // The cookie carries the API token, so it must not outlive it. Otherwise the user
+        // looks logged in while every API call fails with 401. AllowRefresh = false stops
+        // sliding expiration from extending the cookie past the token's own expiry.
+        var properties = new AuthenticationProperties { AllowRefresh = false };
+        if (expiresAt != default)
+            properties.ExpiresUtc = expiresAt;
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
     }
 
     private IActionResult RedirectToLocal(string? returnUrl)

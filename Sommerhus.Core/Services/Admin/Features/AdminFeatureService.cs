@@ -257,7 +257,9 @@ public sealed class AdminFeatureService(
         }
 
         var allowed = new[] { "image/png", "image/jpeg" };
-        if (file.ContentType is null || !allowed.Contains(file.ContentType))
+        var allowedExtensions = new[] { ".png", ".jpg", ".jpeg" };
+        if (file.ContentType is null || !allowed.Contains(file.ContentType)
+            || !allowedExtensions.Contains(Path.GetExtension(file.FileName), StringComparer.OrdinalIgnoreCase))
         {
             return ServiceResult.Invalid(new Dictionary<string, string[]>(StringComparer.Ordinal)
             {

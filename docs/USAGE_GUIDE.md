@@ -31,16 +31,16 @@ dotnet test Sommerhus.Api.Tests/Sommerhus.Api.Tests.csproj
 ```powershell
 dotnet run --project Sommerhus.Api
 ```
-- **URL**: http://localhost:5183
-- **Swagger**: http://localhost:5183/swagger
+- **URL**: http://localhost:5001
+- **Swagger**: http://localhost:5001/swagger
 - **Admin Login**: `admin` / `Sommerhus123!`
 
 ### Start MVC (Frontend)
 ```powershell
 dotnet run --project Sommerhus.Mvc
 ```
-- **URL**: http://localhost:5015
-- **Admin Panel**: http://localhost:5015/admin
+- **URL**: http://localhost:7202
+- **Admin Panel**: http://localhost:7202/admin
 
 ### Run Both with Hot Reload
 Open two terminals:
@@ -120,7 +120,7 @@ Use "DB Browser for SQLite" to open `Sommerhus.Api/sommerhus.db`
 ## API Testing
 
 ### Authenticate via Swagger
-1. Open http://localhost:5183/swagger
+1. Open http://localhost:5001/swagger
 2. Click "Authorize" button
 3. In the "Login" endpoint, POST:
    ```json
@@ -135,12 +135,12 @@ Use "DB Browser for SQLite" to open `Sommerhus.Api/sommerhus.db`
 ### Test with PowerShell
 ```powershell
 # Login and get token
-$response = Invoke-RestMethod -Uri "http://localhost:5183/admin/auth/login" -Method Post -ContentType "application/json" -Body '{"username":"admin","password":"Sommerhus123!"}'
+$response = Invoke-RestMethod -Uri "http://localhost:5001/admin/auth/login" -Method Post -ContentType "application/json" -Body '{"username":"admin","password":"Sommerhus123!"}'
 $token = $response.token
 
 # Make authenticated request
 $headers = @{ Authorization = "Bearer $token" }
-Invoke-RestMethod -Uri "http://localhost:5183/api/admin/houses" -Headers $headers
+Invoke-RestMethod -Uri "http://localhost:5001/api/admin/houses" -Headers $headers
 ```
 
 ---
@@ -315,7 +315,7 @@ dotnet restore Sommerhus_project.sln
 **"Port already in use"**
 ```powershell
 # Find process using port
-netstat -ano | findstr :5183
+netstat -ano | findstr :5001
 # Kill process
 taskkill /PID <process-id> /F
 ```

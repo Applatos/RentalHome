@@ -19,12 +19,23 @@ public abstract class AdminImageServiceBase(AppDbContext db, IImageStorage stora
     protected IImageStorage Storage { get; } = storage;
 
     /// <summary>
-    /// Validates that the file is a valid image file.
+    /// File extensions an upload may carry. The stored file keeps the client's extension and
+    /// is served as a static file, so anything outside this list (".html", ".svg", ".js") would
+    /// be served back with a content type the browser executes.
+    /// </summary>
+    public static readonly IReadOnlySet<string> AllowedImageExtensions =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+
+    /// <summary>
+    /// Validates that the file is a valid image file: non-empty, an image content type, and an
+    /// extension from <see cref="AllowedImageExtensions"/>. Both the content type and the file
+    /// name come from the client, so neither is trusted on its own.
     /// </summary>
     protected static bool IsValidImageFile(IFormFile file)
         => !string.IsNullOrWhiteSpace(file.ContentType)
            && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
-           && file.Length > 0;
+           && file.Length > 0
+           && AllowedImageExtensions.Contains(System.IO.Path.GetExtension(file.FileName));
 
     /// <summary>
     /// Validates a single file and returns an error result if invalid.
@@ -35,7 +46,7 @@ public abstract class AdminImageServiceBase(AppDbContext db, IImageStorage stora
             return ServiceResult<T>.Invalid("file", "Image file is required.");
 
         if (!IsValidImageFile(file))
-            return ServiceResult<T>.Invalid("file", "Only image files are allowed.");
+            return ServiceResult<T>.Invalid("file", "Only image files are allowed (.jpg, .jpeg, .png, .webp, .gif).");
 
         return null; // Valid
     }

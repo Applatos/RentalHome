@@ -39,12 +39,16 @@ JWT, issued by the API and used by MVC behind its own cookie.
 | Guest register | `POST /api/auth/register` — `{ "Email", "Username", "Password" }` |
 | Guest login | `POST /api/auth/login` |
 
-The default admin comes from the `DefaultAdmin` section and the signing key from `Jwt:Key`, both
-in `appsettings.json`.
+The default admin comes from the `DefaultAdmin` section and the signing key from `Jwt:Key`.
+The two secrets, `DefaultAdmin:Password` and `Jwt:Key`, are **not** in `appsettings.json`:
 
-> **These are committed to a public repository.** The admin password and the JWT signing key are
-> effectively public knowledge. Rotate both, and supply them through environment variables or
-> user secrets, before this is reachable by anyone but you.
+- **Development** reads them from `appsettings.Development.json`. Those values are committed,
+  public, and only ever meant for a local database.
+- **Production** reads them from environment variables, `DefaultAdmin__Password` and `Jwt__Key`.
+  Both options are validated at startup, so the API refuses to start when either is missing,
+  rather than running with an empty key. See `docs/DEVOPS.md` for where to set them.
+
+The demo accounts `owner` and `user` are seeded in Development only.
 
 ## The database
 

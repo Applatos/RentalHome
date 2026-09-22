@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Admin.Availability;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.Bookings;
 
-public sealed class AdminBookingService(AppDbContext db) : IAdminBookingService
+public sealed class AdminBookingService(AppDbContext db, IAdminAvailabilityService availability) : IAdminBookingService
 {
     public async Task<IReadOnlyList<BookingListItemDto>> ListAsync(
         BookingFilterDto? filter, CancellationToken ct)
@@ -64,6 +65,14 @@ public sealed class AdminBookingService(AppDbContext db) : IAdminBookingService
         if (!validTransition)
             return ServiceResult.Invalid("status",
                 $"Cannot transition from {booking.Status} to {dto.Status}.");
+
+        // A pending booking holds no availability block, so another booking for the same
+        // dates may have been confirmed since this one was created. Re-check before we block.
+        if (dto.Status == BookingStatus.Confirmed
+            && !await availability.IsAvailableAsync(booking.HouseId, booking.CheckIn, booking.CheckOut, ct))
+        {
+            return ServiceResult.Conflict("dates", "The dates are no longer available; another booking already occupies them.");
+        }
 
         var previousStatus = booking.Status;
         booking.Status = dto.Status;
