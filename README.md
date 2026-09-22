@@ -128,14 +128,8 @@ dotnet test Sommerhus.Api.Tests
 
 They build their own seeded database per run and do not touch the shared file.
 
-## The shared-backend demo
+## Deploying
 
-Starting all three processes (API, MVC, and the Applatos host) with the right ports and
-configuration is scripted in the ApplatosX repository:
-
-```powershell
-.\Prototypes\First\demo\sommerhus\run-demo.ps1 -Seed
-```
-
-That directory also holds the provider configuration binding Applatos to these tables, and a
-record of what has been verified end to end.
+Production is a Windows server with IIS, deployed by hand from a package built on your own
+machine: `deploy\publish.ps1` here, `deploy.ps1` on the server. The whole procedure, the one-time
+server setup, and how to roll back are in [`docs/DEVOPS.md`](docs/DEVOPS.md).

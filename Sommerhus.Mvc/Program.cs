@@ -33,7 +33,16 @@ builder.Services.AddTransient<CulturePropagationHandler>();
 // HttpClient.BaseAddress drops its last path segment when it has no trailing slash:
 // "https://host/api" + "api/houses" becomes "https://host/api/houses" instead of
 // "https://host/api/api/houses". Normalising here means the setting works either way.
-var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5001/";
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"];
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    // Locally the API runs on a known port. Anywhere else the address depends on the server,
+    // so it must be set (deploy/setup-server.ps1 puts Api__BaseUrl on the app pool) rather than
+    // silently falling back to localhost and failing on every page.
+    if (!builder.Environment.IsDevelopment())
+        throw new InvalidOperationException("Api:BaseUrl is not configured. Set the Api__BaseUrl environment variable to the public URL of the API, e.g. https://host/api/.");
+    apiBaseUrl = "http://localhost:5001/";
+}
 if (!apiBaseUrl.EndsWith('/'))
     apiBaseUrl += "/";
 

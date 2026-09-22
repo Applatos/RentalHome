@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -23,7 +23,8 @@
         <ItemGroup>
                 <!-- Swagger / OpenAPI -->
                 <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-                <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" />
+                <!-- Design-time only (dotnet ef). Debug-only so Release publish does not ship Roslyn. -->
+                <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" Condition="'$(Configuration)' == 'Debug'" />
                 <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
         </ItemGroup>
 

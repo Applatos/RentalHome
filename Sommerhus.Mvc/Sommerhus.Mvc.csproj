@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -9,8 +9,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- Scaffolding -->
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<!-- Scaffolding, design-time only. Debug-only so Release publish does not ship Roslyn. -->
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" Condition="'$(Configuration)' == 'Debug'" />
 		<ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
 		<ProjectReference Include="..\Sommerhus.Core\Sommerhus.Core.csproj" />
 	</ItemGroup>
