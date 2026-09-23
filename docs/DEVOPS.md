@@ -274,8 +274,14 @@ a required environment variable is missing on the pool (`Jwt__Key`, `DefaultAdmi
 
 **Pages load but every list is empty or shows "Network error".**
 The MVC site cannot reach the API. Check `Api__BaseUrl` on the SommerhusMvc pool: it must be the
-public address with `/api/` at the end, and the server must be able to resolve its own hostname.
-Test from the server: `Invoke-WebRequest https://<host>/api/api/cities`.
+public address with `/api/` at the end, and the server must be able to reach itself on its
+own public name. Test from the server: `Invoke-WebRequest http://<host>/api/api/cities`. If DNS
+resolves but the connection times out (a VM behind NAT often cannot reach its own public IP),
+add a line to `C:\Windows\System32\drivers\etc\hosts` so the name points at the server itself:
+
+```
+127.0.0.1   <host>
+```
 
 **Images do not show.**
 The API builds image URLs from the address it was called on. If `Api__BaseUrl` points at
