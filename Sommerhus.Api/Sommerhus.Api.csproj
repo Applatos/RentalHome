@@ -20,21 +20,31 @@
 	<ItemGroup>
 		<Content Update="sommerhus.db" CopyToPublishDirectory="Never" />
 	</ItemGroup>
-        <ItemGroup>
-                <!-- Swagger / OpenAPI -->
-                <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-                <!-- Design-time only (dotnet ef). Debug-only so Release publish does not ship Roslyn. -->
-                <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" Condition="'$(Configuration)' == 'Debug'" />
-                <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
-        </ItemGroup>
+	<ItemGroup>
+			<!-- Swagger / OpenAPI -->
+			<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+			<!-- Design-time only (dotnet ef). Debug-only so Release publish does not ship Roslyn. -->
+			<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" Condition="'$(Configuration)' == 'Debug'" />
+			<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+	</ItemGroup>
 
-        <ItemGroup>
-                <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
-                <ProjectReference Include="..\Sommerhus.Core\Sommerhus.Core.csproj" />
-        </ItemGroup>
+	<ItemGroup>
+			<ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
+			<ProjectReference Include="..\Sommerhus.Core\Sommerhus.Core.csproj" />
+	</ItemGroup>
 
-        <ItemGroup>
-          <Folder Include="wwwroot\uploads\" />
-        </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\uploads\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	<Content Update="appsettings.Development.json;appsettings.Testing.json;appsettings.Production.json"
+			CopyToPublishDirectory="Never" />
+	</ItemGroup>
+
+	<ItemGroup>
+	<Content Update="wwwroot\uploads\**\*"
+			CopyToPublishDirectory="Never" />
+	</ItemGroup>
 
 </Project>
