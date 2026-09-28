@@ -58,8 +58,11 @@
 ### Database Support
 | Database | Use Case |
 |----------|----------|
-| SQLite | Local development, testing |
-| SQL Server | Production deployment |
+| SQLite | Local development, testing, and the current IIS demo |
+| SQL Server | Alternative provider; not used by the current demo |
+
+The current deployment uses a SQLite database outside the application folders. Its location
+is set in the API's server-owned configuration; see [DEVOPS.md](DEVOPS.md).
 
 ---
 
@@ -105,21 +108,25 @@ dotnet tool install -g dotnet-format      # Code formatting
 
 ---
 
-## CI/CD (GitHub Actions)
+## CI and Deployment
 
 ### Workflows
 | File | Trigger | Purpose |
 |------|---------|---------|
-| `dotnet.yml` | Push/PR | Build and test |
-| `deploy-iis.yml` | Release | Deploy to IIS |
-| `smokeTest.yml` | Deploy | Verify deployment |
+| `dotnet.yml` | Push/PR to `main` | Build and test |
 
-### Pipeline Steps
+### CI Steps
 1. **Restore** - Download NuGet packages
 2. **Build** - Compile solution
 3. **Test** - Run xUnit tests
-4. **Publish** - Create deployment artifacts
-5. **Deploy** - Push to target environment
+
+There is no automated deployment workflow. The current IIS demo at
+`http://demo_vac.sima.dk` is deployed manually: run ordinary `dotnet publish -c Release`
+for each of `Sommerhus.Api` and `Sommerhus.Mvc` locally, then copy the contents of their
+`bin\Release\net8.0\publish` folders to their respective IIS application folders.
+Stop both application pools and take a backup before replacing the files; preserve the
+server's production configuration, database and uploads. [DEVOPS.md](DEVOPS.md) is the
+deployment procedure, including why the older scripts in `deploy/` are not used for this setup.
 
 ---
 
@@ -130,7 +137,15 @@ dotnet tool install -g dotnet-format      # Code formatting
 |-------------|--------|
 | Development | `appsettings.Development.json`, User Secrets |
 | Testing | `appsettings.Testing.json`, Environment Variables |
-| Production | Environment Variables, Azure Key Vault |
+| Production | Server-owned `appsettings.Production.json` beside each application's DLL |
+
+The real production values exist only on the IIS server. Both projects exclude
+`appsettings.Production.json`, `appsettings.Development.json` and `appsettings.Testing.json`
+from publish output. IIS sets `ASPNETCORE_ENVIRONMENT=Production` on each application's
+pool; application settings and secrets are maintained in the server's JSON files and
+preserved on every release. Environment variables can still override JSON values, so remove
+obsolete pool overrides when using this setup. See [DEVOPS.md](DEVOPS.md) for ownership,
+configuration examples and backup instructions.
 
 ### User Secrets (Local Dev)
 ```powershell

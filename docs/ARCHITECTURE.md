@@ -131,9 +131,13 @@ Core/
 
 **Database Support**:
 
-- SQLite (development)
-- SQL Server (production)
+- SQLite (development, testing, and the current IIS demo)
+- SQL Server (alternative provider; not used by the current demo)
 - Provider auto-detection from connection string
+
+The current demo keeps its SQLite database outside the deployed application folders.
+The API's server-owned connection string selects its location; [DEVOPS.md](DEVOPS.md)
+describes the deployment and backup procedure.
 
 ---
 
@@ -362,7 +366,18 @@ PricePlan
 | `appsettings.json`             | Base configuration  |
 | `appsettings.Development.json` | Local dev overrides |
 | `appsettings.Testing.json`     | Test environment    |
-| `appsettings.Production.json`  | Production settings |
+| `appsettings.Production.json`  | Server-owned production settings, excluded from publish |
+
+For the current IIS demo, each application's production file lives beside its deployed DLL
+on the server. Its real settings and secrets are not kept in the local checkout. Both projects
+exclude all three environment-specific files above from publish output; `appsettings.json`
+provides the shared defaults. IIS sets `ASPNETCORE_ENVIRONMENT=Production` on the separate
+MVC and API pools. Environment variables have higher priority than JSON, so obsolete pool
+overrides must be removed when adopting the server-file configuration.
+
+Deployments use local `dotnet publish -c Release` followed by manual copying, preserving
+the server-owned files, database and uploads. See [DEVOPS.md](DEVOPS.md) for the current
+HTTP demo, IIS layout and release steps.
 
 ### Key Configuration Sections
 

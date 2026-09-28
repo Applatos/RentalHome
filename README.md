@@ -44,9 +44,11 @@ The two secrets, `DefaultAdmin:Password` and `Jwt:Key`, are **not** in `appsetti
 
 - **Development** reads them from `appsettings.Development.json`. Those values are committed,
   public, and only ever meant for a local database.
-- **Production** reads them from environment variables, `DefaultAdmin__Password` and `Jwt__Key`.
-  Both options are validated at startup, so the API refuses to start when either is missing,
-  rather than running with an empty key. See `docs/DEVOPS.md` for where to set them.
+- **Production** reads them from the API's **server-owned `appsettings.Production.json`**,
+  beside the deployed `Sommerhus.Api.dll`. The real production settings and secrets live on
+  the IIS server, not in this checkout or the publish package. Missing `Jwt:Key` prevents API
+  startup; missing admin credentials skip admin creation. See
+  [the deployment guide](docs/DEVOPS.md#production-configuration-belongs-to-the-server).
 
 The demo accounts `owner` and `user` are seeded in Development only.
 
@@ -81,8 +83,10 @@ Use DB Browser for SQLite, applies the write-ahead log automatically.
 
 Two things bite people here:
 
-- **The file is in WAL mode.** Recent changes live in `applatos.db-wal` until a checkpoint, and the main file's timestamp does not move. If you copy the database anywhere, take `-wal` and
-  `-shm` with it or you will leave the newest rows behind.
+- **The file is in WAL mode.** Recent changes live in `applatos.db-wal` until a checkpoint, and
+  the main file's timestamp does not move. For a filesystem backup, stop every process using
+  the database, then copy its directory including any remaining `-wal` and `-shm` files.
+  Copying those files separately while writes continue is not a consistent backup.
 - **A viewer with *unsaved changes* blocks both applications.** DB Browser keeps a write transaction open until you press *Write Changes*, and while it does, logging in fails with
   `SQLite Error 5: 'database is locked'`, login writes, because Identity updates the user. Press Write Changes, or close it. A viewer that is only *reading* is fine and blocks nothing: WAL mode lets readers and writers run at the same time.
 
@@ -91,7 +95,8 @@ Two things bite people here:
 `MigrationHostedService` in `Sommerhus.Core/ServiceCollectionExtensions.cs` runs before the API serves anything, on **every** start:
 
 1. `db.Database.MigrateAsync()` - applies any pending migration.
-2. `AdminIdentitySeeder.SeedAsync()` - ensures the admin, owner and user accounts exist.
+2. `AdminIdentitySeeder.SeedAsync()` - ensures roles and the configured admin exist; the demo
+   owner and user accounts are created only in `Development`.
 3. In `Development` only, `Seeder.SeedMinimal(db)`, reference data (the 20 features, a city, a
    house, a price calendar). It returns immediately if the `Features` table is non-empty, so it
    fills an empty database once and never touches a populated one.
@@ -130,6 +135,31 @@ They build their own seeded database per run and do not touch the shared file.
 
 ## Deploying
 
-Production is a Windows server with IIS, deployed by hand from a package built on your own
-machine: `deploy\publish.ps1` here, `deploy.ps1` on the server. The whole procedure, the one-time
-server setup, and how to roll back are in [`docs/DEVOPS.md`](docs/DEVOPS.md).
+The current demo is **http://demo_vac.sima.dk**, hosted on IIS with SQLite. HTTPS is deferred.
+The MVC site runs at `/` and the API as the `/api` application, in separate application pools.
+The deployed program folders are under `inetpub`; IIS's **Physical path** is authoritative.
+
+Publish each app locally, then manually copy the contents of its publish folder to the server:
+
+```powershell
+dotnet publish .\Sommerhus.Api\Sommerhus.Api.csproj -c Release
+dotnet publish .\Sommerhus.Mvc\Sommerhus.Mvc.csproj -c Release
+```
+
+Each output is under that project's `bin\Release\net8.0\publish\`. Both projects exclude
+`appsettings.Development.json`, `appsettings.Testing.json` and `appsettings.Production.json`
+from publish; the API also excludes uploads. **Each deployed app has its own production JSON
+file, created and maintained on the server and preserved across releases.** Any Production
+files remaining in the checkout are non-deployed reference defaults, not the live settings.
+The MVC server file sets `Api:BaseUrl` to `http://demo_vac.sima.dk/api/`; the API server file
+sets the database path, admin password and JWT key. The pools select the `Production`
+environment. Do not copy server secrets back into source control.
+
+Before an update, stop both pools and back up the database, production files and uploads.
+Preserve these when copying new program files. **Do not run the existing deploy/rollback
+scripts for this setup:** their `/MIR` can delete the server-only production files, and the
+setup script writes environment overrides that take priority over JSON.
+
+The complete manual procedure, server configuration examples, backup/rollback rules and
+the filename/path mistakes found during first deployment are in
+[`docs/DEVOPS.md`](docs/DEVOPS.md).

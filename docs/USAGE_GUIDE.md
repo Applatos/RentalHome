@@ -85,10 +85,17 @@ dotnet format Sommerhus_project.sln
 dotnet build Sommerhus_project.sln -c Release
 ```
 
-### Publish API
+### Publish for IIS
 ```powershell
-dotnet publish Sommerhus.Api -c Release -o ./publish/api
+dotnet publish .\Sommerhus.Api\Sommerhus.Api.csproj -c Release
+dotnet publish .\Sommerhus.Mvc\Sommerhus.Mvc.csproj -c Release
 ```
+
+Each output is in that project's `bin\Release\net8.0\publish` folder. The current demo
+uses manual copy deployment. Each application's real `appsettings.Production.json` exists
+on the server, is excluded from publish, and must survive updates along with the database
+and uploads. Follow [DEVOPS.md](DEVOPS.md) for fresh publish output, stopped-pool backups,
+copying and verification; the older deployment scripts are not compatible with this setup.
 
 ---
 
