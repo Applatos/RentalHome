@@ -53,7 +53,7 @@ public sealed class PhysicalImageStorage : IImageStorage
         }
 
         var trimmed = relativePath.TrimStart('/', '\\');
-        var physical = Path.Combine(GetUploadRoot(), trimmed.Replace('/', Path.DirectorySeparatorChar));
+        var physical = Path.Combine(GetWebRoot(environment), trimmed.Replace('/', Path.DirectorySeparatorChar));
         DeleteFile(physical);
         return Task.CompletedTask;
     }
@@ -101,21 +101,14 @@ public sealed class PhysicalImageStorage : IImageStorage
         segments.Add(sanitizedFile);
 
         var relative = "/" + string.Join('/', segments);
-        var physical = Path.Combine(GetUploadRoot(), Path.Combine(segments.ToArray()));
+        var physical = Path.Combine(GetWebRoot(environment), Path.Combine(segments.ToArray()));
         return (physical, relative);
     }
 
-    private string GetUploadRoot()
-    {
-        if (!string.IsNullOrWhiteSpace(environment.WebRootPath))
-        {
-            return environment.WebRootPath;
-        }
-
-        var fallback = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-        Directory.CreateDirectory(fallback);
-        return fallback;
-    }
+    internal static string GetWebRoot(IWebHostEnvironment environment)
+        => !string.IsNullOrWhiteSpace(environment.WebRootPath)
+            ? environment.WebRootPath
+            : Path.Combine(environment.ContentRootPath, "wwwroot");
 
     private static void DeleteFile(string physicalPath)
     {

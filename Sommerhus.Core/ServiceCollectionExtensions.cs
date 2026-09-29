@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Sommerhus.Core.Data;
 using Sommerhus.Core.Identity;
 
@@ -91,7 +92,8 @@ public static class ServiceCollectionExtensions
         public const string SqlServer = "SqlServer";
     }
 
-    private sealed class MigrationHostedService(IServiceProvider serviceProvider, IHostEnvironment environment)
+    private sealed class MigrationHostedService(
+        IServiceProvider serviceProvider, IHostEnvironment environment, ILogger<MigrationHostedService> logger)
         : IHostedService
     {
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -100,6 +102,9 @@ public static class ServiceCollectionExtensions
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             await db.Database.MigrateAsync(cancellationToken);
+
+            var addedCities = await ReferenceDataSeeder.SeedCitiesAsync(db, cancellationToken);
+            logger.LogInformation("Added {Count} missing Danish postal districts", addedCities);
 
             var identitySeeder = scope.ServiceProvider.GetRequiredService<AdminIdentitySeeder>();
             await identitySeeder.SeedAsync(cancellationToken);

@@ -177,6 +177,7 @@
   <data name="Admin.Features.Index.DropzoneTitle" xml:space="preserve"><value>Drag image here or click</value></data>
   <data name="Admin.Features.Index.DropzoneText" xml:space="preserve"><value>Drag image here or</value></data>
   <data name="Admin.Features.Index.ChooseFile" xml:space="preserve"><value>choose file</value></data>
+  <data name="Admin.Features.Index.IconRequirements" xml:space="preserve"><value>PNG or JPEG, max 2 MB.</value></data>
   <data name="Admin.Features.Create.Title" xml:space="preserve"><value>Create new feature</value></data>
   <data name="Admin.Features.Create.Key" xml:space="preserve"><value>Key</value></data>
   <data name="Admin.Features.Create.Type" xml:space="preserve"><value>Type</value></data>

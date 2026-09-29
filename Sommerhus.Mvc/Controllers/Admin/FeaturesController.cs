@@ -97,7 +97,10 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
         }
         else
         {
-            SetError(res.Message ?? "Could not upload icon.");
+            var errors = res.Errors.Values.SelectMany(messages => messages).ToArray();
+            SetError(errors.Length > 0
+                ? string.Join(" ", errors)
+                : res.Message ?? "Could not upload icon.");
         }
 
         return RedirectToAction(nameof(Index));

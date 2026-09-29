@@ -377,7 +377,7 @@ overrides must be removed when adopting the server-file configuration.
 
 Deployments use local `dotnet publish -c Release` followed by manual copying, preserving
 the server-owned files, database and uploads. See [DEVOPS.md](DEVOPS.md) for the current
-HTTP demo, IIS layout and release steps.
+demo's HTTPS setup, IIS layout and release steps.
 
 ### Key Configuration Sections
 

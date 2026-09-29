@@ -177,6 +177,7 @@
   <data name="Admin.Features.Index.DropzoneTitle" xml:space="preserve"><value>Traek billede hertil eller klik</value></data>
   <data name="Admin.Features.Index.DropzoneText" xml:space="preserve"><value>Traek billede hertil eller</value></data>
   <data name="Admin.Features.Index.ChooseFile" xml:space="preserve"><value>vaelg fil</value></data>
+  <data name="Admin.Features.Index.IconRequirements" xml:space="preserve"><value>PNG eller JPEG, maks. 2 MB.</value></data>
   <data name="Admin.Features.Create.Title" xml:space="preserve"><value>Opret ny facilitet</value></data>
   <data name="Admin.Features.Create.Key" xml:space="preserve"><value>Noegle</value></data>
   <data name="Admin.Features.Create.Type" xml:space="preserve"><value>Type</value></data>

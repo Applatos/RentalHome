@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Text.Json;
 using Bogus;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +45,7 @@ public sealed class StressDataGenerator(
         var totalEntities = 0;
 
         // 1. Load bundled Danish geo data
-        var geoEntries = LoadBundledGeoData();
+        var geoEntries = DanishGeoData.Load();
         logger.LogInformation("Loaded {Count} bundled Danish zip codes", geoEntries.Count);
 
         // 2. Ensure cities exist (reuse existing or create)
@@ -555,26 +553,4 @@ public sealed class StressDataGenerator(
         }
     }
 
-    private static List<GeoEntry> LoadBundledGeoData()
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = assembly.GetManifestResourceNames()
-            .FirstOrDefault(n => n.EndsWith("DanishGeoData.json", StringComparison.OrdinalIgnoreCase));
-
-        if (resourceName is null)
-            return [];
-
-        using var stream = assembly.GetManifestResourceStream(resourceName)!;
-        return JsonSerializer.Deserialize<List<GeoEntry>>(stream, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        }) ?? [];
-    }
-
-    private sealed class GeoEntry
-    {
-        public string Nr { get; set; } = "";
-        public string Navn { get; set; } = "";
-        public string? Kommune { get; set; }
-    }
 }

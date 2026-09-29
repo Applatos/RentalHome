@@ -120,8 +120,9 @@ dotnet tool install -g dotnet-format      # Code formatting
 2. **Build** - Compile solution
 3. **Test** - Run xUnit tests
 
-There is no automated deployment workflow. The current IIS demo at
-`http://demo_vac.sima.dk` is deployed manually: run ordinary `dotnet publish -c Release`
+There is no automated deployment workflow. The IIS demo at `demo-vac.sima.dk` uses the
+win-acme certificate and HTTPS redirect setup described in [DEVOPS.md](DEVOPS.md#https-certificate-and-http-redirection-win-acme).
+Application deployment is manual: run ordinary `dotnet publish -c Release`
 for each of `Sommerhus.Api` and `Sommerhus.Mvc` locally, then copy the contents of their
 `bin\Release\net8.0\publish` folders to their respective IIS application folders.
 Stop both application pools and take a backup before replacing the files; preserve the

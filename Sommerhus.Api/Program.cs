@@ -141,7 +141,7 @@ public class Program
         ];
 
 
-        app.UseStaticFiles();
+        app.UseImageFiles();
         app.UseRequestLocalization(localizationOptions);
         app.UseCors("mvc");
 

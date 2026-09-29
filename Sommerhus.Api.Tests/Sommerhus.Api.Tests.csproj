@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sommerhus.Domain\Sommerhus.Domain.csproj" />
     <ProjectReference Include="..\Sommerhus.Api\Sommerhus.Api.csproj" />
+    <ProjectReference Include="..\Sommerhus.Mvc\Sommerhus.Mvc.csproj" />
     <ProjectReference Include="..\Sommerhus.Core\Sommerhus.Core.csproj" />
   </ItemGroup>
 

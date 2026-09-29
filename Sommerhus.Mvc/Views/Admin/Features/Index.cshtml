@@ -105,10 +105,11 @@
                         <form method="post" asp-action="UploadIcon" asp-controller="Features"
                               asp-route-id="@f.Id" enctype="multipart/form-data" class="feature-upload-form">
                             @Html.AntiForgeryToken()
-                            <input id="@inputId" type="file" name="file" class="d-none feature-file-input" accept="image/*" />
+                            <input id="@inputId" type="file" name="file" class="d-none feature-file-input" accept="image/png,image/jpeg" />
                             <div class="dropzone small" data-input="#@inputId" title="@L["Admin.Features.Index.DropzoneTitle"]">
                                 @L["Admin.Features.Index.DropzoneText"] <u>@L["Admin.Features.Index.ChooseFile"]</u>
                             </div>
+                            <div class="form-text">@L["Admin.Features.Index.IconRequirements"]</div>
                         </form>
                     </div>
                 </td>
