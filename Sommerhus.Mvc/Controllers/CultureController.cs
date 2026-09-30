@@ -30,6 +30,6 @@ public sealed class CultureController : Controller
             return LocalRedirect(returnUrl);
         }
 
-        return RedirectToAction("Index", "Houses");
+        return LocalRedirect("~/houses");
     }
 }

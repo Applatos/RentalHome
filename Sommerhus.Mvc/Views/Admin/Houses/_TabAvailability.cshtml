@@ -2,6 +2,7 @@
 @using Sommerhus.Domain.Models
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @model HouseDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 
 @{
     var blocks = Model.AvailabilityBlocks ?? Array.Empty<Sommerhus.Core.Dtos.Shared.AvailabilityBlockDto>();
@@ -72,16 +73,18 @@
                                             data-start-date="@block.StartDate.ToString("yyyy-MM-dd")"
                                             data-end-date="@block.EndDate.ToString("yyyy-MM-dd")"
                                             data-status="@((int)block.Status)"
-                                            data-note="@block.Note">
-                                        <i class="bi bi-pencil"></i>
+                                            data-note="@block.Note"
+                                            aria-label="@L["Admin.Shared.Edit"]"
+                                            title="@L["Admin.Shared.Edit"]">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="post"
                                           action="/admin/houses/@Model.House.Id/availability/@block.Id/delete"
                                           class="d-inline"
                                           onsubmit="return confirm('Delete this availability block?');">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-outline-danger">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-outline-danger" aria-label="@L["Admin.Shared.Delete"]" title="@L["Admin.Shared.Delete"]">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -99,7 +102,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Availability Block</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" action="/admin/houses/@Model.House.Id/availability">
                 <div class="modal-body">
@@ -151,7 +154,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Availability Block</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" id="editAvailabilityBlockForm">
                 <div class="modal-body">

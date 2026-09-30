@@ -1,3 +1,4 @@
+using System.Globalization;
 using Sommerhus.Core.Dtos.Shared;
 
 namespace Sommerhus.Mvc.Services;
@@ -13,19 +14,22 @@ public sealed class SommerhusApi
         CancellationToken ct = default)
     {
         var filters = new List<string>();
+        // Invariant, like every number and date sent to the API: under da-DK a min price of
+        // 700.5 would otherwise go out as "700,5" and be read back as 7005.
+        void Add(FormattableString parameter) => filters.Add(FormattableString.Invariant(parameter));
 
-        if (!string.IsNullOrWhiteSpace(filter.Query)) filters.Add($"q={Uri.EscapeDataString(filter.Query.Trim())}");
-        if (!string.IsNullOrWhiteSpace(filter.City)) filters.Add($"city={Uri.EscapeDataString(filter.City.Trim())}");
-        if (filter.AreaId.HasValue && filter.AreaId.Value != Guid.Empty) filters.Add($"area={filter.AreaId.Value}");
-        if (filter.MinPrice.HasValue) filters.Add($"minPrice={filter.MinPrice.Value}");
-        if (filter.MaxPrice.HasValue) filters.Add($"maxPrice={filter.MaxPrice.Value}");
-        if (filter.MinBedrooms.HasValue) filters.Add($"minBedrooms={filter.MinBedrooms.Value}");
-        if (filter.MinGuests.HasValue) filters.Add($"minGuests={filter.MinGuests.Value}");
-        if (filter.HasPool.HasValue) filters.Add($"hasPool={filter.HasPool.Value.ToString().ToLowerInvariant()}");
-        if (filter.PetFriendly.HasValue) filters.Add($"petFriendly={filter.PetFriendly.Value.ToString().ToLowerInvariant()}");
-        if (filter.Sort != HouseSearchSort.Relevance) filters.Add($"sort={filter.Sort}");
-        if (filter.Page > 1) filters.Add($"page={filter.Page}");
-        if (filter.PageSize != 20) filters.Add($"pageSize={Math.Min(filter.PageSize, 100)}");
+        if (!string.IsNullOrWhiteSpace(filter.Query)) Add($"q={Uri.EscapeDataString(filter.Query.Trim())}");
+        if (!string.IsNullOrWhiteSpace(filter.City)) Add($"city={Uri.EscapeDataString(filter.City.Trim())}");
+        if (filter.AreaId.HasValue && filter.AreaId.Value != Guid.Empty) Add($"area={filter.AreaId.Value}");
+        if (filter.MinPrice.HasValue) Add($"minPrice={filter.MinPrice.Value}");
+        if (filter.MaxPrice.HasValue) Add($"maxPrice={filter.MaxPrice.Value}");
+        if (filter.MinBedrooms.HasValue) Add($"minBedrooms={filter.MinBedrooms.Value}");
+        if (filter.MinGuests.HasValue) Add($"minGuests={filter.MinGuests.Value}");
+        if (filter.HasPool.HasValue) Add($"hasPool={filter.HasPool.Value.ToString().ToLowerInvariant()}");
+        if (filter.PetFriendly.HasValue) Add($"petFriendly={filter.PetFriendly.Value.ToString().ToLowerInvariant()}");
+        if (filter.Sort != HouseSearchSort.Relevance) Add($"sort={filter.Sort}");
+        if (filter.Page > 1) Add($"page={filter.Page}");
+        if (filter.PageSize != 20) Add($"pageSize={Math.Min(filter.PageSize, 100)}");
 
         if (filter.FeatureFilters is { Count: > 0 })
         {
@@ -53,7 +57,8 @@ public sealed class SommerhusApi
     public Task<ApiResponse<PriceQuoteResponseDto?>> GetPriceQuoteAsync(PriceQuoteRequestDto request, CancellationToken ct = default)
         => ApiHttp.GetAsync<PriceQuoteResponseDto?>(
             http,
-            $"api/houses/{request.HouseId}/quote?checkIn={request.Arrival:yyyy-MM-dd}&checkOut={request.Departure:yyyy-MM-dd}&guests={request.Guests}",
+            string.Create(CultureInfo.InvariantCulture,
+                $"api/houses/{request.HouseId}/quote?checkIn={request.Arrival:yyyy-MM-dd}&checkOut={request.Departure:yyyy-MM-dd}&guests={request.Guests}"),
             ct);
 
     public Task<ApiResponse<IReadOnlyList<AvailabilityBlockDto>?>> GetHouseAvailabilityAsync(
@@ -63,7 +68,7 @@ public sealed class SommerhusApi
         CancellationToken ct = default)
         => ApiHttp.GetAsync<IReadOnlyList<AvailabilityBlockDto>?>(
             http,
-            $"api/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}",
+            string.Create(CultureInfo.InvariantCulture, $"api/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}"),
             ct);
 
     public Task<ApiResponse<IReadOnlyList<AreaListItemDto>?>> GetAreasAsync(string? q = null, CancellationToken ct = default)

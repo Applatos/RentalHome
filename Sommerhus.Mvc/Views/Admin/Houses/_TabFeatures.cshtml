@@ -13,7 +13,7 @@
 
     @if (Model.AllFeatures.Count == 0)
     {
-        <p class="text-muted">@L["Admin.Houses.Features.Empty"] <a asp-controller="HouseFeatures" asp-action="Index">@L["Admin.Houses.Features.CreateFirst"]</a>.</p>
+        <p class="text-muted">@L["Admin.Houses.Features.Empty"] <a asp-controller="Features" asp-action="Index">@L["Admin.Houses.Features.CreateFirst"]</a>.</p>
     }
     else
     {

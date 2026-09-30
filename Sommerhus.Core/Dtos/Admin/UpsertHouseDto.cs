@@ -22,4 +22,9 @@ public sealed class UpsertHouseDto
     public string? SearchKeywords { get; set; }
 
     public List<Guid> AreaIds { get; set; } = new();
+
+    /// <summary>
+    /// The house group whose season calendar the house uses. Null means no group.
+    /// </summary>
+    public Guid? GroupId { get; set; }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.Globalization;
 using System.Net.Http.Headers;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
@@ -11,7 +12,8 @@ public sealed class AdminApiClient(HttpClient http)
     // Houses
     public Task<ApiResponse<PageResult<AdminHouseListItemDto>?>> GetHousesAsync(string? q, EntityStatus? status, int page, int pageSize, CancellationToken ct)
     {
-        var url = $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}";
+        // Numbers and dates in URLs are formatted invariantly throughout: the API reads them so.
+        var url = string.Create(CultureInfo.InvariantCulture, $"api/admin/houses?query={Uri.EscapeDataString(q ?? string.Empty)}&page={page}&pageSize={pageSize}");
         if (status.HasValue)
             url += $"&status={status.Value}";
         return ApiHttp.GetAsync<PageResult<AdminHouseListItemDto>>(http, url, ct);
@@ -63,7 +65,7 @@ public sealed class AdminApiClient(HttpClient http)
         CancellationToken ct)
         => ApiHttp.GetAsync<IReadOnlyList<AvailabilityBlockDto>?>(
             http,
-            $"api/admin/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}",
+            string.Create(CultureInfo.InvariantCulture, $"api/admin/houses/{houseId}/availability?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}"),
             ct);
 
     public Task<ApiResponse<AvailabilityBlockDto?>> CreateHouseAvailabilityBlockAsync(
@@ -202,7 +204,7 @@ public sealed class AdminApiClient(HttpClient http)
     public Task<ApiResponse<object?>> RemoveHouseCalendarOverrideAsync(Guid houseId, CancellationToken ct)
         => ApiHttp.DeleteAsync(http, $"api/admin/houses/{houseId}/calendar-override", ct);
 
-    public Task<ApiResponse<CalendarDto?>> CreateHouseCalendarOverrideAsync(Guid houseId, string name, CancellationToken ct)
+    public Task<ApiResponse<CalendarDto?>> CreateHouseCalendarOverrideAsync(Guid houseId, string? name, CancellationToken ct)
         => ApiHttp.PostAsync<CreateCalendarOverrideDto, CalendarDto?>(http, $"api/admin/houses/{houseId}/calendar-override/create", new CreateCalendarOverrideDto { Name = name }, ct);
 
     // Season Codes
@@ -214,7 +216,7 @@ public sealed class AdminApiClient(HttpClient http)
 
     // Audit
     public Task<ApiResponse<PageResult<AuditEntryDto>?>> GetAuditEntriesAsync(string? entityType, string? entityId, int page, int pageSize, CancellationToken ct)
-        => ApiHttp.GetAsync<PageResult<AuditEntryDto>?>(http, $"api/admin/audit?entity={Uri.EscapeDataString(entityType ?? "")}&entityId={Uri.EscapeDataString(entityId ?? "")}&page={page}&pageSize={pageSize}", ct);
+        => ApiHttp.GetAsync<PageResult<AuditEntryDto>?>(http, string.Create(CultureInfo.InvariantCulture, $"api/admin/audit?entity={Uri.EscapeDataString(entityType ?? "")}&entityId={Uri.EscapeDataString(entityId ?? "")}&page={page}&pageSize={pageSize}"), ct);
 
     private static void AddFile(MultipartFormDataContent form, string fieldName, Stream stream, string fileName, string? contentType)
     {

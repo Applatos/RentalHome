@@ -23,6 +23,13 @@
   <data name="Nav.Login" xml:space="preserve"><value>Log ind</value></data>
   <data name="Nav.Logout" xml:space="preserve"><value>Log ud</value></data>
 
+  <data name="Shell.Filters" xml:space="preserve"><value>Filtre</value></data>
+  <data name="Account.AccessDenied.Title" xml:space="preserve"><value>Ingen adgang</value></data>
+  <data name="Account.AccessDenied.Message" xml:space="preserve"><value>Du har ikke adgang til den side, du prøvede at åbne.</value></data>
+  <data name="Account.AccessDenied.SignedInAs" xml:space="preserve"><value>Du er logget ind som {0}.</value></data>
+  <data name="Account.AccessDenied.BackToHouses" xml:space="preserve"><value>Se sommerhusene</value></data>
+  <data name="Account.AccessDenied.SwitchUser" xml:space="preserve"><value>Log ind som en anden bruger</value></data>
+
   <data name="Shared.Search" xml:space="preserve"><value>Soeg</value></data>
   <data name="Shared.Reset" xml:space="preserve"><value>Nulstil</value></data>
   <data name="Shared.SearchPlaceholder" xml:space="preserve"><value>Soeg...</value></data>
@@ -84,6 +91,102 @@
   <data name="Houses.Details.AvailabilityUnavailableMessage" xml:space="preserve"><value>De valgte datoer er ikke ledige</value></data>
   <data name="Houses.Details.BlockingSingular" xml:space="preserve"><value>blokering</value></data>
   <data name="Houses.Details.BlockingPlural" xml:space="preserve"><value>blokeringer</value></data>
+  <data name="Pages.House.KeyFacts" xml:space="preserve"><value>Nøgletal</value></data>
+  <data name="Pages.House.AddFavorite" xml:space="preserve"><value>Tilføj til favoritter</value></data>
+  <data name="Pages.House.RemoveFavorite" xml:space="preserve"><value>Fjern fra favoritter</value></data>
+  <data name="Pages.House.PreviousImage" xml:space="preserve"><value>Forrige billede</value></data>
+  <data name="Pages.House.NextImage" xml:space="preserve"><value>Næste billede</value></data>
+  <data name="Pages.House.GuestsHint" xml:space="preserve"><value>Plads til højst {0} gæster.</value></data>
+  <data name="Pages.Price.DepartureAfterArrival" xml:space="preserve"><value>Afrejse skal ligge efter ankomst.</value></data>
+  <data name="Pages.Price.NetworkError" xml:space="preserve"><value>Netværksfejl. Prøv igen.</value></data>
+  <data name="Pages.Price.NightOne" xml:space="preserve"><value>{n} nat</value></data>
+  <data name="Pages.Price.NightMany" xml:space="preserve"><value>{n} nætter</value></data>
+  <data name="Pages.Price.LineBase" xml:space="preserve"><value>{nights} · {season}</value></data>
+  <data name="Pages.Price.LineGuests" xml:space="preserve"><value>Ekstra gæster: {guests} × {nights}</value></data>
+  <data name="Pages.Price.LineCleaning" xml:space="preserve"><value>Slutrengøring</value></data>
+  <data name="Pages.Price.VatIncluded" xml:space="preserve"><value>Heraf moms</value></data>
+  <data name="Pages.Price.PricesIncludeVat" xml:space="preserve"><value>Alle priser er inkl. moms.</value></data>
+  <data name="Pages.PricingError.UnpricedNights" xml:space="preserve"><value>Der er endnu ikke fastsat en pris for alle nætter i perioden. Vælg andre datoer.</value></data>
+  <data name="Pages.PricingError.GuestsMax" xml:space="preserve"><value>Antallet af gæster passer ikke til huset (højst {0}).</value></data>
+  <data name="Pages.PricingError.Guests" xml:space="preserve"><value>Antallet af gæster passer ikke til huset.</value></data>
+  <data name="Pages.PricingError.DatesInvalid" xml:space="preserve"><value>Datoerne er ikke gyldige. Ankomst kan ikke ligge i fortiden, og afrejse skal ligge efter ankomst.</value></data>
+  <data name="Pages.PricingError.DatesUnavailable" xml:space="preserve"><value>De valgte datoer er ikke ledige.</value></data>
+  <data name="Pages.PricingError.QuoteFailed" xml:space="preserve"><value>Prisen kunne ikke beregnes lige nu. Prøv igen senere.</value></data>
+  <data name="Pages.PricingError.BookingFailed" xml:space="preserve"><value>Bookingen kunne ikke gennemføres lige nu. Prøv igen senere.</value></data>
+  <data name="Pages.Booking.Heading" xml:space="preserve"><value>Book {0}</value></data>
+  <data name="Pages.Booking.BackToHouse" xml:space="preserve"><value>Tilbage til huset</value></data>
+  <data name="Pages.Booking.Note" xml:space="preserve"><value>Besked til udlejer (valgfri)</value></data>
+  <data name="Pages.Booking.NotePlaceholder" xml:space="preserve"><value>Særlige ønsker eller spørgsmål til udlejer</value></data>
+  <data name="Pages.Booking.Confirm" xml:space="preserve"><value>Bekræft booking</value></data>
+  <data name="Pages.Booking.ConfirmHint" xml:space="preserve"><value>Bookingen afventer, indtil udlejer har bekræftet den.</value></data>
+  <data name="Pages.Booking.Created" xml:space="preserve"><value>Bookingen er oprettet. Den afventer nu udlejers bekræftelse.</value></data>
+  <data name="Pages.Booking.NotFound" xml:space="preserve"><value>Bookingen blev ikke fundet.</value></data>
+  <data name="Pages.Booking.Cancelled" xml:space="preserve"><value>Bookingen er annulleret.</value></data>
+  <data name="Pages.Booking.CancelFailed" xml:space="preserve"><value>Bookingen kunne ikke annulleres.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoCalendar" xml:space="preserve"><value>Huset har ingen sæsonkalender, så der kan ikke beregnes en pris, og huset kan ikke bookes. Vælg en husgruppe med en kalender, eller opret en husspecifik kalender.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoCalendarInGroup" xml:space="preserve"><value>Husgruppen {0} har endnu ingen sæsonkalender, så der kan ikke beregnes en pris, og huset kan ikke bookes. Giv gruppen en kalender, eller opret en husspecifik kalender.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoSpans" xml:space="preserve"><value>Husets sæsonkalender har ingen perioder, så der kan ikke beregnes en pris, og huset kan ikke bookes. Tilføj sæsonperioder.</value></data>
+  <data name="Pages.AdminHouse.Warning.Gap" xml:space="preserve"><value>Husets sæsonkalender har ingen periode fra {0} til {1}. De nætter har ingen pris og kan ikke bookes.</value></data>
+  <data name="Pages.AdminHouse.Warning.EndsSoon" xml:space="preserve"><value>Husets sæsonkalender dækker kun frem til {0}. Nætter derefter har ingen pris og kan ikke bookes. Forlæng kalenderen, så den dækker de næste 12 måneder.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoActivePlan" xml:space="preserve"><value>Huset har ingen aktiv prisplan, så der kan ikke beregnes en pris. Angiv priserne, og markér planen som aktiv.</value></data>
+  <data name="Pages.AdminHouse.Warning.UnpricedSeasons" xml:space="preserve"><value>Disse sæsoner bruges i kalenderen de næste 12 måneder, men har ingen pris: {0}. Nætter i dem kan ikke bookes.</value></data>
+  <data name="Pages.AdminHouse.Warning.ChooseGroup" xml:space="preserve"><value>Vælg husgruppe</value></data>
+  <data name="Pages.AdminHouse.Warning.OpenGroup" xml:space="preserve"><value>Åbn gruppen {0}</value></data>
+  <data name="Pages.AdminHouse.Warning.OpenCalendar" xml:space="preserve"><value>Åbn sæsonkalenderen</value></data>
+  <data name="Pages.AdminHouse.Calendar.Title" xml:space="preserve"><value>Sæsonkalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.AddSpan" xml:space="preserve"><value>Tilføj sæsonperiode</value></data>
+  <data name="Pages.AdminHouse.Calendar.AddSubmit" xml:space="preserve"><value>Tilføj</value></data>
+  <data name="Pages.AdminHouse.Calendar.Source" xml:space="preserve"><value>Kalender:</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceOverride" xml:space="preserve"><value>Husets egen kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceGroup" xml:space="preserve"><value>Gruppens kalender: {0}</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceNone" xml:space="preserve"><value>Ingen kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.OwnCalendar" xml:space="preserve"><value>Kalenderen gælder kun dette hus.</value></data>
+  <data name="Pages.AdminHouse.Calendar.SharedWithGroup" xml:space="preserve"><value>Kalenderen deles af alle huse i gruppen {0}. Ændringer her gælder dem alle.</value></data>
+  <data name="Pages.AdminHouse.Calendar.OpenGroup" xml:space="preserve"><value>Åbn gruppen</value></data>
+  <data name="Pages.AdminHouse.Calendar.RevertToGroup" xml:space="preserve"><value>Brug gruppens kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.RevertConfirm" xml:space="preserve"><value>Fjern husets egen kalender og brug gruppens kalender igen?</value></data>
+  <data name="Pages.AdminHouse.Calendar.SetOverride" xml:space="preserve"><value>Brug egen kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.ChangeOverride" xml:space="preserve"><value>Skift kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.NoSpans" xml:space="preserve"><value>Kalenderen har endnu ingen sæsonperioder.</value></data>
+  <data name="Pages.AdminHouse.Calendar.NextMonths" xml:space="preserve"><value>De næste 12 måneder</value></data>
+  <data name="Pages.AdminHouse.Calendar.NoSeason" xml:space="preserve"><value>Ingen sæson</value></data>
+  <data name="Pages.AdminHouse.Calendar.Spans" xml:space="preserve"><value>Sæsonperioder</value></data>
+  <data name="Pages.AdminHouse.Calendar.Code" xml:space="preserve"><value>Kode</value></data>
+  <data name="Pages.AdminHouse.Calendar.Season" xml:space="preserve"><value>Sæson</value></data>
+  <data name="Pages.AdminHouse.Calendar.StartDate" xml:space="preserve"><value>Fra</value></data>
+  <data name="Pages.AdminHouse.Calendar.EndDate" xml:space="preserve"><value>Til og med</value></data>
+  <data name="Pages.AdminHouse.Calendar.InclusiveHint" xml:space="preserve"><value>Begge datoer er med: perioden gælder også natten, der begynder på slutdatoen.</value></data>
+  <data name="Pages.AdminHouse.Calendar.DeleteConfirm" xml:space="preserve"><value>Slet denne sæsonperiode?</value></data>
+  <data name="Pages.AdminHouse.Calendar.EditSpan" xml:space="preserve"><value>Rediger sæsonperiode</value></data>
+  <data name="Pages.AdminHouse.Calendar.SeasonCode" xml:space="preserve"><value>Sæsonkode</value></data>
+  <data name="Pages.AdminHouse.Calendar.SelectCode" xml:space="preserve"><value>Vælg sæsonkode</value></data>
+  <data name="Pages.AdminHouse.Calendar.OverrideTitle" xml:space="preserve"><value>Husets egen kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.UseExisting" xml:space="preserve"><value>Brug en eksisterende kalender</value></data>
+  <data name="Pages.AdminHouse.Calendar.SelectCalendar" xml:space="preserve"><value>Vælg en kalender …</value></data>
+  <data name="Pages.AdminHouse.Calendar.SpanCount" xml:space="preserve"><value>{0} perioder</value></data>
+  <data name="Pages.AdminHouse.Calendar.Template" xml:space="preserve"><value>skabelon</value></data>
+  <data name="Pages.AdminHouse.Calendar.Apply" xml:space="preserve"><value>Anvend</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateNew" xml:space="preserve"><value>Opret en ny kalender til huset</value></data>
+  <data name="Pages.AdminHouse.Calendar.NamePlaceholder" xml:space="preserve"><value>Kalenderens navn (valgfrit)</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateApply" xml:space="preserve"><value>Opret og anvend</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateHint" xml:space="preserve"><value>Opretter en tom kalender, som kun dette hus bruger. Derefter kan du tilføje sæsonperioder.</value></data>
+  <data name="Pages.AdminHouse.Calendar.Close" xml:space="preserve"><value>Luk</value></data>
+  <data name="Shared.Close" xml:space="preserve"><value>Luk</value></data>
+  <data name="Pages.AdminHouse.Pricing.PlanName" xml:space="preserve"><value>Prisplan</value></data>
+  <data name="Pages.AdminHouse.Pricing.Currency" xml:space="preserve"><value>Valuta</value></data>
+  <data name="Pages.AdminHouse.Pricing.Active" xml:space="preserve"><value>Aktiv</value></data>
+  <data name="Pages.AdminHouse.Pricing.LastUpdated" xml:space="preserve"><value>Senest ændret {0}</value></data>
+  <data name="Pages.AdminHouse.Pricing.SeasonCode" xml:space="preserve"><value>Sæsonkode</value></data>
+  <data name="Pages.AdminHouse.Pricing.Season" xml:space="preserve"><value>Sæson</value></data>
+  <data name="Pages.AdminHouse.Pricing.NightlyPrice" xml:space="preserve"><value>Pris pr. nat ({0})</value></data>
+  <data name="Pages.AdminHouse.Pricing.PriceFor" xml:space="preserve"><value>Pris pr. nat for {0} ({1})</value></data>
+  <data name="Pages.AdminHouse.Pricing.NoLabel" xml:space="preserve"><value>Ingen beskrivelse</value></data>
+  <data name="Pages.AdminHouse.Pricing.NoCodes" xml:space="preserve"><value>Der er ingen sæsonkoder endnu. Opret dem under Priser.</value></data>
+  <data name="Pages.AdminHouse.Pricing.Hint" xml:space="preserve"><value>Priserne er pr. nat inkl. moms. Lad et felt stå tomt for at fjerne prisen for sæsonen.</value></data>
+  <data name="Pages.AdminHouse.Pricing.Save" xml:space="preserve"><value>Gem priser</value></data>
+  <data name="Pages.AdminHouse.Pricing.History" xml:space="preserve"><value>Prisændringer</value></data>
+  <data name="Pages.AdminHouse.Pricing.NotSaved" xml:space="preserve"><value>Priserne blev ikke gemt.</value></data>
+  <data name="Pages.AdminHouse.Pricing.PriceRange" xml:space="preserve"><value>Prisen pr. nat skal være større end 0 og højst {2}.</value></data>
   <data name="Admin.Tabs.Houses" xml:space="preserve"><value>Huse</value></data>
   <data name="Admin.Tabs.Areas" xml:space="preserve"><value>Omraader</value></data>
   <data name="Admin.Tabs.Features" xml:space="preserve"><value>Faciliteter</value></data>

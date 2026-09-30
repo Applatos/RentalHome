@@ -10,6 +10,11 @@ namespace Sommerhus.Api.Tests.Admin;
 
 public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
 {
+    // Stays must fall inside the seeded season calendar (current year and the next two): a night
+    // without a season price is rejected, so far-future dates can no longer be booked.
+    private static readonly int NextYear = DateTime.UtcNow.Year + 1;
+    private static readonly int YearAfter = DateTime.UtcNow.Year + 2;
+
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _adminClient;
 
@@ -28,8 +33,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2040, 6, 1),
-            CheckOut = new DateOnly(2040, 6, 8),
+            CheckIn = new DateOnly(NextYear, 6, 1),
+            CheckOut = new DateOnly(NextYear, 6, 8),
             Guests = 4,
             GuestNote = "Looking forward to it!"
         };
@@ -40,8 +45,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var booking = await res.Content.ReadFromJsonAsync<BookingDto>();
         booking.Should().NotBeNull();
         booking!.HouseId.Should().Be(houseId);
-        booking.CheckIn.Should().Be(new DateOnly(2040, 6, 1));
-        booking.CheckOut.Should().Be(new DateOnly(2040, 6, 8));
+        booking.CheckIn.Should().Be(new DateOnly(NextYear, 6, 1));
+        booking.CheckOut.Should().Be(new DateOnly(NextYear, 6, 8));
         booking.Guests.Should().Be(4);
         booking.Status.Should().Be(BookingStatus.Pending);
         booking.GuestNote.Should().Be("Looking forward to it!");
@@ -56,8 +61,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2040, 7, 10),
-            CheckOut = new DateOnly(2040, 7, 5),
+            CheckIn = new DateOnly(NextYear, 7, 10),
+            CheckOut = new DateOnly(NextYear, 7, 5),
             Guests = 2
         };
 
@@ -74,8 +79,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var createDto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2041, 1, 1),
-            CheckOut = new DateOnly(2041, 1, 5),
+            CheckIn = new DateOnly(NextYear, 1, 1),
+            CheckOut = new DateOnly(NextYear, 1, 5),
             Guests = 2
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", createDto);
@@ -98,8 +103,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2042, 3, 1),
-            CheckOut = new DateOnly(2042, 3, 7),
+            CheckIn = new DateOnly(NextYear, 3, 1),
+            CheckOut = new DateOnly(NextYear, 3, 7),
             Guests = 3
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -123,8 +128,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2043, 5, 1),
-            CheckOut = new DateOnly(2043, 5, 10),
+            CheckIn = new DateOnly(NextYear, 5, 1),
+            CheckOut = new DateOnly(NextYear, 5, 10),
             Guests = 2
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -147,8 +152,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2044, 8, 1),
-            CheckOut = new DateOnly(2044, 8, 14),
+            CheckIn = new DateOnly(NextYear, 8, 1),
+            CheckOut = new DateOnly(NextYear, 8, 14),
             Guests = 4
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -179,8 +184,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2045, 2, 1),
-            CheckOut = new DateOnly(2045, 2, 10),
+            CheckIn = new DateOnly(NextYear, 2, 1),
+            CheckOut = new DateOnly(NextYear, 2, 10),
             Guests = 2
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -214,8 +219,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2046, 4, 1),
-            CheckOut = new DateOnly(2046, 4, 7),
+            CheckIn = new DateOnly(NextYear, 4, 1),
+            CheckOut = new DateOnly(NextYear, 4, 7),
             Guests = 2
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -235,8 +240,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = Guid.NewGuid(),
-            CheckIn = new DateOnly(2040, 1, 1),
-            CheckOut = new DateOnly(2040, 1, 5),
+            CheckIn = new DateOnly(NextYear, 1, 1),
+            CheckOut = new DateOnly(NextYear, 1, 5),
             Guests = 2
         };
 
@@ -260,8 +265,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new CreateBookingDto
         {
             HouseId = houseId,
-            CheckIn = new DateOnly(2047, 9, 1),
-            CheckOut = new DateOnly(2047, 9, 5),
+            CheckIn = new DateOnly(NextYear, 9, 1),
+            CheckOut = new DateOnly(NextYear, 9, 5),
             Guests = 2
         };
         var createRes = await userClient.PostAsJsonAsync("api/bookings", dto);
@@ -282,8 +287,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
         // availability block yet, so both requests are accepted. Confirming the second one
         // must be refused, otherwise the house is double-booked.
         var houseId = await GetPublishedHouseIdAsync();
-        var first = await CreatePendingBookingAsync("overlap-admin-1", houseId, new DateOnly(2050, 7, 1), new DateOnly(2050, 7, 8));
-        var second = await CreatePendingBookingAsync("overlap-admin-2", houseId, new DateOnly(2050, 7, 5), new DateOnly(2050, 7, 12));
+        var first = await CreatePendingBookingAsync("overlap-admin-1", houseId, new DateOnly(YearAfter, 7, 1), new DateOnly(YearAfter, 7, 8));
+        var second = await CreatePendingBookingAsync("overlap-admin-2", houseId, new DateOnly(YearAfter, 7, 5), new DateOnly(YearAfter, 7, 12));
 
         var confirmFirst = await _adminClient.PutAsJsonAsync($"api/admin/bookings/{first.Id}/status",
             new UpdateBookingStatusDto { Status = BookingStatus.Confirmed });
@@ -311,8 +316,8 @@ public sealed class BookingTests : IClassFixture<CustomWebApplicationFactory>
             new AssignOwnerRequest { OwnerId = ownerId });
         assign.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var first = await CreatePendingBookingAsync("overlap-guest-1", houseId, new DateOnly(2051, 3, 1), new DateOnly(2051, 3, 8));
-        var second = await CreatePendingBookingAsync("overlap-guest-2", houseId, new DateOnly(2051, 3, 4), new DateOnly(2051, 3, 10));
+        var first = await CreatePendingBookingAsync("overlap-guest-1", houseId, new DateOnly(YearAfter, 3, 1), new DateOnly(YearAfter, 3, 8));
+        var second = await CreatePendingBookingAsync("overlap-guest-2", houseId, new DateOnly(YearAfter, 3, 4), new DateOnly(YearAfter, 3, 10));
 
         var confirmFirst = await ownerClient.PostAsJsonAsync($"api/owner/bookings/{first.Id}/confirm", new { note = "ok" });
         confirmFirst.StatusCode.Should().Be(HttpStatusCode.NoContent);

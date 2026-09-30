@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Localization
+@using Sommerhus.Core.Identity
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     var title = (ViewData["Title"] as string) ?? L["Site.Brand"];
@@ -12,8 +13,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap 5.3 and Bootstrap Icons, served from wwwroot/lib -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site-additions.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 </head>
@@ -24,7 +26,10 @@
             <div class="navbar-nav me-auto">
                 <a class="nav-link" href="~/houses">@L["Nav.Home"]</a>
                 <a class="nav-link" href="~/areas">@L["Nav.Areas"]</a>
-                <a class="nav-link" asp-controller="Admin" asp-action="Index">@L["Nav.Admin"]</a>
+                @if (User.IsInRole(AppRoles.Admin))
+                {
+                    <a class="nav-link" href="~/admin/houses">@L["Nav.Admin"]</a>
+                }
             </div>
             <div class="navbar-nav me-3">
                 <form method="post" action="/culture/set" class="d-inline-flex align-items-center gap-2">

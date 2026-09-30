@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
@@ -23,7 +24,7 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         }
         else
         {
-            SetError(res.Message ?? "Could not add season span.");
+            SetError(ApiErrorText.Describe(res, "Could not add season span."));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -46,7 +47,7 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         }
         else
         {
-            SetError(res.Message ?? "Could not update season span.");
+            SetError(ApiErrorText.Describe(res, "Could not update season span."));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -63,7 +64,7 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         }
         else
         {
-            SetError(res.Message ?? "Could not delete season span.");
+            SetError(ApiErrorText.Describe(res, "Could not delete season span."));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -77,7 +78,7 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         if (res.Ok)
             SetSuccess("Calendar override applied.");
         else
-            SetError(res.Message ?? "Could not set calendar override.");
+            SetError(ApiErrorText.Describe(res, "Could not set calendar override."));
 
         return RedirectToDetails(houseId, "calendar");
     }
@@ -90,20 +91,20 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         if (res.Ok)
             SetSuccess("Calendar override removed. House now uses group default.");
         else
-            SetError(res.Message ?? "Could not remove calendar override.");
+            SetError(ApiErrorText.Describe(res, "Could not remove calendar override."));
 
         return RedirectToDetails(houseId, "calendar");
     }
 
     [HttpPost("/admin/houses/{houseId:guid}/calendar-override/create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateCalendarOverride(Guid houseId, [FromForm] string name, CancellationToken ct = default)
+    public async Task<IActionResult> CreateCalendarOverride(Guid houseId, [FromForm] string? name, CancellationToken ct = default)
     {
         var res = await api.CreateHouseCalendarOverrideAsync(houseId, name, ct);
         if (res.Ok)
             SetSuccess("Custom calendar created and applied as override.");
         else
-            SetError(res.Message ?? "Could not create custom calendar.");
+            SetError(ApiErrorText.Describe(res, "Could not create custom calendar."));
 
         return RedirectToDetails(houseId, "calendar");
     }

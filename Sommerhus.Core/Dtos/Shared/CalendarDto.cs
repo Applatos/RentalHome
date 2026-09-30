@@ -12,7 +12,8 @@ public sealed record CalendarDto(
 public sealed class UpsertCalendarDto
 {
     [Required, MaxLength(150)]
-    public string Name { get; set; } = "";
+    /// <summary>Optional; a blank name gets a default based on the house title.</summary>
+    public string? Name { get; set; }
 
     public int? Year { get; set; }
 
@@ -27,5 +28,6 @@ public sealed class SetCalendarOverrideDto
 
 public sealed class CreateCalendarOverrideDto
 {
-    public string Name { get; set; } = "";
+    /// <summary>Optional; a blank name gets a default based on the house title.</summary>
+    public string? Name { get; set; }
 }

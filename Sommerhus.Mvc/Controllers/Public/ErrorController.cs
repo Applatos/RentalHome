@@ -4,7 +4,7 @@ namespace Sommerhus.Mvc.Controllers.Public;
 
 public sealed class ErrorController : Controller
 {
-    [HttpGet("/error")]
+    [Route("/error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Index()
     {
@@ -13,7 +13,7 @@ public sealed class ErrorController : Controller
         return View();
     }
 
-    [HttpGet("/error/{code:int}")]
+    [Route("/error/{code:int}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult StatusCodePage(int code)
     {

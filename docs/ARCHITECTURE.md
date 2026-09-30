@@ -387,9 +387,13 @@ demo's HTTPS setup, IIS layout and release steps.
   "ConnectionStrings": { "Default": "..." },
   "Jwt": { "Issuer", "Audience", "Key", "AccessTokenMinutes" },
   "DefaultAdmin": { "UserName", "Password", "Email" },
-  "Pricing": { "EnabledV1", "CleaningFee", "VatRate" }
+  "Pricing": { "EnabledV1", "CleaningFee", "VatRate", "GuestFee": { "BaseGuests", "PerGuestPerNight" } }
 }
 ```
+
+Prices are VAT-inclusive: `VatRate` only computes the VAT share shown as "heraf moms", and `Tax`
+(VAT added on top) is always 0. `CleaningFee` and `GuestFee` apply to every house. A night without a
+season price makes the quote fail with `unpricedNights`.
 
 ---
 

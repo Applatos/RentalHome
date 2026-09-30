@@ -9,6 +9,7 @@ using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Services.Admin.Pricing;
 using Sommerhus.Core.Services.Public.Houses;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -17,7 +18,8 @@ namespace Sommerhus.Core.Services.Admin.Houses;
 public sealed class AdminHouseService(
     AppDbContext db,
     IImageStorage imageStorage,
-    ISearchIndexer searchIndexer) : IAdminHouseService
+    ISearchIndexer searchIndexer,
+    IPriceSummaryService priceSummaryService) : IAdminHouseService
 {
 
     public async Task<PageResult<AdminHouseListItemDto>> SearchAsync(string? query, EntityStatus? status, int page, int pageSize, CancellationToken ct)
@@ -88,12 +90,11 @@ public sealed class AdminHouseService(
             return ServiceResult<AdminHouseDetailsDto>.NotFound();
         }
 
+        // The form edits this plan even when it is inactive; saving it updates the same plan.
         var plan = await db.PricePlans
             .AsNoTracking()
             .Include(p => p.SeasonPrices)
-            .Where(p => p.HouseId == house.Id && p.IsActive)
-            .OrderByDescending(rp => rp.IsActive)
-            .ThenByDescending(rp => rp.UpdatedAtUtc.HasValue ? rp.UpdatedAtUtc.Value : rp.CreatedAtUtc)
+            .ForEditing(house.Id)
             .FirstOrDefaultAsync(ct);
 
         var effectiveCalendarId = house.CalendarOverrideId ?? house.Group?.DefaultCalendarId;
@@ -119,6 +120,12 @@ public sealed class AdminHouseService(
             return ServiceResult<Guid>.Invalid(areasResult.Errors);
         }
 
+        var groupError = await ValidateGroupAsync(dto.GroupId, ct);
+        if (groupError is not null)
+        {
+            return ServiceResult<Guid>.FailureFrom(groupError);
+        }
+
         var house = new VacationHouse
         {
             Id = Guid.NewGuid(),
@@ -127,6 +134,7 @@ public sealed class AdminHouseService(
             CityId = dto.CityId,
             Description = dto.Description,
             SearchKeywords = NormalizeSearchKeywords(dto.SearchKeywords),
+            GroupId = dto.GroupId,
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -159,11 +167,21 @@ public sealed class AdminHouseService(
             return ServiceResult.Invalid(areasResult.Errors);
         }
 
+        var groupError = await ValidateGroupAsync(dto.GroupId, ct);
+        if (groupError is not null)
+        {
+            return groupError;
+        }
+
+        // Without an override the group decides the house's calendar, so a change can alter its prices.
+        var groupChanged = house.GroupId != dto.GroupId;
+
         house.Title = dto.Title;
         house.Address = dto.Address;
         house.CityId = dto.CityId;
         house.Description = dto.Description;
         house.SearchKeywords = NormalizeSearchKeywords(dto.SearchKeywords);
+        house.GroupId = dto.GroupId;
 
         house.Areas.Clear();
         foreach (var area in areasResult.Value ?? Array.Empty<Area>())
@@ -172,7 +190,17 @@ public sealed class AdminHouseService(
         }
 
         await db.SaveChangesAsync(ct);
-        await searchIndexer.UpdateHouseAsync(id, ct);
+
+        if (groupChanged)
+        {
+            // Also refreshes the search document.
+            await priceSummaryService.RecomputeSummaryAsync(id, ct);
+        }
+        else
+        {
+            await searchIndexer.UpdateHouseAsync(id, ct);
+        }
+
         return ServiceResult.Success();
     }
 
@@ -220,6 +248,19 @@ public sealed class AdminHouseService(
         }
 
         return ServiceResult<IReadOnlyList<Area>>.Success(areas);
+    }
+
+    private async Task<ServiceResult?> ValidateGroupAsync(Guid? groupId, CancellationToken ct)
+    {
+        if (groupId is null)
+        {
+            return null;
+        }
+
+        var exists = await db.HouseGroups.AsNoTracking().AnyAsync(g => g.Id == groupId.Value, ct);
+        return exists
+            ? null
+            : ServiceResult.Invalid("groupId", "Unknown house group.");
     }
 
     private static string? NormalizeSearchKeywords(string? keywords)

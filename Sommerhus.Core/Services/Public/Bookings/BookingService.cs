@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Services.Admin.Availability;
 using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Domain.Models;
 
@@ -9,7 +8,6 @@ namespace Sommerhus.Core.Services.Public.Bookings;
 
 public sealed class BookingService(
     AppDbContext db,
-    IAdminAvailabilityService availabilityService,
     IPricingQuoteService pricingService) : IBookingService
 {
     public async Task<ServiceResult<BookingDto>> CreateAsync(
@@ -31,16 +29,15 @@ public sealed class BookingService(
         if (house.Status != EntityStatus.Published)
             return ServiceResult<BookingDto>.Invalid("houseId", "House is not available for booking.");
 
-        var isAvailable = await availabilityService.IsAvailableAsync(
-            dto.HouseId, dto.CheckIn, dto.CheckOut, ct);
-
-        if (!isAvailable)
-            return ServiceResult<BookingDto>.Conflict("dates", "The selected dates are not available.");
-
+        // The quote checks guests, availability and that every night is priced, in that order.
+        // Its failure is passed on as is, so a booking is never stored with a partial price.
         var quoteRequest = new PriceQuoteRequestDto(dto.HouseId, dto.CheckIn, dto.CheckOut, dto.Guests, null);
         var quoteResult = await pricingService.QuoteAsync(quoteRequest, ct);
 
-        if (!quoteResult.IsSuccess || quoteResult.Value is null)
+        if (!quoteResult.IsSuccess)
+            return ServiceResult<BookingDto>.FailureFrom(quoteResult);
+
+        if (quoteResult.Value is null)
             return ServiceResult<BookingDto>.Unavailable("Unable to calculate price for the selected dates.");
 
         var quote = quoteResult.Value;

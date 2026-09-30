@@ -4,6 +4,7 @@ using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Mvc.Extensions;
+using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin;
 using Sommerhus.Mvc.ViewModels.Admin.Houses;
@@ -161,6 +162,10 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             Areas = areas,
             HouseGroups = houseGroups,
             ActiveTab = tab,
+            PricingCheck = HousePricingCheck.For(house, Today),
+            GroupName = GroupName(houseGroups, house.GroupId),
+            SavedGroupId = house.GroupId,
+            SavedCalendarOverrideId = house.CalendarOverrideId,
             AllFeatures = allFeatures,
             FeaturesError = featuresError,
             SeasonCodes = seasonCodes,
@@ -208,18 +213,34 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         return [];
     }
 
+    private static DateOnly Today => DateOnly.FromDateTime(DateTime.Today);
+
+    private static string? GroupName(IEnumerable<SelectListItem> groups, Guid? groupId)
+        => groupId is { } id
+            ? groups.FirstOrDefault(g => Guid.TryParse(g.Value, out var value) && value == id)?.Text
+            : null;
+
     [HttpGet("/admin/houses/new")]
     public async Task<IActionResult> New(CancellationToken ct)
     {
         SetAdminTab("houses");
         var cities = await LoadCitiesSelectListAsync(null, ct);
         var areas = await LoadAreasSelectListAsync(null, ct);
+        var houseGroups = await LoadHouseGroupsSelectListAsync(null, ct);
+
+        // With a single group there is nothing to choose, and a house outside it has no calendar.
+        var house = new UpsertHouseDto();
+        if (houseGroups.Count == 1 && Guid.TryParse(houseGroups[0].Value, out var onlyGroupId))
+        {
+            house.GroupId = onlyGroupId;
+        }
 
         var vm = new HouseCreateVm
         {
-            House = new UpsertHouseDto(),
+            House = house,
             Cities = cities,
-            Areas = areas
+            Areas = areas,
+            HouseGroups = houseGroups
         };
 
         return View("~/Views/Admin/Houses/Create.cshtml", vm);
@@ -231,10 +252,8 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     {
         if (!ModelState.IsValid)
         {
-            vm.Cities = await LoadCitiesSelectListAsync(vm.House.CityId, ct);
-            vm.Areas = await LoadAreasSelectListAsync(vm.House.AreaIds, ct);
             SetError("Invalid fields.");
-            return View("~/Views/Admin/Houses/Create.cshtml", vm);
+            return await RenderHouseCreateAsync(vm, ct);
         }
 
         var res = await api.PostHouseAsync(vm.House, ct);
@@ -243,9 +262,19 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             SetSuccess("House created.");
             return RedirectToAction(nameof(Details), new { id });
         }
-        
-        SetError(res.Message ?? "Could not create house.");
-        return RedirectToAction(nameof(Create));
+
+        // Show the form again with what was entered rather than an empty one.
+        SetError(ApiErrorText.Describe(res, "Could not create house."));
+        return await RenderHouseCreateAsync(vm, ct);
+    }
+
+    private async Task<IActionResult> RenderHouseCreateAsync(HouseCreateVm vm, CancellationToken ct)
+    {
+        SetAdminTab("houses");
+        vm.Cities = await LoadCitiesSelectListAsync(vm.House.CityId, ct);
+        vm.Areas = await LoadAreasSelectListAsync(vm.House.AreaIds, ct);
+        vm.HouseGroups = await LoadHouseGroupsSelectListAsync(vm.House.GroupId, ct);
+        return View("~/Views/Admin/Houses/Create.cshtml", vm);
     }
 
     [HttpPost("/admin/houses/{id:guid}")]
@@ -254,6 +283,13 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     {
         if (!ModelState.IsValid)
         {
+            // The edit form shows no per-field messages, so name the problems in the flash message.
+            var messages = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .Where(m => !string.IsNullOrWhiteSpace(m))
+                .Distinct();
+            SetError(string.Join(" ", messages.Prepend("Invalid fields.")));
             return await RenderHouseEditAsync(id, dto, ct);
         }
 
@@ -264,7 +300,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             return RedirectToAction(nameof(Details), new { id, tab = "overview" });
         }
 
-        SetError(res.Message ?? "Could not update house.");
+        SetError(ApiErrorText.Describe(res, "Could not update house."));
         return await RenderHouseEditAsync(id, dto, ct);
     }
 
@@ -277,6 +313,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             return RedirectToAction(nameof(Index));
         }
 
+        // The form shows what was posted; the pricing check and group name describe what is saved.
         var read = houseRes.Data;
         var merged = read with
         {
@@ -284,12 +321,14 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             CityId = dto.CityId,
             Address = dto.Address,
             Description = dto.Description,
-            AreaIds = dto.AreaIds?.ToList() ?? []
+            SearchKeywords = dto.SearchKeywords,
+            AreaIds = dto.AreaIds?.ToList() ?? [],
+            GroupId = dto.GroupId
         };
 
         var cities = await LoadCitiesSelectListAsync(dto.CityId, ct);
         var areas = await LoadAreasSelectListAsync(merged.AreaIds, ct);
-        var houseGroups = await LoadHouseGroupsSelectListAsync(merged.GroupId, ct);
+        var houseGroups = await LoadHouseGroupsSelectListAsync(dto.GroupId, ct);
 
         var selectedAreaLookups = areas
             .Where(o => o.Selected && Guid.TryParse(o.Value, out _))
@@ -304,7 +343,11 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             Cities = cities,
             Areas = areas,
             HouseGroups = houseGroups,
-            ActiveTab = "overview"
+            ActiveTab = "overview",
+            PricingCheck = HousePricingCheck.For(read, Today),
+            GroupName = GroupName(houseGroups, read.GroupId),
+            SavedGroupId = read.GroupId,
+            SavedCalendarOverrideId = read.CalendarOverrideId
         };
 
         SetAdminTab("houses");

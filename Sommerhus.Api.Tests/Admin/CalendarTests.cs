@@ -120,6 +120,24 @@ public sealed class CalendarTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
+    public async Task CreateHouseOverride_WithoutName_UsesDefaultName()
+    {
+        var houseId = await GetSeededHouseIdAsync();
+
+        // The admin form's name field is optional, so a blank field arrives as null.
+        var res = await _client.PostAsJsonAsync(
+            $"api/admin/houses/{houseId}/calendar-override/create",
+            new { Name = (string?)null });
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var cal = await res.Content.ReadFromJsonAsync<CalendarDto>();
+        cal!.Name.Should().Contain("Blåvand Strand 4");
+
+        (await _client.DeleteAsync($"api/admin/houses/{houseId}/calendar-override"))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
     public async Task RemoveHouseOverride_RevertsToGroupCalendar()
     {
         var houseId = await GetSeededHouseIdAsync();

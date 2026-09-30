@@ -1,6 +1,7 @@
 @using Sommerhus.Core.Dtos.Shared
 @using Sommerhus.Mvc.ViewModels.Admin.HouseGroups
 @model HouseGroupDetailsVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     ViewData["Title"] = $"Admin - {Model.Group.Name}";
 }
@@ -94,15 +95,17 @@
                                                     data-span-id="@span.Id"
                                                     data-start-date="@span.StartDate.ToString("yyyy-MM-dd")"
                                                     data-end-date="@span.EndDate.ToString("yyyy-MM-dd")"
-                                                    data-code="@span.Code">
-                                                <i class="bi bi-pencil"></i>
+                                                    data-code="@span.Code"
+                                                    aria-label="@L["Admin.Shared.Edit"]"
+                                                    title="@L["Admin.Shared.Edit"]">
+                                                <i class="bi bi-pencil" aria-hidden="true"></i>
                                             </button>
                                             <form asp-action="DeleteSeasonSpan" asp-route-groupId="@Model.Group.Id" asp-route-spanId="@span.Id" 
                                                   method="post" class="d-inline"
                                                   onsubmit="return confirm('Er du sikker på at du vil slette denne sæsonperiode?');">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-outline-danger">
-                                                    <i class="bi bi-trash"></i>
+                                                <button type="submit" class="btn btn-outline-danger" aria-label="@L["Admin.Shared.Delete"]" title="@L["Admin.Shared.Delete"]">
+                                                    <i class="bi bi-trash" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -146,7 +149,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tilføj sæsonperiode</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" asp-action="AddSeasonSpan" asp-route-groupId="@Model.Group.Id">
                 <div class="modal-body">
@@ -189,7 +192,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Rediger sæsonperiode</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" id="editSeasonSpanForm">
                 <div class="modal-body">

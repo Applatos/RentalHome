@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.Calendars;
 
-public sealed class AdminCalendarService(AppDbContext db) : IAdminCalendarService
+public sealed class AdminCalendarService(
+    AppDbContext db,
+    IPriceSummaryService priceSummaryService) : IAdminCalendarService
 {
     public async Task<ServiceResult<IReadOnlyList<CalendarDto>>> ListAsync(CancellationToken ct)
     {
@@ -108,6 +111,7 @@ public sealed class AdminCalendarService(AppDbContext db) : IAdminCalendarServic
 
         house.CalendarOverrideId = calendarId;
         await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummaryAsync(houseId, ct);
 
         return ServiceResult.Success();
     }
@@ -120,11 +124,12 @@ public sealed class AdminCalendarService(AppDbContext db) : IAdminCalendarServic
 
         house.CalendarOverrideId = null;
         await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummaryAsync(houseId, ct);
 
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult<CalendarDto>> CreateHouseOverrideAsync(Guid houseId, string name, CancellationToken ct)
+    public async Task<ServiceResult<CalendarDto>> CreateHouseOverrideAsync(Guid houseId, string? name, CancellationToken ct)
     {
         var house = await db.Houses.FirstOrDefaultAsync(h => h.Id == houseId, ct);
         if (house is null)
@@ -143,6 +148,7 @@ public sealed class AdminCalendarService(AppDbContext db) : IAdminCalendarServic
         db.SeasonCalendars.Add(calendar);
         house.CalendarOverrideId = calendar.Id;
         await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummaryAsync(houseId, ct);
 
         return ServiceResult<CalendarDto>.Success(
             new CalendarDto(calendar.Id, calendar.Name, calendar.Year, calendar.IsTemplate, 0));

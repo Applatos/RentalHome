@@ -1,6 +1,7 @@
 @using System.Globalization
 @using System.Linq
 @using Sommerhus.Core.Dtos.Shared
+@using Sommerhus.Mvc.Infrastructure
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @model PublicHouseDetailsDto
 
@@ -27,12 +28,22 @@
         slides = new List<ImageDto> { cover };
     }
 
-    var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-    var defaultArrival = today.AddDays(7);
-    var defaultDeparture = defaultArrival.AddDays(7);
-    var todayValue = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-    var arrivalValue = defaultArrival.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-    var departureValue = defaultDeparture.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    // The price widget starts from the same stay and guest count as the booking form, and the
+    // booking links carry it there; house-pricing.js keeps them in step with the selection.
+    var today = BookingDefaults.Today;
+    var defaultArrival = BookingDefaults.Arrival(today);
+    var defaultDeparture = BookingDefaults.Departure(defaultArrival);
+    var todayValue = BookingDefaults.FormatDate(today);
+    var arrivalValue = BookingDefaults.FormatDate(defaultArrival);
+    var departureValue = BookingDefaults.FormatDate(defaultDeparture);
+    var maxGuests = BookingDefaults.MaxGuests(Model.MaxGuests);
+    var defaultGuests = BookingDefaults.Guests(Model.MaxGuests);
+    var bookPath = $"/houses/{Model.Id}/book";
+    var bookUrl = BookingDefaults.BookUrl(Model.Id, defaultArrival, defaultDeparture, defaultGuests);
+    var loginUrl = $"/account/login?returnUrl={Uri.EscapeDataString(bookUrl)}";
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+
+    var featureFacts = HouseFeatureFacts.From(Model.Features, CultureInfo.CurrentCulture);
 }
 
 <section class="container my-4">
@@ -52,15 +63,15 @@
                 </p>
             }
         </div>
-        <div class="d-flex gap-2 align-items-center">
-            @if (User.Identity?.IsAuthenticated == true)
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            @if (isSignedIn)
             {
                 @if (Model.IsFavorite == true)
                 {
                     <form method="post" action="/account/favorites/@Model.Id/remove" class="d-inline">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
-                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from favorites">&#9829;</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="@L["Pages.House.RemoveFavorite"]" aria-label="@L["Pages.House.RemoveFavorite"]">&#9829;</button>
                     </form>
                 }
                 else
@@ -68,14 +79,14 @@
                     <form method="post" action="/account/favorites/@Model.Id/add" class="d-inline">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
-                        <button type="submit" class="btn btn-outline-secondary btn-sm" title="Add to favorites">&#9825;</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" title="@L["Pages.House.AddFavorite"]" aria-label="@L["Pages.House.AddFavorite"]">&#9825;</button>
                     </form>
                 }
-                <a class="btn btn-dark" href="/houses/@Model.Id/book">@L["Houses.Details.BookNow"]</a>
+                <a class="btn btn-dark" href="@bookUrl" data-pricing-link="@bookPath">@L["Houses.Details.BookNow"]</a>
             }
             else
             {
-                <a class="btn btn-outline-dark" href="/account/login?returnUrl=/houses/@Model.Id">@L["Houses.Details.LoginToBook"]</a>
+                <a class="btn btn-outline-dark" href="@loginUrl" data-pricing-link="@bookPath" data-pricing-login="/account/login">@L["Houses.Details.LoginToBook"]</a>
             }
             <a class="btn btn-primary" href="#booking-card">@L["Houses.Details.CalculatePrice"]</a>
         </div>
@@ -104,11 +115,11 @@
                     {
                         <button class="carousel-control-prev" type="button" data-bs-target="#houseCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Forrige</span>
+                            <span class="visually-hidden">@L["Pages.House.PreviousImage"]</span>
                         </button>
                         <button class="carousel-control-next" type="button" data-bs-target="#houseCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Næste</span>
+                            <span class="visually-hidden">@L["Pages.House.NextImage"]</span>
                         </button>
                     }
                 </div>
@@ -126,25 +137,24 @@
         </div>
     </div>
 
-    <!-- MIDT: Feature-ikoner som vandret bælte -->
-    @if (Model.Features?.Any() == true)
+    @* Key facts with their values. The row wraps, so the page is never wider than the screen. *@
+    @if (featureFacts.Facts.Count > 0)
     {
-        <div class="border-top border-bottom py-3 my-3">
-            <div class="d-flex gap-3">
-                @foreach (var f in Model.Features)
-                {
-                    <div class="flex-column">
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrWhiteSpace(f.IconUrl))
-                            {
-                                <img src="@f.IconUrl" alt="ikon" width="28" height="28" />
-                            }
-                            <small>@f.Name</small>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
+        <ul class="list-unstyled d-flex flex-wrap gap-3 gap-md-4 border-top border-bottom py-3 my-3" aria-label="@L["Pages.House.KeyFacts"]">
+            @foreach (var fact in featureFacts.Facts)
+            {
+                <li class="d-flex align-items-center gap-2">
+                    @if (fact.IconUrl is not null)
+                    {
+                        <img src="@fact.IconUrl" alt="" width="28" height="28" loading="lazy" />
+                    }
+                    <span class="lh-sm">
+                        <span class="d-block fw-semibold">@fact.Value</span>
+                        <span class="d-block small text-body-secondary">@fact.Caption</span>
+                    </span>
+                </li>
+            }
+        </ul>
     }
 
     <!-- BUND: 2 kolonner igen -->
@@ -189,7 +199,7 @@
                                        id="departure"
                                        name="departure"
                                        value="@departureValue"
-                                       min="@arrivalValue"
+                                       min="@BookingDefaults.FormatDate(defaultArrival.AddDays(1))"
                                        data-pricing-departure />
                             </div>
                         </div>
@@ -200,68 +210,45 @@
                                    id="guests"
                                    name="guests"
                                    min="1"
-                                   max="20"
-                                   value="4"
+                                   max="@maxGuests"
+                                   value="@defaultGuests"
+                                   aria-describedby="@(Model.MaxGuests is > 0 ? "guests-hint" : null)"
                                    data-pricing-guests />
+                            @if (Model.MaxGuests is > 0)
+                            {
+                                <div id="guests-hint" class="form-text">@L["Pages.House.GuestsHint", maxGuests]</div>
+                            }
                         </div>
                     </form>
-                    <div class="mt-3 p-3 border rounded bg-light" data-availability-widget data-url="@Url.Action("Availability", "Houses", new { id = Model.Id })">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small fw-semibold">@L["Houses.Details.Availability"]</span>
-                            <span class="badge text-bg-secondary" data-availability-status>@L["Houses.Details.AvailabilityWaiting"]</span>
-                        </div>
-                        <p class="small text-body-secondary mb-0 mt-2" data-availability-message>
-                            @L["Houses.Details.AvailabilitySelectDates"]
-                        </p>
-                    </div>
-                    <div class="mt-3 small text-body-secondary" data-pricing-empty>
-                        @L["Houses.Details.SelectDatesForPrice"]
-                    </div>
-                    <div class="mt-3 d-none" data-pricing-loading>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                            <span>@L["Houses.Details.LoadingPrice"]</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 alert alert-warning d-none" role="alert" data-pricing-error></div>
-                    <div class="mt-3 d-none" data-pricing-summary>
-                        <p class="mb-2 small text-body-secondary">@L["Houses.Details.Nights"]: <span data-pricing-nights></span></p>
-                        <ul class="list-unstyled mb-2 small" data-pricing-breakdown></ul>
-                        <div class="d-flex justify-content-between mb-1 small text-body-secondary">
-                            <span>@L["Houses.Details.Subtotal"]</span>
-                            <span data-pricing-subtotal></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1 small text-body-secondary d-none" data-pricing-tax-row>
-                            <span>@L["Houses.Details.Tax"]</span>
-                            <span data-pricing-tax></span>
-                        </div>
-                        <hr class="my-2" />
-                        <div class="d-flex justify-content-between">
-                            <span class="fw-semibold">@L["Houses.Details.Total"]</span>
-                            <span class="fw-semibold" data-pricing-total></span>
-                        </div>
-                        <p class="mt-2 mb-0 small text-body-secondary">@L["Houses.Details.PriceDisclaimer"]</p>
+                    <partial name="~/Views/Houses/_PricingWidget.cshtml" model="Model.Id" />
+                    <div class="d-grid mt-3">
+                        @if (isSignedIn)
+                        {
+                            <a class="btn btn-dark" href="@bookUrl" data-pricing-link="@bookPath">@L["Houses.Details.BookNow"]</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-dark" href="@loginUrl" data-pricing-link="@bookPath" data-pricing-login="/account/login">@L["Houses.Details.LoginToBook"]</a>
+                        }
                     </div>
                 </div>
             </div>
 
-            <h2 class="h5">@L["Houses.Details.Facilities"]</h2>
-            @if (Model.Features?.Any() == true)
+            @if (featureFacts.Facilities.Count > 0)
             {
-                <div class="row row-cols-2 g-2 mb-3">
-                    @foreach (var f in Model.Features)
+                <h2 class="h5">@L["Houses.Details.Facilities"]</h2>
+                <ul class="list-unstyled row row-cols-2 g-2 mb-3">
+                    @foreach (var facility in featureFacts.Facilities)
                     {
-                        <div class="col">
-                            <div class="d-flex align-items-center gap-2">
-                                @if (!string.IsNullOrWhiteSpace(f.IconUrl))
-                                {
-                                    <img src="@f.IconUrl" alt="" width="20" height="20" loading="lazy" />
-                                }
-                                <span class="small">@f.Name</span>
-                            </div>
-                        </div>
+                        <li class="col d-flex align-items-center gap-2">
+                            @if (facility.IconUrl is not null)
+                            {
+                                <img src="@facility.IconUrl" alt="" width="20" height="20" loading="lazy" />
+                            }
+                            <span class="small">@facility.Name</span>
+                        </li>
                     }
-                </div>
+                </ul>
             }
 
             @if (floorplans.Any())
@@ -284,93 +271,4 @@
 
 @section Scripts {
     <script src="~/js/house-pricing.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const root = document.querySelector('[data-availability-widget]');
-            const arrival = document.querySelector('[data-pricing-arrival]');
-            const departure = document.querySelector('[data-pricing-departure]');
-
-            if (!root || !arrival || !departure) {
-                return;
-            }
-
-            const statusEl = root.querySelector('[data-availability-status]');
-            const messageEl = root.querySelector('[data-availability-message]');
-            const endpoint = root.getAttribute('data-url');
-            const texts = {
-                available: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusAvailable"].Value)),
-                unavailable: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusUnavailable"].Value)),
-                unknown: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.StatusUnknown"].Value)),
-                waiting: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityWaiting"].Value)),
-                invalidDates: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityInvalidDates"].Value)),
-                checking: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityChecking"].Value)),
-                loadError: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityLoadError"].Value)),
-                availableMessage: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityAvailableMessage"].Value)),
-                unavailableMessage: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.AvailabilityUnavailableMessage"].Value)),
-                blockingSingular: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.BlockingSingular"].Value)),
-                blockingPlural: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Houses.Details.BlockingPlural"].Value))
-            };
-
-            const setState = function (kind, message) {
-                statusEl.className = 'badge';
-                if (kind === 'ok') {
-                    statusEl.classList.add('text-bg-success');
-                    statusEl.textContent = texts.available;
-                } else if (kind === 'blocked') {
-                    statusEl.classList.add('text-bg-danger');
-                    statusEl.textContent = texts.unavailable;
-                } else if (kind === 'error') {
-                    statusEl.classList.add('text-bg-warning');
-                    statusEl.textContent = texts.unknown;
-                } else {
-                    statusEl.classList.add('text-bg-secondary');
-                    statusEl.textContent = texts.waiting;
-                }
-
-                messageEl.textContent = message;
-            };
-
-            const refreshAvailability = async function () {
-                const from = arrival.value;
-                const to = departure.value;
-
-                if (!from || !to || to <= from) {
-                    setState('idle', texts.invalidDates);
-                    return;
-                }
-
-                setState('idle', texts.checking);
-
-                try {
-                    const response = await fetch(`${endpoint}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    });
-
-                    if (!response.ok) {
-                        setState('error', texts.loadError);
-                        return;
-                    }
-
-                    const payload = await response.json();
-                    if (payload.available === true) {
-                        setState('ok', texts.availableMessage);
-                    } else {
-                        const blockedCount = Array.isArray(payload.blocks)
-                            ? payload.blocks.filter(function (b) { return b.status !== 0; }).length
-                            : 0;
-                        const suffix = blockedCount > 0
-                            ? ` (${blockedCount} ${blockedCount > 1 ? texts.blockingPlural : texts.blockingSingular})`
-                            : '';
-                        setState('blocked', `${texts.unavailableMessage}${suffix}.`);
-                    }
-                } catch {
-                    setState('error', texts.loadError);
-                }
-            };
-
-            arrival.addEventListener('change', refreshAvailability);
-            departure.addEventListener('change', refreshAvailability);
-            refreshAvailability();
-        });
-    </script>
 }

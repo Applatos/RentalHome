@@ -34,9 +34,19 @@
 
         <div class="col-md-6">
             <label class="form-label">@L["Admin.Houses.Form.Areas"]</label>
-            <select class="form-select" asp-for="House.AreaIds" asp-items="Model.Areas" multiple></select>
+            @* No area is a valid choice; the list is only implicitly required because it is non-nullable. *@
+            <select class="form-select" asp-for="House.AreaIds" asp-items="Model.Areas" multiple data-val="false"></select>
             <span class="text-danger" asp-validation-for="House.AreaIds"></span>
             <div class="form-text">@L["Admin.Shared.MultiSelectHint"]</div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" asp-for="House.GroupId">@L["Admin.Houses.Form.HouseGroup"]</label>
+            <select class="form-select" asp-for="House.GroupId" asp-items="Model.HouseGroups">
+                <option value="">@L["Admin.Houses.Form.NoGroup"]</option>
+            </select>
+            <span class="text-danger" asp-validation-for="House.GroupId"></span>
+            <div class="form-text">@L["Admin.Houses.Form.GroupHint"]</div>
         </div>
 
         <div class="col-md-12">

@@ -64,7 +64,7 @@ public sealed class HouseQueryService(
             {
                 var f = hf.Feature;
                 var icon = storage.GetUrl(baseUrl, f?.IconUrl);
-                return new FeatureValueDto(
+                var dto = new FeatureValueDto(
                     Id: hf.FeatureId,
                     Name: f is null ? string.Empty : LocalizationNameResolver.Resolve(f.Name, f.NameEn),
                     ValueType: f?.ValueType ?? FeatureValueType.Text,
@@ -72,7 +72,11 @@ public sealed class HouseQueryService(
                     IconUrl: icon,
                     RawValue: hf.RawValue
                 );
+                return (SortOrder: f?.SortOrder ?? int.MaxValue, Dto: dto);
             })
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Dto.Name, StringComparer.CurrentCultureIgnoreCase)
+            .Select(x => x.Dto)
             .ToList();
 
         return new PublicHouseDetailsDto(
@@ -83,7 +87,8 @@ public sealed class HouseQueryService(
             house.Address,
             house.Description,
             gallery,
-            features);
+            features,
+            MaxGuests: HouseCapacity.MaxGuests(house.HouseFeatures));
     }
 
 }

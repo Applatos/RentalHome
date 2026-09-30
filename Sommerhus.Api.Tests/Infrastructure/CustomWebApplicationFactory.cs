@@ -76,6 +76,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (migrationHostedServiceDescriptor != null)
                 services.Remove(migrationHostedServiceDescriptor);
 
+            // The nightly from-price refresh would run against the test database while tests do.
+            var refreshDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService) &&
+                     d.ImplementationType == typeof(Sommerhus.Core.Services.Public.Pricing.PriceSummaryRefreshService));
+            if (refreshDescriptor != null)
+                services.Remove(refreshDescriptor);
+
             _conn = new SqliteConnection("DataSource=:memory:");
             _conn.Open();
 

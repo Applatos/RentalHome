@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
+using Sommerhus.Mvc.ModelBinding;
 using Sommerhus.Mvc.Services;
 using System.Globalization;
 
@@ -103,10 +104,7 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
         return int.TryParse(input, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     }
 
+    // Not the request culture alone: under da-DK "." groups thousands, so "1.5" became 15.
     private static bool TryParseDecimal(string input, out decimal value)
-    {
-        if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
-            return true;
-        return decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
-    }
+        => CultureSafeNumber.TryParseDecimal(input, out value);
 }

@@ -23,6 +23,13 @@
   <data name="Nav.Login" xml:space="preserve"><value>Log in</value></data>
   <data name="Nav.Logout" xml:space="preserve"><value>Log out</value></data>
 
+  <data name="Shell.Filters" xml:space="preserve"><value>Filters</value></data>
+  <data name="Account.AccessDenied.Title" xml:space="preserve"><value>Access denied</value></data>
+  <data name="Account.AccessDenied.Message" xml:space="preserve"><value>You do not have access to the page you tried to open.</value></data>
+  <data name="Account.AccessDenied.SignedInAs" xml:space="preserve"><value>You are logged in as {0}.</value></data>
+  <data name="Account.AccessDenied.BackToHouses" xml:space="preserve"><value>See the holiday houses</value></data>
+  <data name="Account.AccessDenied.SwitchUser" xml:space="preserve"><value>Log in as another user</value></data>
+
   <data name="Shared.Search" xml:space="preserve"><value>Search</value></data>
   <data name="Shared.Reset" xml:space="preserve"><value>Reset</value></data>
   <data name="Shared.SearchPlaceholder" xml:space="preserve"><value>Search...</value></data>
@@ -84,6 +91,102 @@
   <data name="Houses.Details.AvailabilityUnavailableMessage" xml:space="preserve"><value>The selected dates are not available</value></data>
   <data name="Houses.Details.BlockingSingular" xml:space="preserve"><value>blocking</value></data>
   <data name="Houses.Details.BlockingPlural" xml:space="preserve"><value>blockings</value></data>
+  <data name="Pages.House.KeyFacts" xml:space="preserve"><value>Key facts</value></data>
+  <data name="Pages.House.AddFavorite" xml:space="preserve"><value>Add to favourites</value></data>
+  <data name="Pages.House.RemoveFavorite" xml:space="preserve"><value>Remove from favourites</value></data>
+  <data name="Pages.House.PreviousImage" xml:space="preserve"><value>Previous image</value></data>
+  <data name="Pages.House.NextImage" xml:space="preserve"><value>Next image</value></data>
+  <data name="Pages.House.GuestsHint" xml:space="preserve"><value>Room for up to {0} guests.</value></data>
+  <data name="Pages.Price.DepartureAfterArrival" xml:space="preserve"><value>Departure must be after arrival.</value></data>
+  <data name="Pages.Price.NetworkError" xml:space="preserve"><value>Network error. Please try again.</value></data>
+  <data name="Pages.Price.NightOne" xml:space="preserve"><value>{n} night</value></data>
+  <data name="Pages.Price.NightMany" xml:space="preserve"><value>{n} nights</value></data>
+  <data name="Pages.Price.LineBase" xml:space="preserve"><value>{nights} · {season}</value></data>
+  <data name="Pages.Price.LineGuests" xml:space="preserve"><value>Extra guests: {guests} × {nights}</value></data>
+  <data name="Pages.Price.LineCleaning" xml:space="preserve"><value>Final cleaning</value></data>
+  <data name="Pages.Price.VatIncluded" xml:space="preserve"><value>Of which VAT</value></data>
+  <data name="Pages.Price.PricesIncludeVat" xml:space="preserve"><value>All prices include VAT.</value></data>
+  <data name="Pages.PricingError.UnpricedNights" xml:space="preserve"><value>Not every night in this period has a price yet. Please choose other dates.</value></data>
+  <data name="Pages.PricingError.GuestsMax" xml:space="preserve"><value>The number of guests does not fit this house (at most {0}).</value></data>
+  <data name="Pages.PricingError.Guests" xml:space="preserve"><value>The number of guests does not fit this house.</value></data>
+  <data name="Pages.PricingError.DatesInvalid" xml:space="preserve"><value>The dates are not valid. Arrival cannot be in the past, and departure must be after arrival.</value></data>
+  <data name="Pages.PricingError.DatesUnavailable" xml:space="preserve"><value>The selected dates are not available.</value></data>
+  <data name="Pages.PricingError.QuoteFailed" xml:space="preserve"><value>The price could not be calculated right now. Please try again later.</value></data>
+  <data name="Pages.PricingError.BookingFailed" xml:space="preserve"><value>The booking could not be completed right now. Please try again later.</value></data>
+  <data name="Pages.Booking.Heading" xml:space="preserve"><value>Book {0}</value></data>
+  <data name="Pages.Booking.BackToHouse" xml:space="preserve"><value>Back to the house</value></data>
+  <data name="Pages.Booking.Note" xml:space="preserve"><value>Message to the owner (optional)</value></data>
+  <data name="Pages.Booking.NotePlaceholder" xml:space="preserve"><value>Special requests or questions for the owner</value></data>
+  <data name="Pages.Booking.Confirm" xml:space="preserve"><value>Confirm booking</value></data>
+  <data name="Pages.Booking.ConfirmHint" xml:space="preserve"><value>The booking is pending until the owner confirms it.</value></data>
+  <data name="Pages.Booking.Created" xml:space="preserve"><value>Your booking has been created. It is now waiting for the owner to confirm it.</value></data>
+  <data name="Pages.Booking.NotFound" xml:space="preserve"><value>The booking was not found.</value></data>
+  <data name="Pages.Booking.Cancelled" xml:space="preserve"><value>The booking has been cancelled.</value></data>
+  <data name="Pages.Booking.CancelFailed" xml:space="preserve"><value>The booking could not be cancelled.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoCalendar" xml:space="preserve"><value>This house has no season calendar, so no price can be calculated and it cannot be booked. Choose a house group with a calendar, or create a calendar for this house.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoCalendarInGroup" xml:space="preserve"><value>The house group {0} has no season calendar yet, so no price can be calculated and the house cannot be booked. Give the group a calendar, or create a calendar for this house.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoSpans" xml:space="preserve"><value>The house's season calendar has no periods, so no price can be calculated and the house cannot be booked. Add season periods.</value></data>
+  <data name="Pages.AdminHouse.Warning.Gap" xml:space="preserve"><value>The house's season calendar has no period from {0} to {1}. Those nights have no price and cannot be booked.</value></data>
+  <data name="Pages.AdminHouse.Warning.EndsSoon" xml:space="preserve"><value>The house's season calendar only runs until {0}. Nights after that have no price and cannot be booked. Extend the calendar so it covers the next 12 months.</value></data>
+  <data name="Pages.AdminHouse.Warning.NoActivePlan" xml:space="preserve"><value>This house has no active price plan, so no price can be calculated. Enter the prices and mark the plan as active.</value></data>
+  <data name="Pages.AdminHouse.Warning.UnpricedSeasons" xml:space="preserve"><value>These seasons are used in the calendar in the next 12 months but have no price: {0}. Nights in them cannot be booked.</value></data>
+  <data name="Pages.AdminHouse.Warning.ChooseGroup" xml:space="preserve"><value>Choose a house group</value></data>
+  <data name="Pages.AdminHouse.Warning.OpenGroup" xml:space="preserve"><value>Open the group {0}</value></data>
+  <data name="Pages.AdminHouse.Warning.OpenCalendar" xml:space="preserve"><value>Open the season calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.Title" xml:space="preserve"><value>Season calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.AddSpan" xml:space="preserve"><value>Add season period</value></data>
+  <data name="Pages.AdminHouse.Calendar.AddSubmit" xml:space="preserve"><value>Add</value></data>
+  <data name="Pages.AdminHouse.Calendar.Source" xml:space="preserve"><value>Calendar:</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceOverride" xml:space="preserve"><value>This house's own calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceGroup" xml:space="preserve"><value>Group calendar: {0}</value></data>
+  <data name="Pages.AdminHouse.Calendar.SourceNone" xml:space="preserve"><value>No calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.OwnCalendar" xml:space="preserve"><value>The calendar applies to this house only.</value></data>
+  <data name="Pages.AdminHouse.Calendar.SharedWithGroup" xml:space="preserve"><value>The calendar is shared by every house in the group {0}. Changes here apply to all of them.</value></data>
+  <data name="Pages.AdminHouse.Calendar.OpenGroup" xml:space="preserve"><value>Open the group</value></data>
+  <data name="Pages.AdminHouse.Calendar.RevertToGroup" xml:space="preserve"><value>Use the group calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.RevertConfirm" xml:space="preserve"><value>Remove this house's own calendar and use the group calendar again?</value></data>
+  <data name="Pages.AdminHouse.Calendar.SetOverride" xml:space="preserve"><value>Use own calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.ChangeOverride" xml:space="preserve"><value>Change calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.NoSpans" xml:space="preserve"><value>The calendar has no season periods yet.</value></data>
+  <data name="Pages.AdminHouse.Calendar.NextMonths" xml:space="preserve"><value>The next 12 months</value></data>
+  <data name="Pages.AdminHouse.Calendar.NoSeason" xml:space="preserve"><value>No season</value></data>
+  <data name="Pages.AdminHouse.Calendar.Spans" xml:space="preserve"><value>Season periods</value></data>
+  <data name="Pages.AdminHouse.Calendar.Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Pages.AdminHouse.Calendar.Season" xml:space="preserve"><value>Season</value></data>
+  <data name="Pages.AdminHouse.Calendar.StartDate" xml:space="preserve"><value>From</value></data>
+  <data name="Pages.AdminHouse.Calendar.EndDate" xml:space="preserve"><value>Up to and including</value></data>
+  <data name="Pages.AdminHouse.Calendar.InclusiveHint" xml:space="preserve"><value>Both dates are included: the period also covers the night that begins on the end date.</value></data>
+  <data name="Pages.AdminHouse.Calendar.DeleteConfirm" xml:space="preserve"><value>Delete this season period?</value></data>
+  <data name="Pages.AdminHouse.Calendar.EditSpan" xml:space="preserve"><value>Edit season period</value></data>
+  <data name="Pages.AdminHouse.Calendar.SeasonCode" xml:space="preserve"><value>Season code</value></data>
+  <data name="Pages.AdminHouse.Calendar.SelectCode" xml:space="preserve"><value>Choose a season code</value></data>
+  <data name="Pages.AdminHouse.Calendar.OverrideTitle" xml:space="preserve"><value>This house's own calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.UseExisting" xml:space="preserve"><value>Use an existing calendar</value></data>
+  <data name="Pages.AdminHouse.Calendar.SelectCalendar" xml:space="preserve"><value>Choose a calendar…</value></data>
+  <data name="Pages.AdminHouse.Calendar.SpanCount" xml:space="preserve"><value>{0} periods</value></data>
+  <data name="Pages.AdminHouse.Calendar.Template" xml:space="preserve"><value>template</value></data>
+  <data name="Pages.AdminHouse.Calendar.Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateNew" xml:space="preserve"><value>Create a new calendar for this house</value></data>
+  <data name="Pages.AdminHouse.Calendar.NamePlaceholder" xml:space="preserve"><value>Calendar name (optional)</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateApply" xml:space="preserve"><value>Create and apply</value></data>
+  <data name="Pages.AdminHouse.Calendar.CreateHint" xml:space="preserve"><value>Creates an empty calendar used only by this house. You can then add season periods to it.</value></data>
+  <data name="Pages.AdminHouse.Calendar.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Shared.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Pages.AdminHouse.Pricing.PlanName" xml:space="preserve"><value>Price plan</value></data>
+  <data name="Pages.AdminHouse.Pricing.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Pages.AdminHouse.Pricing.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Pages.AdminHouse.Pricing.LastUpdated" xml:space="preserve"><value>Last changed {0}</value></data>
+  <data name="Pages.AdminHouse.Pricing.SeasonCode" xml:space="preserve"><value>Season code</value></data>
+  <data name="Pages.AdminHouse.Pricing.Season" xml:space="preserve"><value>Season</value></data>
+  <data name="Pages.AdminHouse.Pricing.NightlyPrice" xml:space="preserve"><value>Price per night ({0})</value></data>
+  <data name="Pages.AdminHouse.Pricing.PriceFor" xml:space="preserve"><value>Price per night for {0} ({1})</value></data>
+  <data name="Pages.AdminHouse.Pricing.NoLabel" xml:space="preserve"><value>No description</value></data>
+  <data name="Pages.AdminHouse.Pricing.NoCodes" xml:space="preserve"><value>There are no season codes yet. Create them under Prices.</value></data>
+  <data name="Pages.AdminHouse.Pricing.Hint" xml:space="preserve"><value>Prices are per night including VAT. Leave a field empty to remove the price for that season.</value></data>
+  <data name="Pages.AdminHouse.Pricing.Save" xml:space="preserve"><value>Save prices</value></data>
+  <data name="Pages.AdminHouse.Pricing.History" xml:space="preserve"><value>Price changes</value></data>
+  <data name="Pages.AdminHouse.Pricing.NotSaved" xml:space="preserve"><value>The prices were not saved.</value></data>
+  <data name="Pages.AdminHouse.Pricing.PriceRange" xml:space="preserve"><value>The price per night must be greater than 0 and at most {2}.</value></data>
   <data name="Admin.Tabs.Houses" xml:space="preserve"><value>Houses</value></data>
   <data name="Admin.Tabs.Areas" xml:space="preserve"><value>Areas</value></data>
   <data name="Admin.Tabs.Features" xml:space="preserve"><value>Features</value></data>

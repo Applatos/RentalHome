@@ -148,13 +148,17 @@ public sealed class HouseSearchService(
 
     private static IQueryable<HouseSearchDocument> ApplySort(IQueryable<HouseSearchDocument> query, HouseSearchFilter filter)
     {
+        // SQLite cannot ORDER BY a decimal, so price sorts on its double value (CAST AS REAL on
+        // SQLite, float on SQL Server). Houses without a price come last in both directions.
         return filter.Sort switch
         {
             HouseSearchSort.PriceAsc => query
-                .OrderBy(d => d.MinNightlyPrice ?? decimal.MaxValue)
+                .OrderBy(d => d.MinNightlyPrice == null)
+                .ThenBy(d => (double?)d.MinNightlyPrice)
                 .ThenByDescending(d => d.UpdatedAtUtc),
             HouseSearchSort.PriceDesc => query
-                .OrderByDescending(d => d.MinNightlyPrice ?? decimal.MinValue)
+                .OrderBy(d => d.MinNightlyPrice == null)
+                .ThenByDescending(d => (double?)d.MinNightlyPrice)
                 .ThenByDescending(d => d.UpdatedAtUtc),
             HouseSearchSort.Newest => query
                 .OrderByDescending(d => d.UpdatedAtUtc),

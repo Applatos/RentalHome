@@ -814,24 +814,32 @@ graph LR
     subgraph "Pipeline (IPricingPipeline)"
         CTX["PricingContext<br/>Mutable state bag"]
 
-        R1["BaseNightlyRateRule<br/>1. Load PricePlan via IRatePlanStore<br/>2. Load SeasonCalendar spans<br/>3. Map each night → season code → nightly rate<br/>4. Add 'Nightly Rate' line item"]
-        R2["GuestFeeRule<br/>Apply per-guest surcharge<br/>from PriceModifiers"]
-        R3["CleaningFeeRule<br/>Add flat cleaning fee<br/>from PriceModifiers"]
+        R1["BaseNightlyRateRule<br/>1. Load the active PricePlan via IRatePlanStore<br/>2. Load the effective SeasonCalendar spans<br/>3. Map each night → season code → nightly rate<br/>4. Record nights with no price as unpriced<br/>5. Add one BASE line per season"]
+        R2["GuestFeeRule<br/>Per extra guest per night above<br/>Pricing:GuestFee:BaseGuests"]
+        R3["CleaningFeeRule<br/>Flat Pricing:CleaningFee"]
+        R4["VatRule<br/>Prices include VAT: Tax = 0,<br/>VatIncluded = Total × r / (1 + r)"]
     end
 
     subgraph "Output"
-        RESP["PriceQuoteResponseDto<br/>Currency, Nights, LineItems,<br/>Subtotal, Tax, Total"]
+        RESP["PriceQuoteResponseDto<br/>Currency, Nights, LineItems,<br/>Subtotal, Tax, Total, VatIncluded"]
+        ERR["400 errors.unpricedNights<br/>when any night has no price"]
     end
 
     REQ --> CTX
-    CTX --> R1 --> R2 --> R3
-    R3 --> RESP
+    CTX --> R1 --> R2 --> R3 --> R4
+    R4 --> RESP
+    R4 -. unpriced nights .-> ERR
 
     style CTX fill:#f39c12,color:#fff
     style R1 fill:#3498db,color:#fff
     style R2 fill:#3498db,color:#fff
     style R3 fill:#3498db,color:#fff
+    style R4 fill:#3498db,color:#fff
 ```
+
+A night is priced only when the house has an active plan, an effective calendar with a span
+covering the night, and a plan price above zero for that span's code. Otherwise the quote fails with
+`unpricedNights`; a quote or booking is never made from a partial price.
 
 ### Pricing Data Resolution
 
@@ -842,14 +850,14 @@ graph TB
     CHECK -->|Yes| OVR[Use CalendarOverride]
     CHECK -->|No| GRP{Has HouseGroup?}
     GRP -->|Yes| GCAL[Use Group.DefaultCalendar]
-    GRP -->|No| NONE[No calendar → default rates]
+    GRP -->|No| NONE[No calendar → every night unpriced<br/>→ 400 unpricedNights]
 
     OVR & GCAL --> SPANS[SeasonSpans<br/>Date ranges → SeasonCodes]
     SPANS --> PRICES[SeasonPrices<br/>Code → NightlyPrice]
 
     HOUSE --> PP[Active PricePlan]
     PP --> PRICES
-    PP --> MODS[PriceModifiers<br/>CleaningFee, GuestFee, etc.]
+    CFG[Configuration<br/>Pricing:CleaningFee, Pricing:GuestFee,<br/>Pricing:VatRate] --> FEES[Fees and included VAT]
 
     style CHECK fill:#e67e22,color:#fff
     style PRICES fill:#27ae60,color:#fff
@@ -863,13 +871,14 @@ graph TB
 sequenceDiagram
     participant Client as Browser / API Client
     participant API as Public PricingController
-    participant SVC as AdminPricingService<br/>(implements IPricingQuoteService)
+    participant SVC as PricingQuoteService
     participant PIPE as PricingPipeline
     participant STORE as EfRatePlanStore
     participant DB as AppDbContext
     participant R1 as BaseNightlyRateRule
     participant R2 as GuestFeeRule
     participant R3 as CleaningFeeRule
+    participant R4 as VatRule
 
     Client->>API: POST /api/pricing/quote<br/>{houseId, arrival, departure, guests}
     API->>SVC: QuoteAsync(request, ct)
@@ -890,9 +899,17 @@ sequenceDiagram
     PIPE->>R3: ApplyAsync(ctx, ct)
     R3->>R3: Add cleaning fee if applicable
 
-    PIPE-->>SVC: PriceQuoteResponseDto
-    SVC-->>API: Response
-    API-->>Client: 200 OK {currency, nights, items, subtotal, tax, total}
+    PIPE->>R4: ApplyAsync(ctx, ct)
+    R4->>R4: Tax = 0, compute VatIncluded
+
+    alt every night priced
+        PIPE-->>SVC: PriceQuoteResponseDto (cached 15 min)
+        SVC-->>API: Response
+        API-->>Client: 200 OK {currency, nights, items, subtotal, tax, total, vatIncluded}
+    else a night has no price
+        PIPE-->>SVC: Invalid(unpricedNights), not cached
+        API-->>Client: 400 {errors: {unpricedNights: [...]}}
+    end
 ```
 
 ---

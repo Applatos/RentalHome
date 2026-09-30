@@ -41,8 +41,7 @@ public sealed class HousesController(
         return result.Status switch
         {
             ServiceResultStatus.Success => CreatedAtAction(nameof(Get), new { id = result.Value }, result.Value),
-            ServiceResultStatus.Invalid => ValidationProblem((ValidationProblemDetails)result.Errors),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to create house.")
+            _ => this.FromResult(result)
         };
     }
 
@@ -54,13 +53,7 @@ public sealed class HousesController(
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
         var result = await houseService.UpdateAsync(id, dto, ct);
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => NoContent(),
-            ServiceResultStatus.NotFound => NotFound(),
-            ServiceResultStatus.Invalid => ValidationProblem((ValidationProblemDetails)result.Errors),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to update house.")
-        };
+        return this.FromResult(result);
     }
 
 
@@ -100,13 +93,8 @@ public sealed class HousesController(
 
         var result = await pricingService.UpsertPricingAsync(houseId, dto, ct);
 
-        return result.Status switch
-        {
-            ServiceResultStatus.Success => NoContent(),
-            ServiceResultStatus.NotFound => NotFound(),
-            ServiceResultStatus.Invalid => ValidationProblem("Invalid pricing data."),
-            _ => Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Unable to upsert pricing.")
-        };
+        // Success is 204 No Content; a validation failure carries its field errors.
+        return this.FromResult((ServiceResult)result);
     }
 
     // House season span management (when house has a group)

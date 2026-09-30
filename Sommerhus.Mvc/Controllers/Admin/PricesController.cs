@@ -26,7 +26,7 @@ public sealed class PricesController(AdminApiClient api) : AdminControllerBase
         if (!ModelState.IsValid)
         {
             var invalidVm = await BuildPricingVmAsync(null, form, ct);
-            return View("Index", invalidVm);
+            return View("~/Views/Admin/Prices/Index.cshtml", invalidVm);
         }
 
         var dto = new SeasonCodeDto(form.Code, form.Label, form.Color, form.SortOrder);

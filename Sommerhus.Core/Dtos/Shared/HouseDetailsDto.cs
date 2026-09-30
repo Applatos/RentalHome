@@ -41,4 +41,5 @@ public sealed record PublicHouseDetailsDto(
     string? Description,
     IReadOnlyList<ImageDto> Images,
     IReadOnlyList<FeatureValueDto> Features,
-    bool? IsFavorite = null);
+    bool? IsFavorite = null,
+    int? MaxGuests = null);

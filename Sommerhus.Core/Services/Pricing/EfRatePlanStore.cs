@@ -49,4 +49,17 @@ public sealed class EfRatePlanStore : IRatePlanStore
             .ThenBy(s => s.EndDate)
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyDictionary<string, string>> GetSeasonNamesAsync(CancellationToken ct)
+    {
+        var codes = await db.SeasonCodes
+            .AsNoTracking()
+            .Select(c => new { c.Code, c.Name })
+            .ToListAsync(ct);
+
+        return codes.ToDictionary(
+            c => c.Code,
+            c => string.IsNullOrWhiteSpace(c.Name) ? c.Code : c.Name,
+            StringComparer.OrdinalIgnoreCase);
+    }
 }

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Public.Houses;
 using System.Net;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
-public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
+public sealed class HousesController(SommerhusApi api, IStringLocalizer<SharedResource> localizer) : SommerhusControllerBase
 {
 
     [HttpGet("/")]
@@ -91,17 +93,34 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
     public async Task<IActionResult> Details(Guid id, CancellationToken ct)
     {
         var res = await api.GetHouseAsync(id, ct);
-        if (!res.Ok)
+        if (res.Ok && res.Data is not null)
         {
-            SetError(res.Message ?? "Could not find house.");
-            return View("~/Views/Houses/Houses.cshtml");
+            return View("~/Views/Houses/details.cshtml", res.Data);
         }
-        return View("~/Views/Houses/details.cshtml", res.Data);
+
+        // The API answers 404 for an unknown and for an unpublished house alike.
+        return res.StatusCode == HttpStatusCode.NotFound || res.Ok
+            ? NotFound()
+            : StatusCode(StatusCodes.Status502BadGateway);
     }
 
+    /// <summary>
+    /// Proxies a quote for the price widget. A failure is answered with <c>{ code, message }</c>,
+    /// where the message is already localized, so the page never shows the API's own text.
+    /// </summary>
     [HttpPost("/houses/{id:guid}/quote")]
-    public async Task<IActionResult> Quote(Guid id, [FromBody] PriceQuoteRequestDto payload, CancellationToken ct)
+    public async Task<IActionResult> Quote(Guid id, [FromBody] PriceQuoteRequestDto? payload, CancellationToken ct)
     {
+        if (payload is null || !ModelState.IsValid)
+        {
+            var invalid = PricingErrorText.Describe(
+                HttpStatusCode.BadRequest,
+                new Dictionary<string, string[]> { [PricingErrors.Dates] = [] },
+                localizer,
+                PricingErrorContext.Quote);
+            return BadRequest(new { code = invalid.Code, message = invalid.Text });
+        }
+
         var request = payload with { HouseId = id };
         var res = await api.GetPriceQuoteAsync(request, ct);
 
@@ -115,13 +134,17 @@ public sealed class HousesController(SommerhusApi api) : SommerhusControllerBase
             return Json(res.Data);
         }
 
-        if (res.HasValidationErrors)
+        // Only the guest error needs the capacity, so the house is fetched just for that one.
+        int? maxGuests = null;
+        if (PricingErrorText.Classify(res.StatusCode, res.Errors) == PricingErrors.Guests)
         {
-            return BadRequest(new { errors = res.Errors });
+            var house = await api.GetHouseAsync(id, ct);
+            maxGuests = house.Data?.MaxGuests;
         }
 
-        var status = (int)(res.StatusCode ?? HttpStatusCode.BadGateway);
-        return StatusCode(status, new { message = res.Message ?? "Could not get price quote" });
+        var error = PricingErrorText.Describe(res, localizer, PricingErrorContext.Quote, maxGuests);
+        var status = res.StatusCode is { } code && (int)code >= 400 ? (int)code : StatusCodes.Status502BadGateway;
+        return StatusCode(status, new { code = error.Code, message = error.Text });
     }
 
     [HttpGet("/houses/{id:guid}/availability")]

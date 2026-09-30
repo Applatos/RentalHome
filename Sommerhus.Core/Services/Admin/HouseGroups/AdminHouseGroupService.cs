@@ -3,12 +3,15 @@ using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Core.Services.Public.Pricing;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
 namespace Sommerhus.Core.Services.Admin.HouseGroups;
 
-public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupService
+public sealed class AdminHouseGroupService(
+    AppDbContext db,
+    IPriceSummaryService priceSummaryService) : IAdminHouseGroupService
 {
 
     public async Task<IReadOnlyList<LookupItem>> GetAllAsync(CancellationToken ct)
@@ -124,26 +127,7 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
         if (group?.DefaultCalendarId is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == group.DefaultCalendarId, ct);
-        if (span is null)
-            return ServiceResult<SeasonSpanDto>.NotFound();
-
-        var validationError = ValidateSeasonSpan(dto);
-        if (validationError is not null)
-            return validationError;
-
-        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
-        if (seasonCode is null)
-            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
-
-        span.Code = dto.Code;
-        span.StartDate = dto.StartDate;
-        span.EndDate = dto.EndDate;
-        await db.SaveChangesAsync(ct);
-
-        return ServiceResult<SeasonSpanDto>.Success(
-            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
-        );
+        return await UpdateSpanInCalendarAsync(group.DefaultCalendarId.Value, spanId, dto, ct);
     }
 
     public async Task<ServiceResult> DeleteSeasonSpanAsync(Guid groupId, Guid spanId, CancellationToken ct)
@@ -152,17 +136,11 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
         if (group?.DefaultCalendarId is null)
             return ServiceResult.NotFound();
 
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == group.DefaultCalendarId, ct);
-        if (span is null)
-            return ServiceResult.NotFound();
-
-        db.SeasonSpans.Remove(span);
-        await db.SaveChangesAsync(ct);
-
-        return ServiceResult.Success();
+        return await DeleteSpanFromCalendarAsync(group.DefaultCalendarId.Value, spanId, ct);
     }
 
-    // House season span management — resolves effective calendar (override or group default)
+    // House season span management — edits the house's effective calendar (its override, else its
+    // group's calendar, which every house of the group without an override shares).
     public async Task<ServiceResult<SeasonSpanDto>> AddHouseSeasonSpanAsync(Guid houseId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
         var calendarId = await ResolveEffectiveCalendarIdAsync(houseId, ct);
@@ -178,26 +156,7 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
         if (calendarId is null)
             return ServiceResult<SeasonSpanDto>.NotFound();
 
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
-        if (span is null)
-            return ServiceResult<SeasonSpanDto>.NotFound();
-
-        var validationError = ValidateSeasonSpan(dto);
-        if (validationError is not null)
-            return validationError;
-
-        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
-        if (seasonCode is null)
-            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
-
-        span.Code = dto.Code;
-        span.StartDate = dto.StartDate;
-        span.EndDate = dto.EndDate;
-        await db.SaveChangesAsync(ct);
-
-        return ServiceResult<SeasonSpanDto>.Success(
-            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
-        );
+        return await UpdateSpanInCalendarAsync(calendarId.Value, spanId, dto, ct);
     }
 
     public async Task<ServiceResult> DeleteHouseSeasonSpanAsync(Guid houseId, Guid spanId, CancellationToken ct)
@@ -206,14 +165,7 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
         if (calendarId is null)
             return ServiceResult.NotFound();
 
-        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
-        if (span is null)
-            return ServiceResult.NotFound();
-
-        db.SeasonSpans.Remove(span);
-        await db.SaveChangesAsync(ct);
-
-        return ServiceResult.Success();
+        return await DeleteSpanFromCalendarAsync(calendarId.Value, spanId, ct);
     }
 
     private async Task<IReadOnlyList<SeasonSpanDto>> GetCalendarAsync(Guid groupId, CancellationToken ct)
@@ -266,29 +218,58 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
 
     private async Task<ServiceResult<SeasonSpanDto>> AddSpanToCalendarAsync(Guid calendarId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        var validationError = ValidateSeasonSpan(dto);
-        if (validationError is not null)
-            return validationError;
+        var validated = await ValidateSpanAsync(calendarId, null, dto, ct);
+        if (!validated.IsSuccess)
+            return ServiceResult<SeasonSpanDto>.FailureFrom(validated);
 
-        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == dto.Code, ct);
-        if (seasonCode is null)
-            return ServiceResult<SeasonSpanDto>.Invalid("code", $"Season code '{dto.Code}' does not exist.");
-
+        var seasonCode = validated.Value!;
         var span = new SeasonSpan
         {
             Id = Guid.NewGuid(),
             CalendarId = calendarId,
-            Code = dto.Code,
+            Code = seasonCode.Code,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate
         };
 
         db.SeasonSpans.Add(span);
         await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummariesForCalendarAsync(calendarId, ct);
 
-        return ServiceResult<SeasonSpanDto>.Success(
-            new SeasonSpanDto(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color)
-        );
+        return ServiceResult<SeasonSpanDto>.Success(ToDto(span, seasonCode));
+    }
+
+    private async Task<ServiceResult<SeasonSpanDto>> UpdateSpanInCalendarAsync(Guid calendarId, Guid spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
+    {
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
+        if (span is null)
+            return ServiceResult<SeasonSpanDto>.NotFound();
+
+        var validated = await ValidateSpanAsync(calendarId, spanId, dto, ct);
+        if (!validated.IsSuccess)
+            return ServiceResult<SeasonSpanDto>.FailureFrom(validated);
+
+        var seasonCode = validated.Value!;
+        span.Code = seasonCode.Code;
+        span.StartDate = dto.StartDate;
+        span.EndDate = dto.EndDate;
+        await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummariesForCalendarAsync(calendarId, ct);
+
+        return ServiceResult<SeasonSpanDto>.Success(ToDto(span, seasonCode));
+    }
+
+    private async Task<ServiceResult> DeleteSpanFromCalendarAsync(Guid calendarId, Guid spanId, CancellationToken ct)
+    {
+        var span = await db.SeasonSpans.FirstOrDefaultAsync(s => s.Id == spanId && s.CalendarId == calendarId, ct);
+        if (span is null)
+            return ServiceResult.NotFound();
+
+        db.SeasonSpans.Remove(span);
+        await db.SaveChangesAsync(ct);
+        await priceSummaryService.RecomputeSummariesForCalendarAsync(calendarId, ct);
+
+        return ServiceResult.Success();
     }
 
     private async Task<Guid?> ResolveEffectiveCalendarIdAsync(Guid houseId, CancellationToken ct)
@@ -305,16 +286,42 @@ public sealed class AdminHouseGroupService(AppDbContext db) : IAdminHouseGroupSe
             ?? house.Group?.DefaultCalendarId;
     }
 
-    private static ServiceResult<SeasonSpanDto>? ValidateSeasonSpan(UpsertSeasonSpanDto dto)
+    /// <summary>
+    /// Checks a span before it is stored: a known season code (trimmed, upper-case), an end date on
+    /// or after the start date, and no overlap with another span of the same calendar, so every
+    /// night has at most one season. Returns the season code.
+    /// </summary>
+    private async Task<ServiceResult<SeasonCode>> ValidateSpanAsync(Guid calendarId, Guid? spanId, UpsertSeasonSpanDto dto, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(dto.Code))
-            return ServiceResult<SeasonSpanDto>.Invalid("code", "Season code is required.");
+        var code = SeasonCodeFormat.Normalize(dto.Code);
+        if (code.Length == 0)
+            return ServiceResult<SeasonCode>.Invalid("code", "Season code is required.");
 
         if (dto.EndDate < dto.StartDate)
-            return ServiceResult<SeasonSpanDto>.Invalid("endDate", "End date must be after start date.");
+            return ServiceResult<SeasonCode>.Invalid("endDate", "End date must be on or after the start date.");
 
-        return null;
+        var seasonCode = await db.SeasonCodes.AsNoTracking().FirstOrDefaultAsync(c => c.Code == code, ct);
+        if (seasonCode is null)
+            return ServiceResult<SeasonCode>.Invalid("code", $"Season code '{code}' does not exist.");
+
+        var overlapping = db.SeasonSpans
+            .AsNoTracking()
+            .Where(s => s.CalendarId == calendarId && s.StartDate <= dto.EndDate && s.EndDate >= dto.StartDate);
+
+        if (spanId.HasValue)
+            overlapping = overlapping.Where(s => s.Id != spanId.Value);
+
+        var overlap = await overlapping.OrderBy(s => s.StartDate).FirstOrDefaultAsync(ct);
+        if (overlap is not null)
+            return ServiceResult<SeasonCode>.Invalid(
+                "startDate",
+                $"The period overlaps the period {overlap.StartDate:yyyy-MM-dd}–{overlap.EndDate:yyyy-MM-dd} in the same calendar.");
+
+        return ServiceResult<SeasonCode>.Success(seasonCode);
     }
+
+    private static SeasonSpanDto ToDto(SeasonSpan span, SeasonCode seasonCode)
+        => new(span.Id, span.StartDate, span.EndDate, span.Code, seasonCode.Name, seasonCode.Color);
 
     private static ServiceResult<string> NormalizeName(string? name)
     {

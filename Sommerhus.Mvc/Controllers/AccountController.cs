@@ -15,6 +15,11 @@ namespace Sommerhus.Mvc.Controllers;
 
 public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAuthClient publicAuthClient) : Controller
 {
+    // Paths rather than RedirectToAction("Index", "Houses"): Houses exists both publicly and in
+    // admin, and where a user lands depends on the role, not on a controller name.
+    private const string PublicLanding = "~/houses";
+    private const string AdminLanding = "~/admin/houses";
+
     private readonly AdminAuthClient adminAuthClient = adminAuthClient;
     private readonly PublicAuthClient publicAuthClient = publicAuthClient;
 
@@ -22,8 +27,11 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
     [HttpGet("/account/login")]
     public IActionResult Login(string? returnUrl = null)
     {
+        // A page rendered before signing in (another tab, the back button) can still link here with
+        // a returnUrl that carries the visitor's choice, e.g. a booking with dates. Honouring it
+        // cannot loop: missing access now goes to the access-denied page, not back to login.
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToLocal(returnUrl);
+            return RedirectToLocal(returnUrl, User.IsInRole(AppRoles.Admin) ? AppRoles.Admin : null);
 
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
@@ -44,7 +52,7 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
         if (response.Ok && response.Data is { } token && !string.IsNullOrWhiteSpace(token.Token))
         {
             await SignInWithTokenAsync(model.Username, token.Token, token.Role, token.ExpiresAt);
-            return RedirectToLocal(model.ReturnUrl);
+            return RedirectToLocal(model.ReturnUrl, token.Role);
         }
 
         // Fallback: try admin login (backward compatibility)
@@ -55,7 +63,7 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
         if (adminResponse.Ok && adminResponse.Data is { } adminToken && !string.IsNullOrWhiteSpace(adminToken.Token))
         {
             await SignInWithTokenAsync(model.Username, adminToken.Token, AppRoles.Admin, adminToken.ExpiresAt);
-            return RedirectToLocal(model.ReturnUrl);
+            return RedirectToLocal(model.ReturnUrl, AppRoles.Admin);
         }
 
         ModelState.AddModelError(string.Empty, "Invalid username or password.");
@@ -67,8 +75,9 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
     [HttpGet("/account/register")]
     public IActionResult Register(string? returnUrl = null)
     {
+        // Same reasoning as the login page.
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToLocal(returnUrl);
+            return RedirectToLocal(returnUrl, User.IsInRole(AppRoles.Admin) ? AppRoles.Admin : null);
 
         return View(new RegisterViewModel { ReturnUrl = returnUrl });
     }
@@ -96,7 +105,7 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
         if (response.Ok && response.Data is { } token && !string.IsNullOrWhiteSpace(token.Token))
         {
             await SignInWithTokenAsync(model.Username, token.Token, token.Role, token.ExpiresAt);
-            return RedirectToLocal(model.ReturnUrl);
+            return RedirectToLocal(model.ReturnUrl, token.Role);
         }
 
         if (response.HasValidationErrors)
@@ -121,7 +130,28 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return RedirectToAction("Index", "Houses");
+        return LocalRedirect(PublicLanding);
+    }
+
+    // The cookie handler's AccessDeniedPath: a signed-in user lacks the role a page needs.
+    [AllowAnonymous]
+    [HttpGet("/account/access-denied")]
+    public IActionResult AccessDenied(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        return View();
+    }
+
+    // "Log in as another user" on the access-denied page.
+    [AllowAnonymous]
+    [HttpPost("/account/switch-user")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SwitchUser(string? returnUrl = null)
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Url.IsLocalUrl(returnUrl)
+            ? RedirectToAction(nameof(Login), new { returnUrl })
+            : RedirectToAction(nameof(Login));
     }
 
     private async Task SignInWithTokenAsync(string username, string jwtToken, string role, DateTimeOffset expiresAt)
@@ -149,11 +179,16 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
     }
 
-    private IActionResult RedirectToLocal(string? returnUrl)
+    // role is the role just signed in with: User still holds the previous principal until the
+    // next request.
+    private IActionResult RedirectToLocal(string? returnUrl, string? role)
     {
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            return Redirect(returnUrl);
+            return LocalRedirect(returnUrl);
 
-        return RedirectToAction("Index", "Houses");
+        return RedirectToLanding(role);
     }
+
+    private IActionResult RedirectToLanding(string? role)
+        => LocalRedirect(role == AppRoles.Admin ? AdminLanding : PublicLanding);
 }

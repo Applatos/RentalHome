@@ -71,8 +71,8 @@
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">@L["Admin.Houses.Form.HouseGroup"]</label>
-        <select class="form-select" name="GroupId" asp-items="Model.HouseGroups">
+        <label class="form-label" for="house-group">@L["Admin.Houses.Form.HouseGroup"]</label>
+        <select class="form-select" id="house-group" name="GroupId" asp-items="Model.HouseGroups">
             <option value="">@L["Admin.Houses.Form.NoGroup"]</option>
         </select>
         <div class="form-text">@L["Admin.Houses.Form.GroupHint"]</div>
@@ -94,7 +94,3 @@
         <a class="btn btn-outline-secondary" asp-controller="Houses" asp-action="Index">@L["Admin.Shared.BackToList"]</a>
     </div>
 </form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

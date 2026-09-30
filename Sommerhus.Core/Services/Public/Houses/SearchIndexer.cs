@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Common;
 using Sommerhus.Domain.Models;
 using Sommerhus.Domain.Models.Pricing;
 
@@ -150,7 +151,7 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
             MaxNightlyPrice = summary?.MaxNightlyPrice,
             Currency = summary?.Currency,
             Bedrooms = TryExtractIntFeature(house, "bedrooms"),
-            MaxGuests = TryExtractIntFeature(house, "max_guests", "guests", "maxguests"),
+            MaxGuests = HouseCapacity.MaxGuests(house.HouseFeatures),
             HasPool = TryExtractBoolFeature(house, "pool"),
             PetFriendly = TryExtractBoolFeature(house, "pet_friendly", "pets_allowed", "pets"),
             Latitude = null,

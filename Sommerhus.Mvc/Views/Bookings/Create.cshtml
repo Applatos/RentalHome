@@ -1,85 +1,113 @@
 @using Sommerhus.Core.Dtos.Shared
+@using Sommerhus.Mvc.Infrastructure
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Book House";
-    var house = ViewBag.House as PublicHouseDetailsDto;
+    var house = (PublicHouseDetailsDto)ViewBag.House;
     var checkIn = ViewBag.CheckIn as DateOnly?;
     var checkOut = ViewBag.CheckOut as DateOnly?;
-    var guests = (int)(ViewBag.Guests ?? 2);
+    var maxGuests = BookingDefaults.MaxGuests(house.MaxGuests);
+    var guests = ViewBag.Guests as int? ?? BookingDefaults.Guests(house.MaxGuests);
+    var guestNote = ViewBag.GuestNote as string;
+    var error = ViewBag.Error as string;
+    var today = BookingDefaults.Today;
+    var cover = house.Images.FirstOrDefault(i => string.Equals(i.Kind, "Cover", StringComparison.OrdinalIgnoreCase))
+                ?? house.Images.FirstOrDefault(i => !string.Equals(i.Kind, "Floorplan", StringComparison.OrdinalIgnoreCase));
+
+    ViewData["Title"] = L["Pages.Booking.Heading", house.Title].Value;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Book: @house?.Title</h1>
-    <a href="/houses/@house?.Id" class="btn btn-outline-dark btn-sm">Back to House</a>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h1 class="h3 mb-0">@L["Pages.Booking.Heading", house.Title]</h1>
+    <a href="/houses/@house.Id" class="btn btn-outline-dark btn-sm">@L["Pages.Booking.BackToHouse"]</a>
 </div>
 
-@if (!ViewData.ModelState.IsValid)
+@if (!string.IsNullOrWhiteSpace(error))
 {
-    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="alert alert-danger" role="alert">@error</div>
 }
 
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+        @* The live price uses the same widget as the house page; in booking mode it leaves the
+           submit to the form and only disables the button while there is no valid price. *@
+        <div class="card shadow-sm" data-pricing-root data-pricing-mode="booking">
             <div class="card-body">
-                <form method="post" action="/houses/@house?.Id/book">
+                <form method="post"
+                      action="/houses/@house.Id/book"
+                      data-pricing-form
+                      data-house-id="@house.Id"
+                      data-area-id=""
+                      data-quote-url="@Url.Action("Quote", "Houses", new { id = house.Id })">
                     @Html.AntiForgeryToken()
 
                     <div class="row g-3 mb-3">
                         <div class="col-sm-6">
-                            <label for="checkIn" class="form-label">Check-in</label>
-                            <input type="date" id="checkIn" name="checkIn" class="form-control"
-                                   value="@checkIn?.ToString("yyyy-MM-dd")" required
-                                   min="@DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd")" />
+                            <label for="checkIn" class="form-label">@L["Houses.Details.Arrival"]</label>
+                            <input type="date" id="checkIn" name="checkIn" class="form-control" required
+                                   value="@(checkIn is { } arrival ? BookingDefaults.FormatDate(arrival) : null)"
+                                   min="@BookingDefaults.FormatDate(today)"
+                                   data-pricing-arrival />
                         </div>
                         <div class="col-sm-6">
-                            <label for="checkOut" class="form-label">Check-out</label>
-                            <input type="date" id="checkOut" name="checkOut" class="form-control"
-                                   value="@checkOut?.ToString("yyyy-MM-dd")" required />
+                            <label for="checkOut" class="form-label">@L["Houses.Details.Departure"]</label>
+                            <input type="date" id="checkOut" name="checkOut" class="form-control" required
+                                   value="@(checkOut is { } departure ? BookingDefaults.FormatDate(departure) : null)"
+                                   min="@BookingDefaults.FormatDate(today.AddDays(1))"
+                                   data-pricing-departure />
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="guests" class="form-label">Guests</label>
-                        <input type="number" id="guests" name="guests" class="form-control"
-                               value="@guests" min="1" max="50" required style="max-width:120px;" />
+                        <label for="guests" class="form-label">@L["Houses.Details.Guests"]</label>
+                        <input type="number" id="guests" name="guests" class="form-control" required style="max-width:120px;"
+                               value="@guests" min="1" max="@maxGuests"
+                               aria-describedby="@(house.MaxGuests is > 0 ? "guests-hint" : null)"
+                               data-pricing-guests />
+                        @if (house.MaxGuests is > 0)
+                        {
+                            <div id="guests-hint" class="form-text">@L["Pages.House.GuestsHint", maxGuests]</div>
+                        }
                     </div>
 
                     <div class="mb-3">
-                        <label for="guestNote" class="form-label">Note (optional)</label>
+                        <label for="guestNote" class="form-label">@L["Pages.Booking.Note"]</label>
                         <textarea id="guestNote" name="guestNote" class="form-control" rows="3"
-                                  maxlength="500" placeholder="Any special requests or notes for the owner..."></textarea>
+                                  maxlength="500" placeholder="@L["Pages.Booking.NotePlaceholder"]">@guestNote</textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-dark">Confirm Booking</button>
+                    <partial name="~/Views/Houses/_PricingWidget.cshtml" model="house.Id" />
+
+                    <div class="d-grid d-sm-block mt-3">
+                        <button type="submit" class="btn btn-dark" data-pricing-submit>@L["Pages.Booking.Confirm"]</button>
+                    </div>
+                    <p class="small text-body-secondary mt-2 mb-0">@L["Pages.Booking.ConfirmHint"]</p>
                 </form>
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
-        @if (house is not null)
-        {
-            <div class="card shadow-sm">
-                @{
-                    var cover = house.Images.FirstOrDefault(i => i.Kind == "Cover");
-                }
-                @if (cover is not null)
+        <div class="card shadow-sm">
+            @if (cover is not null)
+            {
+                <img src="@cover.Url" class="card-img-top" alt="@(cover.Alt ?? house.Title)"
+                     style="height:180px;object-fit:cover;" />
+            }
+            <div class="card-body">
+                <h2 class="h5 card-title">@house.Title</h2>
+                @if (!string.IsNullOrWhiteSpace(house.City))
                 {
-                    <img src="@cover.Url" class="card-img-top" alt="@house.Title"
-                         style="height:180px;object-fit:cover;" />
+                    <p class="text-body-secondary mb-1">@house.Zip @house.City</p>
                 }
-                <div class="card-body">
-                    <h5 class="card-title">@house.Title</h5>
-                    @if (!string.IsNullOrWhiteSpace(house.City))
-                    {
-                        <p class="text-muted mb-1">@house.City</p>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(house.Address))
-                    {
-                        <p class="text-muted small mb-0">@house.Address</p>
-                    }
-                </div>
+                @if (!string.IsNullOrWhiteSpace(house.Address))
+                {
+                    <p class="text-body-secondary small mb-0">@house.Address</p>
+                }
             </div>
-        }
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/house-pricing.js" asp-append-version="true"></script>
+}

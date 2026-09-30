@@ -27,11 +27,10 @@ public sealed class AdminPricingService(
 
         if (request.Arrival >= request.Departure)
         {
-            return ServiceResult<PriceQuoteResponseDto>.Invalid(nameof(request.Departure), "Invalid date range");
+            return ServiceResult<PriceQuoteResponseDto>.Invalid(PricingErrors.Dates, "Departure must be after arrival.");
         }
 
-        var quote = await pipeline.QuoteAsync(request, ct);
-        return ServiceResult<PriceQuoteResponseDto>.Success(quote);
+        return await pipeline.QuoteAsync(request, ct);
     }
 
     public async Task<IReadOnlyList<SeasonSpanDto>> GetSeasonSpansAsync(Guid groupId, CancellationToken ct)
@@ -69,6 +68,10 @@ public sealed class AdminPricingService(
         {
             return ServiceResult<IReadOnlyList<SeasonSpanDto>>.Invalid(string.Empty, "At least one span is required.");
         }
+
+        spans = spans
+            .Select(s => s with { Code = SeasonCodeFormat.Normalize(s.Code) })
+            .ToList();
 
         foreach (var span in spans)
         {
@@ -151,7 +154,7 @@ public sealed class AdminPricingService(
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
 
-            await priceSummaryService.RecomputeSummariesForGroupAsync(groupId, ct);
+            await priceSummaryService.RecomputeSummariesForCalendarAsync(calendarId, ct);
 
             IReadOnlyList<SeasonSpanDto> result = entities.Select(MapSpan).ToList();
             return ServiceResult<IReadOnlyList<SeasonSpanDto>>.Success(result);
@@ -247,15 +250,19 @@ public sealed class AdminPricingService(
             return ServiceResult<SeasonCodeDto>.Invalid(nameof(dto.Code), "Code is required.");
         }
 
-        var code = dto.Code.Trim().ToUpperInvariant();
+        var code = SeasonCodeFormat.Normalize(dto.Code);
+        if (code.Length > SeasonCodeFormat.MaxLength)
+        {
+            return ServiceResult<SeasonCodeDto>.Invalid(nameof(dto.Code), $"Code can be at most {SeasonCodeFormat.MaxLength} characters.");
+        }
 
         var exists = await db.SeasonCodes
             .AsNoTracking()
-            .AnyAsync(c => c.Code == code, ct);
+            .AnyAsync(c => c.Code.ToUpper() == code, ct);
 
         if (exists)
         {
-            return ServiceResult<SeasonCodeDto>.Conflict(nameof(dto.Code), $"Season code '{code}' already exists.");
+            return ServiceResult<SeasonCodeDto>.Invalid(nameof(dto.Code), $"Season code '{code}' already exists.");
         }
 
         string? color = null;

@@ -22,5 +22,7 @@ public class SeasonPriceRow
     public Guid? Id { get; set; }
     public Guid? RatePlanId { get; set; }
     public string Code { get; set; } = string.Empty;
-    [Range(0.00, double.MaxValue)] public decimal? NightlyPrice { get; set; }
+    // A night must cost something: a zero price would be quoted as a free night. Empty removes the price.
+    [Range(0.01, 1_000_000d, ErrorMessage = "Pages.AdminHouse.Pricing.PriceRange")]
+    public decimal? NightlyPrice { get; set; }
 }

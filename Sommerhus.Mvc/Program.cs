@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using Sommerhus.Mvc;
+using Sommerhus.Mvc.ModelBinding;
 using Sommerhus.Mvc.Services;
 using System.Globalization;
 
@@ -8,7 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+    {
+        // First, ahead of MVC's own number binders: they read form values with the request
+        // culture, and under da-DK "800.5" from an <input type="number"> would become 8005.
+        options.ModelBinderProviders.Insert(0, new CultureSafeNumberModelBinderProvider());
+    })
     .AddViewLocalization()
     .AddDataAnnotationsLocalization(options =>
     {
@@ -20,7 +26,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/account/login";
         options.LogoutPath = "/account/logout";
-        options.AccessDeniedPath = "/account/login";
+        // Not the login page: a signed-in user who lacks a role would be sent to login, and
+        // login sends signed-in users on, which looped until the browser gave up.
+        options.AccessDeniedPath = "/account/access-denied";
     });
 
 builder.Services.AddAuthorization();

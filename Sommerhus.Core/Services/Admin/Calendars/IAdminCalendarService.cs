@@ -13,5 +13,5 @@ public interface IAdminCalendarService
 
     Task<ServiceResult> SetHouseCalendarOverrideAsync(Guid houseId, Guid calendarId, CancellationToken ct);
     Task<ServiceResult> RemoveHouseCalendarOverrideAsync(Guid houseId, CancellationToken ct);
-    Task<ServiceResult<CalendarDto>> CreateHouseOverrideAsync(Guid houseId, string name, CancellationToken ct);
+    Task<ServiceResult<CalendarDto>> CreateHouseOverrideAsync(Guid houseId, string? name, CancellationToken ct);
 }

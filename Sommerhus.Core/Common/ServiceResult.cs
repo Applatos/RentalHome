@@ -106,4 +106,17 @@ public sealed class ServiceResult<T> : ServiceResult
         {
             [string.Empty] = new[] { message }
         }));
+
+    /// <summary>
+    /// Carries another result's failure (status and errors) over unchanged.
+    /// </summary>
+    public static ServiceResult<T> FailureFrom(ServiceResult failure)
+    {
+        if (failure.IsSuccess)
+        {
+            throw new ArgumentException("Only a failed result can be carried over.", nameof(failure));
+        }
+
+        return new(failure.Status, default, failure.Errors);
+    }
 }

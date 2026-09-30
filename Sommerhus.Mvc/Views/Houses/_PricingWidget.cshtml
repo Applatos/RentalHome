@@ -1,0 +1,74 @@
+@* Availability and price summary for a house, driven by wwwroot/js/house-pricing.js. It must sit
+   inside the [data-pricing-root] element that also holds the [data-pricing-form]. The model is the
+   house id. *@
+@model Guid
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
+@{
+    var texts = new Dictionary<string, string>
+    {
+        ["selectDates"] = L["Houses.Details.SelectDatesForPrice"],
+        ["departureAfterArrival"] = L["Pages.Price.DepartureAfterArrival"],
+        ["quoteFailed"] = L["Pages.PricingError.QuoteFailed"],
+        ["networkError"] = L["Pages.Price.NetworkError"],
+        ["nightOne"] = L["Pages.Price.NightOne"],
+        ["nightMany"] = L["Pages.Price.NightMany"],
+        ["lineBase"] = L["Pages.Price.LineBase"],
+        ["lineGuests"] = L["Pages.Price.LineGuests"],
+        ["lineCleaning"] = L["Pages.Price.LineCleaning"],
+        ["available"] = L["Houses.Details.StatusAvailable"],
+        ["unavailable"] = L["Houses.Details.StatusUnavailable"],
+        ["unknown"] = L["Houses.Details.StatusUnknown"],
+        ["waiting"] = L["Houses.Details.AvailabilityWaiting"],
+        ["invalidDates"] = L["Houses.Details.AvailabilityInvalidDates"],
+        ["checking"] = L["Houses.Details.AvailabilityChecking"],
+        ["loadError"] = L["Houses.Details.AvailabilityLoadError"],
+        ["availableMessage"] = L["Houses.Details.AvailabilityAvailableMessage"],
+        ["unavailableMessage"] = L["Houses.Details.AvailabilityUnavailableMessage"],
+        ["blockingSingular"] = L["Houses.Details.BlockingSingular"],
+        ["blockingPlural"] = L["Houses.Details.BlockingPlural"]
+    };
+}
+
+<div class="mt-3 p-3 border rounded bg-light" data-availability-widget data-url="@Url.Action("Availability", "Houses", new { id = Model })">
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="small fw-semibold">@L["Houses.Details.Availability"]</span>
+        <span class="badge text-bg-secondary" data-availability-status>@L["Houses.Details.AvailabilityWaiting"]</span>
+    </div>
+    <p class="small text-body-secondary mb-0 mt-2" data-availability-message aria-live="polite">
+        @L["Houses.Details.AvailabilitySelectDates"]
+    </p>
+</div>
+<div class="mt-3 small text-body-secondary" data-pricing-empty>
+    @L["Houses.Details.SelectDatesForPrice"]
+</div>
+<div class="mt-3 d-none" data-pricing-loading>
+    <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+        <span>@L["Houses.Details.LoadingPrice"]</span>
+    </div>
+</div>
+<div class="mt-3 alert alert-warning d-none" role="alert" data-pricing-error></div>
+<div class="mt-3 d-none" data-pricing-summary aria-live="polite">
+    <p class="mb-2 small text-body-secondary">@L["Houses.Details.Nights"]: <span data-pricing-nights></span></p>
+    <ul class="list-unstyled mb-2 small" data-pricing-breakdown></ul>
+    <div class="d-flex justify-content-between mb-1 small text-body-secondary d-none" data-pricing-subtotal-row>
+        <span>@L["Houses.Details.Subtotal"]</span>
+        <span data-pricing-subtotal></span>
+    </div>
+    <div class="d-flex justify-content-between mb-1 small text-body-secondary d-none" data-pricing-tax-row>
+        <span>@L["Houses.Details.Tax"]</span>
+        <span data-pricing-tax></span>
+    </div>
+    <hr class="my-2" />
+    <div class="d-flex justify-content-between">
+        <span class="fw-semibold">@L["Houses.Details.Total"]</span>
+        <span class="fw-semibold" data-pricing-total></span>
+    </div>
+    <div class="d-flex justify-content-between small text-body-secondary d-none" data-pricing-vat-row>
+        <span>@L["Pages.Price.VatIncluded"]</span>
+        <span data-pricing-vat></span>
+    </div>
+    <p class="mt-2 mb-0 small text-body-secondary d-none" data-pricing-vat-note>@L["Pages.Price.PricesIncludeVat"]</p>
+    <p class="mt-2 mb-0 small text-body-secondary">@L["Houses.Details.PriceDisclaimer"]</p>
+</div>
+<script type="application/json" data-pricing-texts>@Html.Raw(System.Text.Json.JsonSerializer.Serialize(texts))</script>

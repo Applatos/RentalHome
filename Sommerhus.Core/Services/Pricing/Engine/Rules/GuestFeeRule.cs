@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Sommerhus.Core.Services.Pricing.Abstractions;
 using Sommerhus.Core.Dtos.Shared;
-using Sommerhus.Core.Dtos.Admin;
 
 namespace Sommerhus.Core.Services.Pricing.Engine.Rules;
 
@@ -11,7 +10,7 @@ namespace Sommerhus.Core.Services.Pricing.Engine.Rules;
 /// Applies an extra fee per guest above a base number.
 /// Configuration:
 ///   Pricing:GuestFee:BaseGuests - Number of guests included in base price (default: 2)
-///   Pricing:GuestFee:PerGuestPerNight - Extra fee per guest per night above base (default: 0)
+///   Pricing:GuestFee:PerGuestPerNight - Extra fee per guest per night above base (default: 50)
 /// </summary>
 public sealed class GuestFeeRule : IPriceRule
 {
@@ -42,7 +41,10 @@ public sealed class GuestFeeRule : IPriceRule
         ctx.Items.Add(new PriceQuoteLineItemDto(
             "GUEST",
             $"Extra guests ({extraGuests} x {nights} nights)",
-            totalGuestFee));
+            totalGuestFee,
+            Nights: nights,
+            Guests: extraGuests,
+            UnitPrice: _perGuestPerNight));
 
         return Task.CompletedTask;
     }

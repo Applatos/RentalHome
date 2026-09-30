@@ -37,7 +37,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task Quote_ReturnsPriceBreakdown()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 1, 5);
         var departure = arrival.AddDays(3);
         var request = new PriceQuoteRequestDto(SeededHouseId, arrival, departure, 4, null);
@@ -48,15 +48,19 @@ public class PricingTests : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var quote = await response.Content.ReadFromJsonAsync<PriceQuoteResponseDto>();
         quote.Should().NotBeNull();
-        quote!.Nights.Should().BeGreaterThan(0);
-        quote.Subtotal.Should().BeGreaterThan(0);
-        quote.Total.Should().BeGreaterThan(0);
+
+        // Seeded low season (B) is 800 a night: 3 nights + 2 extra guests * 50 * 3 nights + cleaning 950.
+        quote!.Nights.Should().Be(3);
+        quote.Subtotal.Should().Be(3 * 800m + 2 * 50m * 3 + 950m);
+        quote.Tax.Should().Be(0m);
+        quote.Total.Should().Be(3650m);
+        quote.VatIncluded.Should().Be(730m);
     }
 
     [Fact]
     public async Task Quote_GetEndpoint_ReturnsPriceBreakdown()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 2, 5);
         var departure = arrival.AddDays(4);
 
@@ -72,7 +76,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task Quote_StoresCacheRow()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 3, 5);
         var departure = arrival.AddDays(3);
         var request = new PriceQuoteRequestDto(SeededHouseId, arrival, departure, 4, null);
@@ -94,7 +98,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task Quote_RepeatedRequest_ReusesSingleCacheRow()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 3, 20);
         var departure = arrival.AddDays(2);
         var request = new PriceQuoteRequestDto(SeededHouseId, arrival, departure, 2, null);
@@ -119,7 +123,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task DeleteRatePlan_InvalidatesQuoteCacheForHouse()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 3, 25);
         var departure = arrival.AddDays(3);
         var request = new PriceQuoteRequestDto(SeededHouseId, arrival, departure, 4, null);
@@ -150,7 +154,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task Quote_UnavailableDates_ReturnsConflict()
     {
-        var year = DateTime.UtcNow.Year;
+        var year = DateTime.UtcNow.Year + 1;
         var arrival = new DateOnly(year, 4, 10);
         var departure = arrival.AddDays(5);
 
@@ -179,7 +183,7 @@ public class PricingTests : IDisposable
     [Fact]
     public async Task Quote_InvalidDates_ReturnsValidationProblem()
     {
-        var date = new DateOnly(DateTime.UtcNow.Year, 1, 5);
+        var date = new DateOnly(DateTime.UtcNow.Year + 1, 1, 5);
         var request = new PriceQuoteRequestDto(SeededHouseId, date, date, 2, null);
 
         using var response = await client.PostAsJsonAsync("/api/pricing/quote", request);

@@ -1,8 +1,27 @@
+@using System.Globalization
 @using Sommerhus.Mvc.ViewModels.Admin.Houses
 @model HouseDetailsVm
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     ViewData["Title"] = Model.House.Title;
+
+    // A house without a season calendar for the coming months cannot be quoted or booked. The
+    // tabs where that is decided say so.
+    var check = Model.PricingCheck;
+    var showCalendarWarning = check.CalendarNeedsAttention && Model.ActiveTab is "overview" or "pricing" or "calendar";
+    var groupId = Model.SavedGroupId;
+    var usesGroupCalendar = groupId.HasValue && !Model.SavedCalendarOverrideId.HasValue;
+    var groupName = Model.GroupName ?? string.Empty;
+    string FormatDate(DateOnly? date) => date?.ToString("d", CultureInfo.CurrentCulture) ?? string.Empty;
+    var calendarWarning = check.Coverage switch
+    {
+        HouseCalendarCoverage.NoCalendar when groupId.HasValue => L["Pages.AdminHouse.Warning.NoCalendarInGroup", groupName].Value,
+        HouseCalendarCoverage.NoCalendar => L["Pages.AdminHouse.Warning.NoCalendar"].Value,
+        HouseCalendarCoverage.NoSpans => L["Pages.AdminHouse.Warning.NoSpans"].Value,
+        HouseCalendarCoverage.Gap => L["Pages.AdminHouse.Warning.Gap", FormatDate(check.GapFrom), FormatDate(check.GapTo)].Value,
+        HouseCalendarCoverage.EndsSoon => L["Pages.AdminHouse.Warning.EndsSoon", FormatDate(check.CalendarEnd)].Value,
+        _ => string.Empty
+    };
 }
 
 <section class="container my-3">
@@ -45,6 +64,27 @@
     </ul>
 
     <div class="border-start border-end border-bottom p-3 rounded-bottom">
+        @if (showCalendarWarning)
+        {
+            <div class="alert alert-warning" role="alert" data-pricing-warning>
+                <p class="mb-2">@calendarWarning</p>
+                <div class="d-flex flex-wrap gap-2">
+                    @if (check.Coverage == HouseCalendarCoverage.NoCalendar && !groupId.HasValue && Model.ActiveTab != "overview")
+                    {
+                        <a class="btn btn-sm btn-outline-dark" asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="overview" asp-fragment="house-group">@L["Pages.AdminHouse.Warning.ChooseGroup"]</a>
+                    }
+                    @if (usesGroupCalendar)
+                    {
+                        <a class="btn btn-sm btn-outline-dark" href="/admin/house-groups/@groupId">@L["Pages.AdminHouse.Warning.OpenGroup", groupName]</a>
+                    }
+                    @if (Model.ActiveTab != "calendar")
+                    {
+                        <a class="btn btn-sm btn-outline-dark" asp-action="Details" asp-controller="Houses" asp-route-id="@Model.House.Id" asp-route-tab="calendar">@L["Pages.AdminHouse.Warning.OpenCalendar"]</a>
+                    }
+                </div>
+            </div>
+        }
+
         @if (Model.ActiveTab == "overview")
         {
             @await Html.PartialAsync("_TabOverview.cshtml", Model)
@@ -75,3 +115,17 @@
         }
     </div>
 </section>
+
+@* Sections defined in the tab partials are never rendered, so the page's own scripts live here. *@
+@section Scripts {
+    <script>
+        // A form that asks before it submits carries its question in data-confirm.
+        document.addEventListener('submit', (event) => {
+            const form = event.target;
+            const question = form instanceof HTMLFormElement ? form.dataset.confirm : undefined;
+            if (question && !window.confirm(question)) {
+                event.preventDefault();
+            }
+        });
+    </script>
+}

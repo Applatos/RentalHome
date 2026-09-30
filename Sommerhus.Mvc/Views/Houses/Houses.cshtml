@@ -31,7 +31,7 @@
 
     <form method="get" class="mb-4">
         <div class="row g-2">
-            <div class="col-md-5">
+            <div class="col-md-4">
                 <input name="q" value="@Model.Filter.Query" class="form-control" placeholder="@L["Shared.SearchPlaceholder"]" />
             </div>
             <div class="col-md-4">
@@ -44,9 +44,9 @@
                 </select>
             </div>
             <div class="col-md-2"><button class="btn btn-dark w-100">@L["Shared.Search"]</button></div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-expanded="@(hasAdvancedFilters ? "true" : "false")">
-                    <i class="bi bi-sliders"></i>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-secondary w-100 text-nowrap" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-controls="advancedSearch" aria-expanded="@(hasAdvancedFilters ? "true" : "false")">
+                    <i class="bi bi-sliders me-1" aria-hidden="true"></i>@L["Shell.Filters"]
                 </button>
             </div>
         </div>
@@ -62,11 +62,11 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1">Min price / night</label>
-                        <input name="minPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinPrice" placeholder="Min" />
+                        <input name="minPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" placeholder="Min" />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1">Max price / night</label>
-                        <input name="maxPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MaxPrice" placeholder="Max" />
+                        <input name="maxPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MaxPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" placeholder="Max" />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1">Sort by</label>

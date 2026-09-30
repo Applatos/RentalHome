@@ -73,6 +73,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IZipCodeQueryService, ZipCodeQueryService>();
         services.AddScoped<IHouseImageQueryService, HouseImageQueryService>();
         services.AddScoped<IPriceSummaryService, PriceSummaryService>();
+        services.AddHostedService<PriceSummaryRefreshService>();
         services.AddScoped<IPricingQuoteService, PricingQuoteService>();
         services.AddScoped<IAvailabilityQueryService, AvailabilityQueryService>();
         services.AddScoped<IBookingService, BookingService>();
@@ -108,6 +109,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPriceRule, BaseNightlyRateRule>();
         services.AddScoped<IPriceRule, GuestFeeRule>();
         services.AddScoped<IPriceRule, CleaningFeeRule>();
+        // Last: VAT is computed from the final total.
+        services.AddScoped<IPriceRule, VatRule>();
         services.AddScoped<IPricingPipeline, PricingPipeline>();
 
         return services;

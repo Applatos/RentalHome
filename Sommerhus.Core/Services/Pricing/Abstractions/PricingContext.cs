@@ -12,10 +12,26 @@ public sealed class PricingContext
     public required PriceQuoteRequestDto Request { get; init; }
     public string Currency { get; set; } = "DKK";
     public Dictionary<DateOnly, decimal> NightlyRates { get; } = new();
+
+    /// <summary>
+    /// Nights no season price covers. A quote with any of these is invalid, never discounted.
+    /// </summary>
+    public List<DateOnly> UnpricedNights { get; } = new();
+
     public PricePlan? RatePlan { get; set; }
     public List<PriceQuoteLineItemDto> Items { get; } = new();
     public decimal Subtotal => Items.Sum(i => i.Amount);
+
+    /// <summary>
+    /// VAT added on top of the subtotal. Prices include VAT, so this stays zero.
+    /// </summary>
     public decimal Tax { get; set; }
+
+    /// <summary>
+    /// The VAT share already included in <see cref="Total"/>.
+    /// </summary>
+    public decimal VatIncluded { get; set; }
+
     public decimal Total => Subtotal + Tax;
     public IEnumerable<DateOnly> Nights
     {

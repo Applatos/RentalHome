@@ -71,8 +71,8 @@ public static class Seeder
             Group = groupA
         };
 
-        var seasonA = new SeasonCode { Code = "A", Color = "#FF5733", Name = "Højsæson" };
-        var seasonB = new SeasonCode { Code = "B",  Color = "#33C1FF", Name = "Sommer" };
+        var seasonA = new SeasonCode { Code = "A", Color = "#FF5733", Name = "Højsæson", SortOrder = 0 };
+        var seasonB = new SeasonCode { Code = "B", Color = "#33C1FF", Name = "Lavsæson", SortOrder = 1 };
 
 
 
@@ -105,35 +105,25 @@ public static class Seeder
         };
         groupA.DefaultCalendar = groupACalendar;
 
+        // Every night of the current year and the next two is priced: high season (A) over the
+        // summer, low season (B) the rest of the year.
         var calendarSegments = new List<SeasonSpan>();
         var currentYear = DateTime.UtcNow.Year;
-        var seededYears = new[] { currentYear, currentYear + 1 };
+        var seededYears = new[] { currentYear, currentYear + 1, currentYear + 2 };
 
         foreach (var year in seededYears)
         {
-            var winterEndDay = DateTime.IsLeapYear(year) ? 29 : 28;
-            
-            // Winter (Jan-Feb) - Season A (High season)
-            calendarSegments.Add(new SeasonSpan
-            {
-                Id = Guid.NewGuid(),
-                CalendarId = groupACalendar.Id,
-                Code = "A",
-                StartDate = new DateOnly(year, 1, 1),
-                EndDate = new DateOnly(year, 2, winterEndDay)
-            });
-            
-            // Spring (Mar-May) - Season B (Sommer)
+            // Jan-May - Season B (low season)
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
                 CalendarId = groupACalendar.Id,
                 Code = "B",
-                StartDate = new DateOnly(year, 3, 1),
+                StartDate = new DateOnly(year, 1, 1),
                 EndDate = new DateOnly(year, 5, 31)
             });
-            
-            // Summer (Jun-Aug) - Season A (High season)
+
+            // Jun-Aug - Season A (high season)
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
@@ -142,8 +132,8 @@ public static class Seeder
                 StartDate = new DateOnly(year, 6, 1),
                 EndDate = new DateOnly(year, 8, 31)
             });
-            
-            // Fall (Sep-Dec) - Season B (Sommer)
+
+            // Sep-Dec - Season B (low season)
             calendarSegments.Add(new SeasonSpan
             {
                 Id = Guid.NewGuid(),
@@ -158,8 +148,8 @@ public static class Seeder
 
         var seasonRates = new List<SeasonPrice>
         {
-            new SeasonPrice { Code = "A", NightlyPrice = 800m },
-            new SeasonPrice { Code = "B", NightlyPrice = 950m },
+            new SeasonPrice { Code = "A", NightlyPrice = 1200m },
+            new SeasonPrice { Code = "B", NightlyPrice = 800m },
         };
 
 

@@ -1,0 +1,32 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
+@{
+    ViewData["Title"] = L["Account.AccessDenied.Title"].Value;
+    var returnUrl = ViewData["ReturnUrl"] as string;
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+
+<section class="py-5 text-center">
+    <h1 class="h3 mb-3">@L["Account.AccessDenied.Title"]</h1>
+    <p class="lead">@L["Account.AccessDenied.Message"]</p>
+    @if (signedIn)
+    {
+        <p class="text-body-secondary">@L["Account.AccessDenied.SignedInAs", User.Identity!.Name ?? string.Empty]</p>
+    }
+
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+        <a class="btn btn-dark" href="~/houses">@L["Account.AccessDenied.BackToHouses"]</a>
+        @if (signedIn)
+        {
+            @* Signs out first: the login page sends signed-in users straight on. *@
+            <form method="post" action="~/account/switch-user" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" class="btn btn-outline-dark">@L["Account.AccessDenied.SwitchUser"]</button>
+            </form>
+        }
+        else
+        {
+            <a class="btn btn-outline-dark" href="@Url.Action("Login", "Account", new { returnUrl })">@L["Nav.Login"]</a>
+        }
+    </div>
+</section>

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin.Houses;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HousePricingController(AdminApiClient api) : AdminControllerBase
+public sealed class HousePricingController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpPost("/admin/houses/{id:guid}/pricing")]
     [ValidateAntiForgeryToken]
@@ -14,7 +16,12 @@ public sealed class HousePricingController(AdminApiClient api) : AdminController
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid fields in price plan.");
+            var messages = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .Where(m => !string.IsNullOrWhiteSpace(m))
+                .Distinct();
+            SetError(string.Join(" ", messages.Prepend(localizer["Pages.AdminHouse.Pricing.NotSaved"].Value)));
             return RedirectToDetails(id, "pricing");
         }
 
@@ -47,7 +54,8 @@ public sealed class HousePricingController(AdminApiClient api) : AdminController
         }
         else
         {
-            SetError(res.Message ?? "Could not save prices.");
+            // The API names what is wrong (a price of zero, a duplicate season code); say so rather than only that it failed.
+            SetError($"{localizer["Pages.AdminHouse.Pricing.NotSaved"]} {ApiErrorText.Describe(res, string.Empty)}".TrimEnd());
         }
 
         return RedirectToDetails(id, "pricing");
@@ -64,7 +72,7 @@ public sealed class HousePricingController(AdminApiClient api) : AdminController
         }
         else
         {
-            SetError(res.Message ?? "Could not delete price plan.");
+            SetError(ApiErrorText.Describe(res, "Could not delete price plan."));
         }
         return RedirectToDetails(houseId, "pricing");
     }

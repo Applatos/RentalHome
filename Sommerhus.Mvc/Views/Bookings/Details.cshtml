@@ -1,4 +1,5 @@
 @model BookingDto
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
     ViewData["Title"] = $"Booking – {Model.HouseTitle}";
     var canCancel = Model.Status is Sommerhus.Domain.Models.BookingStatus.Pending or Sommerhus.Domain.Models.BookingStatus.Confirmed;
@@ -11,11 +12,11 @@
 
 @if (TempData["Success"] is string success)
 {
-    <div class="alert alert-success alert-dismissible fade show">@success <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-success alert-dismissible fade show">@success <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@L["Shared.Close"]"></button></div>
 }
 @if (TempData["Error"] is string error)
 {
-    <div class="alert alert-danger alert-dismissible fade show">@error <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-danger alert-dismissible fade show">@error <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@L["Shared.Close"]"></button></div>
 }
 
 <div class="row g-4">
