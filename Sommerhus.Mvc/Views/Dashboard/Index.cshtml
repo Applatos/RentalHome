@@ -1,11 +1,12 @@
 @model Sommerhus.Mvc.ViewModels.Public.Dashboard.UserDashboardVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "My Dashboard";
+    ViewData["Title"] = L["Dashboard.Title"].Value;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Welcome, @Model.UserName</h1>
-    <span class="badge bg-secondary">@Model.Role</span>
+    <h1 class="h3 mb-0">@L["Dashboard.Welcome", Model.UserName]</h1>
+    <span class="badge bg-secondary">@L.RoleLabel(Model.Role)</span>
 </div>
 
 <div class="row g-4">
@@ -13,8 +14,8 @@
     <div class="col-lg-8">
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h2 class="h5 mb-0">Upcoming Bookings</h2>
-                <a href="/bookings" class="btn btn-outline-dark btn-sm">View all</a>
+                <h2 class="h5 mb-0">@L["Dashboard.UpcomingBookings"]</h2>
+                <a href="/bookings" class="btn btn-outline-dark btn-sm">@L["Dashboard.ViewAll"]</a>
             </div>
             <div class="card-body p-0">
                 @if (Model.UpcomingBookings.Any())
@@ -23,12 +24,12 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>House</th>
-                                    <th>Check-in</th>
-                                    <th>Check-out</th>
-                                    <th>Guests</th>
-                                    <th>Status</th>
-                                    <th>Price</th>
+                                    <th>@L["Bookings.House"]</th>
+                                    <th>@L["Bookings.CheckIn"]</th>
+                                    <th>@L["Bookings.CheckOut"]</th>
+                                    <th>@L["Houses.Details.Guests"]</th>
+                                    <th>@L["Bookings.Status"]</th>
+                                    <th>@L["Bookings.Price"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -48,7 +49,7 @@
                                                     _ => "bg-secondary"
                                                 };
                                             }
-                                            <span class="badge @statusClass">@b.Status</span>
+                                            <span class="badge @statusClass">@L.Label(b.Status)</span>
                                         </td>
                                         <td>@b.TotalPrice.ToString("N0") @b.Currency</td>
                                     </tr>
@@ -60,8 +61,8 @@
                 else
                 {
                     <div class="p-4 text-center text-muted">
-                        <p class="mb-2">No upcoming bookings</p>
-                        <a href="/houses" class="btn btn-dark btn-sm">Browse houses</a>
+                        <p class="mb-2">@L["Dashboard.NoUpcoming"]</p>
+                        <a href="/houses" class="btn btn-dark btn-sm">@L["Shared.BrowseHouses"]</a>
                     </div>
                 }
             </div>
@@ -72,14 +73,14 @@
     <div class="col-lg-4">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h2 class="h5 mb-0">Quick Links</h2>
+                <h2 class="h5 mb-0">@L["Dashboard.QuickLinks"]</h2>
             </div>
             <div class="list-group list-group-flush">
                 <a href="/bookings" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    My Bookings
+                    @L["Bookings.Title"]
                     <span class="badge bg-dark rounded-pill">@(Model.UpcomingBookings.Count + Model.PastBookings.Count)</span>
                 </a>
-                <a href="/houses" class="list-group-item list-group-item-action">Browse Houses</a>
+                <a href="/houses" class="list-group-item list-group-item-action">@L["Shared.BrowseHouses"]</a>
             </div>
         </div>
     </div>
@@ -89,7 +90,7 @@
 <div class="mt-4">
     <div class="card shadow-sm">
         <div class="card-header">
-            <h2 class="h5 mb-0">My Favorites</h2>
+            <h2 class="h5 mb-0">@L["Dashboard.Favorites"]</h2>
         </div>
         <div class="card-body">
             @if (Model.Favorites.Any())
@@ -109,7 +110,7 @@
                                     {
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
                                              style="height:140px;">
-                                            <span class="text-muted">No image</span>
+                                            <span class="text-muted">@L["Dashboard.NoImage"]</span>
                                         </div>
                                     }
                                     <div class="card-body p-2">
@@ -127,7 +128,7 @@
             }
             else
             {
-                <p class="text-muted text-center mb-0">No favorites yet. Browse houses and click the heart icon to save your favorites.</p>
+                <p class="text-muted text-center mb-0">@L["Dashboard.NoFavorites"]</p>
             }
         </div>
     </div>
@@ -139,18 +140,18 @@
     <div class="mt-4">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h2 class="h5 mb-0">Booking History</h2>
+                <h2 class="h5 mb-0">@L["Dashboard.BookingHistory"]</h2>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>House</th>
-                                <th>Check-in</th>
-                                <th>Check-out</th>
-                                <th>Status</th>
-                                <th>Price</th>
+                                <th>@L["Bookings.House"]</th>
+                                <th>@L["Bookings.CheckIn"]</th>
+                                <th>@L["Bookings.CheckOut"]</th>
+                                <th>@L["Bookings.Status"]</th>
+                                <th>@L["Bookings.Price"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -169,7 +170,7 @@
                                                 _ => "bg-secondary"
                                             };
                                         }
-                                        <span class="badge @histClass">@b.Status</span>
+                                        <span class="badge @histClass">@L.Label(b.Status)</span>
                                     </td>
                                     <td>@b.TotalPrice.ToString("N0") @b.Currency</td>
                                 </tr>

@@ -70,7 +70,7 @@ public sealed class HousesController(SommerhusApi api, IStringLocalizer<SharedRe
 
         if (!housesRes.Ok || housesRes.Data is null)
         {
-            SetError(housesRes.Message ?? "Could not load houses");
+            SetError(housesRes.Message ?? localizer["Houses.Messages.LoadFailed"].Value);
         }
 
         var vm = new HouseListVm
@@ -156,14 +156,14 @@ public sealed class HousesController(SommerhusApi api, IStringLocalizer<SharedRe
     {
         if (to <= from)
         {
-            return BadRequest(new { message = "End date must be after start date." });
+            return BadRequest(new { message = localizer["Pages.Price.DepartureAfterArrival"].Value });
         }
 
         var res = await api.GetHouseAvailabilityAsync(id, from, to, ct);
         if (!res.Ok)
         {
             var status = (int)(res.StatusCode ?? HttpStatusCode.BadGateway);
-            return StatusCode(status, new { message = res.Message ?? "Could not load availability." });
+            return StatusCode(status, new { message = res.Message ?? localizer["Houses.Details.AvailabilityLoadError"].Value });
         }
 
         var blocks = res.Data ?? [];

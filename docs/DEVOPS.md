@@ -384,6 +384,28 @@ Ho has no photos yet: the four it had were copies of Blåvand's. To add real one
 in `Sommerhus resourcer/images/areas/ho/`, publish and deploy the API as usual, and run the
 import again. It adds images to an area or house that has none.
 
+### Upgrading an installation from before the redesign (Trin 3)
+
+The Trin 3 release changes the database and the stored text. Deploy it like any other update,
+with the stopped-pool backup first. On its first start the API:
+
+1. applies the migration `HouseImageSortOrder`, which gives images a gallery position and empties
+   the search index (it is derived data);
+2. converts descriptions stored as HTML to plain text (log line: *Converted N house descriptions
+   from HTML to text*);
+3. rebuilds the search index before serving anything.
+
+Then run **Importér demo-indhold** once more. It renames the distance features ("Til
+stranden", "Til indkøb") and puts "Til stranden", Spa, Sauna and Havudsigt first, which is
+what the house cards show as icons.
+
+Images uploaded before this release have no position, so their order is random but fixed: a
+demo house's gallery and Blåvand's cover photo will not be the ones the content names. To get
+the intended order, delete the two demo houses and the two areas in admin and run the import
+again; it recreates them with their photos in order, and the heading "Faciliteter" in the
+house descriptions becomes "Udstyr i huset". A house with bookings cannot be deleted: delete
+its photos on its Billeder tab instead, and the import adds them again, in order.
+
 ## Backups and rollback
 
 Take a backup **before starting a new release**, because its startup can change the schema.

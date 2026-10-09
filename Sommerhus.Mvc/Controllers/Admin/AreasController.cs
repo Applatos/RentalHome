@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Extensions;
@@ -8,7 +9,7 @@ using Sommerhus.Mvc.ViewModels.Admin.Areas;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class AreasController(AdminApiClient api) : AdminControllerBase
+public sealed class AreasController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
 
     [HttpGet("/admin/areas")]
@@ -19,7 +20,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
         if (!res.Ok || res.Data is null)
         {
-            SetError(res.Message ?? "Could not load areas.");
+            SetError(res.Message ?? localizer["Admin.Areas.Messages.LoadListFailed"].Value);
             return View("~/Views/Admin/Areas/Index.cshtml", new AreaListVm { Areas = [] });
         }
 
@@ -33,7 +34,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         var res = await api.GetAreaAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
-            SetError(res.Message ?? "Area not found.");
+            SetError(res.Message ?? localizer["Admin.Areas.Messages.NotFound"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -50,7 +51,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             }
             else
             {
-                auditError = auditRes.Message ?? "Could not load audit history.";
+                auditError = auditRes.Message ?? localizer["Admin.Audit.LoadFailed"].Value;
             }
         }
 
@@ -85,7 +86,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         if (!ModelState.IsValid)
         {
             vm.Cities = await LoadCityOptionsAsync(vm.Area.CityIds, ct);
-            SetError("Invalid fields.");
+            SetError(localizer["Admin.Shared.Messages.InvalidFields"].Value);
             return View("~/Views/Admin/Areas/Create.cshtml", vm);
         }
 
@@ -93,12 +94,12 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
         if (!res.Ok)
         {
-            SetError(res.Message ?? "Could not create area.");
+            SetError(res.Message ?? localizer["Admin.Areas.Messages.CreateFailed"].Value);
             vm.Cities = await LoadCityOptionsAsync(vm.Area.CityIds, ct);
             return View("~/Views/Admin/Areas/Create.cshtml", vm);
         }
 
-        SetSuccess("Area created.");
+        SetSuccess(localizer["Admin.Areas.Messages.Created"].Value);
         return RedirectToAction(nameof(Details), new { id = res.Data!.Id });
     }
 
@@ -117,13 +118,13 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
 
         if (!res.Ok)
         {
-            SetError(res.Message ?? "Could not update area.");
+            SetError(res.Message ?? localizer["Admin.Areas.Messages.UpdateFailed"].Value);
             SetAdminTab("areas");
             var rebuiltVm = await BuildAreaEditVmAsync(null, vm.Area.CityIds, vm.Area.Name, vm.Area.Description, ct);
             return View("~/Views/Admin/Areas/Details.cshtml", rebuiltVm);
         }
 
-        SetSuccess("Area updated.");
+        SetSuccess(localizer["Admin.Areas.Messages.Updated"].Value);
         return RedirectToAction(nameof(Details), new { id });
     }
     [HttpPost("/admin/areas/{id:guid}/delete")]
@@ -133,11 +134,11 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         var res = await api.DeleteAreaAsync(id, ct);
         if (res.Ok)
         {
-            SetSuccess("Area deleted.");
+            SetSuccess(localizer["Admin.Areas.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete area.");
+            SetError(res.Message ?? localizer["Admin.Areas.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToAction(nameof(Index));
@@ -149,7 +150,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
     {
         if (files is null || !files.Any())
         {
-            SetError("Please select at least one image.");
+            SetError(localizer["Admin.Images.Messages.SelectOne"].Value);
             return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
@@ -157,11 +158,11 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
         if (res.Ok)
         {
             var uploadedCount = res.Data?.Count ?? 0;
-            SetSuccess(uploadedCount > 0 ? $"Uploaded {uploadedCount} image(s)." : "No images were uploaded.");
+            SetSuccess(uploadedCount > 0 ? localizer["Admin.Images.Messages.Uploaded", uploadedCount].Value : localizer["Admin.Images.Messages.NoneUploaded"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Upload failed.");
+            SetError(res.Message ?? localizer["Admin.Images.Messages.UploadFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id, tab = "images" });
@@ -173,18 +174,18 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
     {
         if (id == Guid.Empty)
         {
-            SetError("Invalid area ID.");
+            SetError(localizer["Admin.Areas.Messages.InvalidId"].Value);
             return RedirectToAction(nameof(Details), new { id, tab = "images" });
         }
 
         var res = await api.DeleteAreaImageAsync(id, imageId, ct);
         if (res.Ok)
         {
-            SetSuccess("Image deleted.");
+            SetSuccess(localizer["Admin.Images.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete image.");
+            SetError(res.Message ?? localizer["Admin.Images.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id, tab = "images" });
@@ -233,7 +234,7 @@ public sealed class AreasController(AdminApiClient api) : AdminControllerBase
             return citiesRes.Data.ToSelectList(selectedCityIds).ToList();
         }
 
-        SetError(citiesRes.Message ?? "Could not load cities.");
+        SetError(citiesRes.Message ?? localizer["Admin.Areas.Messages.LoadCitiesFailed"].Value);
         return new List<SelectListItem>();
     }
 }

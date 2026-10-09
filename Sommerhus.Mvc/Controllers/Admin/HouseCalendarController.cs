@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HouseCalendarController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseCalendarController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpPost("/admin/houses/{houseId:guid}/calendar")]
     [ValidateAntiForgeryToken]
@@ -13,18 +14,18 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid season span data.");
+            SetError(localizer["Admin.Calendar.Messages.InvalidSpan"].Value);
             return RedirectToDetails(houseId, "calendar");
         }
 
         var res = await api.AddHouseSeasonSpanAsync(houseId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span added.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanAdded"].Value);
         }
         else
         {
-            SetError(ApiErrorText.Describe(res, "Could not add season span."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.SpanAddFailed"].Value));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -36,18 +37,18 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid season span data.");
+            SetError(localizer["Admin.Calendar.Messages.InvalidSpan"].Value);
             return RedirectToDetails(houseId, "calendar");
         }
 
         var res = await api.UpdateHouseSeasonSpanAsync(houseId, spanId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span updated.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanUpdated"].Value);
         }
         else
         {
-            SetError(ApiErrorText.Describe(res, "Could not update season span."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.SpanUpdateFailed"].Value));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -60,11 +61,11 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
         var res = await api.DeleteHouseSeasonSpanAsync(houseId, spanId, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span deleted.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanDeleted"].Value);
         }
         else
         {
-            SetError(ApiErrorText.Describe(res, "Could not delete season span."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.SpanDeleteFailed"].Value));
         }
 
         return RedirectToDetails(houseId, "calendar");
@@ -76,9 +77,9 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
     {
         var res = await api.SetHouseCalendarOverrideAsync(houseId, calendarId, ct);
         if (res.Ok)
-            SetSuccess("Calendar override applied.");
+            SetSuccess(localizer["Admin.Calendar.Messages.OverrideApplied"].Value);
         else
-            SetError(ApiErrorText.Describe(res, "Could not set calendar override."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.OverrideApplyFailed"].Value));
 
         return RedirectToDetails(houseId, "calendar");
     }
@@ -89,9 +90,9 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
     {
         var res = await api.RemoveHouseCalendarOverrideAsync(houseId, ct);
         if (res.Ok)
-            SetSuccess("Calendar override removed. House now uses group default.");
+            SetSuccess(localizer["Admin.Calendar.Messages.OverrideRemoved"].Value);
         else
-            SetError(ApiErrorText.Describe(res, "Could not remove calendar override."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.OverrideRemoveFailed"].Value));
 
         return RedirectToDetails(houseId, "calendar");
     }
@@ -102,9 +103,9 @@ public sealed class HouseCalendarController(AdminApiClient api) : AdminControlle
     {
         var res = await api.CreateHouseCalendarOverrideAsync(houseId, name, ct);
         if (res.Ok)
-            SetSuccess("Custom calendar created and applied as override.");
+            SetSuccess(localizer["Admin.Calendar.Messages.CustomCreated"].Value);
         else
-            SetError(ApiErrorText.Describe(res, "Could not create custom calendar."));
+            SetError(ApiErrorText.Describe(res, localizer["Admin.Calendar.Messages.CustomCreateFailed"].Value));
 
         return RedirectToDetails(houseId, "calendar");
     }

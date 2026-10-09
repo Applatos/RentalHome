@@ -35,7 +35,7 @@ else
                                     _ => "bg-secondary"
                                 };
                             }
-                            <span class="badge @badgeClass">@entry.Action</span>
+                            <span class="badge @badgeClass">@(L.LabelOrText<AuditAction>(entry.Action))</span>
                         </td>
                         <td><small>@entry.ChangedBy</small></td>
                         <td>

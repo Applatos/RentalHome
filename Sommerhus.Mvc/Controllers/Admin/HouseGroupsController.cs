@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
@@ -6,7 +7,7 @@ using Sommerhus.Mvc.ViewModels.Admin.HouseGroups;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseGroupsController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpGet("/admin/house-groups")]
     public async Task<IActionResult> Index(CancellationToken ct = default)
@@ -16,7 +17,7 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var groupsRes = await api.GetHouseGroupListAsync(ct);
         if (!groupsRes.Ok || groupsRes.Data is null)
         {
-            SetError(groupsRes.Message ?? "Could not load house groups.");
+            SetError(groupsRes.Message ?? localizer["Admin.HouseGroups.Messages.LoadListFailed"].Value);
             return View("~/Views/Admin/HouseGroups/Index.cshtml", Array.Empty<HouseGroupDto>());
         }
 
@@ -31,7 +32,7 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var groupRes = await api.GetHouseGroupAsync(id, ct);
         if (!groupRes.Ok || groupRes.Data is null)
         {
-            SetError(groupRes.Message ?? "House group not found.");
+            SetError(groupRes.Message ?? localizer["Admin.HouseGroups.Messages.NotFound"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -70,11 +71,11 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var res = await api.CreateHouseGroupAsync(new HouseGroupDto(Guid.NewGuid(), dto.Name), ct);
         if (res.Ok && res.Data is not null)
         {
-            SetSuccess("House group created.");
+            SetSuccess(localizer["Admin.HouseGroups.Messages.Created"].Value);
             return RedirectToAction(nameof(Index));
         }
 
-        SetError(res.Message ?? "Could not create house group.");
+        SetError(res.Message ?? localizer["Admin.HouseGroups.Messages.CreateFailed"].Value);
         SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Create.cshtml", dto);
     }
@@ -87,7 +88,7 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var groupRes = await api.GetHouseGroupAsync(id, ct);
         if (!groupRes.Ok || groupRes.Data is null)
         {
-            SetError(groupRes.Message ?? "House group not found.");
+            SetError(groupRes.Message ?? localizer["Admin.HouseGroups.Messages.NotFound"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -108,11 +109,11 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var res = await api.UpdateHouseGroupAsync(id, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("House group updated.");
+            SetSuccess(localizer["Admin.HouseGroups.Messages.Updated"].Value);
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        SetError(res.Message ?? "Could not update house group.");
+        SetError(res.Message ?? localizer["Admin.HouseGroups.Messages.UpdateFailed"].Value);
         SetAdminTab("house-groups");
         return View("~/Views/Admin/HouseGroups/Edit.cshtml", dto);
     }
@@ -127,11 +128,11 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var res = await api.DeleteHouseGroupAsync(id, ct);
         if (res.Ok)
         {
-            SetSuccess("House group deleted.");
+            SetSuccess(localizer["Admin.HouseGroups.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete house group.");
+            SetError(res.Message ?? localizer["Admin.HouseGroups.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToAction(nameof(Index));
@@ -156,18 +157,18 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid season span data.");
+            SetError(localizer["Admin.Calendar.Messages.InvalidSpan"].Value);
             return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
         }
 
         var res = await api.AddSeasonSpanAsync(groupId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span added.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanAdded"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not add season span.");
+            SetError(res.Message ?? localizer["Admin.Calendar.Messages.SpanAddFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
@@ -179,18 +180,18 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid season span data.");
+            SetError(localizer["Admin.Calendar.Messages.InvalidSpan"].Value);
             return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
         }
 
         var res = await api.UpdateSeasonSpanAsync(groupId, spanId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span updated.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanUpdated"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not update season span.");
+            SetError(res.Message ?? localizer["Admin.Calendar.Messages.SpanUpdateFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });
@@ -203,11 +204,11 @@ public sealed class HouseGroupsController(AdminApiClient api) : AdminControllerB
         var res = await api.DeleteSeasonSpanAsync(groupId, spanId, ct);
         if (res.Ok)
         {
-            SetSuccess("Season span deleted.");
+            SetSuccess(localizer["Admin.Calendar.Messages.SpanDeleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete season span.");
+            SetError(res.Message ?? localizer["Admin.Calendar.Messages.SpanDeleteFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id = groupId, tab = "calendar" });

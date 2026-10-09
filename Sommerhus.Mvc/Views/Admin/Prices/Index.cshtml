@@ -34,7 +34,7 @@
                             </div>
                             <div class="col-md-8">
                                 <label asp-for="SeasonCodeForm.Label" class="form-label">@L["Admin.Shared.Name"]</label>
-                                <input asp-for="SeasonCodeForm.Label" class="form-control" placeholder="Højsæson" />
+                                <input asp-for="SeasonCodeForm.Label" class="form-control" placeholder="@L["Admin.Prices.SeasonCodes.NamePlaceholder"]" />
                                 <span asp-validation-for="SeasonCodeForm.Label" class="text-danger"></span>
                             </div>
                             <div class="col-md-5">

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Api.Tests.Infrastructure;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
+using Sommerhus.Mvc;
 using Sommerhus.Mvc.Services;
 using MvcFeaturesController = Sommerhus.Mvc.Controllers.Admin.FeaturesController;
 
@@ -48,7 +50,7 @@ public sealed class FeatureIconTests : IDisposable
 
         await controller.UploadIcon(featureId, file);
 
-        controller.TempData["Ok"].Should().Be("Icon uploaded.");
+        controller.TempData["Ok"].Should().Be("Admin.Features.Messages.IconUploaded");
         var features = await api.GetFeaturesAsync(CancellationToken.None);
         var url = features.Data!.Single(f => f.Id == featureId).IconUrl;
         url.Should().StartWith($"http://localhost/api/uploads/features/{featureId}/");
@@ -88,7 +90,7 @@ public sealed class FeatureIconTests : IDisposable
     }
 
     private MvcFeaturesController CreateController()
-        => new(api)
+        => new(api, new KeyLocalizer())
         {
             TempData = new TempDataDictionary(new DefaultHttpContext(), new EmptyTempDataProvider())
         };
@@ -104,6 +106,16 @@ public sealed class FeatureIconTests : IDisposable
     {
         client.Dispose();
         factory.Dispose();
+    }
+
+    /// <summary>Answers every resource key with the key itself; these tests read the API's messages, not the site's texts.</summary>
+    private sealed class KeyLocalizer : IStringLocalizer<SharedResource>
+    {
+        public LocalizedString this[string name] => new(name, name);
+
+        public LocalizedString this[string name, params object[] arguments] => new(name, name);
+
+        public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) => [];
     }
 
     private sealed class EmptyTempDataProvider : ITempDataProvider

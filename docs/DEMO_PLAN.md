@@ -98,18 +98,41 @@ Beslutninger for trin 2:
 
 ## Trin 3 — Visuelt løft efter de originale mockups
 
-Mockups: `Sommerhus.Mvc/wwwroot/Sommerhus resourcer/Layout/`.
+Mockups: `Sommerhus.Mvc/wwwroot/Sommerhus resourcer/Layout/`. Det godkendte mockup til trin 3 er
+lærredet "Sommerhuse Trin 3 mockup" (husliste, husets side, område).
 
-- [ ] Forside med stort foto og søgebar (område, ankomst, afrejse, gæster) og udvalgte huse/områder.
-- [ ] Huskort: foto først, titel + område, nøgletal, 3–4 ikoner, "fra X kr./nat".
-- [ ] Husets side: galleri (1 stort + 4 små), ikonrække med værdier, beskrivelse og faciliteter,
-      prisboks der følger med ved scroll (bundbar på mobil), kort.
-- [ ] Områder med forsidebillede og husene som kort.
-- [ ] Rolig nordisk palet og én accentfarve; mobilmenu der kan klappes sammen.
-- [ ] Dansk med æøå som primært sprog; alle views bruger oversættelsen; feature-navne på dansk.
-- [ ] Beskrivelser som tekst med afsnit i stedet for rå HTML (`Html.Raw`).
-- [ ] Ubrugte CSS/JS-filer fjernet; dobbelt BOM i `site-additions.css` fjernet.
-- [ ] Sidetitler virker på lister (`LocalizedString` i `ViewData["Title"]`).
+Status: færdig 09.10.2026 på branch `feature/trin-3-visual` (ikke merget). Alle tests grønne;
+siderne er set i browser på dansk og engelsk og mod en database fra før trin 3.
+
+- [ ] ~~Forside med stort foto og søgebar~~ — udgår: huslisten er fortsat det, man lander på.
+- [x] Huskort: foto først med pile, tæller og små billeder under; titel + område, nøgletal, op til
+      4 ikoner, "fra X kr./nat".
+- [x] Husets side: karrusel med forsidebilledet ved siden af (som før, i stedet for "1 stort + 4
+      små"), ikonrække med værdier, beskrivelse og faciliteter, prisboks der følger med ved scroll.
+      Bundbar på mobil og kort udgår.
+- [x] Områder med forsidebillede og husene som kort.
+- [x] Rolig nordisk palet og én accentfarve. Mobilmenuen udgår (ikke mobilformat nu).
+- [x] Dansk med æøå som primært sprog; alle views bruger oversættelsen; feature-navne på dansk.
+- [x] Beskrivelser som tekst med afsnit i stedet for rå HTML (`Html.Raw`).
+- [x] Ubrugte CSS/JS-filer fjernet; dobbelt BOM i `site-additions.css` fjernet.
+- [x] Sidetitler virker på lister (`LocalizedString` i `ViewData["Title"]`).
+
+Beslutninger for trin 3:
+
+- **Palet og skrift:** lys grålig baggrund, hvide kort, mørk skifergrå tekst og én havblå accent
+  (`#2C5578`), valgt så den passer til ikonernes blågrå. Ikonerne kan ikke farves om: de har en fast
+  ring og hvid inderside. Skriften er Schibsted Grotesk, hostet af sitet selv (OFL) og ikke fra
+  Google, af hensyn til GDPR. Farverne står som variabler øverst i `wwwroot/css/site.css`.
+- **Ikoner på kortet:** de første fire features i features' sorteringsrækkefølge, der har et ikon,
+  ikke er en af nøgletallenes (personer, soveværelser, m²) og har en værdi. Rækkefølgen styres af
+  sorteringen i admin; demo-indholdet sætter "Til stranden", Spa, Sauna og Havudsigt først.
+- **Billedrækkefølge:** billeder har fået et sorteringsfelt. Uploads nummereres i den rækkefølge,
+  de sendes, og alle sider viser forsidebilledet først, så galleriet, plantegninger sidst. Billeder
+  uploadet før trin 3 har alle nummer 0 og står i en tilfældig, men fast rækkefølge.
+- **Beskrivelser** gemmes som almindelig tekst: en tom linje adskiller afsnit. HTML fra tidligere
+  versioner konverteres én gang ved opstart.
+- **Søgefelter:** Søg, Område, Gæster og Sortér står i hovedlinjen; resten bag "Filtre". Søgning på
+  ledige datoer hører til trin 4.
 
 ## Trin 4 — Forenkling i UI'et
 

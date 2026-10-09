@@ -3,7 +3,9 @@
 @model HouseGroupDetailsVm
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = $"Admin - {Model.Group.Name}";
+    ViewData["Title"] = L["Admin.HouseGroups.Details.PageTitle", Model.Group.Name].Value;
+    // Serialised so an apostrophe in the text cannot end the JavaScript string.
+    var deleteSpanConfirm = System.Text.Json.JsonSerializer.Serialize(L["Admin.HouseGroups.Details.DeleteSpanConfirm"].Value);
 }
 
 <section class="container my-3">
@@ -15,10 +17,10 @@
         <h2>@Model.Group.Name</h2>
         <div>
             <a asp-action="Edit" asp-route-id="@Model.Group.Id" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-pencil"></i> Rediger gruppe
+                <i class="bi bi-pencil"></i> @L["Admin.HouseGroups.Details.EditGroup"]
             </a>
             <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Tilbage til oversigt
+                <i class="bi bi-arrow-left"></i> @L["Admin.Shared.BackToOverview"]
             </a>
         </div>
     </div>
@@ -26,11 +28,11 @@
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link @(Model.Tab == "overview" ? "active" : "")"
-               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "overview" })">Oversigt</a>
+               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "overview" })">@L["Admin.Tabs.Overview"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(Model.Tab == "calendar" ? "active" : "")"
-               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "calendar" })">Sæsonkalender</a>
+               href="@Url.Action("Details", new { id = Model.Group.Id, tab = "calendar" })">@L["Admin.Tabs.SeasonCalendar"]</a>
         </li> 
     </ul>
 
@@ -38,19 +40,19 @@
         @if (Model.Tab == "calendar")
         {
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5>Sæsonkalender</h5>
+                <h5>@L["Admin.Tabs.SeasonCalendar"]</h5>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSeasonSpanModal">
-                    <i class="bi bi-plus-lg"></i> Tilføj sæsonperiode
+                    <i class="bi bi-plus-lg"></i> @L["Pages.AdminHouse.Calendar.AddSpan"]
                 </button>
             </div>
 
             @if ((Model.Group.Calendar?.Count ?? 0) == 0)
             {
                 <div class="text-center py-5">
-                    <h6 class="text-muted">Ingen sæsonperioder defineret</h6>
-                    <p class="text-muted">Tilføj sæsonperioder for at definere hvornår forskellige sæsoner gælder for denne husgruppe.</p>
+                    <h6 class="text-muted">@L["Admin.HouseGroups.Details.NoSpansTitle"]</h6>
+                    <p class="text-muted">@L["Admin.HouseGroups.Details.NoSpansHelp"]</p>
                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addSeasonSpanModal">
-                        Tilføj første sæsonperiode
+                        @L["Admin.HouseGroups.Details.AddFirstSpan"]
                     </button>
                 </div>
             }
@@ -60,10 +62,10 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Sæson</th>
-                                <th>Startdato</th>
-                                <th>Slutdato</th>
-                                <th class="text-end">Handlinger</th>
+                                <th>@L["Pages.AdminHouse.Calendar.Season"]</th>
+                                <th>@L["Admin.HouseGroups.Details.StartDate"]</th>
+                                <th>@L["Admin.HouseGroups.Details.EndDate"]</th>
+                                <th class="text-end">@L["Admin.Shared.Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -102,7 +104,7 @@
                                             </button>
                                             <form asp-action="DeleteSeasonSpan" asp-route-groupId="@Model.Group.Id" asp-route-spanId="@span.Id" 
                                                   method="post" class="d-inline"
-                                                  onsubmit="return confirm('Er du sikker på at du vil slette denne sæsonperiode?');">
+                                                  onsubmit="return confirm(@deleteSpanConfirm);">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="btn btn-outline-danger" aria-label="@L["Admin.Shared.Delete"]" title="@L["Admin.Shared.Delete"]">
                                                     <i class="bi bi-trash" aria-hidden="true"></i>
@@ -121,21 +123,20 @@
         {
             <div class="row">
                 <div class="col-md-6">
-                    <h5>Gruppeinformation</h5>
+                    <h5>@L["Admin.HouseGroups.Details.InfoTitle"]</h5>
                     <dl class="row">
-                        <dt class="col-sm-4">Navn:</dt>
+                        <dt class="col-sm-4">@L["Admin.Shared.Name"]:</dt>
                         <dd class="col-sm-8">@Model.Group.Name</dd>
-                        <dt class="col-sm-4">ID:</dt>
+                        <dt class="col-sm-4">@L["Admin.Shared.Id"]:</dt>
                         <dd class="col-sm-8"><code>@Model.Group.Id</code></dd>
-                        <dt class="col-sm-4">Sæsonperioder:</dt>
+                        <dt class="col-sm-4">@L["Pages.AdminHouse.Calendar.Spans"]:</dt>
                         <dd class="col-sm-8">@(Model.Group.Calendar?.Count ?? 0)</dd>
                     </dl>
                 </div>
                 <div class="col-md-6">
-                    <h5>Brug af gruppen</h5>
+                    <h5>@L["Admin.HouseGroups.Details.UsageTitle"]</h5>
                     <p class="text-muted">
-                        Denne husgruppe kan tildeles til huse for at dele en fælles sæsonkalender.
-                        Huse i samme gruppe vil automatisk bruge de samme sæsonperioder til prisberegning.
+                        @L["Admin.HouseGroups.Details.UsageText"]
                     </p>
                 </div>
             </div>
@@ -148,7 +149,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tilføj sæsonperiode</h5>
+                <h5 class="modal-title">@L["Pages.AdminHouse.Calendar.AddSpan"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" asp-action="AddSeasonSpan" asp-route-groupId="@Model.Group.Id">
@@ -157,9 +158,9 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     
                     <div class="mb-3">
-                        <label for="Code" class="form-label">Sæsonkode *</label>
+                        <label for="Code" class="form-label">@L["Pages.AdminHouse.Calendar.SeasonCode"] *</label>
                         <select name="Code" id="Code" class="form-select" required>
-                            <option value="">Vælg sæsonkode</option>
+                            <option value="">@L["Pages.AdminHouse.Calendar.SelectCode"]</option>
                             @foreach (var code in Model.SeasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
                             {
                                 <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
@@ -168,18 +169,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="StartDate" class="form-label">Startdato *</label>
+                        <label for="StartDate" class="form-label">@L["Admin.HouseGroups.Details.StartDate"] *</label>
                         <input type="date" name="StartDate" id="StartDate" class="form-control" required />
                     </div>
 
                     <div class="mb-3">
-                        <label for="EndDate" class="form-label">Slutdato *</label>
+                        <label for="EndDate" class="form-label">@L["Admin.HouseGroups.Details.EndDate"] *</label>
                         <input type="date" name="EndDate" id="EndDate" class="form-control" required />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
-                    <button type="submit" class="btn btn-primary">Tilføj periode</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Admin.Shared.Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Admin.HouseGroups.Details.AddPeriod"]</button>
                 </div>
             </form>
         </div>
@@ -191,7 +192,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Rediger sæsonperiode</h5>
+                <h5 class="modal-title">@L["Pages.AdminHouse.Calendar.EditSpan"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" id="editSeasonSpanForm">
@@ -202,9 +203,9 @@
                     <input type="hidden" id="editSpanId" name="spanId" />
                     
                     <div class="mb-3">
-                        <label for="editCode" class="form-label">Sæsonkode *</label>
+                        <label for="editCode" class="form-label">@L["Pages.AdminHouse.Calendar.SeasonCode"] *</label>
                         <select name="Code" id="editCode" class="form-select" required>
-                            <option value="">Vælg sæsonkode</option>
+                            <option value="">@L["Pages.AdminHouse.Calendar.SelectCode"]</option>
                             @foreach (var code in Model.SeasonCodes.OrderBy(c => c.SortOrder).ThenBy(c => c.Code))
                             {
                                 <option value="@code.Code">@code.Code - @(code.Label ?? code.Code)</option>
@@ -213,18 +214,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="editStartDate" class="form-label">Startdato *</label>
+                        <label for="editStartDate" class="form-label">@L["Admin.HouseGroups.Details.StartDate"] *</label>
                         <input type="date" name="StartDate" id="editStartDate" class="form-control" required />
                     </div>
 
                     <div class="mb-3">
-                        <label for="editEndDate" class="form-label">Slutdato *</label>
+                        <label for="editEndDate" class="form-label">@L["Admin.HouseGroups.Details.EndDate"] *</label>
                         <input type="date" name="EndDate" id="editEndDate" class="form-control" required />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annullér</button>
-                    <button type="submit" class="btn btn-primary">Gem ændringer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Admin.Shared.Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Admin.Shared.SaveChanges"]</button>
                 </div>
             </form>
         </div>

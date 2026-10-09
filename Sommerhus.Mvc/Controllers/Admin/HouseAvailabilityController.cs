@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HouseAvailabilityController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseAvailabilityController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpPost("/admin/houses/{houseId:guid}/availability")]
     [ValidateAntiForgeryToken]
@@ -12,14 +13,14 @@ public sealed class HouseAvailabilityController(AdminApiClient api) : AdminContr
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid availability data.");
+            SetError(localizer["Admin.Availability.Messages.InvalidData"].Value);
             return RedirectToDetails(houseId, "availability");
         }
 
         var res = await api.CreateHouseAvailabilityBlockAsync(houseId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Availability block added.");
+            SetSuccess(localizer["Admin.Availability.Messages.Added"].Value);
         }
         else if (res.HasValidationErrors)
         {
@@ -27,7 +28,7 @@ public sealed class HouseAvailabilityController(AdminApiClient api) : AdminContr
         }
         else
         {
-            SetError(res.Message ?? "Could not add availability block.");
+            SetError(res.Message ?? localizer["Admin.Availability.Messages.AddFailed"].Value);
         }
 
         return RedirectToDetails(houseId, "availability");
@@ -39,14 +40,14 @@ public sealed class HouseAvailabilityController(AdminApiClient api) : AdminContr
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid availability data.");
+            SetError(localizer["Admin.Availability.Messages.InvalidData"].Value);
             return RedirectToDetails(houseId, "availability");
         }
 
         var res = await api.UpdateHouseAvailabilityBlockAsync(houseId, blockId, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Availability block updated.");
+            SetSuccess(localizer["Admin.Availability.Messages.Updated"].Value);
         }
         else if (res.HasValidationErrors)
         {
@@ -54,7 +55,7 @@ public sealed class HouseAvailabilityController(AdminApiClient api) : AdminContr
         }
         else
         {
-            SetError(res.Message ?? "Could not update availability block.");
+            SetError(res.Message ?? localizer["Admin.Availability.Messages.UpdateFailed"].Value);
         }
 
         return RedirectToDetails(houseId, "availability");
@@ -67,11 +68,11 @@ public sealed class HouseAvailabilityController(AdminApiClient api) : AdminContr
         var res = await api.DeleteHouseAvailabilityBlockAsync(houseId, blockId, ct);
         if (res.Ok)
         {
-            SetSuccess("Availability block deleted.");
+            SetSuccess(localizer["Admin.Availability.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete availability block.");
+            SetError(res.Message ?? localizer["Admin.Availability.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToDetails(houseId, "availability");

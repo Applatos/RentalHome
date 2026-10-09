@@ -50,7 +50,7 @@ public sealed class HousePricingController(AdminApiClient api, IStringLocalizer<
         var res = await api.PutHousePricingAsync(id, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Prices updated.");
+            SetSuccess(localizer["Pages.AdminHouse.Pricing.Updated"].Value);
         }
         else
         {
@@ -68,11 +68,11 @@ public sealed class HousePricingController(AdminApiClient api, IStringLocalizer<
         var res = await api.DeleteHouseRatePlanAsync(houseId, ratePlanId, ct);
         if (res.Ok)
         {
-            SetSuccess("Price plan deleted.");
+            SetSuccess(localizer["Pages.AdminHouse.Pricing.RatePlanDeleted"].Value);
         }
         else
         {
-            SetError(ApiErrorText.Describe(res, "Could not delete price plan."));
+            SetError(ApiErrorText.Describe(res, localizer["Pages.AdminHouse.Pricing.RatePlanDeleteFailed"].Value));
         }
         return RedirectToDetails(houseId, "pricing");
     }

@@ -29,7 +29,7 @@ else
                 <div class="card h-100">
                     <img src="@img.Url" class="card-img-top" alt="@L["Admin.Areas.Images.AreaImageAlt"]" style="height:150px;object-fit:cover;" />
                     <div class="card-body p-2">
-                        <small class="text-muted">@(img.Kind ?? L["Admin.Images.GalleryKind"])</small>
+                        <small class="text-muted">@(L.LabelOrText<ImageKind>(string.IsNullOrWhiteSpace(img.Kind) ? nameof(ImageKind.Gallery) : img.Kind))</small>
                         <div class="mt-2">
                             <form method="post" asp-controller="Areas" asp-action="DeleteAreaImage" asp-route-id="@Model.Area.Id" asp-route-imageId="@img.Id" class="d-inline" onsubmit="return confirm('@L["Admin.Images.DeleteConfirm"]');">
                                 @Html.AntiForgeryToken()

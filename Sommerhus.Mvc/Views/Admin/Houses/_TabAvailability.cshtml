@@ -7,6 +7,18 @@
 @{
     var blocks = Model.AvailabilityBlocks ?? Array.Empty<Sommerhus.Core.Dtos.Shared.AvailabilityBlockDto>();
 
+    // The order the status list is offered in; the labels come from the resource files.
+    var statusOptions = new[]
+    {
+        AvailabilityStatus.Blocked,
+        AvailabilityStatus.Tentative,
+        AvailabilityStatus.Booked,
+        AvailabilityStatus.Available
+    };
+
+    // Serialised so an apostrophe in the text cannot end the JavaScript string.
+    var deleteConfirm = System.Text.Json.JsonSerializer.Serialize(L["Admin.Availability.DeleteConfirm"].Value);
+
     string BadgeClass(AvailabilityStatus status) => status switch
     {
         AvailabilityStatus.Available => "bg-success",
@@ -20,14 +32,13 @@
 <section>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h5 class="mb-1">Availability</h5>
+            <h5 class="mb-1">@L["Admin.Tabs.Availability"]</h5>
             <p class="mb-0 text-muted small">
-                Showing blocks from @Model.AvailabilityFrom.ToString("d", CultureInfo.CurrentCulture)
-                to @Model.AvailabilityTo.ToString("d", CultureInfo.CurrentCulture)
+                @L["Admin.Availability.Showing", Model.AvailabilityFrom.ToString("d", CultureInfo.CurrentCulture), Model.AvailabilityTo.ToString("d", CultureInfo.CurrentCulture)]
             </p>
         </div>
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAvailabilityBlockModal">
-            <i class="bi bi-plus-lg"></i> Add Block
+            <i class="bi bi-plus-lg"></i> @L["Admin.Availability.AddBlock"]
         </button>
     </div>
 
@@ -38,7 +49,7 @@
 
     @if (!blocks.Any())
     {
-        <p class="text-muted mb-0">No availability blocks found in the selected period.</p>
+        <p class="text-muted mb-0">@L["Admin.Availability.Empty"]</p>
     }
     else
     {
@@ -46,22 +57,22 @@
             <table class="table table-sm align-middle">
                 <thead>
                     <tr>
-                        <th>Status</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Source</th>
-                        <th>Note</th>
-                        <th class="text-end">Actions</th>
+                        <th>@L["Admin.Shared.Status"]</th>
+                        <th>@L["Admin.Availability.Start"]</th>
+                        <th>@L["Admin.Availability.End"]</th>
+                        <th>@L["Admin.Availability.Source"]</th>
+                        <th>@L["Admin.Availability.Note"]</th>
+                        <th class="text-end">@L["Admin.Shared.Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var block in blocks.OrderBy(b => b.StartDate))
                     {
                         <tr>
-                            <td><span class="badge @BadgeClass(block.Status)">@block.Status</span></td>
+                            <td><span class="badge @BadgeClass(block.Status)">@L.Label(block.Status)</span></td>
                             <td>@block.StartDate.ToString("d", CultureInfo.CurrentCulture)</td>
                             <td>@block.EndDate.ToString("d", CultureInfo.CurrentCulture)</td>
-                            <td>@block.Source</td>
+                            <td>@L.Label(block.Source)</td>
                             <td>@(string.IsNullOrWhiteSpace(block.Note) ? "-" : block.Note)</td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm">
@@ -81,7 +92,7 @@
                                     <form method="post"
                                           action="/admin/houses/@Model.House.Id/availability/@block.Id/delete"
                                           class="d-inline"
-                                          onsubmit="return confirm('Delete this availability block?');">
+                                          onsubmit="return confirm(@deleteConfirm);">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="btn btn-outline-danger" aria-label="@L["Admin.Shared.Delete"]" title="@L["Admin.Shared.Delete"]">
                                             <i class="bi bi-trash" aria-hidden="true"></i>
@@ -101,7 +112,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Availability Block</h5>
+                <h5 class="modal-title">@L["Admin.Availability.AddTitle"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" action="/admin/houses/@Model.House.Id/availability">
@@ -109,7 +120,7 @@
                     @Html.AntiForgeryToken()
 
                     <div class="mb-3">
-                        <label class="form-label" for="AvailabilityStartDate">Start Date *</label>
+                        <label class="form-label" for="AvailabilityStartDate">@L["Admin.Availability.StartDate"] *</label>
                         <input type="date"
                                id="AvailabilityStartDate"
                                name="StartDate"
@@ -118,7 +129,7 @@
                                required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="AvailabilityEndDate">End Date *</label>
+                        <label class="form-label" for="AvailabilityEndDate">@L["Admin.Availability.EndDate"] *</label>
                         <input type="date"
                                id="AvailabilityEndDate"
                                name="EndDate"
@@ -127,22 +138,22 @@
                                required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="AvailabilityStatus">Status *</label>
+                        <label class="form-label" for="AvailabilityStatus">@L["Admin.Shared.Status"] *</label>
                         <select name="Status" id="AvailabilityStatus" class="form-select" required>
-                            <option value="@((int)AvailabilityStatus.Blocked)">Blocked</option>
-                            <option value="@((int)AvailabilityStatus.Tentative)">Tentative</option>
-                            <option value="@((int)AvailabilityStatus.Booked)">Booked</option>
-                            <option value="@((int)AvailabilityStatus.Available)">Available</option>
+                            @foreach (var option in statusOptions)
+                            {
+                                <option value="@((int)option)">@L.Label(option)</option>
+                            }
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="AvailabilityNote">Note</label>
+                        <label class="form-label" for="AvailabilityNote">@L["Admin.Availability.Note"]</label>
                         <textarea name="Note" id="AvailabilityNote" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Admin.Shared.Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Admin.Shared.Save"]</button>
                 </div>
             </form>
         </div>
@@ -153,7 +164,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Availability Block</h5>
+                <h5 class="modal-title">@L["Admin.Availability.EditTitle"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@L["Shared.Close"]"></button>
             </div>
             <form method="post" id="editAvailabilityBlockForm">
@@ -161,30 +172,30 @@
                     @Html.AntiForgeryToken()
 
                     <div class="mb-3">
-                        <label class="form-label" for="EditAvailabilityStartDate">Start Date *</label>
+                        <label class="form-label" for="EditAvailabilityStartDate">@L["Admin.Availability.StartDate"] *</label>
                         <input type="date" name="StartDate" id="EditAvailabilityStartDate" class="form-control" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="EditAvailabilityEndDate">End Date *</label>
+                        <label class="form-label" for="EditAvailabilityEndDate">@L["Admin.Availability.EndDate"] *</label>
                         <input type="date" name="EndDate" id="EditAvailabilityEndDate" class="form-control" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="EditAvailabilityStatus">Status *</label>
+                        <label class="form-label" for="EditAvailabilityStatus">@L["Admin.Shared.Status"] *</label>
                         <select name="Status" id="EditAvailabilityStatus" class="form-select" required>
-                            <option value="@((int)AvailabilityStatus.Blocked)">Blocked</option>
-                            <option value="@((int)AvailabilityStatus.Tentative)">Tentative</option>
-                            <option value="@((int)AvailabilityStatus.Booked)">Booked</option>
-                            <option value="@((int)AvailabilityStatus.Available)">Available</option>
+                            @foreach (var option in statusOptions)
+                            {
+                                <option value="@((int)option)">@L.Label(option)</option>
+                            }
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="EditAvailabilityNote">Note</label>
+                        <label class="form-label" for="EditAvailabilityNote">@L["Admin.Availability.Note"]</label>
                         <textarea name="Note" id="EditAvailabilityNote" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Admin.Shared.Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Admin.Shared.SaveChanges"]</button>
                 </div>
             </form>
         </div>

@@ -13,7 +13,7 @@
             _ => "bg-warning text-dark"
         };
     }
-    <span class="badge @statusBadge fs-6">@Model.House.Status</span>
+    <span class="badge @statusBadge fs-6">@L.Label(Model.House.Status)</span>
 
     @if (Model.House.Status == EntityStatus.Draft)
     {

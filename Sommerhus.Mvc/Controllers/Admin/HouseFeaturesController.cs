@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 using Sommerhus.Mvc.ModelBinding;
@@ -7,7 +8,7 @@ using System.Globalization;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HouseFeaturesController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseFeaturesController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpPost("/admin/houses/{id:guid}/features")]
     [ValidateAntiForgeryToken]
@@ -16,7 +17,7 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
         var featuresRes = await api.GetFeaturesAsync(ct);
         if (!featuresRes.Ok || featuresRes.Data is null)
         {
-            SetError(featuresRes.Message ?? "Could not load features.");
+            SetError(featuresRes.Message ?? localizer["Admin.Features.Messages.LoadFailed"].Value);
             return RedirectToDetails(id, "features");
         }
 
@@ -49,7 +50,7 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
                 case FeatureValueType.Int:
                     if (!TryParseInt(raw, out var intValue))
                     {
-                        errors.Add($"{feature.Name}: enter a whole number.");
+                        errors.Add(localizer["Admin.Houses.Features.WholeNumber", feature.Name].Value);
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, intValue.ToString(CultureInfo.InvariantCulture)));
@@ -57,7 +58,7 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
                 case FeatureValueType.Decimal:
                     if (!TryParseDecimal(raw, out var decValue))
                     {
-                        errors.Add($"{feature.Name}: enter a number.");
+                        errors.Add(localizer["Admin.Houses.Features.Number", feature.Name].Value);
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, decValue.ToString(CultureInfo.InvariantCulture)));
@@ -65,7 +66,7 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
                 default:
                     if (raw.Length > 200)
                     {
-                        errors.Add($"{feature.Name}: text too long (max 200 characters).");
+                        errors.Add(localizer["Admin.Houses.Features.TextTooLong", feature.Name].Value);
                         continue;
                     }
                     values.Add(new PostFeatureValueDto(feature.Id, raw));
@@ -82,11 +83,11 @@ public sealed class HouseFeaturesController(AdminApiClient api) : AdminControlle
         var res = await api.UpsertHouseFeaturesAsync(id, values, ct);
         if (res.Ok)
         {
-            SetSuccess("Features updated.");
+            SetSuccess(localizer["Admin.Houses.Features.Updated"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not save features.");
+            SetError(res.Message ?? localizer["Admin.Houses.Features.SaveFailed"].Value);
         }
 
         return RedirectToDetails(id, "features");

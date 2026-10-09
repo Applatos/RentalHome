@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin.Prices;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class PricesController(AdminApiClient api) : AdminControllerBase
+public sealed class PricesController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
 
     [HttpGet("/admin/prices")]
@@ -34,7 +35,7 @@ public sealed class PricesController(AdminApiClient api) : AdminControllerBase
 
         if (res.Ok)
         {
-            SetSuccess("Season code created.");
+            SetSuccess(localizer["Admin.Prices.Messages.Created"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -51,7 +52,7 @@ public sealed class PricesController(AdminApiClient api) : AdminControllerBase
         }
         else
         {
-            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? "Could not create season code.");
+            ModelState.AddModelError("SeasonCodeForm.Code", res.Message ?? localizer["Admin.Prices.Messages.CreateFailed"].Value);
         }
 
         var vm = await BuildPricingVmAsync(null, form, ct);
@@ -74,8 +75,8 @@ public sealed class PricesController(AdminApiClient api) : AdminControllerBase
             SeasonCodes = seasonCodesRes.Data ?? Array.Empty<SeasonCodeDto>(),
             GroupForm = groupForm ?? new CreateHouseGroupForm(),
             SeasonCodeForm = codeForm ?? new CreateSeasonCodeForm(),
-            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? "Could not load groups.",
-            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? "Could not load season codes."
+            GroupError = groupsRes.Ok ? null : groupsRes.Message ?? localizer["Admin.Prices.Messages.LoadGroupsFailed"].Value,
+            SeasonError = seasonCodesRes.Ok ? null : seasonCodesRes.Message ?? localizer["Admin.Prices.Messages.LoadCodesFailed"].Value
         };
 
         if (codeForm is null && vm.SeasonCodes.Count > 0 && vm.SeasonCodeForm.SortOrder == 0)

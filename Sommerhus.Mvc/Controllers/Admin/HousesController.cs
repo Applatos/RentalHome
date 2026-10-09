@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
@@ -11,7 +12,7 @@ using Sommerhus.Mvc.ViewModels.Admin.Houses;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HousesController(AdminApiClient api) : AdminControllerBase
+public sealed class HousesController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
 
     [HttpGet("admin")]
@@ -28,7 +29,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
 
         if (!res.Ok || res.Data is null)
         {
-            SetError(res.Message ?? "Could not load house list.");
+            SetError(res.Message ?? localizer["Admin.Houses.Messages.LoadListFailed"].Value);
             return View("~/Views/Admin/Houses/Index.cshtml", new HouseListVm
             {
                 Houses = new PageResult<AdminHouseListItemDto> { Items = [], Total = 0, Page = page, PageSize = pageSize, Query = q },
@@ -51,7 +52,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         var res = await api.GetHouseAsync(id, ct);
         if (!res.Ok || res.Data is null)
         {
-            SetError(res.Message ?? "House not found.");
+            SetError(res.Message ?? localizer["Admin.Houses.Messages.NotFound"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -78,7 +79,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
             else
             {
-                featuresError = featuresRes.Message ?? "Could not load features.";
+                featuresError = featuresRes.Message ?? localizer["Admin.Features.Messages.LoadFailed"].Value;
             }
         }
 
@@ -94,7 +95,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
             else
             {
-                seasonCodesError = codesRes.Message ?? "Could not load season codes.";
+                seasonCodesError = codesRes.Message ?? localizer["Admin.Prices.Messages.LoadCodesFailed"].Value;
             }
         }
 
@@ -109,7 +110,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
             else
             {
-                auditError = auditRes.Message ?? "Could not load audit history.";
+                auditError = auditRes.Message ?? localizer["Admin.Audit.LoadFailed"].Value;
             }
         }
 
@@ -132,7 +133,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
             }
             else
             {
-                availabilityError = availabilityRes.Message ?? "Could not load availability blocks.";
+                availabilityError = availabilityRes.Message ?? localizer["Admin.Availability.Messages.LoadFailed"].Value;
             }
         }
 
@@ -150,7 +151,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
                 }
                 else
                 {
-                    pricingAuditError = pricingAuditRes.Message ?? "Could not load price change history.";
+                    pricingAuditError = pricingAuditRes.Message ?? localizer["Admin.Houses.Messages.LoadPriceHistoryFailed"].Value;
                 }
             }
         }
@@ -252,19 +253,19 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
     {
         if (!ModelState.IsValid)
         {
-            SetError("Invalid fields.");
+            SetError(localizer["Admin.Shared.Messages.InvalidFields"].Value);
             return await RenderHouseCreateAsync(vm, ct);
         }
 
         var res = await api.PostHouseAsync(vm.House, ct);
         if (res.Ok && res.Data is Guid id)
         {
-            SetSuccess("House created.");
+            SetSuccess(localizer["Admin.Houses.Messages.Created"].Value);
             return RedirectToAction(nameof(Details), new { id });
         }
 
         // Show the form again with what was entered rather than an empty one.
-        SetError(ApiErrorText.Describe(res, "Could not create house."));
+        SetError(ApiErrorText.Describe(res, localizer["Admin.Houses.Messages.CreateFailed"].Value));
         return await RenderHouseCreateAsync(vm, ct);
     }
 
@@ -289,18 +290,18 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
                 .Select(e => e.ErrorMessage)
                 .Where(m => !string.IsNullOrWhiteSpace(m))
                 .Distinct();
-            SetError(string.Join(" ", messages.Prepend("Invalid fields.")));
+            SetError(string.Join(" ", messages.Prepend(localizer["Admin.Shared.Messages.InvalidFields"].Value)));
             return await RenderHouseEditAsync(id, dto, ct);
         }
 
         var res = await api.PutHouseAsync(id, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("House updated.");
+            SetSuccess(localizer["Admin.Houses.Messages.Updated"].Value);
             return RedirectToAction(nameof(Details), new { id, tab = "overview" });
         }
 
-        SetError(ApiErrorText.Describe(res, "Could not update house."));
+        SetError(ApiErrorText.Describe(res, localizer["Admin.Houses.Messages.UpdateFailed"].Value));
         return await RenderHouseEditAsync(id, dto, ct);
     }
 
@@ -309,7 +310,7 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         var houseRes = await api.GetHouseAsync(id, ct);
         if (!houseRes.Ok || houseRes.Data is null)
         {
-            SetError(houseRes.Message ?? "House not found.");
+            SetError(houseRes.Message ?? localizer["Admin.Houses.Messages.NotFound"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -362,11 +363,11 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         var res = await api.ChangeHouseStatusAsync(id, dto, ct);
         if (res.Ok)
         {
-            SetSuccess($"Status changed to {target}.");
+            SetSuccess(localizer["Admin.Houses.Messages.StatusChanged", localizer.Label(target)].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not change status.");
+            SetError(res.Message ?? localizer["Admin.Houses.Messages.StatusChangeFailed"].Value);
         }
 
         return RedirectToAction(nameof(Details), new { id, tab = "overview" });
@@ -379,11 +380,11 @@ public sealed class HousesController(AdminApiClient api) : AdminControllerBase
         var res = await api.DeleteHouseAsync(id, ct);
         if (res.Ok)
         {
-            SetSuccess("House deleted.");
+            SetSuccess(localizer["Admin.Houses.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete house.");
+            SetError(res.Message ?? localizer["Admin.Houses.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToAction(nameof(Index));

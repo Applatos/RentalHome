@@ -1,10 +1,11 @@
 @model Sommerhus.Mvc.ViewModels.Public.Dashboard.OwnerDashboardVm
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Owner Dashboard";
+    ViewData["Title"] = L["Dashboard.Owner.Title"].Value;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Owner Dashboard</h1>
+    <h1 class="h3 mb-0">@L["Dashboard.Owner.Title"]</h1>
     <span class="badge bg-dark">@Model.UserName</span>
 </div>
 
@@ -13,7 +14,7 @@
     <div class="col-lg-7">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h2 class="h5 mb-0">My Houses</h2>
+                <h2 class="h5 mb-0">@L["Dashboard.Owner.MyHouses"]</h2>
             </div>
             <div class="card-body p-0">
                 @if (Model.Houses.Any())
@@ -22,10 +23,10 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Title</th>
-                                    <th>City</th>
-                                    <th>Status</th>
-                                    <th>Images</th>
+                                    <th>@L["Dashboard.Owner.HouseTitle"]</th>
+                                    <th>@L["Dashboard.Owner.City"]</th>
+                                    <th>@L["Bookings.Status"]</th>
+                                    <th>@L["Dashboard.Owner.Images"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -46,7 +47,7 @@
                                                     _ => "bg-secondary"
                                                 };
                                             }
-                                            <span class="badge @sClass">@h.Status</span>
+                                            <span class="badge @sClass">@L.Label(h.Status)</span>
                                         </td>
                                         <td>@h.ImageCount</td>
                                     </tr>
@@ -58,7 +59,7 @@
                 else
                 {
                     <div class="p-4 text-center text-muted">
-                        No houses assigned to your account yet.
+                        @L["Dashboard.Owner.NoHouses"]
                     </div>
                 }
             </div>
@@ -69,7 +70,7 @@
     <div class="col-lg-5">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h2 class="h5 mb-0">Upcoming Bookings</h2>
+                <h2 class="h5 mb-0">@L["Dashboard.UpcomingBookings"]</h2>
             </div>
             <div class="card-body p-0">
                 @if (Model.UpcomingBookings.Any())
@@ -83,7 +84,7 @@
                                         <h6 class="mb-1">@b.HouseTitle</h6>
                                         <small class="text-muted">
                                             @b.CheckIn.ToString("d MMM") – @b.CheckOut.ToString("d MMM yyyy")
-                                            · @b.Guests guests
+                                            · @L["Dashboard.Owner.Guests", b.Guests]
                                         </small>
                                     </div>
                                     <div class="text-end">
@@ -95,7 +96,7 @@
                                                 _ => "bg-secondary"
                                             };
                                         }
-                                        <span class="badge @bClass">@b.Status</span>
+                                        <span class="badge @bClass">@L.Label(b.Status)</span>
                                         <div class="small mt-1">@b.TotalPrice.ToString("N0") @b.Currency</div>
                                     </div>
                                 </div>
@@ -105,12 +106,12 @@
                                         <form method="post" asp-action="ConfirmBooking" asp-controller="OwnerBookings"
                                               asp-route-id="@b.Id">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                                            <button type="submit" class="btn btn-success btn-sm">@L["Dashboard.Owner.Confirm"]</button>
                                         </form>
                                         <form method="post" asp-action="RejectBooking" asp-controller="OwnerBookings"
                                               asp-route-id="@b.Id">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">@L["Dashboard.Owner.Reject"]</button>
                                         </form>
                                     </div>
                                 }
@@ -121,7 +122,7 @@
                 else
                 {
                     <div class="p-4 text-center text-muted">
-                        No upcoming bookings for your houses.
+                        @L["Dashboard.Owner.NoUpcoming"]
                     </div>
                 }
             </div>

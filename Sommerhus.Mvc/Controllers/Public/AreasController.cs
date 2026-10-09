@@ -1,12 +1,13 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Public.Areas;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
-public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
+public sealed class AreasController(SommerhusApi api, IStringLocalizer<SharedResource> localizer) : SommerhusControllerBase
 {
     [HttpGet("/areas")]
     public async Task<IActionResult> Index([FromQuery] string? q, CancellationToken ct)
@@ -14,7 +15,7 @@ public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
         var result = await api.GetAreasAsync(q, ct);
         if (!result.Ok || result.Data is null)
         {
-            SetError(result.Message ?? "Could not load areas.");
+            SetError(result.Message ?? localizer["Areas.Messages.LoadListFailed"].Value);
             return View(Array.Empty<AreaListItemDto>());
         }
 
@@ -33,7 +34,7 @@ public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
                 return NotFound();
             }
 
-            SetError(result.Message ?? "Could not load area.");
+            SetError(result.Message ?? localizer["Areas.Messages.LoadFailed"].Value);
             return RedirectToAction(nameof(Index));
         }
 

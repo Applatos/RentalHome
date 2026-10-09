@@ -33,6 +33,81 @@
   <data name="Account.AccessDenied.SignedInAs" xml:space="preserve"><value>You are logged in as {0}.</value></data>
   <data name="Account.AccessDenied.BackToHouses" xml:space="preserve"><value>See the holiday houses</value></data>
   <data name="Account.AccessDenied.SwitchUser" xml:space="preserve"><value>Log in as another user</value></data>
+  <data name="Account.Login.NoAccount" xml:space="preserve"><value>Don't have an account?</value></data>
+  <data name="Account.Login.RegisterLink" xml:space="preserve"><value>Register here</value></data>
+  <data name="Account.Login.Failed" xml:space="preserve"><value>Invalid username or password.</value></data>
+  <data name="Account.Register.Title" xml:space="preserve"><value>Register</value></data>
+  <data name="Account.Register.Heading" xml:space="preserve"><value>Create account</value></data>
+  <data name="Account.Register.Submit" xml:space="preserve"><value>Register</value></data>
+  <data name="Account.Register.HaveAccount" xml:space="preserve"><value>Already have an account?</value></data>
+  <data name="Account.Register.LoginLink" xml:space="preserve"><value>Log in here</value></data>
+  <data name="Account.Register.Failed" xml:space="preserve"><value>Registration failed.</value></data>
+  <data name="Shared.BrowseHouses" xml:space="preserve"><value>Browse houses</value></data>
+  <data name="Bookings.Title" xml:space="preserve"><value>My bookings</value></data>
+  <data name="Bookings.BackToDashboard" xml:space="preserve"><value>Back to dashboard</value></data>
+  <data name="Bookings.Upcoming" xml:space="preserve"><value>Upcoming</value></data>
+  <data name="Bookings.History" xml:space="preserve"><value>History</value></data>
+  <data name="Bookings.House" xml:space="preserve"><value>House</value></data>
+  <data name="Bookings.CheckIn" xml:space="preserve"><value>Check-in</value></data>
+  <data name="Bookings.CheckOut" xml:space="preserve"><value>Check-out</value></data>
+  <data name="Bookings.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Bookings.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Bookings.Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Bookings.Empty" xml:space="preserve"><value>You have no bookings yet.</value></data>
+  <data name="Bookings.DetailsTitle" xml:space="preserve"><value>Booking – {0}</value></data>
+  <data name="Bookings.DetailsHeading" xml:space="preserve"><value>Booking details</value></data>
+  <data name="Bookings.BackToBookings" xml:space="preserve"><value>Back to bookings</value></data>
+  <data name="Bookings.TotalPrice" xml:space="preserve"><value>Total price</value></data>
+  <data name="Bookings.YourNote" xml:space="preserve"><value>Your note</value></data>
+  <data name="Bookings.CreatedAt" xml:space="preserve"><value>Created</value></data>
+  <data name="Bookings.ConfirmedAt" xml:space="preserve"><value>Confirmed</value></data>
+  <data name="Bookings.CancelledAt" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Bookings.CancelConfirm" xml:space="preserve"><value>Are you sure you want to cancel this booking?</value></data>
+  <data name="Bookings.CancelButton" xml:space="preserve"><value>Cancel booking</value></data>
+  <data name="Dashboard.Title" xml:space="preserve"><value>My dashboard</value></data>
+  <data name="Dashboard.Welcome" xml:space="preserve"><value>Welcome, {0}</value></data>
+  <data name="Dashboard.UpcomingBookings" xml:space="preserve"><value>Upcoming bookings</value></data>
+  <data name="Dashboard.ViewAll" xml:space="preserve"><value>View all</value></data>
+  <data name="Dashboard.NoUpcoming" xml:space="preserve"><value>No upcoming bookings</value></data>
+  <data name="Dashboard.QuickLinks" xml:space="preserve"><value>Quick links</value></data>
+  <data name="Dashboard.Favorites" xml:space="preserve"><value>My favourites</value></data>
+  <data name="Dashboard.NoImage" xml:space="preserve"><value>No image</value></data>
+  <data name="Dashboard.NoFavorites" xml:space="preserve"><value>No favourites yet. Browse the houses and click the heart icon to save your favourites.</value></data>
+  <data name="Dashboard.BookingHistory" xml:space="preserve"><value>Booking history</value></data>
+  <data name="Dashboard.Owner.Title" xml:space="preserve"><value>Owner dashboard</value></data>
+  <data name="Dashboard.Owner.MyHouses" xml:space="preserve"><value>My houses</value></data>
+  <data name="Dashboard.Owner.HouseTitle" xml:space="preserve"><value>Title</value></data>
+  <data name="Dashboard.Owner.City" xml:space="preserve"><value>City</value></data>
+  <data name="Dashboard.Owner.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Dashboard.Owner.NoHouses" xml:space="preserve"><value>No houses are assigned to your account yet.</value></data>
+  <data name="Dashboard.Owner.Guests" xml:space="preserve"><value>{0} guests</value></data>
+  <data name="Dashboard.Owner.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Dashboard.Owner.Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Dashboard.Owner.NoUpcoming" xml:space="preserve"><value>No upcoming bookings for your houses.</value></data>
+  <data name="Dashboard.Owner.Messages.Confirmed" xml:space="preserve"><value>Booking confirmed.</value></data>
+  <data name="Dashboard.Owner.Messages.ConfirmFailed" xml:space="preserve"><value>Could not confirm booking.</value></data>
+  <data name="Dashboard.Owner.Messages.Rejected" xml:space="preserve"><value>Booking rejected.</value></data>
+  <data name="Dashboard.Owner.Messages.RejectFailed" xml:space="preserve"><value>Could not reject booking.</value></data>
+  <data name="Error.NotFoundTitle" xml:space="preserve"><value>Page not found</value></data>
+  <data name="Error.GenericTitle" xml:space="preserve"><value>Something went wrong</value></data>
+  <data name="Error.NotFoundMessage" xml:space="preserve"><value>The page you are looking for does not exist.</value></data>
+  <data name="Error.GenericMessage" xml:space="preserve"><value>An unexpected error occurred. Please try again later.</value></data>
+  <data name="Error.BackToHome" xml:space="preserve"><value>Back to the front page</value></data>
+  <data name="Areas.Messages.LoadListFailed" xml:space="preserve"><value>Could not load areas.</value></data>
+  <data name="Areas.Messages.LoadFailed" xml:space="preserve"><value>Could not load area.</value></data>
+  <data name="Houses.Messages.LoadFailed" xml:space="preserve"><value>Could not load houses.</value></data>
+  <data name="Account.Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Account.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Account.ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="Account.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Account.FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="Account.LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="Account.Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Account.Validation.Required" xml:space="preserve"><value>{0} is required.</value></data>
+  <data name="Account.Validation.MinLength" xml:space="preserve"><value>{0} must be at least {1} characters.</value></data>
+  <data name="Account.Validation.MaxLength" xml:space="preserve"><value>{0} must be at most {1} characters.</value></data>
+  <data name="Account.Validation.Email" xml:space="preserve"><value>{0} is not a valid email address.</value></data>
+  <data name="Account.Validation.PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
 
   <data name="Shared.Search" xml:space="preserve"><value>Search</value></data>
   <data name="Shared.Reset" xml:space="preserve"><value>Reset</value></data>
@@ -69,6 +144,37 @@
   <data name="Features.Category.Facility" xml:space="preserve"><value>Facilities</value></data>
   <data name="Features.Category.Distance" xml:space="preserve"><value>Location</value></data>
   <data name="Features.Category.Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Enums.BookingStatus.Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Enums.BookingStatus.Confirmed" xml:space="preserve"><value>Confirmed</value></data>
+  <data name="Enums.BookingStatus.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Enums.BookingStatus.Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Enums.EntityStatus.Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Enums.EntityStatus.Published" xml:space="preserve"><value>Published</value></data>
+  <data name="Enums.EntityStatus.Archived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Enums.ImageKind.Cover" xml:space="preserve"><value>Cover</value></data>
+  <data name="Enums.ImageKind.Gallery" xml:space="preserve"><value>Gallery</value></data>
+  <data name="Enums.ImageKind.Floorplan" xml:space="preserve"><value>Floor plan</value></data>
+  <data name="Enums.FeatureCategory.Property" xml:space="preserve"><value>The house</value></data>
+  <data name="Enums.FeatureCategory.Facility" xml:space="preserve"><value>Facilities</value></data>
+  <data name="Enums.FeatureCategory.Distance" xml:space="preserve"><value>Location</value></data>
+  <data name="Enums.FeatureCategory.Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Enums.FeatureValueType.Bool" xml:space="preserve"><value>Yes/no</value></data>
+  <data name="Enums.FeatureValueType.Int" xml:space="preserve"><value>Whole number</value></data>
+  <data name="Enums.FeatureValueType.Decimal" xml:space="preserve"><value>Decimal number</value></data>
+  <data name="Enums.FeatureValueType.Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Enums.AuditAction.Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Enums.AuditAction.Updated" xml:space="preserve"><value>Updated</value></data>
+  <data name="Enums.AuditAction.Deleted" xml:space="preserve"><value>Deleted</value></data>
+  <data name="Enums.AvailabilityStatus.Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Enums.AvailabilityStatus.Blocked" xml:space="preserve"><value>Blocked</value></data>
+  <data name="Enums.AvailabilityStatus.Tentative" xml:space="preserve"><value>Tentative</value></data>
+  <data name="Enums.AvailabilityStatus.Booked" xml:space="preserve"><value>Booked</value></data>
+  <data name="Enums.AvailabilitySource.Manual" xml:space="preserve"><value>Manual</value></data>
+  <data name="Enums.AvailabilitySource.ICalSync" xml:space="preserve"><value>Calendar sync</value></data>
+  <data name="Enums.AvailabilitySource.Booking" xml:space="preserve"><value>Booking</value></data>
+  <data name="Enums.Role.Admin" xml:space="preserve"><value>Administrator</value></data>
+  <data name="Enums.Role.HouseOwner" xml:space="preserve"><value>House owner</value></data>
+  <data name="Enums.Role.User" xml:space="preserve"><value>User</value></data>
   <data name="Pages.HouseCard.Guests" xml:space="preserve"><value>{0} guests</value></data>
   <data name="Pages.HouseCard.Bedrooms" xml:space="preserve"><value>{0} bedrooms</value></data>
   <data name="Pages.HouseCard.From" xml:space="preserve"><value>from</value></data>
@@ -227,6 +333,9 @@
   <data name="Pages.AdminHouse.Pricing.History" xml:space="preserve"><value>Price changes</value></data>
   <data name="Pages.AdminHouse.Pricing.NotSaved" xml:space="preserve"><value>The prices were not saved.</value></data>
   <data name="Pages.AdminHouse.Pricing.PriceRange" xml:space="preserve"><value>The price per night must be greater than 0 and at most {2}.</value></data>
+  <data name="Pages.AdminHouse.Pricing.Updated" xml:space="preserve"><value>Prices updated.</value></data>
+  <data name="Pages.AdminHouse.Pricing.RatePlanDeleted" xml:space="preserve"><value>Price plan deleted.</value></data>
+  <data name="Pages.AdminHouse.Pricing.RatePlanDeleteFailed" xml:space="preserve"><value>Could not delete price plan.</value></data>
   <data name="Admin.Tabs.Houses" xml:space="preserve"><value>Houses</value></data>
   <data name="Admin.Tabs.Areas" xml:space="preserve"><value>Areas</value></data>
   <data name="Admin.Tabs.Features" xml:space="preserve"><value>Features</value></data>
@@ -247,6 +356,7 @@
   <data name="Admin.Audit.ChangedBy" xml:space="preserve"><value>Changed by</value></data>
   <data name="Admin.Audit.Changes" xml:space="preserve"><value>Changes</value></data>
   <data name="Admin.Audit.ViewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="Admin.Audit.LoadFailed" xml:space="preserve"><value>Could not load audit history.</value></data>
   <data name="Admin.Shared.Name" xml:space="preserve"><value>Name</value></data>
   <data name="Admin.Shared.NameEn" xml:space="preserve"><value>Name (English)</value></data>
   <data name="Admin.Shared.Houses" xml:space="preserve"><value>Houses</value></data>
@@ -270,6 +380,8 @@
   <data name="Admin.Shared.Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Admin.Shared.No" xml:space="preserve"><value>No</value></data>
   <data name="Admin.Shared.None" xml:space="preserve"><value>(none)</value></data>
+  <data name="Admin.Shared.Id" xml:space="preserve"><value>ID</value></data>
+  <data name="Admin.Shared.Messages.InvalidFields" xml:space="preserve"><value>Invalid fields.</value></data>
   <data name="Admin.Areas.Index.Title" xml:space="preserve"><value>Areas</value></data>
   <data name="Admin.Areas.Index.Create" xml:space="preserve"><value>Create area</value></data>
   <data name="Admin.Areas.Index.Empty" xml:space="preserve"><value>No areas found yet.</value></data>
@@ -280,11 +392,29 @@
   <data name="Admin.Areas.Details.EditTitle" xml:space="preserve"><value>Edit: {0}</value></data>
   <data name="Admin.Areas.Overview.HousesInArea" xml:space="preserve"><value>Houses in this area</value></data>
   <data name="Admin.Areas.Images.AreaImageAlt" xml:space="preserve"><value>Area image</value></data>
+  <data name="Admin.Areas.Messages.LoadListFailed" xml:space="preserve"><value>Could not load areas.</value></data>
+  <data name="Admin.Areas.Messages.NotFound" xml:space="preserve"><value>Area not found.</value></data>
+  <data name="Admin.Areas.Messages.Created" xml:space="preserve"><value>Area created.</value></data>
+  <data name="Admin.Areas.Messages.CreateFailed" xml:space="preserve"><value>Could not create area.</value></data>
+  <data name="Admin.Areas.Messages.Updated" xml:space="preserve"><value>Area updated.</value></data>
+  <data name="Admin.Areas.Messages.UpdateFailed" xml:space="preserve"><value>Could not update area.</value></data>
+  <data name="Admin.Areas.Messages.Deleted" xml:space="preserve"><value>Area deleted.</value></data>
+  <data name="Admin.Areas.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete area.</value></data>
+  <data name="Admin.Areas.Messages.InvalidId" xml:space="preserve"><value>Invalid area ID.</value></data>
+  <data name="Admin.Areas.Messages.LoadCitiesFailed" xml:space="preserve"><value>Could not load cities.</value></data>
   <data name="Admin.Images.UploadTitle" xml:space="preserve"><value>Upload images</value></data>
   <data name="Admin.Images.Empty" xml:space="preserve"><value>No images uploaded yet.</value></data>
   <data name="Admin.Images.CurrentTitle" xml:space="preserve"><value>Current images</value></data>
-  <data name="Admin.Images.GalleryKind" xml:space="preserve"><value>gallery</value></data>
   <data name="Admin.Images.DeleteConfirm" xml:space="preserve"><value>Delete this image?</value></data>
+  <data name="Admin.Images.Messages.SelectOne" xml:space="preserve"><value>Please select at least one image.</value></data>
+  <data name="Admin.Images.Messages.Uploaded" xml:space="preserve"><value>Uploaded {0} image(s).</value></data>
+  <data name="Admin.Images.Messages.NoneUploaded" xml:space="preserve"><value>No images were uploaded.</value></data>
+  <data name="Admin.Images.Messages.UploadFailed" xml:space="preserve"><value>Upload failed.</value></data>
+  <data name="Admin.Images.Messages.Deleted" xml:space="preserve"><value>Image deleted.</value></data>
+  <data name="Admin.Images.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete image.</value></data>
+  <data name="Admin.Images.Messages.InvalidKind" xml:space="preserve"><value>Invalid image type.</value></data>
+  <data name="Admin.Images.Messages.KindSet" xml:space="preserve"><value>Set to {0}.</value></data>
+  <data name="Admin.Images.Messages.UpdateFailed" xml:space="preserve"><value>Could not update image.</value></data>
   <data name="Admin.Houses.Index.PageTitle" xml:space="preserve"><value>Admin - Houses</value></data>
   <data name="Admin.Houses.Index.Title" xml:space="preserve"><value>Houses</value></data>
   <data name="Admin.Houses.Index.Create" xml:space="preserve"><value>Create house</value></data>
@@ -312,11 +442,28 @@
   <data name="Admin.Houses.Overview.Archive" xml:space="preserve"><value>Archive</value></data>
   <data name="Admin.Houses.Overview.Unpublish" xml:space="preserve"><value>Unpublish</value></data>
   <data name="Admin.Houses.Overview.ReopenDraft" xml:space="preserve"><value>Re-open as draft</value></data>
+  <data name="Admin.Houses.Messages.LoadListFailed" xml:space="preserve"><value>Could not load house list.</value></data>
+  <data name="Admin.Houses.Messages.NotFound" xml:space="preserve"><value>House not found.</value></data>
+  <data name="Admin.Houses.Messages.InvalidId" xml:space="preserve"><value>Invalid house ID.</value></data>
+  <data name="Admin.Houses.Messages.LoadPriceHistoryFailed" xml:space="preserve"><value>Could not load price change history.</value></data>
+  <data name="Admin.Houses.Messages.Created" xml:space="preserve"><value>House created.</value></data>
+  <data name="Admin.Houses.Messages.CreateFailed" xml:space="preserve"><value>Could not create house.</value></data>
+  <data name="Admin.Houses.Messages.Updated" xml:space="preserve"><value>House updated.</value></data>
+  <data name="Admin.Houses.Messages.UpdateFailed" xml:space="preserve"><value>Could not update house.</value></data>
+  <data name="Admin.Houses.Messages.StatusChanged" xml:space="preserve"><value>Status changed to {0}.</value></data>
+  <data name="Admin.Houses.Messages.StatusChangeFailed" xml:space="preserve"><value>Could not change status.</value></data>
+  <data name="Admin.Houses.Messages.Deleted" xml:space="preserve"><value>House deleted.</value></data>
+  <data name="Admin.Houses.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete house.</value></data>
   <data name="Admin.Houses.Images.HouseImageAlt" xml:space="preserve"><value>House image</value></data>
   <data name="Admin.Houses.Images.SetAs" xml:space="preserve"><value>Set as {0}</value></data>
   <data name="Admin.Houses.Features.Empty" xml:space="preserve"><value>No features defined.</value></data>
   <data name="Admin.Houses.Features.CreateFirst" xml:space="preserve"><value>Create features first</value></data>
   <data name="Admin.Houses.Features.Save" xml:space="preserve"><value>Save features</value></data>
+  <data name="Admin.Houses.Features.Updated" xml:space="preserve"><value>Features updated.</value></data>
+  <data name="Admin.Houses.Features.SaveFailed" xml:space="preserve"><value>Could not save features.</value></data>
+  <data name="Admin.Houses.Features.WholeNumber" xml:space="preserve"><value>{0}: enter a whole number.</value></data>
+  <data name="Admin.Houses.Features.Number" xml:space="preserve"><value>{0}: enter a number.</value></data>
+  <data name="Admin.Houses.Features.TextTooLong" xml:space="preserve"><value>{0}: text too long (max 200 characters).</value></data>
   <data name="Admin.Features.Index.Title" xml:space="preserve"><value>Features</value></data>
   <data name="Admin.Features.Index.Search" xml:space="preserve"><value>Search</value></data>
   <data name="Admin.Features.Index.Icon" xml:space="preserve"><value>Icon</value></data>
@@ -333,6 +480,20 @@
   <data name="Admin.Features.Create.Unit" xml:space="preserve"><value>Unit</value></data>
   <data name="Admin.Features.Create.Options" xml:space="preserve"><value>Options (JSON)</value></data>
   <data name="Admin.Features.Create.Searchable" xml:space="preserve"><value>Searchable</value></data>
+  <data name="Admin.Features.Create.KeyPlaceholder" xml:space="preserve"><value>e.g. sauna</value></data>
+  <data name="Admin.Features.Create.UnitPlaceholder" xml:space="preserve"><value>e.g. m2, km</value></data>
+  <data name="Admin.Features.Create.OptionsPlaceholder" xml:space="preserve"><value>e.g. 1,2,3,4+</value></data>
+  <data name="Admin.Features.Messages.LoadFailed" xml:space="preserve"><value>Could not load features.</value></data>
+  <data name="Admin.Features.Messages.Required" xml:space="preserve"><value>Name, Key and Type are required.</value></data>
+  <data name="Admin.Features.Messages.Created" xml:space="preserve"><value>Feature created (#{0}).</value></data>
+  <data name="Admin.Features.Messages.CreateFailed" xml:space="preserve"><value>Could not create feature.</value></data>
+  <data name="Admin.Features.Messages.Updated" xml:space="preserve"><value>Feature updated.</value></data>
+  <data name="Admin.Features.Messages.UpdateFailed" xml:space="preserve"><value>Could not update feature.</value></data>
+  <data name="Admin.Features.Messages.Deleted" xml:space="preserve"><value>Feature deleted.</value></data>
+  <data name="Admin.Features.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete feature. It may be in use.</value></data>
+  <data name="Admin.Features.Messages.SelectFile" xml:space="preserve"><value>Select a file.</value></data>
+  <data name="Admin.Features.Messages.IconUploaded" xml:space="preserve"><value>Icon uploaded.</value></data>
+  <data name="Admin.Features.Messages.IconUploadFailed" xml:space="preserve"><value>Could not upload icon.</value></data>
   <data name="Admin.Prices.PageTitle" xml:space="preserve"><value>Admin - Prices</value></data>
   <data name="Admin.Prices.Title" xml:space="preserve"><value>Pricing setup</value></data>
   <data name="Admin.Prices.SeasonCodes.Title" xml:space="preserve"><value>Season codes</value></data>
@@ -343,6 +504,11 @@
   <data name="Admin.Prices.SeasonCodes.Create" xml:space="preserve"><value>Create season code</value></data>
   <data name="Admin.Prices.SeasonCodes.Existing" xml:space="preserve"><value>Existing codes</value></data>
   <data name="Admin.Prices.SeasonCodes.Empty" xml:space="preserve"><value>No season codes yet.</value></data>
+  <data name="Admin.Prices.SeasonCodes.NamePlaceholder" xml:space="preserve"><value>High season</value></data>
+  <data name="Admin.Prices.Messages.Created" xml:space="preserve"><value>Season code created.</value></data>
+  <data name="Admin.Prices.Messages.CreateFailed" xml:space="preserve"><value>Could not create season code.</value></data>
+  <data name="Admin.Prices.Messages.LoadGroupsFailed" xml:space="preserve"><value>Could not load groups.</value></data>
+  <data name="Admin.Prices.Messages.LoadCodesFailed" xml:space="preserve"><value>Could not load season codes.</value></data>
   <data name="Admin.HouseGroups.Index.PageTitle" xml:space="preserve"><value>Admin - House groups</value></data>
   <data name="Admin.HouseGroups.Index.Title" xml:space="preserve"><value>House groups</value></data>
   <data name="Admin.HouseGroups.Index.Create" xml:space="preserve"><value>Create new group</value></data>
@@ -367,4 +533,57 @@
   <data name="Admin.HouseGroups.Shared.Bullet2" xml:space="preserve"><value>Share one season calendar across houses in the group</value></data>
   <data name="Admin.HouseGroups.Shared.Bullet3" xml:space="preserve"><value>Simplify price management for multiple houses</value></data>
   <data name="Admin.HouseGroups.Shared.Bullet4" xml:space="preserve"><value>Groups can be assigned and removed from houses at any time</value></data>
+  <data name="Admin.HouseGroups.Messages.LoadListFailed" xml:space="preserve"><value>Could not load house groups.</value></data>
+  <data name="Admin.HouseGroups.Messages.NotFound" xml:space="preserve"><value>House group not found.</value></data>
+  <data name="Admin.HouseGroups.Messages.Created" xml:space="preserve"><value>House group created.</value></data>
+  <data name="Admin.HouseGroups.Messages.CreateFailed" xml:space="preserve"><value>Could not create house group.</value></data>
+  <data name="Admin.HouseGroups.Messages.Updated" xml:space="preserve"><value>House group updated.</value></data>
+  <data name="Admin.HouseGroups.Messages.UpdateFailed" xml:space="preserve"><value>Could not update house group.</value></data>
+  <data name="Admin.HouseGroups.Messages.Deleted" xml:space="preserve"><value>House group deleted.</value></data>
+  <data name="Admin.HouseGroups.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete house group.</value></data>
+  <data name="Admin.HouseGroups.Details.PageTitle" xml:space="preserve"><value>Admin - {0}</value></data>
+  <data name="Admin.HouseGroups.Details.EditGroup" xml:space="preserve"><value>Edit group</value></data>
+  <data name="Admin.HouseGroups.Details.NoSpansTitle" xml:space="preserve"><value>No season periods defined</value></data>
+  <data name="Admin.HouseGroups.Details.NoSpansHelp" xml:space="preserve"><value>Add season periods to define when the different seasons apply to this house group.</value></data>
+  <data name="Admin.HouseGroups.Details.AddFirstSpan" xml:space="preserve"><value>Add the first season period</value></data>
+  <data name="Admin.HouseGroups.Details.StartDate" xml:space="preserve"><value>Start date</value></data>
+  <data name="Admin.HouseGroups.Details.EndDate" xml:space="preserve"><value>End date</value></data>
+  <data name="Admin.HouseGroups.Details.DeleteSpanConfirm" xml:space="preserve"><value>Are you sure you want to delete this season period?</value></data>
+  <data name="Admin.HouseGroups.Details.InfoTitle" xml:space="preserve"><value>Group information</value></data>
+  <data name="Admin.HouseGroups.Details.UsageTitle" xml:space="preserve"><value>Using the group</value></data>
+  <data name="Admin.HouseGroups.Details.UsageText" xml:space="preserve"><value>This house group can be assigned to houses so that they share one season calendar. Houses in the same group automatically use the same season periods to calculate prices.</value></data>
+  <data name="Admin.HouseGroups.Details.AddPeriod" xml:space="preserve"><value>Add period</value></data>
+  <data name="Admin.Calendar.Messages.InvalidSpan" xml:space="preserve"><value>Invalid season span data.</value></data>
+  <data name="Admin.Calendar.Messages.SpanAdded" xml:space="preserve"><value>Season span added.</value></data>
+  <data name="Admin.Calendar.Messages.SpanAddFailed" xml:space="preserve"><value>Could not add season span.</value></data>
+  <data name="Admin.Calendar.Messages.SpanUpdated" xml:space="preserve"><value>Season span updated.</value></data>
+  <data name="Admin.Calendar.Messages.SpanUpdateFailed" xml:space="preserve"><value>Could not update season span.</value></data>
+  <data name="Admin.Calendar.Messages.SpanDeleted" xml:space="preserve"><value>Season span deleted.</value></data>
+  <data name="Admin.Calendar.Messages.SpanDeleteFailed" xml:space="preserve"><value>Could not delete season span.</value></data>
+  <data name="Admin.Calendar.Messages.OverrideApplied" xml:space="preserve"><value>Calendar override applied.</value></data>
+  <data name="Admin.Calendar.Messages.OverrideApplyFailed" xml:space="preserve"><value>Could not set calendar override.</value></data>
+  <data name="Admin.Calendar.Messages.OverrideRemoved" xml:space="preserve"><value>Calendar override removed. House now uses group default.</value></data>
+  <data name="Admin.Calendar.Messages.OverrideRemoveFailed" xml:space="preserve"><value>Could not remove calendar override.</value></data>
+  <data name="Admin.Calendar.Messages.CustomCreated" xml:space="preserve"><value>Custom calendar created and applied as override.</value></data>
+  <data name="Admin.Calendar.Messages.CustomCreateFailed" xml:space="preserve"><value>Could not create custom calendar.</value></data>
+  <data name="Admin.Availability.Showing" xml:space="preserve"><value>Showing blocks from {0} to {1}</value></data>
+  <data name="Admin.Availability.AddBlock" xml:space="preserve"><value>Add block</value></data>
+  <data name="Admin.Availability.Empty" xml:space="preserve"><value>No availability blocks found in the selected period.</value></data>
+  <data name="Admin.Availability.Start" xml:space="preserve"><value>Start</value></data>
+  <data name="Admin.Availability.End" xml:space="preserve"><value>End</value></data>
+  <data name="Admin.Availability.Source" xml:space="preserve"><value>Source</value></data>
+  <data name="Admin.Availability.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Admin.Availability.DeleteConfirm" xml:space="preserve"><value>Delete this availability block?</value></data>
+  <data name="Admin.Availability.AddTitle" xml:space="preserve"><value>Add availability block</value></data>
+  <data name="Admin.Availability.EditTitle" xml:space="preserve"><value>Edit availability block</value></data>
+  <data name="Admin.Availability.StartDate" xml:space="preserve"><value>Start date</value></data>
+  <data name="Admin.Availability.EndDate" xml:space="preserve"><value>End date</value></data>
+  <data name="Admin.Availability.Messages.LoadFailed" xml:space="preserve"><value>Could not load availability blocks.</value></data>
+  <data name="Admin.Availability.Messages.InvalidData" xml:space="preserve"><value>Invalid availability data.</value></data>
+  <data name="Admin.Availability.Messages.Added" xml:space="preserve"><value>Availability block added.</value></data>
+  <data name="Admin.Availability.Messages.AddFailed" xml:space="preserve"><value>Could not add availability block.</value></data>
+  <data name="Admin.Availability.Messages.Updated" xml:space="preserve"><value>Availability block updated.</value></data>
+  <data name="Admin.Availability.Messages.UpdateFailed" xml:space="preserve"><value>Could not update availability block.</value></data>
+  <data name="Admin.Availability.Messages.Deleted" xml:space="preserve"><value>Availability block deleted.</value></data>
+  <data name="Admin.Availability.Messages.DeleteFailed" xml:space="preserve"><value>Could not delete availability block.</value></data>
 </root>

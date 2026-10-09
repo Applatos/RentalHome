@@ -20,33 +20,33 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">@L["Admin.Features.Create.Key"] *</label>
-                    <input name="Key" class="form-control" placeholder="e.g. sauna" required />
+                    <input name="Key" class="form-control" placeholder="@L["Admin.Features.Create.KeyPlaceholder"]" required />
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">@L["Admin.Features.Create.Type"] *</label>
                     <select name="ValueType" class="form-select" required>
-                        <option value="Bool">Bool</option>
-                        <option value="Int">Int</option>
-                        <option value="Decimal">Decimal</option>
-                        <option value="Text" selected>Text</option>
+                        @foreach (var valueType in Enum.GetValues<FeatureValueType>())
+                        {
+                            <option value="@valueType" selected="@(valueType == FeatureValueType.Text)">@L.Label(valueType)</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">@L["Admin.Features.Create.Category"]</label>
                     <select name="Category" class="form-select">
-                        <option value="Property">Property</option>
-                        <option value="Facility">Facility</option>
-                        <option value="Distance">Distance</option>
-                        <option value="Other" selected>Other</option>
+                        @foreach (var category in Enum.GetValues<FeatureCategory>())
+                        {
+                            <option value="@category" selected="@(category == FeatureCategory.Other)">@L.Label(category)</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">@L["Admin.Features.Create.Unit"]</label>
-                    <input name="Unit" class="form-control" placeholder="e.g. m2, km" />
+                    <input name="Unit" class="form-control" placeholder="@L["Admin.Features.Create.UnitPlaceholder"]" />
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">@L["Admin.Features.Create.Options"]</label>
-                    <input name="Options" class="form-control" placeholder='e.g. 1,2,3,4+' />
+                    <input name="Options" class="form-control" placeholder="@L["Admin.Features.Create.OptionsPlaceholder"]" />
                 </div>
                 <div class="col-md-1 d-flex align-items-end">
                     <div class="form-check">
@@ -83,8 +83,8 @@
             <tr>
                 <td>@f.Name</td>
                 <td>@f.Key</td>
-                <td>@f.ValueType</td>
-                <td>@f.Category</td>
+                <td>@L.Label(f.ValueType)</td>
+                <td>@L.Label(f.Category)</td>
                 <td>@f.Unit</td>
                 <td class="small text-muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="@f.Options">@f.Options</td>
                 <td>@(f.IsSearchable ? L["Admin.Shared.Yes"] : L["Admin.Shared.No"])</td>

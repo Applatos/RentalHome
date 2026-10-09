@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sommerhus.Domain.Models;
+using Sommerhus.Mvc.Infrastructure;
 using Sommerhus.Mvc.Services;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class HouseImagesController(AdminApiClient api) : AdminControllerBase
+public sealed class HouseImagesController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
     [HttpPost("/admin/houses/{id:guid}/images")]
     [ValidateAntiForgeryToken]
@@ -11,7 +14,7 @@ public sealed class HouseImagesController(AdminApiClient api) : AdminControllerB
     {
         if (files is null || !files.Any())
         {
-            SetError("Please select at least one image.");
+            SetError(localizer["Admin.Images.Messages.SelectOne"].Value);
             return RedirectToDetails(id, "images");
         }
 
@@ -19,11 +22,11 @@ public sealed class HouseImagesController(AdminApiClient api) : AdminControllerB
         if (res.Ok)
         {
             var uploadedCount = res.Data?.Count ?? 0;
-            SetSuccess(uploadedCount > 0 ? $"Uploaded {uploadedCount} image(s)." : "No images were uploaded.");
+            SetSuccess(uploadedCount > 0 ? localizer["Admin.Images.Messages.Uploaded", uploadedCount].Value : localizer["Admin.Images.Messages.NoneUploaded"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Upload failed.");
+            SetError(res.Message ?? localizer["Admin.Images.Messages.UploadFailed"].Value);
         }
 
         return RedirectToDetails(id, "images");
@@ -35,24 +38,24 @@ public sealed class HouseImagesController(AdminApiClient api) : AdminControllerB
     {
         if (id == Guid.Empty)
         {
-            SetError("Invalid house ID.");
+            SetError(localizer["Admin.Houses.Messages.InvalidId"].Value);
             return RedirectToDetails(id, "images");
         }
 
         if (string.IsNullOrWhiteSpace(kind))
         {
-            SetError("Invalid image type.");
+            SetError(localizer["Admin.Images.Messages.InvalidKind"].Value);
             return RedirectToDetails(id, "images");
         }
 
         var res = await api.SetHouseImageKindAsync(id, imageId, kind, ct);
         if (res.Ok)
         {
-            SetSuccess($"Set to {kind}.");
+            SetSuccess(localizer["Admin.Images.Messages.KindSet", localizer.LabelOrText<ImageKind>(kind).ToLower()].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not update image.");
+            SetError(res.Message ?? localizer["Admin.Images.Messages.UpdateFailed"].Value);
         }
 
         return RedirectToDetails(id, "images");
@@ -64,18 +67,18 @@ public sealed class HouseImagesController(AdminApiClient api) : AdminControllerB
     {
         if (id == Guid.Empty)
         {
-            SetError("Invalid house ID.");
+            SetError(localizer["Admin.Houses.Messages.InvalidId"].Value);
             return RedirectToDetails(id, "images");
         }
 
         var res = await api.DeleteHouseImageAsync(id, imageId, ct);
         if (res.Ok)
         {
-            SetSuccess("Image deleted.");
+            SetSuccess(localizer["Admin.Images.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete image.");
+            SetError(res.Message ?? localizer["Admin.Images.Messages.DeleteFailed"].Value);
         }
 
         return RedirectToDetails(id, "images");

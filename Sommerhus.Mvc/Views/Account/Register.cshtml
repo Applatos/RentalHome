@@ -1,13 +1,14 @@
 @model Sommerhus.Mvc.ViewModels.Account.RegisterViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = L["Account.Register.Title"].Value;
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h1 class="h4 mb-3">Create Account</h1>
+                <h1 class="h4 mb-3">@L["Account.Register.Heading"]</h1>
                 <form asp-action="Register" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="ReturnUrl" />
@@ -56,11 +57,11 @@
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="submit" class="btn btn-primary">@L["Account.Register.Submit"]</button>
                 </form>
                 <hr />
                 <p class="text-center mb-0">
-                    Already have an account? <a asp-action="Login">Login here</a>
+                    @L["Account.Register.HaveAccount"] <a asp-action="Login">@L["Account.Register.LoginLink"]</a>
                 </p>
             </div>
         </div>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Auth;
 using Sommerhus.Core.Identity;
@@ -13,7 +14,10 @@ using Sommerhus.Mvc.ViewModels.Account;
 
 namespace Sommerhus.Mvc.Controllers;
 
-public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAuthClient publicAuthClient) : Controller
+public sealed class AccountController(
+    AdminAuthClient adminAuthClient,
+    PublicAuthClient publicAuthClient,
+    IStringLocalizer<SharedResource> localizer) : Controller
 {
     // Paths rather than RedirectToAction("Index", "Houses"): Houses exists both publicly and in
     // admin, and where a user lands depends on the role, not on a controller name.
@@ -66,7 +70,7 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
             return RedirectToLocal(model.ReturnUrl, AppRoles.Admin);
         }
 
-        ModelState.AddModelError(string.Empty, "Invalid username or password.");
+        ModelState.AddModelError(string.Empty, localizer["Account.Login.Failed"].Value);
         model.Password = string.Empty;
         return View(model);
     }
@@ -116,7 +120,7 @@ public sealed class AccountController(AdminAuthClient adminAuthClient, PublicAut
         }
         else
         {
-            ModelState.AddModelError(string.Empty, response.Message ?? "Registration failed.");
+            ModelState.AddModelError(string.Empty, response.Message ?? localizer["Account.Register.Failed"].Value);
         }
 
         model.Password = string.Empty;

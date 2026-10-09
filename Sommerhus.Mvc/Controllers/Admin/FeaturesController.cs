@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
 using Sommerhus.Mvc.ViewModels.Admin.Features;
 
 namespace Sommerhus.Mvc.Controllers.Admin;
 
-public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
+public sealed class FeaturesController(AdminApiClient api, IStringLocalizer<SharedResource> localizer) : AdminControllerBase
 {
 
     [HttpGet("/admin/features")]
@@ -15,7 +16,7 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
         var res = await api.GetFeaturesAsync(ct);
         if (!res.Ok)
         {
-            SetError(res.Message ?? "Could not load features.");
+            SetError(res.Message ?? localizer["Admin.Features.Messages.LoadFailed"].Value);
             return View("~/Views/Admin/Features/Index.cshtml", new FeatureListVm { Features = [] });
         }
         return View("~/Views/Admin/Features/Index.cshtml", new FeatureListVm { Features = res.Data ?? [] });
@@ -27,17 +28,17 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Key) || string.IsNullOrWhiteSpace(dto.ValueType))
         {
-            SetError("Name, Key and Type are required.");
+            SetError(localizer["Admin.Features.Messages.Required"].Value);
             return RedirectToAction(nameof(Index));
         }
         var res = await api.CreateFeatureAsync(dto, ct);
         if (res.Ok && res.Data is Guid id)
         {
-            SetSuccess($"Feature created (#{id}).");
+            SetSuccess(localizer["Admin.Features.Messages.Created", id].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not create feature.");
+            SetError(res.Message ?? localizer["Admin.Features.Messages.CreateFailed"].Value);
         }
         return RedirectToAction(nameof(Index));
     }
@@ -48,17 +49,17 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Key) || string.IsNullOrWhiteSpace(dto.ValueType))
         {
-            SetError("Name, Key and Type are required.");
+            SetError(localizer["Admin.Features.Messages.Required"].Value);
             return RedirectToAction(nameof(Index));
         }
         var res = await api.UpdateFeatureAsync(id, dto, ct);
         if (res.Ok)
         {
-            SetSuccess("Feature updated.");
+            SetSuccess(localizer["Admin.Features.Messages.Updated"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not update feature.");
+            SetError(res.Message ?? localizer["Admin.Features.Messages.UpdateFailed"].Value);
         }
         return RedirectToAction(nameof(Index));
     }
@@ -70,11 +71,11 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
         var res = await api.DeleteFeatureAsync(id, ct);
         if (res.Ok)
         {
-            SetSuccess("Feature deleted.");
+            SetSuccess(localizer["Admin.Features.Messages.Deleted"].Value);
         }
         else
         {
-            SetError(res.Message ?? "Could not delete feature. It may be in use.");
+            SetError(res.Message ?? localizer["Admin.Features.Messages.DeleteFailed"].Value);
         }
         return RedirectToAction(nameof(Index));
     }
@@ -85,7 +86,7 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
     {
         if (file is null || file.Length == 0)
         {
-            SetError("Select a file.");
+            SetError(localizer["Admin.Features.Messages.SelectFile"].Value);
             return RedirectToAction(nameof(Index));
         }
 
@@ -93,14 +94,14 @@ public sealed class FeaturesController(AdminApiClient api) : AdminControllerBase
         var res = await api.UploadFeatureIconAsync(id, stream, file.FileName, file.ContentType, ct);
         if (res.Ok)
         {
-            SetSuccess("Icon uploaded.");
+            SetSuccess(localizer["Admin.Features.Messages.IconUploaded"].Value);
         }
         else
         {
             var errors = res.Errors.Values.SelectMany(messages => messages).ToArray();
             SetError(errors.Length > 0
                 ? string.Join(" ", errors)
-                : res.Message ?? "Could not upload icon.");
+                : res.Message ?? localizer["Admin.Features.Messages.IconUploadFailed"].Value);
         }
 
         return RedirectToAction(nameof(Index));

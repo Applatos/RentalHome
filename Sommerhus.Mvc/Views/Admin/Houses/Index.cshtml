@@ -29,7 +29,7 @@
                 <option value="">@L["Admin.Houses.Index.AllStatuses"]</option>
                 @foreach (var s in Enum.GetValues<EntityStatus>())
                 {
-                    <option value="@s" selected="@(Model.StatusFilter == s)">@s</option>
+                    <option value="@s" selected="@(Model.StatusFilter == s)">@L.Label(s)</option>
                 }
             </select>
         </div>
@@ -60,6 +60,8 @@
         <tbody>
             @foreach (var h in Model.Houses.Items)
             {
+                // Serialised so quotes or an apostrophe in the title cannot end the JavaScript string.
+                var confirmText = System.Text.Json.JsonSerializer.Serialize(string.Format(L["Admin.Houses.Index.DeleteConfirm"], h.Title));
                 <tr>
                     <td>@h.Title</td>
                     <td>@h.CityLabel</td>
@@ -82,12 +84,12 @@
                                 _ => "bg-warning text-dark"
                             };
                         }
-                        <span class="badge @badgeClass">@h.Status</span>
+                        <span class="badge @badgeClass">@L.Label(h.Status)</span>
                     </td>
                     <td>@h.CreatedAtUtc.ToLocalTime().ToString("g")</td>
                     <td class="text-end">
                         <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-controller="Houses" asp-route-id="@h.Id">@L["Admin.Shared.Details"]</a>
-                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit='return confirm("@string.Format(L["Admin.Houses.Index.DeleteConfirm"], h.Title)");'>
+                        <form method="post" asp-action="Delete" asp-controller="Houses" asp-route-id="@h.Id" class="d-inline" onsubmit="return confirm(@confirmText);">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-outline-danger btn-sm">@L["Admin.Shared.Delete"]</button>
                         </form>
