@@ -254,3 +254,640 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     clip: rect(0 0 0 0);
     white-space: nowrap;
 }
+
+/* Page heading */
+.page-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.page-heading h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.page-heading p {
+    margin: 0;
+    font-size: 1.0625rem;
+    color: var(--sh-muted);
+}
+
+/* Search */
+.search-panel {
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: var(--sh-radius);
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.search-panel__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: 14px;
+    align-items: end;
+}
+
+.search-panel__field--wide {
+    grid-column: span 2;
+}
+
+.search-panel__field .form-control,
+.search-panel__field .form-select {
+    height: 46px;
+}
+
+.search-panel__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.search-panel__actions .btn {
+    height: 46px;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-panel__advanced {
+    border-top: 1px solid var(--sh-line-soft);
+    margin-top: 18px;
+    padding-top: 18px;
+}
+
+.search-panel__group {
+    margin: 0;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--sh-muted);
+}
+
+.result-count {
+    font-size: .9375rem;
+    color: var(--sh-muted);
+}
+
+/* House cards. auto-fill keeps a lone card at one column's width. */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
+    gap: 28px;
+}
+
+.house-card {
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: var(--sh-radius);
+    box-shadow: var(--sh-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.house-card__media {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    background: var(--sh-mist);
+    overflow: hidden;
+}
+
+.house-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.media-chip {
+    position: absolute;
+    font-size: .8125rem;
+    font-weight: 600;
+    padding: 4px 11px;
+    border-radius: 999px;
+}
+
+.media-chip--area {
+    left: 14px;
+    top: 14px;
+    background: rgba(255, 255, 255, .94);
+    color: var(--sh-ink);
+}
+
+.media-chip--counter {
+    right: 14px;
+    bottom: 14px;
+    background: rgba(24, 35, 43, .78);
+    color: #FFFFFF;
+}
+
+.media-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .88);
+    color: var(--sh-ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    box-shadow: 0 2px 8px rgba(24, 35, 43, .18);
+}
+
+.media-arrow:hover {
+    background: #FFFFFF;
+}
+
+.media-arrow--prev {
+    left: 12px;
+}
+
+.media-arrow--next {
+    right: 12px;
+}
+
+.house-card__thumbs {
+    list-style: none;
+    margin: 0;
+    padding: 14px 22px 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.house-card__thumb {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+.house-card__thumb[aria-pressed="true"] {
+    outline-color: var(--sh-accent);
+}
+
+.house-card__thumb img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+.house-card__body {
+    padding: 18px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+}
+
+.house-card__title {
+    margin: 0 0 4px;
+    font-size: 1.375rem;
+    font-weight: 700;
+}
+
+.house-card__title a {
+    color: var(--sh-ink);
+    text-decoration: none;
+}
+
+.house-card__facts {
+    margin: 0;
+    color: var(--sh-muted);
+    font-size: .9375rem;
+}
+
+.house-card__icons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+}
+
+.house-card__icons li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .875rem;
+    color: var(--sh-ink-soft);
+}
+
+.house-card__footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--sh-line-soft);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.price-from {
+    margin: 0;
+    font-size: .875rem;
+    color: var(--sh-muted);
+}
+
+.price-from strong {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--sh-accent);
+}
+
+/* House page */
+.breadcrumbs ol {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: .875rem;
+    color: var(--sh-muted);
+}
+
+.breadcrumbs li + li::before {
+    content: "/";
+    margin-right: 8px;
+    color: var(--sh-muted);
+}
+
+.breadcrumbs [aria-current="page"] {
+    color: var(--sh-ink);
+}
+
+.house-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.house-title h1 {
+    margin: 0 0 4px;
+    font-size: 2.625rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.house-title p {
+    margin: 0;
+    color: var(--sh-muted);
+    font-size: 1.0625rem;
+}
+
+.house-gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+    height: 460px;
+    margin-bottom: 24px;
+}
+
+.house-gallery--single {
+    grid-template-columns: 1fr;
+}
+
+.house-gallery__carousel {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--sh-mist);
+}
+
+.house-gallery__carousel img,
+.house-gallery__cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.house-gallery__cover {
+    border-radius: 18px;
+}
+
+.house-gallery .media-arrow {
+    width: 48px;
+    height: 48px;
+}
+
+.house-gallery .media-arrow--prev {
+    left: 16px;
+}
+
+.house-gallery .media-arrow--next {
+    right: 16px;
+}
+
+.house-gallery .media-chip--counter {
+    right: 16px;
+    bottom: 16px;
+    font-size: .875rem;
+}
+
+.fact-strip {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 22px 18px;
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: var(--sh-radius);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 18px 8px;
+}
+
+.fact-strip li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.fact-strip__value {
+    font-weight: 700;
+    font-size: .9375rem;
+    line-height: 1.2;
+}
+
+.fact-strip__caption {
+    font-size: .8125rem;
+    color: var(--sh-muted);
+    line-height: 1.2;
+}
+
+.house-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 48px;
+}
+
+.house-layout__main {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+}
+
+.house-section h2 {
+    font-size: 1.625rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.house-section p {
+    color: var(--sh-ink-soft);
+    margin-bottom: 14px;
+    text-wrap: pretty;
+}
+
+.checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px 24px;
+}
+
+.checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checklist .bi {
+    color: var(--sh-accent);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.floorplan {
+    display: inline-block;
+    padding: 18px;
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: 12px;
+    cursor: zoom-in;
+}
+
+.floorplan img {
+    width: 420px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.price-box {
+    flex: 1 1 340px;
+    position: sticky;
+    top: 24px;
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: var(--sh-shadow-raised);
+}
+
+.price-box__from {
+    margin: 0 0 18px;
+    color: var(--sh-muted);
+    font-size: .9375rem;
+}
+
+.price-box__from strong {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--sh-accent);
+}
+
+.price-box__from span {
+    display: block;
+    font-size: .8125rem;
+}
+
+.availability-box {
+    padding: 14px 16px;
+    background: var(--sh-ground);
+    border: 1px solid var(--sh-line-soft);
+    border-radius: 12px;
+}
+
+/* Areas */
+.area-card {
+    background: var(--sh-surface);
+    border: 1px solid var(--sh-line);
+    border-radius: var(--sh-radius);
+    box-shadow: var(--sh-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.area-card__media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: var(--sh-mist);
+}
+
+.area-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.area-card__placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--sh-icon);
+}
+
+.area-card__placeholder span {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--sh-muted);
+}
+
+.area-card__body {
+    padding: 20px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.area-card__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.area-card__heading h2 {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+}
+
+.area-card__heading h2 a {
+    color: var(--sh-ink);
+}
+
+.area-card__heading span,
+.area-card__body p {
+    font-size: .9375rem;
+    color: var(--sh-muted);
+    margin: 0;
+}
+
+.area-card__link {
+    font-weight: 600;
+}
+
+.area-hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.area-hero--text-only {
+    grid-template-columns: minmax(0, 46em);
+}
+
+.area-hero__text h1 {
+    margin: 0 0 8px;
+    font-size: 3.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.area-hero__meta {
+    color: var(--sh-muted);
+    font-size: .9375rem;
+}
+
+.area-hero__text p {
+    color: var(--sh-ink-soft);
+    text-wrap: pretty;
+}
+
+.area-hero__text p.area-hero__meta + p {
+    font-size: 1.1875rem;
+    color: var(--sh-ink);
+}
+
+.area-hero__cover {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+}
+
+.photo-strip {
+    list-style: none;
+    margin: 0 0 48px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    gap: 12px;
+}
+
+.photo-strip img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+}
+
+.area-houses h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+/* Links are underlined on hover only, as in the mockup. Buttons keep their own style. */
+a:not(.btn) {
+    text-decoration: none;
+}
+
+a:not(.btn):hover {
+    text-decoration: underline;
+}
+
+.house-card a:hover,
+.area-card__media:hover,
+.brand:hover {
+    text-decoration: none;
+}

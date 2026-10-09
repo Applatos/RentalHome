@@ -1,64 +1,77 @@
-@using Sommerhus.Core.Dtos.Shared
+@using Sommerhus.Mvc.Infrastructure
+@using Sommerhus.Mvc.ViewModels.Public.Areas
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
-@model AreaDetailsDto
+@model AreaPageVm
 @{
-    ViewData["Title"] = Model.Name;
+    var area = Model.Area;
+    ViewData["Title"] = area.Name;
+
+    // The first image is the area's cover; the rest form the strip below.
+    var images = area.Images ?? [];
+    var cover = images.FirstOrDefault();
+    var strip = images.Skip(1).ToList();
+    var cities = string.Join(", ", (area.Cities ?? []).Select(c => c.Label.Replace(" – ", " ")));
+    var houseCount = Model.Houses.Count == 1
+        ? $"1 {L["Areas.List.HouseSingular"]}"
+        : $"{Model.Houses.Count} {L["Areas.List.HousePlural"]}";
+    var meta = string.Join(" · ", new[] { cities, houseCount }.Where(p => !string.IsNullOrWhiteSpace(p)));
 }
 
-<section class="py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h2 mb-1">@Model.Name</h1>
-            <p class="text-muted mb-0">@L["Areas.Details.Subtitle"]</p>
-        </div>
-        <a class="btn btn-outline-secondary" asp-action="Index">@L["Areas.Details.BackToList"]</a>
-    </div>
+<nav class="breadcrumbs" aria-label="@L["Shared.Breadcrumbs"]">
+    <ol>
+        <li><a href="/areas">@L["Areas.List.Title"]</a></li>
+        <li aria-current="page">@area.Name</li>
+    </ol>
+</nav>
 
-    @await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
+@await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
 
-    @if (!string.IsNullOrWhiteSpace(Model.Description))
-    {
-        <div class="mb-4 lead">@Sommerhus.Mvc.Infrastructure.TextParagraphs.Render(Model.Description)</div>
-    }
-    else
-    {
-        <p class="text-muted">@L["Areas.Details.NoDescription"]</p>
-    }
-
-    @if (Model.Images?.Count > 0)
-    {
-        <section class="mb-4">
-            <h2 class="h4">@L["Areas.Details.ImagesHeading"]</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-3">
-                @foreach (var image in Model.Images)
-                {
-                    <div class="col">
-                        <div class="ratio ratio-4x3 bg-light rounded overflow-hidden">
-                            <img src="@image.Url" alt="@(!string.IsNullOrWhiteSpace(image.Alt) ? image.Alt : Model.Name)" class="w-100 h-100" style="object-fit: cover;" />
-                        </div>
-                    </div>
-                }
-            </div>
-        </section>
-    }
-
-    <section>
-        <h2 class="h4">@L["Areas.Details.HousesInArea", Model.Name]</h2>
-        @if (Model.Houses?.Count > 0)
+<div class="area-hero @(cover is null ? "area-hero--text-only" : null)">
+    <div class="area-hero__text">
+        <h1>@area.Name</h1>
+        <p class="area-hero__meta">@meta</p>
+        @if (!string.IsNullOrWhiteSpace(area.Description))
         {
-            <ul class="list-group list-group-flush">
-                @foreach (var house in Model.Houses)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>@house.Title</span>
-                        <a class="btn btn-sm btn-outline-dark" asp-controller="Houses" asp-action="Details" asp-route-id="@house.Id">@L["Areas.Details.ViewHouse"]</a>
-                    </li>
-                }
-            </ul>
+            @TextParagraphs.Render(area.Description)
         }
         else
         {
-            <p class="text-muted">@L["Areas.Details.NoHouses"]</p>
+            <p class="text-muted">@L["Areas.Details.NoDescription"]</p>
         }
-    </section>
+    </div>
+    @if (cover is not null)
+    {
+        <img class="area-hero__cover" src="@cover.Url" alt="@(string.IsNullOrWhiteSpace(cover.Alt) ? area.Name : cover.Alt)" />
+    }
+</div>
+
+@if (strip.Count > 0)
+{
+    <ul class="photo-strip">
+        @foreach (var image in strip)
+        {
+            <li><img src="@image.Url" alt="@(string.IsNullOrWhiteSpace(image.Alt) ? area.Name : image.Alt)" loading="lazy" decoding="async" /></li>
+        }
+    </ul>
+}
+
+<section class="area-houses">
+    <h2>@L["Areas.Details.HousesInArea", area.Name]</h2>
+    @if (Model.Houses.Count > 0)
+    {
+        <div class="card-grid">
+            @foreach (var house in Model.Houses)
+            {
+                @await Html.PartialAsync("~/Views/Houses/_HouseCard.cshtml", house)
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">@L["Areas.Details.NoHouses"]</p>
+    }
 </section>
+
+@section Scripts {
+    <script src="~/js/house-carousel.js" asp-append-version="true"></script>
+}

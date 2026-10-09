@@ -1,66 +1,93 @@
+@using System.Globalization
+@using System.Text.Json
 @using Sommerhus.Core.Dtos.Shared
+@using Sommerhus.Mvc.Infrastructure
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @model PublicHouseListItemDto
 @{
-    var headlineParts = new List<string>();
-    if (!string.IsNullOrWhiteSpace(Model.City))
+    var culture = CultureInfo.CurrentCulture;
+    var href = $"/houses/{Model.Id}";
+    var area = Model.Areas?.FirstOrDefault() ?? Model.City;
+
+    // The cover first, then the gallery: the card's images in display order.
+    var images = new List<(string Url, string Alt)>();
+    if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
     {
-        headlineParts.Add(Model.City);
+        images.Add((Model.CoverUrl, Model.Title));
     }
-    if (!string.IsNullOrWhiteSpace(Model.Title))
+    foreach (var image in Model.Gallery ?? [])
     {
-        headlineParts.Add(Model.Title);
+        images.Add((image.Url, string.IsNullOrWhiteSpace(image.Alt) ? Model.Title : image.Alt));
     }
-    var headline = string.Join(" - ", headlineParts);
-    var gallery = Model.Gallery ?? Array.Empty<ImageDto>();
+
+    var sources = JsonSerializer.Serialize(images.Select(i => new { src = i.Url, alt = i.Alt }));
+    var facts = HouseCardFacts.FactsLine(Model.Features, L, culture);
+    var icons = HouseCardFacts.Icons(Model.Features, culture);
 }
 
-<div class="house-card h-100 shadow-sm d-flex flex-column">
-    <div class="card-body pb-0">
-        <div class="header-row">
-            <div>
-                <h3 class="h5 mb-1">@headline</h3>
-                @if (Model.MinNightlyPrice.HasValue)
-                {
-                    <p class="small fw-semibold mb-1">From @Model.MinNightlyPrice.Value.ToString("0.##") @Model.Currency/night</p>
-                }
-                @if (!string.IsNullOrWhiteSpace(Model.Summary))
-                {
-                    <p class="muted small mb-0">@Model.Summary</p>
-                }
-            </div>
-            <a class="btn btn-dark btn-sm"
-               href="~/houses/@Model.Id">
-                Læs mere ▸
-            </a>
-        </div>
+<article class="house-card" data-carousel data-carousel-images="@sources">
+    <div class="house-card__media">
+        <a href="@href" tabindex="-1" aria-hidden="true">
+            @if (images.Count > 0)
+            {
+                <img src="@images[0].Url" alt="@images[0].Alt" data-carousel-image loading="lazy" decoding="async" />
+            }
+        </a>
+        @if (!string.IsNullOrWhiteSpace(area))
+        {
+            <span class="media-chip media-chip--area">@area</span>
+        }
+        @if (images.Count > 1)
+        {
+            <button type="button" class="media-arrow media-arrow--prev" data-carousel-prev aria-label="@L["Pages.Gallery.Previous"]"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" class="media-arrow media-arrow--next" data-carousel-next aria-label="@L["Pages.Gallery.Next"]"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <span class="media-chip media-chip--counter" data-carousel-counter>1 / @images.Count</span>
+        }
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
+    @if (images.Count > 1)
     {
-        <div class="px-3 pt-3 pb-3">
-            <div class="cover-wrap">
-                <div class="cover-overlay">
-                    @if (!string.IsNullOrWhiteSpace(Model.City))
-                    {
-                        <span class="badge rounded-pill">@Model.City</span>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.Zip))
-                    {
-                        <span class="badge rounded-pill">@Model.Zip</span>
-                    }
-                </div>
-                <img src="@Model.CoverUrl" alt="@headline" loading="lazy" decoding="async" />
-            </div>
-        </div>
+        <ul class="house-card__thumbs">
+            @for (var i = 0; i < images.Count; i++)
+            {
+                <li>
+                    <button type="button" class="house-card__thumb" data-carousel-thumb="@i" aria-pressed="@(i == 0 ? "true" : "false")" aria-label="@L["Pages.Gallery.Show", i + 1]">
+                        <img src="@images[i].Url" alt="" loading="lazy" decoding="async" />
+                    </button>
+                </li>
+            }
+        </ul>
     }
 
-    @if (gallery.Any())
-    {
-        <div class="thumbs d-flex gap-2 flex-wrap px-3 pb-3 pt-3">
-            @foreach (var image in gallery)
+    <div class="house-card__body">
+        <div>
+            <h2 class="house-card__title"><a href="@href">@Model.Title</a></h2>
+            @if (facts is not null)
             {
-                <img src="@image.Url" alt="@(image.Alt ?? headline)" class="thumb" loading="lazy" decoding="async" />
+                <p class="house-card__facts">@facts</p>
             }
         </div>
-    }
-</div>
+
+        @if (icons.Count > 0)
+        {
+            <ul class="house-card__icons">
+                @foreach (var icon in icons)
+                {
+                    <li><img src="@icon.IconUrl" alt="" width="26" height="26" />@icon.Label</li>
+                }
+            </ul>
+        }
+
+        <div class="house-card__footer">
+            @if (Model.MinNightlyPrice.HasValue)
+            {
+                <p class="price-from">@L["Pages.HouseCard.From"] <strong>@MoneyText.Format(Model.MinNightlyPrice.Value, Model.Currency, culture)</strong> / @L["Pages.HouseCard.Night"]</p>
+            }
+            else
+            {
+                <span></span>
+            }
+            <a class="btn btn-primary" href="@href">@L["Pages.HouseCard.SeeHouse"]</a>
+        </div>
+    </div>
+</article>

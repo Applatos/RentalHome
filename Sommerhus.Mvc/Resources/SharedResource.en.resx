@@ -36,17 +36,47 @@
 
   <data name="Shared.Search" xml:space="preserve"><value>Search</value></data>
   <data name="Shared.Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Shared.Breadcrumbs" xml:space="preserve"><value>Breadcrumb</value></data>
   <data name="Shared.SearchPlaceholder" xml:space="preserve"><value>Search...</value></data>
 
   <data name="Home.Title" xml:space="preserve"><value>Luxury Holiday Houses in Denmark</value></data>
   <data name="Home.Heading" xml:space="preserve"><value>Holiday house rentals - simple and secure</value></data>
   <data name="Home.Subtitle" xml:space="preserve"><value>Find the right holiday house. Filter by area/city and search titles/descriptions.</value></data>
 
-  <data name="Houses.List.Title" xml:space="preserve"><value>Luxury Holiday Houses in Denmark</value></data>
-  <data name="Houses.List.Heading" xml:space="preserve"><value>Holiday house rentals - simple and secure</value></data>
-  <data name="Houses.List.Subtitle" xml:space="preserve"><value>Find the right holiday house. Filter by area/city and search titles/descriptions.</value></data>
+  <data name="Houses.List.Title" xml:space="preserve"><value>Houses</value></data>
+  <data name="Houses.List.Heading" xml:space="preserve"><value>Holiday houses</value></data>
+  <data name="Houses.List.Subtitle" xml:space="preserve"><value>Find a house by area, number of guests and price.</value></data>
   <data name="Houses.List.AllAreas" xml:space="preserve"><value>All areas</value></data>
   <data name="Houses.List.Empty" xml:space="preserve"><value>No holiday houses found.</value></data>
+  <data name="Houses.List.SearchPlaceholder" xml:space="preserve"><value>Title, town or description</value></data>
+  <data name="Houses.List.AreaLabel" xml:space="preserve"><value>Area</value></data>
+  <data name="Houses.List.Guests" xml:space="preserve"><value>Guests</value></data>
+  <data name="Houses.List.SortBy" xml:space="preserve"><value>Sort by</value></data>
+  <data name="Houses.List.Sort.Relevance" xml:space="preserve"><value>Relevance</value></data>
+  <data name="Houses.List.Sort.PriceAsc" xml:space="preserve"><value>Lowest price</value></data>
+  <data name="Houses.List.Sort.PriceDesc" xml:space="preserve"><value>Highest price</value></data>
+  <data name="Houses.List.Sort.Newest" xml:space="preserve"><value>Newest</value></data>
+  <data name="Houses.List.LocationAndPrice" xml:space="preserve"><value>Location and price</value></data>
+  <data name="Houses.List.CityOrZip" xml:space="preserve"><value>Town or postcode</value></data>
+  <data name="Houses.List.MinPrice" xml:space="preserve"><value>Min. price per night</value></data>
+  <data name="Houses.List.MaxPrice" xml:space="preserve"><value>Max. price per night</value></data>
+  <data name="Houses.List.Any" xml:space="preserve"><value>Any</value></data>
+  <data name="Houses.List.PerPage" xml:space="preserve"><value>Per page</value></data>
+  <data name="Houses.List.Count.One" xml:space="preserve"><value>1 house</value></data>
+  <data name="Houses.List.Count.Many" xml:space="preserve"><value>{0} houses</value></data>
+  <data name="Houses.List.Pagination" xml:space="preserve"><value>Pages</value></data>
+  <data name="Features.Category.Property" xml:space="preserve"><value>The house</value></data>
+  <data name="Features.Category.Facility" xml:space="preserve"><value>Facilities</value></data>
+  <data name="Features.Category.Distance" xml:space="preserve"><value>Location</value></data>
+  <data name="Features.Category.Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Pages.HouseCard.Guests" xml:space="preserve"><value>{0} guests</value></data>
+  <data name="Pages.HouseCard.Bedrooms" xml:space="preserve"><value>{0} bedrooms</value></data>
+  <data name="Pages.HouseCard.From" xml:space="preserve"><value>from</value></data>
+  <data name="Pages.HouseCard.Night" xml:space="preserve"><value>night</value></data>
+  <data name="Pages.HouseCard.SeeHouse" xml:space="preserve"><value>View house</value></data>
+  <data name="Pages.Gallery.Previous" xml:space="preserve"><value>Previous image</value></data>
+  <data name="Pages.Gallery.Next" xml:space="preserve"><value>Next image</value></data>
+  <data name="Pages.Gallery.Show" xml:space="preserve"><value>Show image {0}</value></data>
 
   <data name="Areas.List.Title" xml:space="preserve"><value>Areas</value></data>
   <data name="Areas.List.Heading" xml:space="preserve"><value>Areas and experiences</value></data>
@@ -56,6 +86,8 @@
   <data name="Areas.List.HouseSingular" xml:space="preserve"><value>house</value></data>
   <data name="Areas.List.HousePlural" xml:space="preserve"><value>houses</value></data>
   <data name="Areas.List.ReadMore" xml:space="preserve"><value>Read more</value></data>
+  <data name="Areas.List.PhotosComing" xml:space="preserve"><value>Photos coming soon</value></data>
+  <data name="Areas.List.ReadAbout" xml:space="preserve"><value>Read about {0}</value></data>
 
   <data name="Areas.Details.Subtitle" xml:space="preserve"><value>An overview of the area and associated holiday houses.</value></data>
   <data name="Areas.Details.BackToList" xml:space="preserve"><value>Back to list</value></data>
@@ -68,7 +100,7 @@
   <data name="Houses.Details.BookNow" xml:space="preserve"><value>Book now</value></data>
   <data name="Houses.Details.LoginToBook" xml:space="preserve"><value>Log in to book</value></data>
   <data name="Houses.Details.CalculatePrice" xml:space="preserve"><value>Calculate price</value></data>
-  <data name="Houses.Details.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Houses.Details.Description" xml:space="preserve"><value>About the house</value></data>
   <data name="Houses.Details.NoDescription" xml:space="preserve"><value>No description is available for this house yet.</value></data>
   <data name="Houses.Details.Arrival" xml:space="preserve"><value>Arrival</value></data>
   <data name="Houses.Details.Departure" xml:space="preserve"><value>Departure</value></data>
@@ -101,6 +133,10 @@
   <data name="Pages.House.PreviousImage" xml:space="preserve"><value>Previous image</value></data>
   <data name="Pages.House.NextImage" xml:space="preserve"><value>Next image</value></data>
   <data name="Pages.House.GuestsHint" xml:space="preserve"><value>Room for up to {0} guests.</value></data>
+  <data name="Pages.House.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Pages.House.Saved" xml:space="preserve"><value>Saved</value></data>
+  <data name="Pages.House.Bathrooms" xml:space="preserve"><value>{0} bathrooms</value></data>
+  <data name="Pages.House.PriceAndBooking" xml:space="preserve"><value>Price and booking</value></data>
   <data name="Pages.Price.DepartureAfterArrival" xml:space="preserve"><value>Departure must be after arrival.</value></data>
   <data name="Pages.Price.NetworkError" xml:space="preserve"><value>Network error. Please try again.</value></data>
   <data name="Pages.Price.NightOne" xml:space="preserve"><value>{n} night</value></data>

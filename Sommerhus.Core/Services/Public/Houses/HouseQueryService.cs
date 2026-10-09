@@ -48,13 +48,17 @@ public sealed class HouseQueryService(
         var house = await db.Houses
             .Include(x => x.Images)
             .Include(x => x.City)
+            .Include(x => x.Areas)
             .Include(x => x.HouseFeatures).ThenInclude(v => v.Feature)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == id && x.Status == EntityStatus.Published, ct);
 
         if (house is null)
         {
             return null;
         }
+
+        var summary = await db.HousePriceSummaries.AsNoTracking().FirstOrDefaultAsync(s => s.HouseId == id, ct);
 
         var gallery = house.Images
             .InDisplayOrder()
@@ -92,7 +96,14 @@ public sealed class HouseQueryService(
             house.Description,
             gallery,
             features,
-            MaxGuests: HouseCapacity.MaxGuests(house.HouseFeatures));
+            MaxGuests: HouseCapacity.MaxGuests(house.HouseFeatures),
+            Areas: house.Areas
+                .Where(a => a.Status == EntityStatus.Published)
+                .OrderBy(a => a.Name)
+                .Select(a => new LookupItem(a.Id, LocalizationNameResolver.Resolve(a.Name, a.NameEn)))
+                .ToList(),
+            MinNightlyPrice: summary?.MinNightlyPrice,
+            Currency: summary?.Currency);
     }
 
 }

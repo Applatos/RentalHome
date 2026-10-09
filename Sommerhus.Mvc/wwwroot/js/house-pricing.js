@@ -89,22 +89,24 @@
         }
     };
 
-    // Amounts follow the page's culture, not the browser's.
+    // Amounts follow the page's culture, not the browser's. Whole amounts are shown without
+    // decimals ("11.900 kr."); an amount with øre keeps them.
     const currencyFormatters = new Map();
+    const currencyOptions = (code) => ({ style: 'currency', currency: code, minimumFractionDigits: 0, maximumFractionDigits: 2 });
     const formatCurrency = (amount, currency) => {
         const code = (typeof currency === 'string' && currency.trim().length > 0 ? currency.trim() : 'DKK').toUpperCase();
         if (!currencyFormatters.has(code)) {
             const locale = document.documentElement.lang || undefined;
             let formatter;
             try {
-                formatter = new Intl.NumberFormat(locale, { style: 'currency', currency: code });
+                formatter = new Intl.NumberFormat(locale, currencyOptions(code));
             }
             catch {
                 try {
-                    formatter = new Intl.NumberFormat(locale, { style: 'currency', currency: 'DKK' });
+                    formatter = new Intl.NumberFormat(locale, currencyOptions('DKK'));
                 }
                 catch {
-                    formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'DKK' });
+                    formatter = new Intl.NumberFormat(undefined, currencyOptions('DKK'));
                 }
             }
             currencyFormatters.set(code, formatter);

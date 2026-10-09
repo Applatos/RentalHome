@@ -4,6 +4,7 @@ using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Services.Admin.HouseGroups;
 using Sommerhus.Core.Services.Admin.Pricing;
+using Sommerhus.Core.Services.Public.Houses;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Core.Services.Admin.DemoContent;
@@ -17,7 +18,8 @@ public sealed class DemoCatalogImporter(
     AppDbContext db,
     IAdminFeatureService features,
     IAdminPricingService pricing,
-    IAdminHouseGroupService groups)
+    IAdminHouseGroupService groups,
+    ISearchIndexer searchIndexer)
 {
     // The admin services take a base URL only to build the URLs they return, which the import ignores.
     private const string NoBaseUrl = "";
@@ -123,6 +125,11 @@ public sealed class DemoCatalogImporter(
             log.Changes.Add($"Features: created {string.Join(", ", created)}");
         if (updated.Count > 0)
             log.Changes.Add($"Features: updated {string.Join(", ", updated)}");
+
+        // Search documents copy each feature's name and order. The feature service refreshes them
+        // after its own updates, but not after a sort order set here.
+        if (updated.Count > 0)
+            await searchIndexer.RebuildAsync(ct);
         if (icons > 0)
             log.Changes.Add($"Features: added {icons} icons");
     }

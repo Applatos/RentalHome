@@ -42,4 +42,7 @@ public sealed record PublicHouseDetailsDto(
     IReadOnlyList<ImageDto> Images,
     IReadOnlyList<FeatureValueDto> Features,
     bool? IsFavorite = null,
-    int? MaxGuests = null);
+    int? MaxGuests = null,
+    IReadOnlyList<LookupItem>? Areas = null,
+    decimal? MinNightlyPrice = null,
+    string? Currency = null);

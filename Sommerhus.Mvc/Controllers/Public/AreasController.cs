@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Mvc.Services;
+using Sommerhus.Mvc.ViewModels.Public.Areas;
 
 namespace Sommerhus.Mvc.Controllers.Public;
 
@@ -36,6 +37,13 @@ public sealed class AreasController(SommerhusApi api) : SommerhusControllerBase
             return RedirectToAction(nameof(Index));
         }
 
-        return View("~/Views/Areas/details.cshtml", result.Data);
+        // The area's own house list has no card data, so the cards come from the house search.
+        var houses = await api.GetHousesAsync(new HouseSearchFilter { AreaId = id, PageSize = 50 }, ct);
+
+        return View("~/Views/Areas/details.cshtml", new AreaPageVm
+        {
+            Area = result.Data,
+            Houses = houses.Data?.Items ?? []
+        });
     }
 }

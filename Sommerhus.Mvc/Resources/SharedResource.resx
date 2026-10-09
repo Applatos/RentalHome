@@ -36,17 +36,47 @@
 
   <data name="Shared.Search" xml:space="preserve"><value>Soeg</value></data>
   <data name="Shared.Reset" xml:space="preserve"><value>Nulstil</value></data>
+  <data name="Shared.Breadcrumbs" xml:space="preserve"><value>Brødkrumme</value></data>
   <data name="Shared.SearchPlaceholder" xml:space="preserve"><value>Soeg...</value></data>
 
   <data name="Home.Title" xml:space="preserve"><value>Luksus Sommerhuse i Danmark</value></data>
   <data name="Home.Heading" xml:space="preserve"><value>Sommerhusudlejning - Enkelt og sikkert</value></data>
   <data name="Home.Subtitle" xml:space="preserve"><value>Find det helt rigtige sommerhus. Filtrer paa omraade/by og soeg i titler/beskrivelser.</value></data>
 
-  <data name="Houses.List.Title" xml:space="preserve"><value>Luksus Sommerhuse i Danmark</value></data>
-  <data name="Houses.List.Heading" xml:space="preserve"><value>Sommerhusudlejning - Enkelt og sikkert</value></data>
-  <data name="Houses.List.Subtitle" xml:space="preserve"><value>Find det helt rigtige sommerhus. Filtrer paa omraade/by og soeg i titler/beskrivelser.</value></data>
+  <data name="Houses.List.Title" xml:space="preserve"><value>Huse</value></data>
+  <data name="Houses.List.Heading" xml:space="preserve"><value>Sommerhuse</value></data>
+  <data name="Houses.List.Subtitle" xml:space="preserve"><value>Find et hus efter område, antal gæster og pris.</value></data>
   <data name="Houses.List.AllAreas" xml:space="preserve"><value>Alle omraader</value></data>
   <data name="Houses.List.Empty" xml:space="preserve"><value>Ingen sommerhuse fundet.</value></data>
+  <data name="Houses.List.SearchPlaceholder" xml:space="preserve"><value>Titel, by eller beskrivelse</value></data>
+  <data name="Houses.List.AreaLabel" xml:space="preserve"><value>Område</value></data>
+  <data name="Houses.List.Guests" xml:space="preserve"><value>Gæster</value></data>
+  <data name="Houses.List.SortBy" xml:space="preserve"><value>Sortér efter</value></data>
+  <data name="Houses.List.Sort.Relevance" xml:space="preserve"><value>Relevans</value></data>
+  <data name="Houses.List.Sort.PriceAsc" xml:space="preserve"><value>Laveste pris</value></data>
+  <data name="Houses.List.Sort.PriceDesc" xml:space="preserve"><value>Højeste pris</value></data>
+  <data name="Houses.List.Sort.Newest" xml:space="preserve"><value>Nyeste</value></data>
+  <data name="Houses.List.LocationAndPrice" xml:space="preserve"><value>Sted og pris</value></data>
+  <data name="Houses.List.CityOrZip" xml:space="preserve"><value>By eller postnummer</value></data>
+  <data name="Houses.List.MinPrice" xml:space="preserve"><value>Min. pris pr. nat</value></data>
+  <data name="Houses.List.MaxPrice" xml:space="preserve"><value>Maks. pris pr. nat</value></data>
+  <data name="Houses.List.Any" xml:space="preserve"><value>Alle</value></data>
+  <data name="Houses.List.PerPage" xml:space="preserve"><value>Pr. side</value></data>
+  <data name="Houses.List.Count.One" xml:space="preserve"><value>1 hus</value></data>
+  <data name="Houses.List.Count.Many" xml:space="preserve"><value>{0} huse</value></data>
+  <data name="Houses.List.Pagination" xml:space="preserve"><value>Sider</value></data>
+  <data name="Features.Category.Property" xml:space="preserve"><value>Boligen</value></data>
+  <data name="Features.Category.Facility" xml:space="preserve"><value>Faciliteter</value></data>
+  <data name="Features.Category.Distance" xml:space="preserve"><value>Beliggenhed</value></data>
+  <data name="Features.Category.Other" xml:space="preserve"><value>Andet</value></data>
+  <data name="Pages.HouseCard.Guests" xml:space="preserve"><value>{0} personer</value></data>
+  <data name="Pages.HouseCard.Bedrooms" xml:space="preserve"><value>{0} soveværelser</value></data>
+  <data name="Pages.HouseCard.From" xml:space="preserve"><value>fra</value></data>
+  <data name="Pages.HouseCard.Night" xml:space="preserve"><value>nat</value></data>
+  <data name="Pages.HouseCard.SeeHouse" xml:space="preserve"><value>Se huset</value></data>
+  <data name="Pages.Gallery.Previous" xml:space="preserve"><value>Forrige billede</value></data>
+  <data name="Pages.Gallery.Next" xml:space="preserve"><value>Næste billede</value></data>
+  <data name="Pages.Gallery.Show" xml:space="preserve"><value>Vis billede {0}</value></data>
 
   <data name="Areas.List.Title" xml:space="preserve"><value>Omraader</value></data>
   <data name="Areas.List.Heading" xml:space="preserve"><value>Omraader og oplevelser</value></data>
@@ -56,6 +86,8 @@
   <data name="Areas.List.HouseSingular" xml:space="preserve"><value>sommerhus</value></data>
   <data name="Areas.List.HousePlural" xml:space="preserve"><value>sommerhuse</value></data>
   <data name="Areas.List.ReadMore" xml:space="preserve"><value>Laes mere</value></data>
+  <data name="Areas.List.PhotosComing" xml:space="preserve"><value>Billeder på vej</value></data>
+  <data name="Areas.List.ReadAbout" xml:space="preserve"><value>Læs om {0}</value></data>
 
   <data name="Areas.Details.Subtitle" xml:space="preserve"><value>Et kig paa omraadet og de tilknyttede sommerhuse.</value></data>
   <data name="Areas.Details.BackToList" xml:space="preserve"><value>Tilbage til oversigten</value></data>
@@ -68,7 +100,7 @@
   <data name="Houses.Details.BookNow" xml:space="preserve"><value>Book nu</value></data>
   <data name="Houses.Details.LoginToBook" xml:space="preserve"><value>Log ind for at booke</value></data>
   <data name="Houses.Details.CalculatePrice" xml:space="preserve"><value>Beregn pris</value></data>
-  <data name="Houses.Details.Description" xml:space="preserve"><value>Beskrivelse</value></data>
+  <data name="Houses.Details.Description" xml:space="preserve"><value>Om huset</value></data>
   <data name="Houses.Details.NoDescription" xml:space="preserve"><value>Der er endnu ingen beskrivelse for dette sommerhus.</value></data>
   <data name="Houses.Details.Arrival" xml:space="preserve"><value>Ankomst</value></data>
   <data name="Houses.Details.Departure" xml:space="preserve"><value>Afrejse</value></data>
@@ -101,6 +133,10 @@
   <data name="Pages.House.PreviousImage" xml:space="preserve"><value>Forrige billede</value></data>
   <data name="Pages.House.NextImage" xml:space="preserve"><value>Næste billede</value></data>
   <data name="Pages.House.GuestsHint" xml:space="preserve"><value>Plads til højst {0} gæster.</value></data>
+  <data name="Pages.House.Save" xml:space="preserve"><value>Gem</value></data>
+  <data name="Pages.House.Saved" xml:space="preserve"><value>Gemt</value></data>
+  <data name="Pages.House.Bathrooms" xml:space="preserve"><value>{0} badeværelser</value></data>
+  <data name="Pages.House.PriceAndBooking" xml:space="preserve"><value>Pris og booking</value></data>
   <data name="Pages.Price.DepartureAfterArrival" xml:space="preserve"><value>Afrejse skal ligge efter ankomst.</value></data>
   <data name="Pages.Price.NetworkError" xml:space="preserve"><value>Netværksfejl. Prøv igen.</value></data>
   <data name="Pages.Price.NightOne" xml:space="preserve"><value>{n} nat</value></data>

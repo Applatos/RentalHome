@@ -1,3 +1,4 @@
+@using System.Globalization
 @using Sommerhus.Mvc.ViewModels.Public.Houses
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @model HouseListVm
@@ -7,205 +8,204 @@
         ? (int)Math.Ceiling(Model.Total / (double)Model.PageSize)
         : 1;
     var currentPage = Math.Max(1, Model.Page);
+
+    // Guests and sorting sit in the main search row, so they do not open the extra filters.
+    var hasAdvancedFilters = Model.Filter.MinPrice.HasValue
+        || Model.Filter.MaxPrice.HasValue
+        || Model.Filter.MinBedrooms.HasValue
+        || Model.Filter.HasPool.HasValue
+        || Model.Filter.PetFriendly.HasValue
+        || !string.IsNullOrWhiteSpace(Model.Filter.City)
+        || (Model.Filter.FeatureFilters is not null && Model.Filter.FeatureFilters.Values.Any(v => !string.IsNullOrWhiteSpace(v)));
+
+    var categoryOrder = new[] { "Property", "Facility", "Distance", "Other" };
+    var invariant = CultureInfo.InvariantCulture;
 }
-<section class="container">
-    <header class="my-4 text-center">
-        <h2>@L["Houses.List.Heading"]</h2>
-        <p>@L["Houses.List.Subtitle"]</p>
-    </header>
 
-    @await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
+<div class="page-heading">
+    <h1>@L["Houses.List.Heading"]</h1>
+    <p>@L["Houses.List.Subtitle"]</p>
+</div>
 
-    @{
-        var hasAdvancedFilters = Model.Filter.MinPrice.HasValue
-            || Model.Filter.MaxPrice.HasValue
-            || Model.Filter.MinBedrooms.HasValue
-            || Model.Filter.MinGuests.HasValue
-            || Model.Filter.HasPool.HasValue
-            || Model.Filter.PetFriendly.HasValue
-            || Model.Filter.Sort != HouseSearchSort.Relevance
-            || (Model.Filter.FeatureFilters is not null && Model.Filter.FeatureFilters.Count > 0);
+@await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
 
-        var categoryOrder = new[] { "Property", "Facility", "Distance", "Other" };
-    }
-
-    <form method="get" class="mb-4">
-        <div class="row g-2">
-            <div class="col-md-4">
-                <input name="q" value="@Model.Filter.Query" class="form-control" placeholder="@L["Shared.SearchPlaceholder"]" />
-            </div>
-            <div class="col-md-4">
-                <select name="area" class="form-select">
-                    <option value="">@L["Houses.List.AllAreas"]</option>
-                    @foreach (var a in Model.Areas.OrderBy(a => a.Name))
-                    {
-                        <option value="@a.Id" selected="@(Model.Filter.AreaId.HasValue && a.Id == Model.Filter.AreaId.Value)">@a.Name</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-2"><button class="btn btn-dark w-100">@L["Shared.Search"]</button></div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-outline-secondary w-100 text-nowrap" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-controls="advancedSearch" aria-expanded="@(hasAdvancedFilters ? "true" : "false")">
-                    <i class="bi bi-sliders me-1" aria-hidden="true"></i>@L["Shell.Filters"]
-                </button>
-            </div>
+<form method="get" class="search-panel">
+    <div class="search-panel__row">
+        <div class="search-panel__field search-panel__field--wide">
+            <label class="form-label" for="search-q">@L["Shared.Search"]</label>
+            <input id="search-q" name="q" type="search" value="@Model.Filter.Query" class="form-control" placeholder="@L["Houses.List.SearchPlaceholder"]" />
         </div>
+        <div class="search-panel__field">
+            <label class="form-label" for="search-area">@L["Houses.List.AreaLabel"]</label>
+            <select id="search-area" name="area" class="form-select">
+                <option value="">@L["Houses.List.AllAreas"]</option>
+                @foreach (var a in Model.Areas.OrderBy(a => a.Name))
+                {
+                    <option value="@a.Id" selected="@(Model.Filter.AreaId.HasValue && a.Id == Model.Filter.AreaId.Value)">@a.Name</option>
+                }
+            </select>
+        </div>
+        <div class="search-panel__field">
+            <label class="form-label" for="search-guests">@L["Houses.List.Guests"]</label>
+            <input id="search-guests" name="minGuests" type="number" min="1" value="@Model.Filter.MinGuests?.ToString(invariant)" class="form-control" />
+        </div>
+        <div class="search-panel__field">
+            <label class="form-label" for="search-sort">@L["Houses.List.SortBy"]</label>
+            <select id="search-sort" name="sort" class="form-select">
+                <option value="Relevance" selected="@(Model.Filter.Sort == HouseSearchSort.Relevance)">@L["Houses.List.Sort.Relevance"]</option>
+                <option value="PriceAsc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceAsc)">@L["Houses.List.Sort.PriceAsc"]</option>
+                <option value="PriceDesc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceDesc)">@L["Houses.List.Sort.PriceDesc"]</option>
+                <option value="Newest" selected="@(Model.Filter.Sort == HouseSearchSort.Newest)">@L["Houses.List.Sort.Newest"]</option>
+            </select>
+        </div>
+        <div class="search-panel__actions">
+            <button class="btn btn-primary">@L["Shared.Search"]</button>
+            <button type="button" class="btn btn-outline-dark text-nowrap" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-controls="advancedSearch" aria-expanded="@(hasAdvancedFilters ? "true" : "false")"><i class="bi bi-sliders me-1" aria-hidden="true"></i>@L["Shell.Filters"]</button>
+        </div>
+    </div>
 
-        <div class="collapse @(hasAdvancedFilters ? "show" : "")" id="advancedSearch">
-            <div class="card card-body mt-3">
+    <div class="collapse @(hasAdvancedFilters ? "show" : "")" id="advancedSearch">
+        <div class="search-panel__advanced">
+            <div class="row g-3 mb-3">
+                <div class="col-12"><h2 class="search-panel__group">@L["Houses.List.LocationAndPrice"]</h2></div>
+                <div class="col-md-4">
+                    <label class="form-label" for="search-city">@L["Houses.List.CityOrZip"]</label>
+                    <input id="search-city" name="city" value="@Model.Filter.City" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="search-min-price">@L["Houses.List.MinPrice"]</label>
+                    <input id="search-min-price" name="minPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinPrice?.ToString(invariant)" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="search-max-price">@L["Houses.List.MaxPrice"]</label>
+                    <input id="search-max-price" name="maxPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MaxPrice?.ToString(invariant)" />
+                </div>
+            </div>
+
+            @foreach (var catName in categoryOrder)
+            {
+                if (!Model.SearchableFeatures.TryGetValue(catName, out var features) || features.Count == 0) continue;
+
+                var boolFeatures = features.Where(f => f.ValueType == FeatureValueType.Bool).ToList();
+                var nonBoolFeatures = features.Where(f => f.ValueType != FeatureValueType.Bool).ToList();
 
                 <div class="row g-3 mb-3">
-                    <div class="col-12"><h6 class="text-muted mb-0">Location &amp; Price</h6></div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">City / ZIP</label>
-                        <input name="city" value="@Model.Filter.City" class="form-control" placeholder="City or ZIP" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">Min price / night</label>
-                        <input name="minPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MinPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" placeholder="Min" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">Max price / night</label>
-                        <input name="maxPrice" type="number" min="0" step="1" class="form-control" value="@Model.Filter.MaxPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" placeholder="Max" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">Sort by</label>
-                        <select name="sort" class="form-select">
-                            <option value="Relevance" selected="@(Model.Filter.Sort == HouseSearchSort.Relevance)">Relevance</option>
-                            <option value="Newest" selected="@(Model.Filter.Sort == HouseSearchSort.Newest)">Newest</option>
-                            <option value="PriceAsc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceAsc)">Price ↑</option>
-                            <option value="PriceDesc" selected="@(Model.Filter.Sort == HouseSearchSort.PriceDesc)">Price ↓</option>
-                        </select>
-                    </div>
-                </div>
+                    <div class="col-12"><h2 class="search-panel__group">@L[$"Features.Category.{catName}"]</h2></div>
 
-                @if (Model.SearchableFeatures.Count > 0)
-                {
-                    @foreach (var catName in categoryOrder)
+                    @foreach (var feature in nonBoolFeatures)
                     {
-                        if (!Model.SearchableFeatures.TryGetValue(catName, out var features) || features.Count == 0) continue;
+                        var fieldName = $"f_{feature.Key}";
+                        var fieldId = $"search-f-{feature.Key}";
+                        var selectedValue = Model.Filter.FeatureFilters is not null && Model.Filter.FeatureFilters.TryGetValue(feature.Key, out var val) ? val : string.Empty;
 
-                        var boolFeatures = features.Where(f => f.ValueType == FeatureValueType.Bool).ToList();
-                        var nonBoolFeatures = features.Where(f => f.ValueType != FeatureValueType.Bool).ToList();
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-12"><h6 class="text-muted mb-0">@catName</h6></div>
-
-                            @foreach (var feature in nonBoolFeatures)
+                        <div class="col-md-3">
+                            <label class="form-label" for="@fieldId">@feature.Name</label>
+                            @if (!string.IsNullOrWhiteSpace(feature.Options))
                             {
-                                var fieldName = $"f_{feature.Key}";
-                                var selectedValue = Model.Filter.FeatureFilters is not null && Model.Filter.FeatureFilters.TryGetValue(feature.Key, out var val) ? val : string.Empty;
-
-                                <div class="col-md-3">
-                                    <label class="form-label mb-1">@feature.Name</label>
-                                    @if (!string.IsNullOrWhiteSpace(feature.Options))
+                                var options = feature.Options.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                                <select id="@fieldId" name="@fieldName" class="form-select">
+                                    <option value="">@L["Houses.List.Any"]</option>
+                                    @foreach (var option in options)
                                     {
-                                        var options = feature.Options.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                                        <select name="@fieldName" class="form-select">
-                                            <option value="">Any</option>
-                                            @foreach (var option in options)
-                                            {
-                                                <option value="@option" selected="@(string.Equals(option, selectedValue, StringComparison.OrdinalIgnoreCase))">@option</option>
-                                            }
-                                        </select>
+                                        <option value="@option" selected="@(string.Equals(option, selectedValue, StringComparison.OrdinalIgnoreCase))">@option</option>
                                     }
-                                    else
-                                    {
-                                        <input name="@fieldName" type="number" min="0" value="@selectedValue" class="form-control" placeholder="@feature.Name" />
-                                    }
-                                </div>
+                                </select>
                             }
-
-                            @if (boolFeatures.Count > 0)
+                            else
                             {
-                                <div class="col-12">
-                                    <div class="d-flex flex-wrap gap-3">
-                                        @foreach (var feature in boolFeatures)
-                                        {
-                                            var fieldName = $"f_{feature.Key}";
-                                            var isOn = Model.Filter.FeatureFilters is not null
-                                                && Model.Filter.FeatureFilters.TryGetValue(feature.Key, out var bVal)
-                                                && string.Equals(bVal, "true", StringComparison.OrdinalIgnoreCase);
-
-                                            <div class="form-check form-switch">
-                                                <input type="hidden" name="@fieldName" value="" />
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                       name="@fieldName" value="true" id="sw_@feature.Key"
-                                                       @(isOn ? "checked" : "") />
-                                                <label class="form-check-label" for="sw_@feature.Key">@feature.Name</label>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
+                                <input id="@fieldId" name="@fieldName" type="number" min="0" value="@selectedValue" class="form-control" />
                             }
                         </div>
                     }
-                }
 
-                <div class="row g-2">
-                    <div class="col-md-2">
-                        <label class="form-label mb-1">Per page</label>
-                        <select name="pageSize" class="form-select">
-                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
-                            <option value="20" selected="@(Model.PageSize == 20)">20</option>
-                            <option value="30" selected="@(Model.PageSize == 30)">30</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <a class="btn btn-outline-secondary w-100" href="/houses">@L["Shared.Reset"]</a>
-                    </div>
+                    @if (boolFeatures.Count > 0)
+                    {
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var feature in boolFeatures)
+                                {
+                                    var fieldName = $"f_{feature.Key}";
+                                    var isOn = Model.Filter.FeatureFilters is not null
+                                        && Model.Filter.FeatureFilters.TryGetValue(feature.Key, out var bVal)
+                                        && string.Equals(bVal, "true", StringComparison.OrdinalIgnoreCase);
+
+                                    <div class="form-check form-switch">
+                                        <input type="hidden" name="@fieldName" value="" />
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               name="@fieldName" value="true" id="sw_@feature.Key"
+                                               @(isOn ? "checked" : "") />
+                                        <label class="form-check-label" for="sw_@feature.Key">@feature.Name</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label" for="search-page-size">@L["Houses.List.PerPage"]</label>
+                    <select id="search-page-size" name="pageSize" class="form-select">
+                        <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                        <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                        <option value="30" selected="@(Model.PageSize == 30)">30</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <a class="btn btn-outline-dark w-100" href="/houses">@L["Shared.Reset"]</a>
                 </div>
             </div>
         </div>
-
-        <input type="hidden" name="page" value="1" />
-    </form>
-
-    <p class="text-muted small">@Model.Total result(s)</p>
-
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        @if (Model.Houses.Count > 0)
-        {
-            @foreach (var house in Model.Houses)
-            {
-                <div class="col">
-                    @await Html.PartialAsync("~/Views/Houses/_HouseCard.cshtml", house)
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col">
-                <p>@L["Houses.List.Empty"]</p>
-            </div>
-        }
     </div>
 
-    @if (totalPages > 1)
-    {
-        <nav class="mt-4" aria-label="House search pagination">
-            <ul class="pagination justify-content-center">
-                @for (var p = 1; p <= totalPages; p++)
-                {
-                    <li class="page-item @(p == currentPage ? "active" : null)">
-                        <a class="page-link" href="@Url.Action("Houses", new
-                        {
-                            q = Model.Filter.Query,
-                            city = Model.Filter.City,
-                            area = Model.Filter.AreaId,
-                            minPrice = Model.Filter.MinPrice,
-                            maxPrice = Model.Filter.MaxPrice,
-                            minBedrooms = Model.Filter.MinBedrooms,
-                            minGuests = Model.Filter.MinGuests,
-                            hasPool = Model.Filter.HasPool,
-                            petFriendly = Model.Filter.PetFriendly,
-                            sort = Model.Filter.Sort,
-                            page = p,
-                            pageSize = Model.PageSize
-                        })">@p</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
-</section>
+    <input type="hidden" name="page" value="1" />
+</form>
+
+<p class="result-count">@(Model.Total == 1 ? L["Houses.List.Count.One"] : L["Houses.List.Count.Many", Model.Total])</p>
+
+@if (Model.Houses.Count > 0)
+{
+    <div class="card-grid">
+        @foreach (var house in Model.Houses)
+        {
+            @await Html.PartialAsync("~/Views/Houses/_HouseCard.cshtml", house)
+        }
+    </div>
+}
+else
+{
+    <p>@L["Houses.List.Empty"]</p>
+}
+
+@if (totalPages > 1)
+{
+    <nav class="mt-5" aria-label="@L["Houses.List.Pagination"]">
+        <ul class="pagination justify-content-center">
+            @for (var p = 1; p <= totalPages; p++)
+            {
+                <li class="page-item @(p == currentPage ? "active" : null)">
+                    <a class="page-link" href="@Url.Action("Houses", new
+                    {
+                        q = Model.Filter.Query,
+                        city = Model.Filter.City,
+                        area = Model.Filter.AreaId,
+                        minPrice = Model.Filter.MinPrice,
+                        maxPrice = Model.Filter.MaxPrice,
+                        minBedrooms = Model.Filter.MinBedrooms,
+                        minGuests = Model.Filter.MinGuests,
+                        hasPool = Model.Filter.HasPool,
+                        petFriendly = Model.Filter.PetFriendly,
+                        sort = Model.Filter.Sort,
+                        page = p,
+                        pageSize = Model.PageSize
+                    })">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script src="~/js/house-carousel.js" asp-append-version="true"></script>
+}

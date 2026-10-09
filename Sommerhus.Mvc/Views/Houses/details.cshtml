@@ -1,32 +1,26 @@
 @using System.Globalization
 @using System.Linq
+@using System.Text.Json
 @using Sommerhus.Core.Dtos.Shared
 @using Sommerhus.Mvc.Infrastructure
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Sommerhus.Mvc.SharedResource> L
 @model PublicHouseDetailsDto
 
 @{
-    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.City)
-        ? Model.Title
-        : $"{Model.City} – {Model.Title}";
+    ViewData["Title"] = Model.Title;
+    var culture = CultureInfo.CurrentCulture;
 
+    // Images arrive in display order: the cover first, floor plans last.
     var images = (Model.Images ?? Array.Empty<ImageDto>()).ToList();
-
-    // Adskil plantegninger
     var floorplans = images.Where(i => string.Equals(i.Kind, "floorplan", StringComparison.OrdinalIgnoreCase)).ToList();
-    var galleryAll = images.Where(i => !string.Equals(i.Kind, "floorplan", StringComparison.OrdinalIgnoreCase)).ToList();
+    var photos = images.Where(i => !string.Equals(i.Kind, "floorplan", StringComparison.OrdinalIgnoreCase)).ToList();
+    var cover = photos.FirstOrDefault();
 
-    // Cover (til højre kolonne)
-    var cover = galleryAll.FirstOrDefault(i => string.Equals(i.Kind, "cover", StringComparison.OrdinalIgnoreCase))
-               ?? galleryAll.FirstOrDefault();
-
-    // Slides (venstre kolonne): alle galleri-billeder minus cover
-    var slides = galleryAll;
-    if (!slides.Any() && cover is not null)
-    {
-        // Fallback: hvis kun ét billede findes, brug det også i venstre, så der vises noget
-        slides = new List<ImageDto> { cover };
-    }
+    // The carousel shows the other photos, with the cover beside it, as in the original mockup.
+    // A house with a single photo shows it in the carousel alone.
+    var slides = photos.Count > 1 ? photos.Skip(1).ToList() : photos;
+    var showCover = photos.Count > 1;
+    var slideSources = JsonSerializer.Serialize(slides.Select(i => new { src = i.Url, alt = string.IsNullOrWhiteSpace(i.Alt) ? Model.Title : i.Alt }));
 
     // The price widget starts from the same stay and guest count as the booking form, and the
     // booking links carry it there; house-pricing.js keeps them in step with the selection.
@@ -43,232 +37,193 @@
     var loginUrl = $"/account/login?returnUrl={Uri.EscapeDataString(bookUrl)}";
     var isSignedIn = User.Identity?.IsAuthenticated == true;
 
-    var featureFacts = HouseFeatureFacts.From(Model.Features, CultureInfo.CurrentCulture);
+    var featureFacts = HouseFeatureFacts.From(Model.Features, culture);
+    var strip = featureFacts.Facts.Where(f => f.IconUrl is not null).Select(f => (Icon: f.IconUrl!, Value: f.Value, Caption: (string?)f.Caption))
+        .Concat(featureFacts.Facilities.Where(f => f.IconUrl is not null).Select(f => (Icon: f.IconUrl!, Value: f.Name, Caption: (string?)null)))
+        .ToList();
+
+    var area = Model.Areas?.FirstOrDefault();
+    var place = string.Join(", ", new[] { Model.Address, $"{Model.Zip} {Model.City}".Trim() }.Where(p => !string.IsNullOrWhiteSpace(p)));
+    var subline = string.Join(" · ", new[] { place, HouseCardFacts.RoomsLine(Model.Features, L, culture) }.Where(p => !string.IsNullOrWhiteSpace(p)));
 }
 
-<section class="container my-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-        <div>
-            <h1 class="h3 mb-1">@Model.Title</h1>
-            @if (!string.IsNullOrWhiteSpace(Model.Address) || !string.IsNullOrWhiteSpace(Model.Zip) || !string.IsNullOrWhiteSpace(Model.City))
+<nav class="breadcrumbs" aria-label="@L["Shared.Breadcrumbs"]">
+    <ol>
+        <li><a href="/houses">@L["Nav.Houses"]</a></li>
+        @if (area is not null)
+        {
+            <li><a href="/areas/@area.Id">@area.Label</a></li>
+        }
+        <li aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<div class="house-title">
+    <div>
+        <h1>@Model.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(subline))
+        {
+            <p>@subline</p>
+        }
+    </div>
+    @if (isSignedIn)
+    {
+        var isFavorite = Model.IsFavorite == true;
+        <form method="post" action="/account/favorites/@Model.Id/@(isFavorite ? "remove" : "add")">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
+            <button type="submit" class="btn btn-outline-dark" title="@(isFavorite ? L["Pages.House.RemoveFavorite"] : L["Pages.House.AddFavorite"])">
+                <i class="bi @(isFavorite ? "bi-heart-fill" : "bi-heart") me-1" aria-hidden="true"></i>@(isFavorite ? L["Pages.House.Saved"] : L["Pages.House.Save"])
+            </button>
+        </form>
+    }
+</div>
+
+@await Html.PartialAsync("~/Views/Shared/_FlashMessages.cshtml")
+
+@if (photos.Count > 0)
+{
+    <div class="house-gallery @(showCover ? null : "house-gallery--single")">
+        <div class="house-gallery__carousel" data-carousel data-carousel-images="@slideSources">
+            <img src="@slides[0].Url" alt="@(string.IsNullOrWhiteSpace(slides[0].Alt) ? Model.Title : slides[0].Alt)" data-carousel-image />
+            @if (slides.Count > 1)
             {
-                <p class="text-body-secondary mb-0">
-                    @Model.Address
-                    @if (!string.IsNullOrWhiteSpace(Model.Address) && (!string.IsNullOrWhiteSpace(Model.Zip) || !string.IsNullOrWhiteSpace(Model.City)))
-                    {
-                        <span>, </span>
-                    }
-                    @Model.Zip @Model.City
-                </p>
+                <button type="button" class="media-arrow media-arrow--prev" data-carousel-prev aria-label="@L["Pages.Gallery.Previous"]"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+                <button type="button" class="media-arrow media-arrow--next" data-carousel-next aria-label="@L["Pages.Gallery.Next"]"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+                <span class="media-chip media-chip--counter" data-carousel-counter>1 / @slides.Count</span>
             }
         </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            @if (isSignedIn)
+        @if (showCover && cover is not null)
+        {
+            <img class="house-gallery__cover" src="@cover.Url" alt="@(string.IsNullOrWhiteSpace(cover.Alt) ? Model.Title : cover.Alt)" />
+        }
+    </div>
+}
+
+@if (strip.Count > 0)
+{
+    <ul class="fact-strip" aria-label="@L["Pages.House.KeyFacts"]">
+        @foreach (var item in strip)
+        {
+            <li>
+                <img src="@item.Icon" alt="" width="44" height="44" loading="lazy" />
+                <span class="fact-strip__value">@item.Value</span>
+                @if (!string.IsNullOrWhiteSpace(item.Caption))
+                {
+                    <span class="fact-strip__caption">@item.Caption</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+<div class="house-layout">
+    <div class="house-layout__main">
+        <section class="house-section">
+            <h2>@L["Houses.Details.Description"]</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
-                @if (Model.IsFavorite == true)
-                {
-                    <form method="post" action="/account/favorites/@Model.Id/remove" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
-                        <button type="submit" class="btn btn-outline-danger btn-sm" title="@L["Pages.House.RemoveFavorite"]" aria-label="@L["Pages.House.RemoveFavorite"]">&#9829;</button>
-                    </form>
-                }
-                else
-                {
-                    <form method="post" action="/account/favorites/@Model.Id/add" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="returnUrl" value="/houses/@Model.Id" />
-                        <button type="submit" class="btn btn-outline-secondary btn-sm" title="@L["Pages.House.AddFavorite"]" aria-label="@L["Pages.House.AddFavorite"]">&#9825;</button>
-                    </form>
-                }
-                <a class="btn btn-dark" href="@bookUrl" data-pricing-link="@bookPath">@L["Houses.Details.BookNow"]</a>
+                @TextParagraphs.Render(Model.Description)
             }
             else
             {
-                <a class="btn btn-outline-dark" href="@loginUrl" data-pricing-link="@bookPath" data-pricing-login="/account/login">@L["Houses.Details.LoginToBook"]</a>
+                <p class="text-body-secondary">@L["Houses.Details.NoDescription"]</p>
             }
-            <a class="btn btn-primary" href="#booking-card">@L["Houses.Details.CalculatePrice"]</a>
-        </div>
-    </div>
+        </section>
 
-    <!-- TOP: 2 kolonner med billeder -->
-    <div class="row g-3 mb-3">
-        <!-- Venstre: Carousel uden thumbnails -->
-        <div class="col-lg-8">
-            @if (slides.Any())
-            {
-                <div id="houseCarousel" class="carousel slide" data-bs-ride="false">
-                    <div class="carousel-inner rounded-3 overflow-hidden">
-                        @for (var i = 0; i < slides.Count; i++)
-                        {
-                            var img = slides[i];
-                            <div class="carousel-item @(i == 0 ? "active" : null)">
-                                <div class="ratio ratio-16x9">
-                                    <img src="@img.Url" alt="@img.Alt" class="d-block w-100" style="object-fit:cover;" loading="@(i == 0 ? "eager" : "lazy")" />
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    @if (slides.Count > 1)
-                    {
-                        <button class="carousel-control-prev" type="button" data-bs-target="#houseCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">@L["Pages.House.PreviousImage"]</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#houseCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">@L["Pages.House.NextImage"]</span>
-                        </button>
-                    }
-                </div>
-            }
-        </div>
-
-        <!-- Højre: kun cover-billedet -->
-        <div class="col-lg-4">
-            @if (cover is not null)
-            {
-                <div class="ratio ratio-4x3 rounded-3 overflow-hidden">
-                    <img src="@cover.Url" alt="@cover.Alt" class="w-100 h-100" style="object-fit:cover;" loading="lazy" />
-                </div>
-            }
-        </div>
-    </div>
-
-    @* Key facts with their values. The row wraps, so the page is never wider than the screen. *@
-    @if (featureFacts.Facts.Count > 0)
-    {
-        <ul class="list-unstyled d-flex flex-wrap gap-3 gap-md-4 border-top border-bottom py-3 my-3" aria-label="@L["Pages.House.KeyFacts"]">
-            @foreach (var fact in featureFacts.Facts)
-            {
-                <li class="d-flex align-items-center gap-2">
-                    @if (fact.IconUrl is not null)
-                    {
-                        <img src="@fact.IconUrl" alt="" width="28" height="28" loading="lazy" />
-                    }
-                    <span class="lh-sm">
-                        <span class="d-block fw-semibold">@fact.Value</span>
-                        <span class="d-block small text-body-secondary">@fact.Caption</span>
-                    </span>
-                </li>
-            }
-        </ul>
-    }
-
-    <!-- BUND: 2 kolonner igen -->
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <h2 class="h5">@L["Houses.Details.Description"]</h2>
-            <div>
-                @if (!string.IsNullOrWhiteSpace(Model.Description))
-                {
-                    @Sommerhus.Mvc.Infrastructure.TextParagraphs.Render(Model.Description)
-                }
-                else
-                {
-                    <p class="text-body-secondary">@L["Houses.Details.NoDescription"]</p>
-                }
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div id="booking-card" class="card shadow-sm mb-4" data-pricing-root>
-                <div class="card-body">
-                    <h2 class="h5 mb-3">@L["Houses.Details.CalculatePrice"]</h2>
-                    <form data-pricing-form
-                          data-house-id="@Model.Id"
-                          data-area-id=""
-                          data-quote-url="@Url.Action("Quote", "Houses", new { id = Model.Id })">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <label for="arrival" class="form-label">@L["Houses.Details.Arrival"]</label>
-                                <input type="date"
-                                       class="form-control"
-                                       id="arrival"
-                                       name="arrival"
-                                       value="@arrivalValue"
-                                       min="@todayValue"
-                                       data-pricing-arrival />
-                            </div>
-                            <div class="col-6">
-                                <label for="departure" class="form-label">@L["Houses.Details.Departure"]</label>
-                                <input type="date"
-                                       class="form-control"
-                                       id="departure"
-                                       name="departure"
-                                       value="@departureValue"
-                                       min="@BookingDefaults.FormatDate(defaultArrival.AddDays(1))"
-                                       data-pricing-departure />
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="guests" class="form-label">@L["Houses.Details.Guests"]</label>
-                            <input type="number"
-                                   class="form-control"
-                                   id="guests"
-                                   name="guests"
-                                   min="1"
-                                   max="@maxGuests"
-                                   value="@defaultGuests"
-                                   aria-describedby="@(Model.MaxGuests is > 0 ? "guests-hint" : null)"
-                                   data-pricing-guests />
-                            @if (Model.MaxGuests is > 0)
-                            {
-                                <div id="guests-hint" class="form-text">@L["Pages.House.GuestsHint", maxGuests]</div>
-                            }
-                        </div>
-                    </form>
-                    <partial name="~/Views/Houses/_PricingWidget.cshtml" model="Model.Id" />
-                    <div class="d-grid mt-3">
-                        @if (isSignedIn)
-                        {
-                            <a class="btn btn-dark" href="@bookUrl" data-pricing-link="@bookPath">@L["Houses.Details.BookNow"]</a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-outline-dark" href="@loginUrl" data-pricing-link="@bookPath" data-pricing-login="/account/login">@L["Houses.Details.LoginToBook"]</a>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            @if (featureFacts.Facilities.Count > 0)
-            {
-                <h2 class="h5">@L["Houses.Details.Facilities"]</h2>
-                <ul class="list-unstyled row row-cols-2 g-2 mb-3">
+        @if (featureFacts.Facilities.Count > 0)
+        {
+            <section class="house-section">
+                <h2>@L["Houses.Details.Facilities"]</h2>
+                <ul class="checklist">
                     @foreach (var facility in featureFacts.Facilities)
                     {
-                        <li class="col d-flex align-items-center gap-2">
-                            @if (facility.IconUrl is not null)
-                            {
-                                <img src="@facility.IconUrl" alt="" width="20" height="20" loading="lazy" />
-                            }
-                            <span class="small">@facility.Name</span>
-                        </li>
+                        <li><i class="bi bi-check2" aria-hidden="true"></i>@facility.Name</li>
                     }
                 </ul>
-            }
+            </section>
+        }
 
-            @if (floorplans.Any())
-            {
-                <h3 class="h6">@L["Houses.Details.Floorplan"]</h3>
-                <div class="row g-2">
-                    @foreach (var fp in floorplans)
-                    {
-                        <div class="col-12">
-                            <div class="ratio ratio-4x3 bg-white rounded-3">
-                                <img src="@fp.Url" alt="@fp.Alt" class="w-100 h-100" style="object-fit:contain;" loading="lazy" />
-                            </div>
-                        </div>
-                    }
+        @if (floorplans.Count > 0)
+        {
+            <section class="house-section">
+                <h2>@L["Houses.Details.Floorplan"]</h2>
+                @foreach (var plan in floorplans)
+                {
+                    <a class="floorplan" href="@plan.Url" target="_blank" rel="noopener">
+                        <img src="@plan.Url" alt="@(string.IsNullOrWhiteSpace(plan.Alt) ? L["Houses.Details.Floorplan"].Value : plan.Alt)" loading="lazy" />
+                    </a>
+                }
+            </section>
+        }
+    </div>
+
+    <aside id="booking-card" class="price-box" aria-label="@L["Pages.House.PriceAndBooking"]" data-pricing-root>
+        @if (Model.MinNightlyPrice.HasValue)
+        {
+            <p class="price-box__from">
+                @L["Pages.HouseCard.From"] <strong>@MoneyText.Format(Model.MinNightlyPrice.Value, Model.Currency, culture)</strong> / @L["Pages.HouseCard.Night"]
+                <span>@L["Pages.Price.PricesIncludeVat"]</span>
+            </p>
+        }
+        <form data-pricing-form
+              data-house-id="@Model.Id"
+              data-area-id=""
+              data-quote-url="@Url.Action("Quote", "Houses", new { id = Model.Id })">
+            <div class="row g-2">
+                <div class="col-6">
+                    <label for="arrival" class="form-label">@L["Houses.Details.Arrival"]</label>
+                    <input type="date"
+                           class="form-control"
+                           id="arrival"
+                           name="arrival"
+                           value="@arrivalValue"
+                           min="@todayValue"
+                           data-pricing-arrival />
                 </div>
+                <div class="col-6">
+                    <label for="departure" class="form-label">@L["Houses.Details.Departure"]</label>
+                    <input type="date"
+                           class="form-control"
+                           id="departure"
+                           name="departure"
+                           value="@departureValue"
+                           min="@BookingDefaults.FormatDate(defaultArrival.AddDays(1))"
+                           data-pricing-departure />
+                </div>
+            </div>
+            <div class="mt-3">
+                <label for="guests" class="form-label">@L["Houses.Details.Guests"]</label>
+                <input type="number"
+                       class="form-control"
+                       id="guests"
+                       name="guests"
+                       min="1"
+                       max="@maxGuests"
+                       value="@defaultGuests"
+                       aria-describedby="@(Model.MaxGuests is > 0 ? "guests-hint" : null)"
+                       data-pricing-guests />
+                @if (Model.MaxGuests is > 0)
+                {
+                    <div id="guests-hint" class="form-text">@L["Pages.House.GuestsHint", maxGuests]</div>
+                }
+            </div>
+        </form>
+        <partial name="~/Views/Houses/_PricingWidget.cshtml" model="Model.Id" />
+        <div class="d-grid mt-3">
+            @if (isSignedIn)
+            {
+                <a class="btn btn-primary btn-lg" href="@bookUrl" data-pricing-link="@bookPath">@L["Houses.Details.BookNow"]</a>
+            }
+            else
+            {
+                <a class="btn btn-primary btn-lg" href="@loginUrl" data-pricing-link="@bookPath" data-pricing-login="/account/login">@L["Houses.Details.LoginToBook"]</a>
             }
         </div>
-    </div>
-</section>
+    </aside>
+</div>
 
 @section Scripts {
+    <script src="~/js/house-carousel.js" asp-append-version="true"></script>
     <script src="~/js/house-pricing.js" asp-append-version="true"></script>
 }
