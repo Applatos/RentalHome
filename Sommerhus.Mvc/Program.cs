@@ -4,10 +4,17 @@ using Sommerhus.Mvc;
 using Sommerhus.Mvc.ModelBinding;
 using Sommerhus.Mvc.Services;
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Pages are Danish: print æ, ø, å and · as themselves rather than as character references.
+// Markup characters are still encoded.
+builder.Services.Configure<Microsoft.Extensions.WebEncoders.WebEncoderOptions>(options =>
+    options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
 builder.Services.AddControllersWithViews(options =>
     {

@@ -128,7 +128,7 @@ public sealed class AccessTests(MvcAppFixture app) : IClassFixture<MvcAppFixture
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain("<title>Ingen adgang</title>");
+        html.Should().Contain("<title>Ingen adgang · Sommerhuse</title>");
         html.Should().Contain("Se sommerhusene");
         // Nobody to sign out: the page offers a plain login instead.
         html.Should().NotContain("switch-user");
@@ -141,7 +141,7 @@ public sealed class AccessTests(MvcAppFixture app) : IClassFixture<MvcAppFixture
 
         var html = await browser.GetStringAsync("/account/access-denied?culture=en-GB");
 
-        html.Should().Contain("<title>Access denied</title>");
+        html.Should().Contain("<title>Access denied · Sommerhuse</title>");
         html.Should().Contain("You do not have access to the page you tried to open.");
     }
 
@@ -202,7 +202,7 @@ public sealed class AccessTests(MvcAppFixture app) : IClassFixture<MvcAppFixture
         var html = await browser.GetStringAsync("/account/access-denied");
 
         if (shown)
-            html.Should().Contain("<a class=\"nav-link\" href=\"/admin/houses\">Admin</a>");
+            html.Should().Contain("<a class=\"site-nav__link\" href=\"/admin/houses\">Admin</a>");
         else
             html.Should().NotContain("href=\"/admin/houses\"");
     }

@@ -1,22 +1,256 @@
-html {
-  font-size: 14px;
+/*
+ * Sommerhuse: a calm Nordic palette with one accent colour (sea blue, matched to the feature
+ * icons' blue-grey), on top of Bootstrap 5.3. Bootstrap's own variables are pointed at the
+ * palette so admin pages and forms follow it without their own styles.
+ */
+
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400 900;
+    src: url('../lib/schibsted-grotesk/schibsted-grotesk-latin-wght-normal.woff2') format('woff2-variations');
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
+:root {
+    --sh-ground: #F4F6F6;
+    --sh-surface: #FFFFFF;
+    --sh-ink: #18232B;
+    --sh-ink-soft: #33424B;
+    --sh-muted: #4F5D66;
+    --sh-line: #DCE2E4;
+    --sh-line-soft: #E6EBED;
+    --sh-field: #C5CED2;
+    --sh-mist: #E6EDEF;
+    --sh-accent: #2C5578;
+    --sh-accent-hover: #1E3F5C;
+    --sh-icon: #6782A4;
+    --sh-radius: 16px;
+    --sh-shadow: 0 1px 2px rgba(24, 35, 43, .04);
+    --sh-shadow-raised: 0 1px 2px rgba(24, 35, 43, .05), 0 16px 40px rgba(24, 35, 43, .08);
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    --bs-body-font-family: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --bs-body-bg: var(--sh-ground);
+    --bs-body-color: var(--sh-ink);
+    --bs-emphasis-color: var(--sh-ink);
+    --bs-secondary-color: var(--sh-muted);
+    --bs-border-color: var(--sh-line);
+    --bs-link-color-rgb: 44, 85, 120;
+    --bs-link-hover-color-rgb: 30, 63, 92;
+    --bs-link-decoration: none;
 }
 
 body {
-  margin-bottom: 60px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+:focus-visible {
+    outline: 3px solid var(--sh-icon);
+    outline-offset: 2px;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.muted,
+.text-muted,
+.text-body-secondary {
+    color: var(--sh-muted) !important;
+}
+
+/* Buttons and fields in the palette, admin included. */
+.btn {
+    --bs-btn-border-radius: 10px;
+    --bs-btn-font-weight: 600;
+}
+
+.btn-primary,
+.btn-dark {
+    --bs-btn-bg: var(--sh-accent);
+    --bs-btn-border-color: var(--sh-accent);
+    --bs-btn-hover-bg: var(--sh-accent-hover);
+    --bs-btn-hover-border-color: var(--sh-accent-hover);
+    --bs-btn-active-bg: var(--sh-accent-hover);
+    --bs-btn-active-border-color: var(--sh-accent-hover);
+    --bs-btn-disabled-bg: var(--sh-accent);
+    --bs-btn-disabled-border-color: var(--sh-accent);
+    --bs-btn-focus-shadow-rgb: 44, 85, 120;
+}
+
+.btn-outline-dark,
+.btn-outline-secondary {
+    --bs-btn-color: var(--sh-ink);
+    --bs-btn-border-color: var(--sh-field);
+    --bs-btn-hover-color: var(--sh-ink);
+    --bs-btn-hover-bg: #EDF1F2;
+    --bs-btn-hover-border-color: var(--sh-field);
+    --bs-btn-active-color: var(--sh-ink);
+    --bs-btn-active-bg: #E3E9EB;
+    --bs-btn-active-border-color: var(--sh-field);
+}
+
+.form-control,
+.form-select {
+    border-color: var(--sh-field);
+    border-radius: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--sh-icon);
+    box-shadow: 0 0 0 .2rem rgba(103, 130, 164, .25);
+}
+
+.form-label {
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--sh-ink-soft);
+}
+
+.card {
+    --bs-card-border-color: var(--sh-line);
+    --bs-card-border-radius: var(--sh-radius);
+}
+
+/* Page frame */
+.site-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+.site-main {
+    flex: 1;
+    padding-top: 28px;
+    padding-bottom: 72px;
+}
+
+.site-header {
+    background: var(--sh-surface);
+    border-bottom: 1px solid var(--sh-line);
+}
+
+.site-header__inner {
+    min-height: 72px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 28px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--sh-ink);
+    text-decoration: none;
+}
+
+.brand:hover {
+    color: var(--sh-ink);
+}
+
+.brand__mark {
+    color: var(--sh-accent);
+    flex: none;
+}
+
+.brand__name {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+}
+
+.brand__tagline {
+    font-size: .875rem;
+    color: var(--sh-muted);
+    padding-left: 10px;
+    border-left: 1px solid var(--sh-line);
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-right: auto;
+}
+
+.site-nav__link {
+    color: var(--sh-ink-soft);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 4px 0;
+}
+
+.site-nav__link:hover,
+.site-nav__link[aria-current="page"] {
+    color: var(--sh-ink);
+}
+
+.site-nav__link[aria-current="page"] {
+    font-weight: 600;
+    box-shadow: inset 0 -2px 0 var(--sh-accent);
+}
+
+.site-header__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    font-size: .9375rem;
+}
+
+.site-header__tools a {
+    color: var(--sh-ink-soft);
+    text-decoration: none;
+}
+
+.site-header__tools a:hover {
+    color: var(--sh-ink);
+}
+
+.site-header__user {
+    color: var(--sh-muted);
+}
+
+.site-footer {
+    background: var(--sh-ink);
+    color: #C9D3D8;
+}
+
+.site-footer__inner {
+    padding-top: 36px;
+    padding-bottom: 36px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    font-size: .9375rem;
+}
+
+.site-footer .brand,
+.site-footer .brand:hover {
+    color: #FFFFFF;
+}
+
+.site-footer .brand__mark {
+    color: #FFFFFF;
+}
+
+.visually-hidden-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
