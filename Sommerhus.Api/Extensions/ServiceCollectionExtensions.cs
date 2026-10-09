@@ -1,6 +1,7 @@
 using Sommerhus.Core.Services.Admin.Areas;
 using Sommerhus.Core.Services.Admin.Audit;
 using Sommerhus.Core.Services.Admin.Cities;
+using Sommerhus.Core.Services.Admin.DemoContent;
 using Sommerhus.Core.Services.Admin.Features;
 using Sommerhus.Core.Services.Admin.Houses;
 using Sommerhus.Core.Services.Admin.Images;
@@ -51,6 +52,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminCalendarService, AdminCalendarService>();
         services.AddScoped<IAdminAvailabilityService, AdminAvailabilityService>();
         services.AddScoped<IAdminBookingService, AdminBookingService>();
+        services.AddScoped<DemoCatalogImporter>();
+        services.AddScoped<IDemoContentImportService, DemoContentImportService>();
+        services.AddOptions<DemoContentOptions>().BindConfiguration(DemoContentOptions.Section);
 
         return services;
     }

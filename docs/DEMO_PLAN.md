@@ -71,11 +71,30 @@ Status: færdig 30.09.2026 (ikke committet). 356 tests grønne; gennemgået med 
 
 ## Trin 2 — Indhold på live-sitet
 
-- [ ] En idempotent import af demo-indhold (ikke dev-seederen): to huse (Blåvand Strand 4,
+Status: trin 2.1–2.3 færdige 09.10.2026 på branch `feature/demo-content-import` (ikke merget).
+363 tests grønne; kørt mod en tom Production-database og set i browser. Importen køres af en
+admin med knappen "Importér demo-indhold" under Admin → Huse; se `docs/DEVOPS.md#demo-content`.
+
+- [x] En idempotent import af demo-indhold (ikke dev-seederen): to huse (Blåvand Strand 4,
       Almosetoften 10) og to områder (Blåvand, Ho) med tekster og billeder fra `Sommerhus resourcer`.
-- [ ] De 11 feature-ikoner fra `wwwroot/images/features` knyttes til faciliteterne.
-- [ ] Priskalender, der dækker de næste år.
-- [ ] Rigtige billeder af Ho (de nuværende fire er kopier af Blåvands).
+- [x] De 11 feature-ikoner fra `wwwroot/images/features` knyttes til faciliteterne. Ti er i brug;
+      `rengøring.png` står ubrugt, fordi rengøring er et gebyr og ikke en facilitet.
+- [x] Priskalender, der dækker de næste år (indeværende år og de to næste).
+- [ ] Rigtige billeder af Ho. De fire kopier af Blåvands billeder er fjernet, så Ho importeres
+      uden billeder. Læg rigtige billeder i `images/areas/ho/` og kør importen igen.
+
+Beslutninger for trin 2:
+
+- **Priser pr. nat inkl. moms:** Blåvand Strand 4 3.800 kr. i højsæson og 1.700 kr. i lavsæson,
+  Almosetoften 10 3.400 kr. og 1.500 kr. Højsæson er juni–august.
+- **"Gratis slutrengøring!" er fjernet fra husteksterne**, fordi sitet lægger et
+  rengøringsgebyr på.
+- **Ho har ikke sit eget postnummer.** Begge huse og begge områder ligger under 6857 Blåvand,
+  så husets kort viser "Blåvand - Almosetoften 10", hvor mockuppen viser "Ho - Almosetoften 10".
+  Det hører til trin 3, at kortet viser området i stedet for byen.
+- **`house1` er Almosetoften 10 og `house2` er Blåvand Strand 4.** Mappenavnene siger ikke,
+  hvilket hus der er hvilket. Plantegningen i `house1` har aktivitetsrummet (AK), og fotoene i
+  `house2` har klitterne og altanen.
 
 ## Trin 3 — Visuelt løft efter de originale mockups
 

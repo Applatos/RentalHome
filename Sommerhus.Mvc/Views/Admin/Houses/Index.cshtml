@@ -12,7 +12,12 @@
 
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="mb-0">@L["Admin.Houses.Index.Title"]</h2>
-        <a class="btn btn-primary" asp-controller="Houses" asp-action="New">+ @L["Admin.Houses.Index.Create"]</a>
+        <div class="d-flex gap-2">
+            <form method="post" asp-controller="DemoContent" asp-action="Import">
+                <button type="submit" class="btn btn-outline-secondary" title="@L["Admin.Houses.Index.ImportDemoHint"]">@L["Admin.Houses.Index.ImportDemo"]</button>
+            </form>
+            <a class="btn btn-primary" asp-controller="Houses" asp-action="New">+ @L["Admin.Houses.Index.Create"]</a>
+        </div>
     </div>
 
     <form method="get" class="row gy-2 gx-2 mb-3" asp-controller="Houses" asp-action="Index">

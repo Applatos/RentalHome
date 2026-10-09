@@ -1,0 +1,121 @@
+{
+  "seasonCodes": [
+    { "code": "A", "name": "Højsæson", "color": "#FF5733", "sortOrder": 0 },
+    { "code": "B", "name": "Lavsæson", "color": "#33C1FF", "sortOrder": 1 }
+  ],
+  "group": {
+    "name": "Vesterhavet",
+    "years": 3,
+    "seasons": [
+      { "code": "B", "from": "01-01", "to": "05-31" },
+      { "code": "A", "from": "06-01", "to": "08-31" },
+      { "code": "B", "from": "09-01", "to": "12-31" }
+    ]
+  },
+  "features": [
+    { "key": "bedrooms", "name": "Soveværelser", "nameEn": "Bedrooms", "valueType": "Int", "category": "Property", "options": "1,2,3,4,5,6+", "sortOrder": 10 },
+    { "key": "bathrooms", "name": "Badeværelser", "nameEn": "Bathrooms", "valueType": "Int", "category": "Property", "options": "1,2,3,4+", "sortOrder": 20 },
+    { "key": "max_guests", "name": "Personer", "nameEn": "Guests", "valueType": "Int", "category": "Property", "options": "1-2,3-4,5-6,7-8,9+", "icon": "personer.png", "sortOrder": 30 },
+    { "key": "size_m2", "name": "Boligareal", "nameEn": "Living area", "valueType": "Int", "category": "Property", "unit": "m²", "icon": "housesize.png", "sortOrder": 40 },
+    { "key": "plot_m2", "name": "Grundareal", "nameEn": "Plot size", "valueType": "Int", "category": "Property", "unit": "m²", "icon": "groundsize.png", "sortOrder": 50 },
+    { "key": "pool", "name": "Pool", "nameEn": "Swimming pool", "valueType": "Bool", "category": "Facility", "sortOrder": 100 },
+    { "key": "spa", "name": "Spa", "nameEn": "Spa / hot tub", "valueType": "Bool", "category": "Facility", "icon": "spa.png", "sortOrder": 110 },
+    { "key": "sauna", "name": "Sauna", "nameEn": "Sauna", "valueType": "Bool", "category": "Facility", "icon": "sauna.png", "sortOrder": 120 },
+    { "key": "wifi", "name": "Trådløst internet", "nameEn": "Wifi", "valueType": "Bool", "category": "Facility", "icon": "wifi.png", "sortOrder": 130 },
+    { "key": "tv", "name": "TV", "nameEn": "TV", "valueType": "Bool", "category": "Facility", "icon": "tv.png", "sortOrder": 140 },
+    { "key": "fireplace", "name": "Brændeovn", "nameEn": "Wood stove", "valueType": "Bool", "category": "Facility", "sortOrder": 150 },
+    { "key": "dishwasher", "name": "Opvaskemaskine", "nameEn": "Dishwasher", "valueType": "Bool", "category": "Facility", "sortOrder": 160 },
+    { "key": "washing_machine", "name": "Vaskemaskine", "nameEn": "Washing machine", "valueType": "Bool", "category": "Facility", "sortOrder": 170 },
+    { "key": "dryer", "name": "Tørretumbler", "nameEn": "Tumble dryer", "valueType": "Bool", "category": "Facility", "sortOrder": 180 },
+    { "key": "pet_friendly", "name": "Husdyr tilladt", "nameEn": "Pets allowed", "valueType": "Bool", "category": "Facility", "sortOrder": 190 },
+    { "key": "distance_water", "name": "Afstand til strand", "nameEn": "Distance to beach", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 100m,< 500m,< 1 km,< 5 km", "icon": "beach.png", "sortOrder": 300 },
+    { "key": "distance_shop", "name": "Afstand til indkøb", "nameEn": "Distance to shops", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 500m,< 1 km,< 2 km,< 5 km", "icon": "shopping.png", "sortOrder": 310 },
+    { "key": "water_view", "name": "Havudsigt", "nameEn": "Sea view", "valueType": "Bool", "category": "Distance", "icon": "panorama.png", "sortOrder": 320 }
+  ],
+  "areas": [
+    {
+      "id": "5d7e2c1a-9b0f-4f7e-a8c1-1a0d3e5b7a01",
+      "name": "Blåvand",
+      "nameEn": "Blåvand",
+      "zips": [ "6857" ],
+      "text": "tekster/Blåvand.txt",
+      "imageFolder": "images/areas/blaavand"
+    },
+    {
+      "id": "5d7e2c1a-9b0f-4f7e-a8c1-1a0d3e5b7a02",
+      "name": "Ho",
+      "nameEn": "Ho",
+      "zips": [ "6857" ],
+      "text": "tekster/Ho.txt",
+      "imageFolder": "images/areas/ho"
+    }
+  ],
+  "houses": [
+    {
+      "id": "7c3f9a2e-4d1b-4e8a-9f60-2b7d5c8e1f01",
+      "title": "Blåvand Strand 4",
+      "address": "Blåvand Strand 4",
+      "zip": "6857",
+      "areas": [ "Blåvand" ],
+      "text": "tekster/Blåvand strand 4.txt",
+      "searchKeywords": "pool, spa, sauna, havudsigt, strand, balkon, hund, brændeovn",
+      "imageFolder": "images/houses/house2",
+      "cover": "1.jpg",
+      "floorplan": "map.jpg",
+      "skipImages": [ "subPic.jpg", "subPic2.jpg" ],
+      "features": {
+        "bedrooms": "5",
+        "bathrooms": "2",
+        "max_guests": "12",
+        "size_m2": "225",
+        "plot_m2": "2100",
+        "pool": "true",
+        "spa": "true",
+        "sauna": "true",
+        "wifi": "true",
+        "tv": "true",
+        "fireplace": "true",
+        "dishwasher": "true",
+        "washing_machine": "true",
+        "dryer": "true",
+        "pet_friendly": "true",
+        "distance_water": "100",
+        "distance_shop": "600",
+        "water_view": "true"
+      },
+      "prices": { "A": 3800, "B": 1700 }
+    },
+    {
+      "id": "7c3f9a2e-4d1b-4e8a-9f60-2b7d5c8e1f02",
+      "title": "Almosetoften 10",
+      "address": "Almosetoften 10",
+      "zip": "6857",
+      "areas": [ "Ho" ],
+      "text": "tekster/Almosetoften.txt",
+      "searchKeywords": "pool, spa, sauna, aktivitetsrum, billard, bordtennis, legeplads, brændeovn",
+      "imageFolder": "images/houses/house1",
+      "cover": "1.jpg",
+      "floorplan": "map.jpg",
+      "skipImages": [ "subPic.jpg", "subPic2.jpg" ],
+      "features": {
+        "bedrooms": "4",
+        "bathrooms": "3",
+        "max_guests": "9",
+        "size_m2": "210",
+        "plot_m2": "2000",
+        "pool": "true",
+        "spa": "true",
+        "sauna": "true",
+        "wifi": "true",
+        "tv": "true",
+        "fireplace": "true",
+        "dishwasher": "true",
+        "washing_machine": "true",
+        "dryer": "true",
+        "distance_water": "3000",
+        "distance_shop": "5000"
+      },
+      "prices": { "A": 3400, "B": 1500 }
+    }
+  ]
+}

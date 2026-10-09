@@ -214,6 +214,10 @@ public sealed class AdminApiClient(HttpClient http)
     public Task<ApiResponse<SeasonCodeDto?>> CreateSeasonCodeAsync(SeasonCodeDto dto, CancellationToken ct)
         => ApiHttp.PostAsync<SeasonCodeDto, SeasonCodeDto?>(http, "api/admin/pricing/season-codes", dto, ct);
 
+    // Demo content
+    public Task<ApiResponse<DemoContentImportResultDto?>> ImportDemoContentAsync(CancellationToken ct)
+        => ApiHttp.SendAsync<DemoContentImportResultDto?>(http, (client, token) => client.PostAsync("api/admin/demo-content/import", null, token), ct);
+
     // Audit
     public Task<ApiResponse<PageResult<AuditEntryDto>?>> GetAuditEntriesAsync(string? entityType, string? entityId, int page, int pageSize, CancellationToken ct)
         => ApiHttp.GetAsync<PageResult<AuditEntryDto>?>(http, string.Create(CultureInfo.InvariantCulture, $"api/admin/audit?entity={Uri.EscapeDataString(entityType ?? "")}&entityId={Uri.EscapeDataString(entityId ?? "")}&page={page}&pageSize={pageSize}"), ct);

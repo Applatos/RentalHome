@@ -251,6 +251,11 @@
   <data name="Admin.Houses.Index.AllStatuses" xml:space="preserve"><value>Alle statuser</value></data>
   <data name="Admin.Houses.Index.PerPage" xml:space="preserve"><value>{0} pr. side</value></data>
   <data name="Admin.Houses.Index.DeleteConfirm" xml:space="preserve"><value>Slet huset &quot;{0}&quot;?</value></data>
+  <data name="Admin.Houses.Index.ImportDemo" xml:space="preserve"><value>Importér demo-indhold</value></data>
+  <data name="Admin.Houses.Index.ImportDemoHint" xml:space="preserve"><value>Opretter de demo-huse og -områder, der mangler. Eksisterende indhold bliver ikke ændret.</value></data>
+  <data name="Admin.DemoContent.Imported" xml:space="preserve"><value>Demo-indhold importeret:</value></data>
+  <data name="Admin.DemoContent.NothingToDo" xml:space="preserve"><value>Demo-indholdet er allerede importeret, så der var intet at gøre.</value></data>
+  <data name="Admin.DemoContent.Failed" xml:space="preserve"><value>Importen af demo-indhold stoppede:</value></data>
   <data name="Admin.Houses.Create.PageTitle" xml:space="preserve"><value>Opret hus</value></data>
   <data name="Admin.Houses.Create.Title" xml:space="preserve"><value>Opret nyt hus</value></data>
   <data name="Admin.Houses.Form.Title" xml:space="preserve"><value>Titel</value></data>

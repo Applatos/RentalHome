@@ -47,4 +47,22 @@
 			CopyToPublishDirectory="Never" />
 	</ItemGroup>
 
+	<!-- Demo content for the admin import (DemoContentImportService). The texts and images stay
+	     where the MVC project keeps them; they are copied beside the API's binaries under
+	     DemoContent\, outside wwwroot, so the API never serves them. -->
+	<PropertyGroup>
+		<DemoContentSource>..\Sommerhus.Mvc\wwwroot\Sommerhus resourcer\</DemoContentSource>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Update="DemoContent\demo-content.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="$(DemoContentSource)tekster\*.txt" Link="DemoContent\tekster\%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="$(DemoContentSource)images\houses\**\*.jpg" Link="DemoContent\images\houses\%(RecursiveDir)%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="$(DemoContentSource)images\areas\**\*.jpg" Link="DemoContent\images\areas\%(RecursiveDir)%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="..\Sommerhus.Mvc\wwwroot\images\features\*.png" Link="DemoContent\features\%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>

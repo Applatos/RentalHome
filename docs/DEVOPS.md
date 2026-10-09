@@ -294,6 +294,8 @@ Run commands from the RentalHome repository root, one at a time.
 
 4. Check both outputs contain `appsettings.json` and `web.config`, but no Development,
    Testing or Production settings. Check the API output contains no local upload payloads.
+   Its `DemoContent` folder is expected: it holds the texts and images the demo content
+   import reads, outside `wwwroot`, so the API never serves it.
    Record the source commit for the release, and whether it includes uncommitted changes.
 5. Transfer both outputs through RDP file copy or an approved share. Zipping them first is
    optional. For an update, transfer into a temporary server directory before stopping apps.
@@ -333,8 +335,9 @@ configured admin account if needed. Cities are required reference data in **Prod
 house creation needs a city to select. Seeding matches by ZIP and preserves existing IDs,
 names, descriptions and relationships; it works even if features or other data already exist.
 No external postal-code API, database reset or Development environment is required.
-Demo houses and features, and the Development-only `owner` and `user` accounts, are not
-created in Production.
+Startup creates no demo houses or features in Production, and never the Development-only
+`owner` and `user` accounts. The demo site's houses come from the
+[demo content import](#demo-content), which an admin runs.
 
 Missing `Jwt:Key` fails startup validation. Missing admin credentials skip admin creation
 with a warning; password-validation failures are logged. Changing `DefaultAdmin:Password`
@@ -349,6 +352,37 @@ later does not reset an existing admin's password.
    using a seeded city. Upload a small PNG or JPEG to a feature and verify the image loads
    immediately, before recycling either pool.
 4. Stop and start the pools, then verify the data and image are still available.
+
+## Demo content
+
+The demo site's content is imported by an admin, not by startup: **Admin → Huse →
+Importér demo-indhold** (`POST /api/admin/demo-content/import`). It creates:
+
+- the facility, size and distance features, with Danish names and their icons;
+- the season codes A (Højsæson) and B (Lavsæson), and the house group *Vesterhavet* with a
+  season calendar for the current year and the next two;
+- the areas Blåvand and Ho, and the houses Blåvand Strand 4 and Almosetoften 10, with texts,
+  photos, floor plans, facts and nightly prices, all published.
+
+The import only adds what is missing, so pressing the button again is safe and normally
+reports that there was nothing to do. It never overwrites a house, area or price plan that
+exists, never republishes a house an admin took down, and leaves a house or area alone if
+one with the same title or name was made by hand. Features are the exception: they are
+reference data, so their names, categories, units and sort order are brought in line with
+the content, and a missing icon is added. An import takes a few seconds and reports what
+it did in the page's message.
+
+Back up before the first import, as before any release: it writes to the database and to
+`wwwroot\uploads`.
+
+The content is `Sommerhus.Api/DemoContent/demo-content.json` (facts, prices, which photo is
+the cover) plus the texts and photos under `Sommerhus.Mvc/wwwroot/Sommerhus resourcer/` and
+the icons under `Sommerhus.Mvc/wwwroot/images/features/`. Publishing the API copies them
+into its `DemoContent` folder.
+
+Ho has no photos yet: the four it had were copies of Blåvand's. To add real ones, put them
+in `Sommerhus resourcer/images/areas/ho/`, publish and deploy the API as usual, and run the
+import again. It adds images to an area or house that has none.
 
 ## Backups and rollback
 

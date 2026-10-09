@@ -2,16 +2,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Sommerhus.Core;
-using Sommerhus.Core.Data;
 using Sommerhus.Core.Dtos.Admin;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
@@ -142,55 +135,11 @@ public sealed class ProductionStartupTests : IDisposable
         }
     }
 
-    private ProductionFactory CreateFactory() => new(directory);
+    private ProductionFactory CreateFactory() => new(directory, AdminUsername, AdminPassword);
 
     public void Dispose()
     {
         if (Directory.Exists(directory))
             Directory.Delete(directory, recursive: true);
-    }
-
-    // Unlike the shared factory, this retains the application's hosted services and never
-    // invokes migrations or seeders itself. Starting the host must provision its own data.
-    private sealed class ProductionFactory(string directory) : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            var webRoot = Path.Combine(directory, "wwwroot");
-            Directory.CreateDirectory(webRoot);
-            var connectionString = new SqliteConnectionStringBuilder
-            {
-                DataSource = Path.Combine(directory, "startup.db"),
-                Pooling = false
-            }.ToString();
-
-            builder.UseEnvironment("Production");
-            builder.UseWebRoot(webRoot);
-            builder.ConfigureAppConfiguration((_, configuration) =>
-                configuration.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["DatabaseProvider"] = "Sqlite",
-                    ["ConnectionStrings:Default"] = connectionString,
-                    ["DefaultAdmin:UserName"] = AdminUsername,
-                    ["DefaultAdmin:Password"] = AdminPassword,
-                    ["DefaultAdmin:Email"] = "startup-admin@test.local",
-                    ["Jwt:Issuer"] = "Sommerhus.StartupTests",
-                    ["Jwt:Audience"] = "Sommerhus.StartupTests.Admin",
-                    ["Jwt:Key"] = "StartupTestsOnly_Key_1234567890ABCDEF",
-                    ["Jwt:AccessTokenMinutes"] = "10",
-                    ["Storage:UploadsPath"] = "uploads"
-                }));
-            builder.ConfigureLogging(logging => logging.ClearProviders());
-            builder.ConfigureServices(services =>
-            {
-                // Persistence captures configuration before the test host's configuration
-                // callback. Replace only its options to guarantee an isolated test database.
-                services.RemoveAll<DbContextOptions<AppDbContext>>();
-                services.AddScoped(sp => new DbContextOptionsBuilder<AppDbContext>()
-                    .UseSqlite(connectionString)
-                    .AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>())
-                    .Options);
-            });
-        }
     }
 }

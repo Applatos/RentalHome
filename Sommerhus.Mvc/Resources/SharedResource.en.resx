@@ -251,6 +251,11 @@
   <data name="Admin.Houses.Index.AllStatuses" xml:space="preserve"><value>All statuses</value></data>
   <data name="Admin.Houses.Index.PerPage" xml:space="preserve"><value>{0} per page</value></data>
   <data name="Admin.Houses.Index.DeleteConfirm" xml:space="preserve"><value>Delete house &quot;{0}&quot;?</value></data>
+  <data name="Admin.Houses.Index.ImportDemo" xml:space="preserve"><value>Import demo content</value></data>
+  <data name="Admin.Houses.Index.ImportDemoHint" xml:space="preserve"><value>Creates the demo houses and areas that are missing. Existing content is not changed.</value></data>
+  <data name="Admin.DemoContent.Imported" xml:space="preserve"><value>Demo content imported:</value></data>
+  <data name="Admin.DemoContent.NothingToDo" xml:space="preserve"><value>The demo content is already imported, so there was nothing to do.</value></data>
+  <data name="Admin.DemoContent.Failed" xml:space="preserve"><value>The demo content import stopped:</value></data>
   <data name="Admin.Houses.Create.PageTitle" xml:space="preserve"><value>Create house</value></data>
   <data name="Admin.Houses.Create.Title" xml:space="preserve"><value>Create new house</value></data>
   <data name="Admin.Houses.Form.Title" xml:space="preserve"><value>Title</value></data>
