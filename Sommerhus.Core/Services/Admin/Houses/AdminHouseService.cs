@@ -278,7 +278,7 @@ public sealed class AdminHouseService(
     private AdminHouseDetailsDto MapDetails(VacationHouse house, string baseUrl, PricePlan? plan, IReadOnlyList<SeasonSpanDto> calendar)
     {
         var images = house.Images
-            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
+            .InDisplayOrder()
             .Select(i => new ImageDto(
                 i.Id,
                 imageStorage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName),

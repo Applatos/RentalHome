@@ -104,7 +104,7 @@ public sealed class OwnerHouseService(
         List<SeasonSpanDto> calendarSegments)
     {
         var images = house.Images
-            .OrderBy(i => i.Kind)
+            .InDisplayOrder()
             .Select(i => new ImageDto(
                 i.Id,
                 imageStorage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName),

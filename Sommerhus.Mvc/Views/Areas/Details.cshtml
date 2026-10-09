@@ -18,7 +18,7 @@
 
     @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
-        <div class="mb-4 lead">@Html.Raw(Model.Description)</div>
+        <div class="mb-4 lead">@Sommerhus.Mvc.Infrastructure.TextParagraphs.Render(Model.Description)</div>
     }
     else
     {

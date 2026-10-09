@@ -11,7 +11,7 @@ public sealed class AreasController(IAreaQueryService areas) : ControllerBase
 {
     [HttpGet]
     public Task<IEnumerable<AreaListItemDto>> Search([FromQuery(Name = "q")] string? query, CancellationToken ct)
-        => areas.SearchAsync(query, ct);
+        => areas.SearchAsync(query, Request.BaseUrl(), ct);
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AreaDetailsDto>> Get(Guid id, CancellationToken ct)

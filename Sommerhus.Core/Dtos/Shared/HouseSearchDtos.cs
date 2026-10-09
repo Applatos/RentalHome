@@ -40,4 +40,5 @@ public sealed record HouseSearchResultDto(
     string? Currency,
     string? CoverUrl,
     string? Summary,
-    IReadOnlyList<ImageDto> Gallery);
+    IReadOnlyList<ImageDto> Gallery,
+    IReadOnlyList<string>? Areas = null);

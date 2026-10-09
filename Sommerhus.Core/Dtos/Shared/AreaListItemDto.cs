@@ -6,4 +6,6 @@ namespace Sommerhus.Core.Dtos.Shared;
 public record AreaListItemDto(
     Guid Id,
     string Name,
-    int HouseCount);
+    int HouseCount,
+    string? CoverUrl = null,
+    string? Summary = null);

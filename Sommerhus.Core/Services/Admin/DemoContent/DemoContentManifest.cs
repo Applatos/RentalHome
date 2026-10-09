@@ -1,7 +1,5 @@
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Text.Unicode;
 
 namespace Sommerhus.Core.Services.Admin.DemoContent;
 
@@ -59,13 +57,15 @@ public sealed record DemoFeature(
     string? Icon,
     int SortOrder);
 
+/// <param name="Cover">File name in <paramref name="ImageFolder"/> shown first; the rest follow by number.</param>
 public sealed record DemoArea(
     Guid Id,
     string Name,
     string? NameEn,
     IReadOnlyList<string>? Zips,
     string Text,
-    string? ImageFolder);
+    string? ImageFolder,
+    string? Cover = null);
 
 /// <param name="Areas">Area names; each must be in the manifest or already in the database.</param>
 /// <param name="Features">Raw values by feature key.</param>
@@ -90,17 +90,15 @@ public sealed record DemoHouse(
 /// </summary>
 public static class DemoContentFiles
 {
-    private static readonly HtmlEncoder Encoder = HtmlEncoder.Create(UnicodeRanges.All);
-
     private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png"];
 
     /// <summary>
-    /// Converts a text file to the HTML the site renders descriptions as. A blank line starts a
-    /// new paragraph and a single line break is kept as <c>&lt;br&gt;</c>. A leading one-line
+    /// Reads a text file as a description, in the form descriptions are stored: paragraphs
+    /// separated by one blank line, line breaks within a paragraph kept. A leading one-line
     /// heading ("Beskrivelse", or the entity's own name) is dropped, because the page already
     /// shows one.
     /// </summary>
-    public static string ReadDescriptionHtml(string contentRoot, string relativePath, string ownName)
+    public static string ReadDescriptionText(string contentRoot, string relativePath, string ownName)
     {
         var path = Resolve(contentRoot, relativePath);
         if (!File.Exists(path))
@@ -118,7 +116,7 @@ public static class DemoContentFiles
             paragraphs.RemoveAt(0);
         }
 
-        return string.Join("\n", paragraphs.Select(lines => $"<p>{string.Join("<br>", lines.Select(Encoder.Encode))}</p>"));
+        return string.Join("\n\n", paragraphs.Select(lines => string.Join("\n", lines)));
     }
 
     /// <summary>

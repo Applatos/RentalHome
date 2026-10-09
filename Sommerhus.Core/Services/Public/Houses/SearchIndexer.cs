@@ -89,6 +89,29 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
         await db.SaveChangesAsync(ct);
     }
 
+    public async Task<int> IndexMissingAsync(CancellationToken ct)
+    {
+        var missing = await db.Houses
+            .AsNoTracking()
+            .Where(h => !db.HouseSearchDocuments.Any(d => d.HouseId == h.Id))
+            .Select(h => h.Id)
+            .ToListAsync(ct);
+
+        // One house at a time loads only that house; many at once is cheaper as one rebuild.
+        if (missing.Count > 50)
+        {
+            await RebuildAsync(ct);
+            return missing.Count;
+        }
+
+        foreach (var houseId in missing)
+        {
+            await UpdateHouseAsync(houseId, ct);
+        }
+
+        return missing.Count;
+    }
+
     public async Task RemoveHouseAsync(Guid houseId, CancellationToken ct)
     {
         await db.HouseSearchDocuments
@@ -107,8 +130,7 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
     private static HouseSearchDocument MapDocument(VacationHouse house, HousePriceSummary? summary)
     {
         var coverImageFileName = house.Images
-            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
-            .ThenBy(i => i.Id)
+            .InDisplayOrder()
             .Select(i => i.FileName)
             .FirstOrDefault();
 
@@ -120,13 +142,17 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
 
         var searchableFeatures = house.HouseFeatures
             .Where(hf => hf.Feature?.IsSearchable == true)
+            .OrderBy(hf => hf.Feature!.SortOrder)
+            .ThenBy(hf => hf.Feature!.Name)
             .Select(hf => new SearchFeatureEntry(
                 hf.Feature!.Key,
                 hf.Feature.Name,
                 hf.RawValue,
                 hf.Feature.Unit,
                 hf.Feature.Category.ToString(),
-                hf.Feature.ValueType.ToString()))
+                hf.Feature.ValueType.ToString(),
+                hf.Feature.NameEn,
+                hf.Feature.IconUrl))
             .ToList();
 
         var featureJson = searchableFeatures.Count == 0
@@ -138,7 +164,7 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
             HouseId = house.Id,
             Title = house.Title,
             Description = house.Description,
-            Summary = BuildSummary(house.Description),
+            Summary = TextSummary.Build(house.Description),
             CityName = house.City?.Name,
             CityZip = house.City?.Zip,
             Address = house.Address,
@@ -258,44 +284,14 @@ public sealed class SearchIndexer(AppDbContext db) : ISearchIndexer
             : normalized;
     }
 
-    private static string? BuildSummary(string? source)
-    {
-        if (string.IsNullOrWhiteSpace(source))
-        {
-            return null;
-        }
-
-        var withoutHtml = HtmlTagRegex.Replace(source, " ");
-        var normalized = WhitespaceRegex.Replace(withoutHtml, " ").Trim();
-
-        if (normalized.Length == 0)
-        {
-            return null;
-        }
-
-        const int maxLength = 160;
-        if (normalized.Length <= maxLength)
-        {
-            return normalized;
-        }
-
-        foreach (var endChar in new[] { '.', '!', '?' })
-        {
-            var sentenceEnd = normalized.IndexOf(endChar);
-            if (sentenceEnd >= 0 && sentenceEnd + 1 <= maxLength)
-            {
-                return normalized[..(sentenceEnd + 1)].Trim();
-            }
-        }
-
-        return normalized[..maxLength].TrimEnd();
-    }
-
+    // Serialized into HouseSearchDocument.FeatureJson; HouseSearchService reads the same shape.
     private sealed record SearchFeatureEntry(
         string Key,
         string Name,
         string Value,
         string? Unit,
         string Category,
-        string ValueType);
+        string ValueType,
+        string? NameEn,
+        string? IconUrl);
 }

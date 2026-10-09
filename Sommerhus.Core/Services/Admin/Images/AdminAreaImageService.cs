@@ -54,7 +54,7 @@ public sealed class AdminAreaImageService(AppDbContext db, IImageStorage storage
 
         var stored = await SaveToStorageAsync(ImageCategory.Area, areaId, file!, ct);
 
-        var image = new AreaImage { AreaId = areaId, FileName = stored.FileName, SortOrder = 0 };
+        var image = new AreaImage { AreaId = areaId, FileName = stored.FileName, SortOrder = await NextSortOrderAsync(areaId, ct) };
         Db.AreaImages.Add(image);
         await Db.SaveChangesAsync(ct);
 
@@ -73,6 +73,7 @@ public sealed class AdminAreaImageService(AppDbContext db, IImageStorage storage
             return ServiceResult<IReadOnlyList<ImageDto>>.NotFound();
         }
 
+        var nextSortOrder = await NextSortOrderAsync(areaId, ct);
         var added = new List<AreaImage>();
         foreach (var file in files)
         {
@@ -91,7 +92,7 @@ public sealed class AdminAreaImageService(AppDbContext db, IImageStorage storage
             {
                 AreaId = areaId,
                 FileName = stored.FileName,
-                SortOrder = 0
+                SortOrder = nextSortOrder++
             });
         }
 
@@ -124,4 +125,10 @@ public sealed class AdminAreaImageService(AppDbContext db, IImageStorage storage
         await DeleteFromStorageAsync(ImageCategory.Area, areaId, image.FileName, ct);
         return ServiceResult.Success();
     }
+
+    // New images go after the existing ones, in the order they were sent.
+    private async Task<int> NextSortOrderAsync(Guid areaId, CancellationToken ct)
+        => await Db.AreaImages
+            .Where(i => i.AreaId == areaId)
+            .MaxAsync(i => (int?)i.SortOrder, ct) is { } last ? last + 1 : 0;
 }

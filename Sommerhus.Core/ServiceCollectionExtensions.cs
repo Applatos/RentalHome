@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sommerhus.Core.Data;
 using Sommerhus.Core.Identity;
+using Sommerhus.Core.Services.Public.Houses;
 
 namespace Sommerhus.Core;
 
@@ -112,6 +113,29 @@ public static class ServiceCollectionExtensions
             if (environment.IsDevelopment())
             {
                 Seeder.SeedMinimal(db);
+            }
+
+            var converted = await StoredHtmlDescriptions.ConvertAsync(db, cancellationToken);
+            if (converted.Count > 0)
+            {
+                logger.LogInformation("Converted {Count} house descriptions from HTML to text", converted.Count);
+            }
+
+            // Search documents are derived data. A migration that changes their shape deletes
+            // them, and they are rebuilt here before anything is served.
+            var indexer = scope.ServiceProvider.GetService<ISearchIndexer>();
+            if (indexer is not null)
+            {
+                foreach (var houseId in converted)
+                {
+                    await indexer.UpdateHouseAsync(houseId, cancellationToken);
+                }
+
+                var indexed = await indexer.IndexMissingAsync(cancellationToken);
+                if (indexed > 0)
+                {
+                    logger.LogInformation("Indexed {Count} houses for search", indexed);
+                }
             }
         }
 

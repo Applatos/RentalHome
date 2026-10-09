@@ -84,7 +84,7 @@ public sealed class DemoContentImportService(
                 Id = spec.Id,
                 Name = spec.Name,
                 NameEn = spec.NameEn,
-                Description = DemoContentFiles.ReadDescriptionHtml(root, spec.Text, spec.Name),
+                Description = DemoContentFiles.ReadDescriptionText(root, spec.Text, spec.Name),
                 Cities = cities
             };
             db.Areas.Add(area);
@@ -92,7 +92,7 @@ public sealed class DemoContentImportService(
         }
 
         var parts = new List<string>();
-        var images = area.AreaImages.Count == 0 ? DemoContentFiles.ListImages(root, spec.ImageFolder) : [];
+        var images = area.AreaImages.Count == 0 ? CoverFirst(DemoContentFiles.ListImages(root, spec.ImageFolder), spec.Cover) : [];
         if (images.Count > 0)
         {
             using var upload = new DemoContentUploads(images);
@@ -128,7 +128,7 @@ public sealed class DemoContentImportService(
                 Title = spec.Title,
                 Address = spec.Address,
                 CityId = await CityIdAsync(spec, ct),
-                Description = DemoContentFiles.ReadDescriptionHtml(root, spec.Text, spec.Title),
+                Description = DemoContentFiles.ReadDescriptionText(root, spec.Text, spec.Title),
                 SearchKeywords = spec.SearchKeywords,
                 GroupId = groupId,
                 Areas = await AreasAsync(spec, areaSpecs, ct)
@@ -209,6 +209,12 @@ public sealed class DemoContentImportService(
 
         return ordered.Count;
     }
+
+    // Uploads are numbered in the order they are sent, so the cover goes first.
+    private static IReadOnlyList<string> CoverFirst(IReadOnlyList<string> files, string? cover)
+        => cover is null
+            ? files
+            : files.OrderBy(f => Path.GetFileName(f).Equals(cover, StringComparison.OrdinalIgnoreCase) ? 0 : 1).ToList();
 
     private async Task<Guid> CityIdAsync(DemoHouse spec, CancellationToken ct)
         => await db.Cities.Where(c => c.Zip == spec.Zip).Select(c => (Guid?)c.Id).FirstOrDefaultAsync(ct)

@@ -10,7 +10,7 @@ namespace Sommerhus.Core.Services.Public.Areas;
 public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : IAreaQueryService
 {
 
-    public async Task<IEnumerable<AreaListItemDto>> SearchAsync(string? query, CancellationToken ct)
+    public async Task<IEnumerable<AreaListItemDto>> SearchAsync(string? query, string baseUrl, CancellationToken ct)
     {
         var areaQuery = db.Areas.AsNoTracking()
             .Where(a => a.Status == EntityStatus.Published)
@@ -24,10 +24,27 @@ public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : I
                 (a.NameEn != null && EF.Functions.Like(a.NameEn, $"%{term}%")));
         }
 
-        return await areaQuery
+        var areas = await areaQuery
             .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, LocalizationNameResolver.Resolve(a.Name, a.NameEn), a.Houses.Count))
+            .Select(a => new
+            {
+                a.Id,
+                a.Name,
+                a.NameEn,
+                a.Description,
+                HouseCount = a.Houses.Count(h => h.Status == EntityStatus.Published),
+                Cover = a.AreaImages.OrderBy(i => i.SortOrder).ThenBy(i => i.Id).Select(i => i.FileName).FirstOrDefault()
+            })
             .ToListAsync(ct);
+
+        return areas
+            .Select(a => new AreaListItemDto(
+                a.Id,
+                LocalizationNameResolver.Resolve(a.Name, a.NameEn),
+                a.HouseCount,
+                CoverUrl: a.Cover is null ? null : storage.GetUrl(baseUrl, ImageCategory.Area, a.Id, a.Cover),
+                Summary: TextSummary.Build(a.Description)))
+            .ToList();
     }
 
     public async Task<AreaDetailsDto?> GetAsync(Guid id, string baseUrl, CancellationToken ct)
@@ -43,7 +60,9 @@ public sealed class AreaQueryService(AppDbContext db, IImageStorage storage) : I
             return null;
         }
 
+        // Only published houses: the list is public.
         var houses = area.Houses
+            .Where(h => h.Status == EntityStatus.Published)
             .OrderBy(h => h.Title)
             .ThenBy(h => h.Id)
             .Select(h => new AreaHouseDto(h.Id, h.Title))

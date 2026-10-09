@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Sommerhus.Api.Tests.Infrastructure;
 using Sommerhus.Core;
 using Sommerhus.Core.Dtos.Admin;
+using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Domain.Models;
 
 namespace Sommerhus.Api.Tests.Admin;
@@ -58,9 +59,23 @@ public sealed class DemoContentImportTests : IDisposable
         blaavand.Images.Should().ContainSingle(i => i.Kind == ImageKind.Floorplan);
         Directory.GetFiles(Path.Combine(factory.WebRoot, "uploads", "houses", blaavand.Id.ToString()))
             .Should().HaveCount(37);
-        blaavand.Description.Should().StartWith("<p>MAX 1 HUND - INGEN UNGDOMSGRUPPER.<br>Super dejligt poolhus")
+        blaavand.Description.Should().StartWith("MAX 1 HUND - INGEN UNGDOMSGRUPPER.\nSuper dejligt poolhus")
+            .And.EndWith("\n\nUdstyr i huset\nTrådløst internet, Brændeovn, Fryser 90 L, Microovn, Opvaskemaskine, 2 x badeværelser, Gulvarme i bad, Stue og køkken, Vaskemaskine, Tørretumbler, Barneseng, Barnestol, Parabol, DR kanaler, DVD afspiller, Gynge, Sandkasse, Liggestole, Varmepumpe, Køleskab, Komfur, Kaffemaskine, Støvsuger, Havemøbler.")
             .And.NotContain("Beskrivelse")
-            .And.NotContain("Gratis slutrengøring");
+            .And.NotContain("Gratis slutrengøring")
+            .And.NotContain("<");
+
+        // Uploads are numbered in the order sent: the cover photo first, the floor plan last.
+        var ordered = blaavand.Images.OrderBy(i => i.SortOrder).ToList();
+        ordered.Select(i => i.SortOrder).Should().Equal(Enumerable.Range(0, 37));
+        ordered[0].Kind.Should().Be(ImageKind.Cover);
+        ordered[^1].Kind.Should().Be(ImageKind.Floorplan);
+        UploadedBytes(factory, "houses", blaavand.Id, ordered[0].FileName)
+            .Should().Equal(ContentBytes("images/houses/house2/1.jpg"));
+        UploadedBytes(factory, "houses", blaavand.Id, ordered[1].FileName)
+            .Should().Equal(ContentBytes("images/houses/house2/2.jpg"));
+        UploadedBytes(factory, "houses", blaavand.Id, ordered[^1].FileName)
+            .Should().Equal(ContentBytes("images/houses/house2/map.jpg"));
 
         var almosetoften = houses.Single(h => h.Title == Almosetoften);
         almosetoften.Areas.Select(a => a.Name).Should().Equal("Ho");
@@ -74,7 +89,10 @@ public sealed class DemoContentImportTests : IDisposable
         areas.Select(a => (a.Name, a.Status, a.AreaImages.Count)).Should().Equal(
             ("Blåvand", EntityStatus.Published, 4),
             ("Ho", EntityStatus.Published, 0));
-        areas[0].Description.Should().StartWith("<p>Blåvand er en mindre turist- og badebebyggelse");
+        areas[0].Description.Should().StartWith("Blåvand er en mindre turist- og badebebyggelse");
+        var areaCover = areas[0].AreaImages.OrderBy(i => i.SortOrder).First();
+        UploadedBytes(factory, "areas", areas[0].Id, areaCover.FileName)
+            .Should().Equal(ContentBytes("images/areas/blaavand/4.jpg"), "the lighthouse is the area's cover");
 
         var features = await db.Features.ToListAsync();
         features.Should().HaveCount(18);
@@ -90,8 +108,23 @@ public sealed class DemoContentImportTests : IDisposable
             .Should().Be(new DateOnly(year + 2, 12, 31));
 
         using var anonymous = factory.CreateClient();
-        var search = await anonymous.GetFromJsonAsync<JsonElement>("/api/houses");
-        search.GetProperty("total").GetInt32().Should().Be(2);
+        var search = await anonymous.GetFromJsonAsync<PageResult<PublicHouseListItemDto>>("/api/houses");
+        search!.Total.Should().Be(2);
+        var card = search.Items.Single(h => h.Title == Blaavand);
+        card.Areas.Should().Equal("Blåvand");
+        card.CoverUrl.Should().NotBeNull();
+        card.Gallery.Should().HaveCount(5).And.OnlyContain(i => i.Kind == nameof(ImageKind.Gallery));
+        var beach = card.Features.Single(f => f.Key == "distance_water");
+        (beach.Name, beach.RawValue, beach.Unit, beach.Category).Should().Be(("Til stranden", "100", "m", FeatureCategory.Distance));
+        beach.IconUrl.Should().Contain("/uploads/features/");
+        // The order a card picks its first icons from.
+        card.Features.Where(f => f.IconUrl != null && f.Category != FeatureCategory.Property).Select(f => f.Key).Take(4)
+            .Should().Equal("distance_water", "spa", "sauna", "water_view");
+
+        var areaList = await anonymous.GetFromJsonAsync<List<AreaListItemDto>>("/api/areas");
+        areaList!.Select(a => (a.Name, a.HouseCount, a.CoverUrl is not null)).Should().Equal(
+            ("Blåvand", 1, true),
+            ("Ho", 1, false));
     }
 
     [Fact]
@@ -205,6 +238,12 @@ public sealed class DemoContentImportTests : IDisposable
     }
 
     private ProductionFactory CreateFactory() => new(directory, AdminUsername, AdminPassword);
+
+    private static byte[] UploadedBytes(ProductionFactory factory, string folder, Guid ownerId, string fileName)
+        => File.ReadAllBytes(Path.Combine(factory.WebRoot, "uploads", folder, ownerId.ToString(), fileName));
+
+    private static byte[] ContentBytes(string relativePath)
+        => File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "DemoContent", relativePath));
 
     private static async Task<DemoContentImportResultDto> ImportAsync(HttpClient client)
     {

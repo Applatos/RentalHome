@@ -164,7 +164,7 @@
             <div>
                 @if (!string.IsNullOrWhiteSpace(Model.Description))
                 {
-                    @Html.Raw(Model.Description)   @* sanér server-side hvis HTML kommer udefra *@
+                    @Sommerhus.Mvc.Infrastructure.TextParagraphs.Render(Model.Description)
                 }
                 else
                 {

@@ -97,6 +97,25 @@ public class HouseImagesTests : IDisposable
         floorplans.Single().Id.Should().Be(coverA.Id);
     }
 
+    [Fact]
+    public async Task Images_KeepUploadOrder_WithCoverFirstAndFloorplanLast()
+    {
+        var houseId = await GetExistingHouseIdAsync();
+        var first = await UploadAsync(houseId, ("a.jpg", "image/jpeg"), ("b.jpg", "image/jpeg"), ("c.jpg", "image/jpeg"));
+        var second = await UploadAsync(houseId, ("d.jpg", "image/jpeg"), ("e.jpg", "image/jpeg"));
+        var uploaded = first.Concat(second).Select(i => i.Id).ToList();
+
+        (await GetImagesAsync(houseId)).Select(i => i.Id).Should().Equal(uploaded);
+
+        (await SetKindAsync(houseId, uploaded[2], ImageKind.Cover)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await SetKindAsync(houseId, uploaded[0], ImageKind.Floorplan)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var expected = new[] { uploaded[2], uploaded[1], uploaded[3], uploaded[4], uploaded[0] };
+        (await GetImagesAsync(houseId)).Select(i => i.Id).Should().Equal(expected);
+        var details = await client.GetFromJsonAsync<PublicHouseDetailsDto>($"/api/houses/{houseId}");
+        details!.Images.Select(i => i.Id).Should().Equal(expected);
+    }
+
     private async Task<Guid> GetExistingHouseIdAsync()
     {
         var page = await client.GetFromJsonAsync<PageResult<AdminHouseListItemDto>>("/api/admin/houses?pageSize=1");

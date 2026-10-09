@@ -395,7 +395,8 @@ public sealed class StressDataGenerator(
                         HouseId = house.Id,
                         FileName = $"stress/{house.Id:N}_{img}.jpg",
                         Alt = $"House photo {img + 1}",
-                        Kind = img == 0 ? ImageKind.Cover : ImageKind.Gallery
+                        Kind = img == 0 ? ImageKind.Cover : ImageKind.Gallery,
+                        SortOrder = img
                     });
                 }
             }

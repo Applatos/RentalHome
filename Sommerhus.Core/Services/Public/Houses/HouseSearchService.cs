@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Sommerhus.Core.Common;
 using Sommerhus.Core.Dtos.Shared;
 using Sommerhus.Core.Services.Storage;
 using Sommerhus.Domain.Models;
@@ -107,14 +108,14 @@ public sealed class HouseSearchService(
 
         var houseIds = docs.Select(d => d.HouseId).ToArray();
 
-        var imagesByHouse = await db.Images
+        var images = await db.Images
             .AsNoTracking()
             .Where(i => houseIds.Contains(i.HouseId))
+            .ToListAsync(ct);
+
+        var imagesByHouse = images
             .GroupBy(i => i.HouseId)
-            .ToDictionaryAsync(g => g.Key, g => g
-                .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
-                .ThenBy(i => i.Id)
-                .ToList(), ct);
+            .ToDictionary(g => g.Key, g => g.InDisplayOrder().ToList());
 
         var items = docs.Select(d => MapResult(d, imagesByHouse, baseUrl)).ToList();
 
@@ -179,17 +180,16 @@ public sealed class HouseSearchService(
         imagesByHouse.TryGetValue(document.HouseId, out var images);
         images ??= [];
 
-        var cover = images.FirstOrDefault(i => i.Kind == ImageKind.Cover)
-            ?? images.FirstOrDefault(i => i.Kind == ImageKind.Gallery);
+        // Images arrive in display order. A card shows the cover and the next five photos; floor
+        // plans are left out.
+        var cover = images.FirstOrDefault(i => i.Kind != ImageKind.Floorplan);
 
         var coverUrl = cover is null
             ? null
             : imageStorage.GetUrl(baseUrl, ImageCategory.House, document.HouseId, cover.FileName);
 
         var gallery = images
-            .Where(i => cover is null || i.Id != cover.Id)
-            .OrderBy(i => i.Kind)
-            .ThenBy(i => i.FileName)
+            .Where(i => i.Kind != ImageKind.Floorplan && (cover is null || i.Id != cover.Id))
             .Take(5)
             .Select(i => new ImageDto(
                 i.Id,
@@ -198,7 +198,7 @@ public sealed class HouseSearchService(
                 i.Kind.ToString()))
             .ToList();
 
-        var featureValues = ParseFeatureValues(document.FeatureJson);
+        var featureValues = ParseFeatureValues(document.FeatureJson, baseUrl);
 
         return new HouseSearchResultDto(
             Id: document.HouseId,
@@ -213,10 +213,16 @@ public sealed class HouseSearchService(
             Currency: document.Currency,
             CoverUrl: coverUrl,
             Summary: document.Summary,
-            Gallery: gallery);
+            Gallery: gallery,
+            Areas: SplitAreaNames(document.AreaNames));
     }
 
-    private static IReadOnlyList<FeatureValueDto> ParseFeatureValues(string? featureJson)
+    private static IReadOnlyList<string> SplitAreaNames(string? areaNames)
+        => string.IsNullOrWhiteSpace(areaNames)
+            ? []
+            : areaNames.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private IReadOnlyList<FeatureValueDto> ParseFeatureValues(string? featureJson, string baseUrl)
     {
         if (string.IsNullOrWhiteSpace(featureJson))
         {
@@ -230,11 +236,13 @@ public sealed class HouseSearchService(
             return items
                 .Select(i => new FeatureValueDto(
                     Id: Guid.Empty,
-                    Name: i.Name ?? i.Key,
+                    Name: LocalizationNameResolver.Resolve(i.Name ?? i.Key, i.NameEn),
                     ValueType: ParseFeatureValueType(i.ValueType),
                     Unit: i.Unit,
-                    IconUrl: null,
-                    RawValue: i.Value))
+                    IconUrl: imageStorage.GetUrl(baseUrl, i.IconUrl),
+                    RawValue: i.Value,
+                    Key: i.Key,
+                    Category: Enum.TryParse<FeatureCategory>(i.Category, true, out var category) ? category : null))
                 .ToList();
         }
         catch
@@ -248,11 +256,14 @@ public sealed class HouseSearchService(
             ? parsed
             : FeatureValueType.Text;
 
+    // The shape SearchIndexer writes into FeatureJson.
     private sealed record SearchFeatureJsonItem(
         string Key,
         string? Name,
         string Value,
         string? Unit,
         string? Category,
-        string? ValueType);
+        string? ValueType,
+        string? NameEn,
+        string? IconUrl);
 }

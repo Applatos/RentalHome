@@ -29,7 +29,8 @@ public sealed class HouseQueryService(
                 i.Currency,
                 i.CoverUrl,
                 i.Summary,
-                i.Gallery))
+                i.Gallery,
+                i.Areas))
             .ToList();
 
         return new PageResult<PublicHouseListItemDto>
@@ -56,6 +57,7 @@ public sealed class HouseQueryService(
         }
 
         var gallery = house.Images
+            .InDisplayOrder()
             .Select(i => new ImageDto(i.Id, storage.GetUrl(baseUrl, ImageCategory.House, i.HouseId, i.FileName), i.Alt, i.Kind.ToString()))
             .ToArray();
 
@@ -70,7 +72,9 @@ public sealed class HouseQueryService(
                     ValueType: f?.ValueType ?? FeatureValueType.Text,
                     Unit: f?.Unit,
                     IconUrl: icon,
-                    RawValue: hf.RawValue
+                    RawValue: hf.RawValue,
+                    Key: f?.Key,
+                    Category: f?.Category
                 );
                 return (SortOrder: f?.SortOrder ?? int.MaxValue, Dto: dto);
             })

@@ -23,8 +23,7 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
     {
         var images = await Db.Images.AsNoTracking()
             .Where(i => i.HouseId == houseId)
-            .OrderBy(i => i.Kind == ImageKind.Cover ? 0 : i.Kind == ImageKind.Gallery ? 1 : 2)
-            .ThenBy(i => i.Id)
+            .InDisplayOrder()
             .Select(i => new { i.Id, i.FileName, i.Alt, i.Kind })
             .ToListAsync(ct);
 
@@ -56,6 +55,11 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
             return ServiceResult<IReadOnlyList<ImageDto>>.NotFound();
         }
 
+        // New images go after the existing ones, in the order they were sent.
+        var nextSortOrder = await Db.Images
+            .Where(i => i.HouseId == houseId)
+            .MaxAsync(i => (int?)i.SortOrder, ct) is { } last ? last + 1 : 0;
+
         var added = new List<HouseImage>();
         foreach (var file in files)
         {
@@ -74,7 +78,8 @@ public sealed class AdminHouseImageService(AppDbContext db, IImageStorage storag
             {
                 HouseId = houseId,
                 FileName = stored.FileName,
-                Kind = ImageKind.Gallery
+                Kind = ImageKind.Gallery,
+                SortOrder = nextSortOrder++
             });
         }
 

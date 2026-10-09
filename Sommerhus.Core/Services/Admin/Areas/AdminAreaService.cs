@@ -17,7 +17,7 @@ public sealed class AdminAreaService(AppDbContext db, IImageStorage imageStorage
     public async Task<IReadOnlyList<AreaListItemDto>> GetAllAsync(CancellationToken ct)
         => await db.Areas.AsNoTracking()
             .OrderBy(a => a.Name)
-            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count))
+            .Select(a => new AreaListItemDto(a.Id, a.Name, a.Houses.Count, null, null))
             .ToListAsync(ct);
 
     public async Task<IReadOnlyList<LookupItem>> GetLookupAsync(CancellationToken ct)

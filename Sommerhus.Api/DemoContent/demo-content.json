@@ -18,7 +18,7 @@
     { "key": "max_guests", "name": "Personer", "nameEn": "Guests", "valueType": "Int", "category": "Property", "options": "1-2,3-4,5-6,7-8,9+", "icon": "personer.png", "sortOrder": 30 },
     { "key": "size_m2", "name": "Boligareal", "nameEn": "Living area", "valueType": "Int", "category": "Property", "unit": "m²", "icon": "housesize.png", "sortOrder": 40 },
     { "key": "plot_m2", "name": "Grundareal", "nameEn": "Plot size", "valueType": "Int", "category": "Property", "unit": "m²", "icon": "groundsize.png", "sortOrder": 50 },
-    { "key": "pool", "name": "Pool", "nameEn": "Swimming pool", "valueType": "Bool", "category": "Facility", "sortOrder": 100 },
+    { "key": "pool", "name": "Pool", "nameEn": "Swimming pool", "valueType": "Bool", "category": "Facility", "sortOrder": 105 },
     { "key": "spa", "name": "Spa", "nameEn": "Spa / hot tub", "valueType": "Bool", "category": "Facility", "icon": "spa.png", "sortOrder": 110 },
     { "key": "sauna", "name": "Sauna", "nameEn": "Sauna", "valueType": "Bool", "category": "Facility", "icon": "sauna.png", "sortOrder": 120 },
     { "key": "wifi", "name": "Trådløst internet", "nameEn": "Wifi", "valueType": "Bool", "category": "Facility", "icon": "wifi.png", "sortOrder": 130 },
@@ -28,9 +28,9 @@
     { "key": "washing_machine", "name": "Vaskemaskine", "nameEn": "Washing machine", "valueType": "Bool", "category": "Facility", "sortOrder": 170 },
     { "key": "dryer", "name": "Tørretumbler", "nameEn": "Tumble dryer", "valueType": "Bool", "category": "Facility", "sortOrder": 180 },
     { "key": "pet_friendly", "name": "Husdyr tilladt", "nameEn": "Pets allowed", "valueType": "Bool", "category": "Facility", "sortOrder": 190 },
-    { "key": "distance_water", "name": "Afstand til strand", "nameEn": "Distance to beach", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 100m,< 500m,< 1 km,< 5 km", "icon": "beach.png", "sortOrder": 300 },
-    { "key": "distance_shop", "name": "Afstand til indkøb", "nameEn": "Distance to shops", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 500m,< 1 km,< 2 km,< 5 km", "icon": "shopping.png", "sortOrder": 310 },
-    { "key": "water_view", "name": "Havudsigt", "nameEn": "Sea view", "valueType": "Bool", "category": "Distance", "icon": "panorama.png", "sortOrder": 320 }
+    { "key": "distance_water", "name": "Til stranden", "nameEn": "To the beach", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 100m,< 500m,< 1 km,< 5 km", "icon": "beach.png", "sortOrder": 100 },
+    { "key": "distance_shop", "name": "Til indkøb", "nameEn": "To the shops", "valueType": "Int", "category": "Distance", "unit": "m", "options": "< 500m,< 1 km,< 2 km,< 5 km", "icon": "shopping.png", "sortOrder": 310 },
+    { "key": "water_view", "name": "Havudsigt", "nameEn": "Sea view", "valueType": "Bool", "category": "Distance", "icon": "panorama.png", "sortOrder": 125 }
   ],
   "areas": [
     {
@@ -39,7 +39,8 @@
       "nameEn": "Blåvand",
       "zips": [ "6857" ],
       "text": "tekster/Blåvand.txt",
-      "imageFolder": "images/areas/blaavand"
+      "imageFolder": "images/areas/blaavand",
+      "cover": "4.jpg"
     },
     {
       "id": "5d7e2c1a-9b0f-4f7e-a8c1-1a0d3e5b7a02",

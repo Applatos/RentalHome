@@ -17,5 +17,8 @@ public class HouseImage
     [Required]
     public ImageKind Kind { get; set; } = ImageKind.Gallery;
 
+    /// <summary>Position in the gallery. Uploads are numbered in the order they arrive.</summary>
+    public int SortOrder { get; set; }
+
     public VacationHouse? House { get; set; }
 }
