@@ -54,20 +54,25 @@ The demo accounts `owner` and `user` are seeded in Development only.
 
 ## The database
 
-Local development uses **one shared SQLite file**:
+Local development uses one SQLite file, outside the repository:
 
 ```
-%LOCALAPPDATA%\ApplatosX\SommerhusInterop\applatos.db
+%LOCALAPPDATA%\Sommerhus\sommerhus.db
 ```
 
-That is deliberate, and it is probably the surprising part of this repo. The database is shared
-with an Applatos model that binds directly to these tables, so a booking created in either
-application is visible in the other. Sommerhus owns the schema; Applatos is a guest that never
-creates, alters or migrates anything.
+Create its folder once. SQLite creates the file but not the folder, and a missing folder stops
+the API at startup with `SQLite Error 14: 'unable to open database file'`:
+
+```powershell
+New-Item -ItemType Directory -Force "$env:LOCALAPPDATA\Sommerhus"
+```
+
+The first start then creates the file, applies every migration and seeds the demo data
+(see [Startup applies migrations](#startup-applies-migrations)).
 
 `AddSommerhusPersistence` expands environment variables in the connection string, which is why
 `appsettings.Development.json` can name a machine-independent location rather than an absolute
-path with a user name in it. To work against an isolated database instead:
+path with a user name in it. To work against a different file instead:
 
 ```powershell
 $env:ConnectionStrings__Default = "Data Source=sommerhus.db"
@@ -83,11 +88,11 @@ Use DB Browser for SQLite, applies the write-ahead log automatically.
 
 Two things bite people here:
 
-- **The file is in WAL mode.** Recent changes live in `applatos.db-wal` until a checkpoint, and
+- **The file is in WAL mode.** Recent changes live in `sommerhus.db-wal` until a checkpoint, and
   the main file's timestamp does not move. For a filesystem backup, stop every process using
   the database, then copy its directory including any remaining `-wal` and `-shm` files.
   Copying those files separately while writes continue is not a consistent backup.
-- **A viewer with *unsaved changes* blocks both applications.** DB Browser keeps a write transaction open until you press *Write Changes*, and while it does, logging in fails with
+- **A viewer with *unsaved changes* blocks the API.** DB Browser keeps a write transaction open until you press *Write Changes*, and while it does, logging in fails with
   `SQLite Error 5: 'database is locked'`, login writes, because Identity updates the user. Press Write Changes, or close it. A viewer that is only *reading* is fine and blocks nothing: WAL mode lets readers and writers run at the same time.
 
 ### Startup applies migrations
@@ -105,12 +110,10 @@ Two things bite people here:
    and a price calendar), reusing the seeded cities. It skips demo creation if the `Features`
    table is non-empty. The city reference data is independent of that check.
 
-Two consequences worth knowing, because the database is shared:
+Two consequences worth knowing:
 
 - **Starting the API can change the schema.** If you check out a branch with a new migration and
-  run it against the shared file, that migration is applied. Sommerhus owns the schema so this is
-  correct by design, but the Applatos model is bound to specific columns — a migration that
-  renames or drops one breaks it, and Applatos will say so at startup rather than silently.
+  start the API, that migration is applied to your local file.
 - Running in `Production` seeds the cities and configured admin, but skips demo houses,
   features and accounts. An existing installation with missing cities is repaired at startup.
 
@@ -136,7 +139,7 @@ dotnet ef database update      --project Sommerhus.Core --startup-project Sommer
 dotnet test Sommerhus.Api.Tests
 ```
 
-They build their own seeded database per run and do not touch the shared file.
+They build their own seeded database per run and do not touch your local development database.
 
 ## Deploying
 
